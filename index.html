@@ -166,6 +166,54 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:30px;}
   }
   .print-logo img{width:100%;height:auto;max-height:18mm;object-fit:contain;display:block;}
 }
+/* ---------- страница «Дедлайны» ---------- */
+.dl-page{--dl-ok:#16a34a;--dl-warn:#d97706;--dl-danger:#e0485c;}
+.dl-overview{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:20px 22px;margin:4px 0 22px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 13%,var(--card)) 0%,var(--card) 65%);}
+.dl-stat{display:flex;flex-direction:column;gap:4px;min-width:150px;}
+.dl-stat-label{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.dl-stat strong{font-size:2.3rem;line-height:1;font-weight:800;color:var(--text);}
+.dl-stat strong small{font-size:.95rem;font-weight:500;color:var(--muted);}
+.dl-late-chip{align-self:flex-start;margin-top:6px;padding:2px 10px;border-radius:999px;font-size:.72rem;font-weight:700;color:var(--dl-danger);background:color-mix(in srgb,var(--dl-danger) 13%,var(--card));}
+.dl-progress{flex:1;min-width:200px;}
+.dl-progress-meta{display:flex;justify-content:space-between;font-size:.8rem;font-weight:600;margin-bottom:8px;}
+.dl-progress-bar{height:9px;border-radius:999px;background:var(--border);overflow:hidden;}
+.dl-progress-bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .45s ease;}
+.dl-progress p{margin:10px 0 0;font-size:.78rem;color:var(--muted);}
+.dl-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));align-items:stretch;}
+.dl-card{--tone:var(--accent);position:relative;display:flex;flex-direction:column;gap:10px;padding:18px 18px 16px 22px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:default;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
+.dl-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--tone);}
+.dl-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(30,30,60,.10);border-color:color-mix(in srgb,var(--tone) 45%,var(--border));}
+.dl-card[data-state="ok"]{--tone:var(--dl-ok);}
+.dl-card[data-state="soon"]{--tone:var(--dl-warn);}
+.dl-card[data-state="urgent"],.dl-card[data-state="late"]{--tone:var(--dl-danger);}
+.dl-card[data-state="done"]{--tone:var(--muted);}
+.dl-card[data-state="done"] .dl-title{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px;}
+.dl-card[data-state="done"]>:not(.dl-top):not(.dl-done){opacity:.6;}
+.dl-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.dl-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:999px;font-size:.74rem;font-weight:700;color:var(--tone);background:color-mix(in srgb,var(--tone) 14%,var(--card));}
+.dl-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;}
+.dl-card[data-state="urgent"] .dl-pill::before{animation:dl-pulse 1.4s ease-in-out infinite;}
+@keyframes dl-pulse{50%{opacity:.25;}}
+.dl-title{margin:2px 0 0;font-size:1.12rem;line-height:1.3;word-break:break-word;}
+.dl-date{font-size:.86rem;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;}
+.dl-note{font-size:.8rem;color:var(--muted);margin-top:-4px;}
+.dl-queue-block{margin-top:4px;padding-top:12px;border-top:1px dashed var(--border);flex:1;}
+.dl-queue-head{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.dl-count{text-transform:none;letter-spacing:0;padding:1px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--border);font-weight:600;}
+.dl-queue{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:172px;overflow-y:auto;}
+.dl-queue li{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 6px;border-radius:10px;background:var(--bg);font-size:.85rem;}
+.dl-queue a{color:var(--text);text-decoration:none;min-width:0;word-break:break-word;}
+.dl-queue a:hover{color:var(--accent);}
+.dl-pos{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font-size:.7rem;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--card));}
+.dl-empty{margin:0;font-size:.82rem;color:var(--muted);}
+.dl-join{display:flex;gap:8px;flex-wrap:wrap;}
+.dl-input{flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:.85rem;}
+.dl-input:focus{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:1px;border-color:var(--accent);}
+.dl-join .btn2{white-space:nowrap;}
+.dl-done{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted);cursor:pointer;user-select:none;}
+.dl-done input{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;}
+.deadline-row.is-late .deadline-status{color:#e0485c;font-weight:700;}
+@media (prefers-reduced-motion:reduce){.dl-card,.dl-progress-bar span{transition:none;}.dl-pill::before{animation:none !important;}}
 </style>
 <link rel="stylesheet" href="./site.css">
 <link rel="stylesheet" href="./css/schedule.css">
@@ -1159,12 +1207,32 @@ function renderHwDeadlinesPage(){
 
 /* ---------- страница «Дедлайны» (встроена из отдельного раздела) ---------- */
 const DEADLINES_QUEUE_LABEL='queue-signup';
+const DAY_MS=86400000;
+function dayStart(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+// Единая логика статуса: сравниваем календарные дни, а не «округлённые сутки».
+function deadlineInfo(iso){
+  const due=new Date(iso), now=new Date(), diff=due-now;
+  const days=Math.round((dayStart(due)-dayStart(now))/DAY_MS);
+  if(diff<=0){
+    const ago=-days;
+    return {state:'late',label:'Просрочен',short:ago>0?ago+' дн. назад':'сегодня'};
+  }
+  const label=days===0?'Сегодня':days===1?'Завтра':'Через '+days+' дн.';
+  const h=diff/3600000;
+  return {state:h<24?'urgent':h<72?'soon':'ok',label};
+}
+function validDeadlines(items){
+  return (Array.isArray(items)?items:[]).filter(x=>x&&x.id&&x.name&&Number.isFinite(new Date(x.deadline).getTime()));
+}
+// Порядок: ближайшие впереди → затем просроченные (свежие выше) → затем выполненные.
+function orderDeadlines(items){
+  const now=Date.now(), t=x=>new Date(x.deadline).getTime();
+  const rank=x=>plan.done['deadline:'+x.id]?2:t(x)<=now?1:0;
+  return validDeadlines(items).sort((a,b)=>rank(a)-rank(b)||(rank(a)===1?t(b)-t(a):t(a)-t(b)));
+}
 function deadlineBadge(iso){
-  const diff=new Date(iso)-new Date(), h=diff/3600000;
-  if(diff<=0)return '<span class="badge danger">дедлайн прошёл</span>';
-  if(h<24)return '<span class="badge danger">меньше суток</span>';
-  if(h<72)return `<span class="badge warn">через ${Math.ceil(h/24)} дн.</span>`;
-  return `<span class="badge ok">через ${Math.ceil(h/24)} дн.</span>`;
+  const info=deadlineInfo(iso);
+  return `<span class="badge ${info.state}">${info.label}</span>`;
 }
 function fmtDeadlineFull(iso){return new Date(iso).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 function deadlineJoinUrl(subjectId,name){
@@ -1190,18 +1258,32 @@ let deadlinesFullCache=null, deadlinesQueueCache={}, deadlinesQueueError=false;
 function renderDeadlinesGrid(){
   const box=document.getElementById('deadlines-content');
   if(!box||!deadlinesFullCache)return;
-  const subs=[...deadlinesFullCache].filter(x=>x&&x.id&&x.name&&Number.isFinite(new Date(x.deadline).getTime())).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
+  // не теряем недописанные имена при перерисовке
+  const drafts={};
+  box.querySelectorAll('.dl-input').forEach(inp=>{if(inp.value)drafts[inp.dataset.sub]=inp.value;});
+  const subs=orderDeadlines(deadlinesFullCache);
   if(subs.length===0){box.innerHTML='<p class="state">Дедлайнов пока нет.</p>';return;}
-  const complete=subs.filter(sub=>plan.done['deadline:'+sub.id]).length;
-  let html=`<div class="overview"><div><span class="overview-label">В фокусе</span><strong>${subs.length-complete} <small>из ${subs.length} сроков</small></strong></div><p>Отметки выполнения видны только вам. Очередь общая для группы.</p></div><div class="grid">`;
-  subs.forEach((sub,i)=>{
-    const q=deadlinesQueueCache[sub.id]||[], done=Boolean(plan.done['deadline:'+sub.id]);
-    html+=`<article class="card${done?' is-done':''}"><div class="card-top"><span class="card-index">${String(i+1).padStart(2,'0')}</span>${deadlineBadge(sub.deadline)}</div><h3>${esc(sub.name)}</h3><div class="note">до ${fmtDeadlineFull(sub.deadline)}${sub.note?' · '+esc(sub.note):''}</div><div class="queue-head">Очередь <span>${deadlinesQueueError?'недоступна':q.length+' чел.'}</span></div><ol class="queue">${q.length===0?`<li class="empty">${deadlinesQueueError?'Не удалось загрузить очередь GitHub. Попробуйте обновить.':'Очередь пока пуста'}</li>`:q.map(item=>`<li><a href="${esc(item.url)}" target="_blank" rel="noopener" title="Открыть issue на GitHub">${esc(item.name)}</a></li>`).join('')}</ol><div class="joinrow"><input type="text" placeholder="Ваше имя" aria-label="Имя для очереди ${esc(sub.name)}" class="join-input" data-sub="${esc(sub.id)}"><button type="button" class="btn2 btn-primary join-btn" data-sub="${esc(sub.id)}">В очередь ↗</button></div><label class="done-control"><input type="checkbox" data-deadline-done="${esc(sub.id)}" ${done?'checked':''}> Выполнено для меня</label></article>`;
+  const isDone=s=>Boolean(plan.done['deadline:'+s.id]);
+  const total=subs.length, complete=subs.filter(isDone).length, pct=Math.round(complete/total*100);
+  const late=subs.filter(s=>!isDone(s)&&deadlineInfo(s.deadline).state==='late').length;
+  let html=`<div class="dl-overview"><div class="dl-stat"><span class="dl-stat-label">Осталось сдать</span><strong>${total-complete}<small> из ${total}</small></strong>${late?`<span class="dl-late-chip">просрочено: ${late}</span>`:''}</div><div class="dl-progress"><div class="dl-progress-meta"><span>Выполнено: ${complete}</span><span>${pct}%</span></div><div class="dl-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div><p>Отметки выполнения видны только вам. Очередь общая для группы.</p></div></div><div class="dl-grid">`;
+  subs.forEach(sub=>{
+    const q=deadlinesQueueCache[sub.id]||[], done=isDone(sub), info=deadlineInfo(sub.deadline);
+    const state=done?'done':info.state;
+    const pill=done?'Выполнено':(info.short?`${info.label} · ${info.short}`:info.label);
+    const queue=q.length===0
+      ?`<p class="dl-empty">${deadlinesQueueError?'Не удалось загрузить очередь GitHub. Попробуйте обновить.':'Очередь пока пуста'}</p>`
+      :`<ol class="dl-queue">${q.map((item,idx)=>`<li><span class="dl-pos">${idx+1}</span><a href="${esc(item.url)}" target="_blank" rel="noopener" title="Открыть issue на GitHub">${esc(item.name)}</a></li>`).join('')}</ol>`;
+    html+=`<article class="dl-card" data-state="${state}"><div class="dl-top"><span class="dl-pill">${esc(pill)}</span></div><h3 class="dl-title">${esc(sub.name)}</h3><div class="dl-date">до ${fmtDeadlineFull(sub.deadline)}</div>${sub.note?`<div class="dl-note">${esc(sub.note)}</div>`:''}<div class="dl-queue-block"><div class="dl-queue-head"><span>Очередь</span><span class="dl-count">${deadlinesQueueError?'недоступна':q.length+' чел.'}</span></div>${queue}</div><div class="dl-join"><input type="text" class="dl-input" placeholder="Ваше имя" aria-label="Имя для очереди ${esc(sub.name)}" data-sub="${esc(sub.id)}"><button type="button" class="btn2 btn-primary dl-join-btn" data-sub="${esc(sub.id)}">В очередь ↗</button></div><label class="dl-done"><input type="checkbox" data-deadline-done="${esc(sub.id)}" ${done?'checked':''}><span>Выполнено для меня</span></label></article>`;
   });
   html+='</div>';
   box.innerHTML=html;
-  box.querySelectorAll('.join-btn').forEach(btn=>btn.onclick=()=>{
-    const id=btn.dataset.sub, input=box.querySelector(`.join-input[data-sub="${CSS.escape(id)}"]`), name=(input.value||'').trim();
+  box.querySelectorAll('.dl-input').forEach(inp=>{
+    if(drafts[inp.dataset.sub])inp.value=drafts[inp.dataset.sub];
+    inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const b=box.querySelector(`.dl-join-btn[data-sub="${CSS.escape(inp.dataset.sub)}"]`);if(b)b.click();}};
+  });
+  box.querySelectorAll('.dl-join-btn').forEach(btn=>btn.onclick=()=>{
+    const id=btn.dataset.sub, input=box.querySelector(`.dl-input[data-sub="${CSS.escape(id)}"]`), name=(input.value||'').trim();
     if(!name){input.focus();return;}
     window.open(deadlineJoinUrl(id,name),'_blank');
     setTimeout(refreshDeadlinesPage,8000);
@@ -1228,7 +1310,7 @@ async function refreshDeadlinesPage(){
 }
 function renderDeadlinesPage(){
   const c=document.getElementById('content');
-  c.innerHTML=`<section class="deadlines-page"><div class="intro"><h1>Дедлайны</h1><p class="sub">Сроки сдачи и очередь группы М3102. Отмечайте выполненное — прогресс сохранится в этом браузере.</p></div><div class="viewbar"><button class="btn2" id="deadlines-refresh" type="button">↻ Обновить</button><a class="btn2" href="https://github.com/${OWNER}/${REPO}/edit/${BRANCH}/${encodePath('Дедлайны/deadlines.json')}" target="_blank" rel="noopener">Изменить сроки на GitHub ↗</a></div><div id="deadlines-content"><p class="state">Загрузка…</p></div></section>`;
+  c.innerHTML=`<section class="deadlines-page dl-page"><div class="intro"><h1>Дедлайны</h1><p class="sub">Сроки сдачи и очередь группы М3102. Отмечайте выполненное — прогресс сохранится в этом браузере.</p></div><div class="viewbar"><button class="btn2" id="deadlines-refresh" type="button">↻ Обновить</button><a class="btn2" href="https://github.com/${OWNER}/${REPO}/edit/${BRANCH}/${encodePath('Дедлайны/deadlines.json')}" target="_blank" rel="noopener">Изменить сроки на GitHub ↗</a></div><div id="deadlines-content"><p class="state">Загрузка…</p></div></section>`;
   document.getElementById('deadlines-refresh').onclick=refreshDeadlinesPage;
   refreshDeadlinesPage();
 }
@@ -1253,8 +1335,7 @@ let hideCompleted=false;
 function savePlan(){try{localStorage.setItem(PLAN_KEY,JSON.stringify(plan));}catch(e){/* Частный режим может запретить запись. */}}
 function deadlineDate(iso){return new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});}
 function deadlineStatus(iso){
-  const days=Math.ceil((new Date(iso)-new Date())/86400000);
-  return days<0?'Просрочен':days===0?'Сегодня':days===1?'Завтра':`Через ${days} дн.`;
+  return deadlineInfo(iso).label;
 }
 function homeSchedule(){
   const now=new Date(), schedule=getSchedule();
@@ -1271,10 +1352,13 @@ function renderPlan(){
 }
 function renderDeadlines(items){
   const box=document.getElementById('home-deadlines');if(!box)return;
-  const sorted=[...items].filter(x=>x&&x.id&&x.name&&Number.isFinite(new Date(x.deadline).getTime())).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-  const visible=sorted.filter(x=>!plan.done['deadline:'+x.id]).slice(0,3);
-  box.innerHTML=visible.length?visible.map(d=>`<label class="deadline-row"><input type="checkbox" data-deadline="${esc(d.id)}" aria-label="Отметить ${esc(d.name)} выполненным"><span class="deadline-day">${deadlineDate(d.deadline)}</span><span class="deadline-detail"><strong>${esc(d.name)}</strong><small>${esc(d.note||'Общий дедлайн')}</small></span><span class="deadline-status">${deadlineStatus(d.deadline)}</span></label>`).join(''):'<p class="empty-line">Все ближайшие дедлайны отмечены как выполненные.</p>';
-  const completed=sorted.filter(x=>plan.done['deadline:'+x.id]);
+  const isDone=x=>Boolean(plan.done['deadline:'+x.id]);
+  const visible=orderDeadlines(items).filter(x=>!isDone(x)).slice(0,3);
+  box.innerHTML=visible.length?visible.map(d=>{
+    const late=deadlineInfo(d.deadline).state==='late';
+    return `<label class="deadline-row${late?' is-late':''}"><input type="checkbox" data-deadline="${esc(d.id)}" aria-label="Отметить ${esc(d.name)} выполненным"><span class="deadline-day">${deadlineDate(d.deadline)}</span><span class="deadline-detail"><strong>${esc(d.name)}</strong><small>${esc(d.note||'Общий дедлайн')}</small></span><span class="deadline-status">${deadlineStatus(d.deadline)}</span></label>`;
+  }).join(''):'<p class="empty-line">Все ближайшие дедлайны отмечены как выполненные.</p>';
+  const completed=validDeadlines(items).filter(isDone).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
   const doneBox=document.getElementById('completed-deadlines');
   if(doneBox)doneBox.innerHTML=completed.length?`<details><summary>Выполненные дедлайны · ${completed.length}</summary>${completed.map(d=>`<label class="completed-row"><input type="checkbox" data-deadline="${esc(d.id)}" checked><span>${esc(d.name)}</span></label>`).join('')}</details>`:'';
 }
