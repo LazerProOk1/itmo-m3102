@@ -759,11 +759,19 @@ function pdfMeasureBaselineOffset(el){
 // html2canvas по умолчанию клонирует ВЕСЬ документ (и все страницы PDF в root) при каждом вызове.
 // ignoreElements оставляет в клоне только сам элемент, его предков и <head> со стилями.
 function pdfCapture(el,opts){
-  return html2canvas(el,Object.assign({
-    logging:false,
-    useCORS:true,
-    ignoreElements:n=>!(n.closest('head')||n.contains(el)||el.contains(n))
-  },opts||{}));
+  const o=Object.assign({logging:false,useCORS:true},opts||{});
+  // fullClone:true — обычный режим html2canvas (клонируется весь документ), без оптимизации
+  if(!o.fullClone)o.ignoreElements=n=>!(n.closest('head')||n.contains(el)||el.contains(n));
+  delete o.fullClone;
+  return html2canvas(el,o);
+}
+// true, если на canvas нет ни одного непрозрачного пикселя (захват «пустой»)
+function pdfCanvasBlank(c){
+  try{
+    const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+    for(let i=3;i<d.length;i+=4)if(d[i])return false;
+    return true;
+  }catch(e){return false;}
 }
 
 async function pdfRasterizeMath(container,onProgress){
@@ -794,12 +802,16 @@ async function pdfRasterizeMath(container,onProgress){
   refs.forEach(r=>{if(r&&r.parentNode)r.parentNode.removeChild(r);});
 
   // 2) растрируем
+  let fast=true;
   for(let i=0;i<targets.length;i++){
     const {el,display}=targets[i], {rect,offset}=metrics[i];
     if(rect.width<1||rect.height<1)continue;
     if(onProgress)onProgress(i+1,targets.length);
     try{
-      const canvas=await pdfCapture(el,{backgroundColor:null,scale:PDF_RENDER_SCALE*1.5});
+      const capScale=PDF_RENDER_SCALE*1.5;
+      let canvas=await pdfCapture(el,{backgroundColor:null,scale:capScale,fullClone:!fast});
+      if(fast&&pdfCanvasBlank(canvas)){fast=false;canvas=await pdfCapture(el,{backgroundColor:null,scale:capScale,fullClone:true});}
+      if(pdfCanvasBlank(canvas))continue; // не удалось отрисовать — оставляем формулу как есть, а не удаляем
       const img=document.createElement('img');
       img.src=canvas.toDataURL('image/png');
       img.alt='formula';
@@ -1122,6 +1134,7 @@ async function generateNotePdf(fileName){
     source.querySelectorAll('.code-copy').forEach(b=>b.remove());
     pdfDelistify(source);
     if(document.fonts && document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
+    source.style.visibility='visible';
     await pdfRasterizeMath(source,(i,n)=>{if(btn)btn.textContent=`Формулы ${i}/${n}…`;});
     if(btn)btn.textContent='Диаграммы…';
     await pdfSquarifyDiagrams(source,pageHpx);
