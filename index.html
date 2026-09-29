@@ -781,27 +781,22 @@ async function pdfRasterizeMath(container,onProgress){
   const inline=Array.from(container.querySelectorAll('.katex')).filter(el=>!el.closest('.katex-display'));
   const targets=displays.map(el=>({el,display:true})).concat(inline.map(el=>({el,display:false})));
 
-  // 1) все измерения одним пакетом: вставляем эталонные «H», затем читаем layout один раз
-  const refs=targets.map(t=>{
+  // 1) все измерения одним пакетом: вставляем нулевые «якоря» на базовой линии,
+  //    затем читаем layout один раз
+  const probes=targets.map(t=>{
     if(t.display||!t.el.parentNode)return null;
-    const ref=document.createTextNode('H');
-    t.el.parentNode.insertBefore(ref,t.el);
-    return ref;
+    const probe=document.createElement('span');
+    probe.style.cssText='display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
+    t.el.parentNode.insertBefore(probe,t.el);
+    return probe;
   });
-  const range=document.createRange();
   const metrics=targets.map((t,i)=>{
     const rect=t.el.getBoundingClientRect();
-    let offset=0;
-    if(refs[i]){
-      try{
-        range.selectNodeContents(refs[i]);
-        const r=range.getBoundingClientRect();
-        if(r.bottom&&rect.bottom)offset=rect.bottom-r.bottom;
-      }catch(e){ /* смещение считаем нулевым */ }
-    }
+    // расстояние от нижнего края формулы до базовой линии строки
+    const offset=probes[i]?rect.bottom-probes[i].getBoundingClientRect().bottom:0;
     return {rect,offset};
   });
-  refs.forEach(r=>{if(r&&r.parentNode)r.parentNode.removeChild(r);});
+  probes.forEach(p=>{if(p&&p.parentNode)p.parentNode.removeChild(p);});
 
   // 2) растрируем
   let fast=true;
