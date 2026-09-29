@@ -783,20 +783,28 @@ async function pdfRasterizeMath(container,onProgress){
 
   // 1) все измерения одним пакетом: вставляем нулевые «якоря» на базовой линии,
   //    затем читаем layout один раз
-  const probes=targets.map(t=>{
+  const wraps=targets.map(t=>{
     if(t.display||!t.el.parentNode)return null;
+    const wrap=document.createElement('span');
+    wrap.style.cssText='white-space:nowrap;';
     const probe=document.createElement('span');
     probe.style.cssText='display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
-    t.el.parentNode.insertBefore(probe,t.el);
-    return probe;
+    t.el.parentNode.insertBefore(wrap,t.el);
+    wrap.append(probe,t.el);
+    return {wrap,probe};
   });
   const metrics=targets.map((t,i)=>{
     const rect=t.el.getBoundingClientRect();
     // расстояние от нижнего края формулы до базовой линии строки
-    const offset=probes[i]?rect.bottom-probes[i].getBoundingClientRect().bottom:0;
+    const offset=wraps[i]?rect.bottom-wraps[i].probe.getBoundingClientRect().bottom:0;
     return {rect,offset};
   });
-  probes.forEach(p=>{if(p&&p.parentNode)p.parentNode.removeChild(p);});
+  // возвращаем формулы на место и убираем временные обёртки
+  wraps.forEach((w,i)=>{
+    if(!w)return;
+    w.wrap.parentNode.insertBefore(targets[i].el,w.wrap);
+    w.wrap.remove();
+  });
 
   // 2) растрируем
   let fast=true;
@@ -1122,7 +1130,7 @@ async function generateNotePdf(fileName){
     source.removeAttribute('id');
     // картинки с loading="lazy" в скрытом контейнере не грузятся — из-за этого pdfWaitForImages ждал таймаут
     source.querySelectorAll('img').forEach(img=>{img.loading='eager';});
-    source.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    source.querySelectorAll('[id]').forEach(el=>{ if(!el.closest('svg'))el.removeAttribute('id'); });
     source.style.cssText=`position:absolute;visibility:hidden;width:${PDF_PAGE_W_PX}px;box-sizing:border-box;`;
     // важно: подключаем клон к живому дереву документа (внутри root, уже
     // оформленного в светлой теме) ДО обработки диаграмм — иначе унаследованные
