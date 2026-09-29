@@ -619,7 +619,9 @@ function pdfSvgToSquareImage(svgEl){
       bg.setAttribute('width',String(w));bg.setAttribute('height',String(h));
       bg.setAttribute('fill','#ffffff');
       clone.insertBefore(bg,clone.firstChild);
-      const xml=new XMLSerializer().serializeToString(clone);
+      let xml=new XMLSerializer().serializeToString(clone);
+      const cs=getComputedStyle(svgEl);
+      xml=xml.replace(/var\((--[a-z0-9-]+)\)/gi,(_,name)=>cs.getPropertyValue(name).trim()||'#222222');
       const svg64=btoa(unescape(encodeURIComponent(xml)));
       const img=new Image();
       img.onload=()=>{
@@ -815,9 +817,10 @@ async function pdfRasterizeMath(container,onProgress){
       const img=document.createElement('img');
       img.src=canvas.toDataURL('image/png');
       img.alt='formula';
+      const wpx=canvas.width/capScale, hpx=canvas.height/capScale;
       img.style.cssText=display
-        ?`display:block;width:${rect.width}px;height:${rect.height}px;margin:.4em auto;`
-        :`display:inline-block;width:${rect.width}px;height:${rect.height}px;vertical-align:${-offset}px;`;
+        ?`display:block;width:${wpx}px;height:${hpx}px;max-width:100%;margin:.4em auto;`
+        :`display:inline-block;width:${wpx}px;height:${hpx}px;vertical-align:${-offset}px;`;
       if(el.parentNode)el.parentNode.replaceChild(img,el);
     }catch(e){ /* если конкретную формулу растрировать не вышло — оставляем как есть */ }
   }
