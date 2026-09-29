@@ -756,24 +756,58 @@ function pdfMeasureBaselineOffset(el){
 // диаграммы (см. pdfSquarifyDiagrams), формулы заранее растрируем в
 // картинку — html2canvas тогда просто копирует пиксели, без риска криво
 // уложить вложенную структуру KaTeX
-async function pdfRasterizeMath(container){
+// html2canvas по умолчанию клонирует ВЕСЬ документ (и все страницы PDF в root) при каждом вызове.
+// ignoreElements оставляет в клоне только сам элемент, его предков и <head> со стилями.
+function pdfCapture(el,opts){
+  return html2canvas(el,Object.assign({
+    logging:false,
+    useCORS:true,
+    ignoreElements:n=>!(n.closest('head')||n.contains(el)||el.contains(n))
+  },opts||{}));
+}
+
+async function pdfRasterizeMath(container,onProgress){
   const displays=Array.from(container.querySelectorAll('.katex-display'));
   const inline=Array.from(container.querySelectorAll('.katex')).filter(el=>!el.closest('.katex-display'));
   const targets=displays.map(el=>({el,display:true})).concat(inline.map(el=>({el,display:false})));
-  for(const {el,display} of targets){
+
+  // 1) все измерения одним пакетом: вставляем эталонные «H», затем читаем layout один раз
+  const refs=targets.map(t=>{
+    if(t.display||!t.el.parentNode)return null;
+    const ref=document.createTextNode('H');
+    t.el.parentNode.insertBefore(ref,t.el);
+    return ref;
+  });
+  const range=document.createRange();
+  const metrics=targets.map((t,i)=>{
+    const rect=t.el.getBoundingClientRect();
+    let offset=0;
+    if(refs[i]){
+      try{
+        range.selectNodeContents(refs[i]);
+        const r=range.getBoundingClientRect();
+        if(r.bottom&&rect.bottom)offset=rect.bottom-r.bottom;
+      }catch(e){ /* смещение считаем нулевым */ }
+    }
+    return {rect,offset};
+  });
+  refs.forEach(r=>{if(r&&r.parentNode)r.parentNode.removeChild(r);});
+
+  // 2) растрируем
+  for(let i=0;i<targets.length;i++){
+    const {el,display}=targets[i], {rect,offset}=metrics[i];
+    if(rect.width<1||rect.height<1)continue;
+    if(onProgress)onProgress(i+1,targets.length);
     try{
-      const rect=el.getBoundingClientRect();
-      if(rect.width<1||rect.height<1)continue;
-      const baselineOffset=display?0:pdfMeasureBaselineOffset(el);
-      const canvas=await html2canvas(el,{backgroundColor:null,scale:PDF_RENDER_SCALE*2,useCORS:true,logging:false});
+      const canvas=await pdfCapture(el,{backgroundColor:null,scale:PDF_RENDER_SCALE*1.5});
       const img=document.createElement('img');
       img.src=canvas.toDataURL('image/png');
       img.alt='formula';
       img.style.cssText=display
         ?`display:block;width:${rect.width}px;height:${rect.height}px;margin:.4em auto;`
-        :`display:inline-block;width:${rect.width}px;height:${rect.height}px;vertical-align:${-baselineOffset}px;`;
+        :`display:inline-block;width:${rect.width}px;height:${rect.height}px;vertical-align:${-offset}px;`;
       if(el.parentNode)el.parentNode.replaceChild(img,el);
-    }catch(e){ /* если конкретную формулу растрировать не вышло — оставляем её как есть */ }
+    }catch(e){ /* если конкретную формулу растрировать не вышло — оставляем как есть */ }
   }
 }
 
@@ -888,34 +922,36 @@ function pdfCreatePacker(root){
   }
 
   function placeInlineSplit(block,tag,maxPx){
+    // быстрый путь: абзац целиком помещается на текущую страницу
+    const whole=block.cloneNode(true);
+    pageBuf.appendChild(whole);
+    if(pageH()<=maxPx)return;
+    pageBuf.removeChild(whole);
+
     const atoms=pdfWordAtoms(block);
     let i=0;
     while(i<atoms.length){
-      let wrapper=document.createElement(tag);
+      const wrapper=document.createElement(tag);
       pdfCopyAttrs(block,wrapper);
       pageBuf.appendChild(wrapper);
-      let placed=0;
-      while(i+placed<atoms.length){
-        wrapper.appendChild(atoms[i+placed].cloneNode(true));
-        if(pageH()<=maxPx){placed++;continue;}
-        wrapper.removeChild(wrapper.lastChild);
-        break;
-      }
-      if(placed===0){
+      const fits=n=>{
+        wrapper.replaceChildren(...atoms.slice(i,i+n).map(a=>a.cloneNode(true)));
+        return pageH()<=maxPx;
+      };
+      // бинарный поиск: сколько «атомов» (слов) влезает на текущую страницу
+      let lo=0, hi=atoms.length-i;
+      if(fits(hi))lo=hi;
+      else while(lo<hi){const mid=(lo+hi+1)>>1;if(fits(mid))lo=mid;else hi=mid-1;}
+
+      if(lo===0){
         pageBuf.removeChild(wrapper);
-        if(isEmpty()){
-          // пустая страница, но даже одно слово не влезает — форсируем, чтобы не зациклиться
-          wrapper=document.createElement(tag);pdfCopyAttrs(block,wrapper);
-          wrapper.appendChild(atoms[i].cloneNode(true));
-          pageBuf.appendChild(wrapper);
-          i+=1;
-        }else{
-          startNewPage();
-          continue;
-        }
-      }else{
-        i+=placed;
+        if(!isEmpty()){startNewPage();continue;}
+        // пустая страница, но и одно слово не влезает — форсируем, чтобы не зациклиться
+        pageBuf.appendChild(wrapper);
+        lo=1;
       }
+      fits(lo);
+      i+=lo;
       if(i<atoms.length)startNewPage();
     }
   }
@@ -1074,6 +1110,8 @@ async function generateNotePdf(fileName){
 
     const source=bodyEl.cloneNode(true);
     source.removeAttribute('id');
+    // картинки с loading="lazy" в скрытом контейнере не грузятся — из-за этого pdfWaitForImages ждал таймаут
+    source.querySelectorAll('img').forEach(img=>{img.loading='eager';});
     source.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
     source.style.cssText=`position:absolute;visibility:hidden;width:${PDF_PAGE_W_PX}px;box-sizing:border-box;`;
     // важно: подключаем клон к живому дереву документа (внутри root, уже
@@ -1084,7 +1122,8 @@ async function generateNotePdf(fileName){
     source.querySelectorAll('.code-copy').forEach(b=>b.remove());
     pdfDelistify(source);
     if(document.fonts && document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
-    await pdfRasterizeMath(source);
+    await pdfRasterizeMath(source,(i,n)=>{if(btn)btn.textContent=`Формулы ${i}/${n}…`;});
+    if(btn)btn.textContent='Диаграммы…';
     await pdfSquarifyDiagrams(source,pageHpx);
     await pdfWaitForImages(source);
 
@@ -1099,7 +1138,7 @@ async function generateNotePdf(fileName){
     const maxContentPxAtScale=Math.round(pageHpx*PDF_RENDER_SCALE);
     for(let i=0;i<pages.length;i++){
       if(btn)btn.textContent=`Формирование PDF… ${i+1}/${pages.length}`;
-      let canvas=await html2canvas(pages[i],{backgroundColor:'#ffffff',scale:PDF_RENDER_SCALE,useCORS:true,logging:false});
+      let canvas=await pdfCapture(pages[i],{backgroundColor:'#ffffff',scale:PDF_RENDER_SCALE});
       // подстраховка: если контент всё же перелился за расчётный бюджет высоты
       // (например, неразбиваемый блок крупнее целой страницы), обрезаем
       // картинку по высоте, чтобы она физически не могла залезть на область
