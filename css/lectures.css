@@ -3,6 +3,7 @@
 
 /* ---------- раскладка ---------- */
 .note-layout{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:34px}
+.note-layout{margin-top:4px}
 .note-layout.no-side{grid-template-columns:minmax(0,1fr)}
 .note-main,.note-side-host{min-width:0}
 body.side-open{overflow:hidden}

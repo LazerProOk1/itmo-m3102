@@ -42,7 +42,9 @@ export function loadDisplayNames() {
     .then(map => { for (const [key, value] of Object.entries(map || {})) displayNames[nfc(key)] = value; return displayNames; });
   return namesPromise;
 }
-export const prettyName = (path, fallback) => displayNames[nfc(path)] || fallback;
+
+const unslug = value => String(value ?? '').replace(/_/g, ' ');
+export const prettyName = (path, fallback) => displayNames[nfc(path)] || unslug(fallback);
 
 /* Старые ссылки: data/old-paths.json { "старый/путь": "новый/путь" } */
 let movedPromise = null;
@@ -58,14 +60,15 @@ export function loadLectures() {
     fetch('./data/lectures.json', { cache: 'no-cache' }).then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }),
     loadDisplayNames(),
   ]).then(([index]) => {
-    const applyFolderName = item => { const shown = item.path && displayNames[nfc(item.path)]; if (shown) item.name = shown; };
+    const applyFolderName = item => { item.name = displayNames[nfc(item.path)] || unslug(item.name); };
     for (const subject of index.subjects || []) {
+      subject.path ||= `${index.root}/${subject.name}`;   // у предметов в lectures.json нет path
       applyFolderName(subject);
       for (const lecture of subject.lectures) {
         applyFolderName(lecture);
         for (const file of lecture.files) {
           const original = displayNames[nfc(file.path)];
-          if (original) file.name = /\.[^.]+$/.test(file.name) ? original : original.replace(/\.[^.]+$/, '');
+          file.name = original ? (/\.[^.]+$/.test(file.name) ? original : original.replace(/\.[^.]+$/, '')) : unslug(file.name);
         }
       }
       subject.lectures.sort(byLecture);

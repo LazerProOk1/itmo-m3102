@@ -1517,12 +1517,13 @@
         }
         const list=Array.from(seen.entries()).map(([path,date])=>({path,date})).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,RECENT_NOTES_LIMIT);
         if(list.length===0){box.innerHTML='<p class="state" style="padding:8px 0;">Пока нет добавленных конспектов.</p>';return;}
+        await loadDisplayNames();
         box.innerHTML=list.map(item=>{
           const parts=item.path.split('/');
-          const name=parts[parts.length-1].replace(/\.md$/i,'');
+          const name=stripExt(prettyName(item.path,parts[parts.length-1])).trim();
           let subject='Прочее';
-          if(parts[0]==='Конспекты'&&parts.length>=2)subject=parts[1];
-          else if(parts.length>=2)subject=parts[parts.length-2];
+          if(parts[0]==='Конспекты'&&parts.length>=2)subject=prettyName(parts.slice(0,2).join('/'),parts[1]);
+          else if(parts.length>=2)subject=prettyName(parts.slice(0,-1).join('/'),parts[parts.length-2]);
           const dateStr=new Date(item.date).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit'});
           return`<a class="recent-item" data-note="${esc(item.path)}"><div class="recent-name">${esc(name)}</div><div class="recent-meta">${esc(subject)} · ${dateStr}</div></a>`;
         }).join('');
