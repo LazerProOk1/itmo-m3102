@@ -221,11 +221,12 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:30px;}
 <link rel="stylesheet" href="./css/diagrams.css">
 <link rel="stylesheet" href="./css/memes.css">
 <link rel="stylesheet" href="./css/deadlines.css">
+<link rel="stylesheet" href="./css/lectures.css">
 </head>
 <body>
 <div class="wrap">
   <header>
-    <a class="brand" id="home-link" href="./" aria-label="М3102 — главная"><img class="brand-logo" src="img/logo-t.png" alt="М3102"><span class="brand-divider"></span><span class="brand-caption">ИТМО<br>учебное пространство</span></a>
+    <div class="brand-wrap"><a class="brand" id="home-link" href="./" aria-label="М3102 — главная"><img class="brand-logo" src="img/logo-t.png" alt="М3102"></a><span class="brand-divider"></span><div class="site-search" id="site-search"></div></div>
     <nav class="tabs" aria-label="Основная навигация">
       <a class="tab" id="tab-home" href="./">Главная</a>
       <a class="tab" id="tab-materials" href="#/materials">Материалы</a>
@@ -257,6 +258,7 @@ import { installHomework, renderHomeHomework, renderHomeworkPage } from './js/ho
 import { hasDiagram, codeFigure } from './js/diagrams/index.js';
 import { bindNoteDiagrams, installDiagramEditor, renderDiagramEditor } from './js/diagrams/editor.js';
 import { installMemes, renderMemesPage } from './js/memes.js';
+import { mountSidebar, mountSiteSearch, stripFrontMatter } from './js/lectures.js';
 const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
 const SUBTITLES={
   'Записи лекций':'Аудиозаписи лекций',
@@ -1597,8 +1599,9 @@ async function renderBrowse(path){
 function renderPdfView(path){
   const name=path.split('/').pop();
   const c=document.getElementById('content');
-  c.innerHTML=viewBar('PDF',name,path)+'<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div>';
+  c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
   bindBack(path);
+  mountSidebar(document.getElementById('note-side'),path,{toc:false});
   if(!window.__pdfWorkerSet){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';window.__pdfWorkerSet=true;}
   pdfjsLib.getDocument(rawUrl(path)).promise.then(pdf=>{
     const status=document.getElementById('pdf-status');if(status)status.remove();
@@ -1624,17 +1627,17 @@ function renderPdfView(path){
 function renderNoteView(path){
   const name=path.split('/').pop();
   const c=document.getElementById('content');
-  c.innerHTML=viewBar('MD',name,path,'<button class="btn2" id="note-print-btn" type="button">📄 Скачать PDF</button>')+'<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div>';
+  c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,'<button class="btn2" id="note-print-btn" type="button">📄 Скачать PDF</button>')}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
   bindBack(path);
-  document.getElementById('note-print-btn').onclick=()=>{
-    generateNotePdf(name);
-  };
+  const side=mountSidebar(document.getElementById('note-side'),path,{toc:true});
+  document.getElementById('note-print-btn').onclick=()=>{generateNotePdf(name);};
   fetch(rawUrl(path)).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(text=>{
       const s=document.getElementById('note-status');if(s)s.remove();
       const body=document.getElementById('note-body');
-      body.innerHTML=renderNotes(text,path);
+      body.innerHTML=renderNotes(stripFrontMatter(text),path);
       runNoteExtras(body);
+      side.setBody(body);
     })
     .catch(err=>{const s=document.getElementById('note-status');if(s)s.textContent='Не удалось загрузить файл ('+err.message+').';});
 }
@@ -1660,6 +1663,7 @@ installScheduleEditor();
 installHomework();
 installDiagramEditor();
 installMemes();
+mountSiteSearch(document.getElementById('site-search'));
 route();
 </script>
 </body>
