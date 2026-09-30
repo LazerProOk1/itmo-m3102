@@ -1,5 +1,6 @@
 import { base64Utf8, getToken, readRepoFileOptional, saveToken, utf8Base64, writeRepoFileBase64 } from '../github.js';
 import { codeFigure, diagramLanguages, parseDiagram, renderDiagram } from './index.js';
+import { frameSvg, mountArrayPlayers } from './array-player.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const draftKey = 'm3102-diagram-draft-v1';
@@ -9,11 +10,12 @@ const examples = {
   plot: 'plot\nx: -5..5 y: -3..3 grid\ny = sin(x) {color: blue, label: "sin x"}\ny = x^2/4 - 1\npoint (1, 2) "A"',
   chart: 'chart bar\ntitle: Баллы по КР\nДискретка: 78\nАлгебра: 91',
   tree: 'tree\nA\n  B\n  C',
-  array: 'array\n[5, 2, 9, 1, 7] i=1 j=3 highlight: 2,3 sorted: 0',
+  array: 'array\n[5, 2, 9, 1, 7]\npointers: i, j\ncode:\nfor (let i = 0; i < a.length - 1; i++) {\n  for (let j = 0; j < a.length - 1 - i; j++) {\n    if (a[j] > a[j + 1]) {\n      let tmp = a[j];\n      a[j] = a[j + 1];\n      a[j + 1] = tmp;\n    }\n  }\n  done(a.length - 1 - i);\n}',
   diagram: 'diagram\nA: round "Вход"\nB: diamond "Условие"\nC: box "Действие"\nA -> B\nB -> C',
   canvas: 'canvas 400x200\nrect 20 20 120 60 "Вход" fill=#eef\narrow 140 50 -> 220 50\ncircle 260 50 r=30 "q0"\ntext 20 150 "Подпись"',
 };
 const labels = { graph: 'Граф', plot: 'График', chart: 'Диаграмма данных', tree: 'Дерево', array: 'Массив', diagram: 'Блок-схема', canvas: 'Холст' };
+const arrayHelp = '<p>Всё после строки <code>code:</code> выполняется по шагам. Можно: let/const/int, for/while/if, функции, a[i], a.length, <code>swap(a, i, j)</code> или <code>swap(a[i], a[j])</code>, <code>[a[i], a[j]] = [a[j], a[i]]</code>, <code>done(i)</code> / <code>done(от, до)</code> — пометить готовые ячейки, <code>say("текст")</code> — свой комментарий к шагу, Math.floor и т. п.</p><p>Строки перед <code>code:</code>: <code>[значения]</code> — начальный массив; <code>pointers: i, j, lo, hi</code> — какие переменные рисовать стрелками (по умолчанию i, j, k); <code>watch: имя</code> — если массив называется не a; <code>print: first|last|N</code> — какой шаг попадёт в PDF (по умолчанию первый); <code>hidecode</code> — скрыть код. Без <code>code:</code> массив рисуется как раньше: <code>[5, 2, 9] i=1 j=2 highlight: 1 sorted: 0</code>.</p>';
 const graphId = /^[\p{L}\p{N}_-]+$/u;
 export function importGraphText(raw, format = 'edges') {
   const lines = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean), edges = [];
@@ -52,7 +54,10 @@ function draw() {
   let errorLine = 0;
   try {
     const result = renderDiagram(language, source); lastSvg = result.svg;
-    preview.innerHTML = `<div class="diagram-image">${result.svg}</div>`;
+    // Массив с кодом показываем живым плеером (его монтирует array-player.js); статичный SVG остаётся для экспорта и печати
+    const live = Boolean(result.model.steps && result.model.steps.length > 1), step = preview.querySelector('.dgm-array-live')?._arrayPlayer?.step || 0;
+    preview.innerHTML = live ? `<div class="diagram-image"><figure class="dgm-array-live" data-dgm-lang="array" data-dgm-src="${esc(source)}" data-start-step="${step}"><div class="dgm-art"><div class="arr-live"></div>${result.svg.replace(/^<svg /, '<svg class="dgm-print" ')}</div></figure></div>` : `<div class="diagram-image">${result.svg}</div>`;
+    if (live) mountArrayPlayers(preview);
     error.textContent = '';
     applyTransform();
     renderInspector(result.model);
@@ -105,7 +110,7 @@ function updateStructuredField(target) {
     const matches = lines.map((line, i) => /^(?!title:|caption:|series:|width:|height:).+[:|]/.test(line) ? i : -1).filter(i => i >= 0), at = matches[Number(target.dataset.chartRow)];
     if (at !== undefined) lines[at] = target.value.trim();
   } else if (target.dataset.arrayCell !== undefined) {
-    const at = lines.findIndex(line => /\[[^\]]*\]/.test(line));
+    const codeAt = lines.findIndex(line => /^\s*code\s*:/i.test(line)), at = lines.slice(0, codeAt < 0 ? lines.length : codeAt).findIndex(line => /\[[^\]]*\]/.test(line));
     if (at >= 0) { const values = parseDiagram('array', source).values; values[Number(target.dataset.arrayCell)] = target.value.trim(); lines[at] = lines[at].replace(/\[[^\]]*\]/, `[${values.join(', ')}]`); }
   } else if (target.dataset.treeNode !== undefined) {
     const matches = lines.map((line, i) => line.trim() && !/^(tree|title:|caption:|width:|height:|#|\/\/)/.test(line.trim()) ? i : -1).filter(i => i >= 0), at = matches[Number(target.dataset.treeNode)];
@@ -141,7 +146,7 @@ function applyEdgeInspector() {
 }
 function applyTransform() { const image = editor()?.querySelector('.diagram-image'); if (image) image.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`; }
 function encodedShare() { return utf8Base64(source).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, ''); }
-function currentSvgElement() { return editor()?.querySelector('#diagram-preview svg'); }
+function currentSvgElement() { const live = editor()?.querySelector('#diagram-preview .dgm-array-live'); return live ? frameSvg(live) : editor()?.querySelector('#diagram-preview svg'); }
 function resolvedSvg(element) {
   const clone = element.cloneNode(true), box = clone.viewBox.baseVal;
   clone.setAttribute('width', String(box.width || 640)); clone.setAttribute('height', String(box.height || 360));
@@ -227,7 +232,7 @@ function addByType(type) {
   if (type === 'plot') { const expression = prompt('Введите y = f(x):', 'x^2'); if (expression) setSource(`${source.trim()}\ny = ${expression}`); return; }
   if (type === 'chart') { const row = prompt('Введите «Название: число»:', 'Новый предмет: 50'); if (row) setSource(`${source.trim()}\n${row}`); return; }
   if (type === 'tree') { const label = prompt('Подпись узла:', 'Новый'); if (label) setSource(`${source.trim()}\n  ${label}`); return; }
-  if (type === 'array') { const value = prompt('Значение элемента:', '0'); if (value == null) return; setSource(source.replace(/\[([^\]]*)\]/, (_, items) => `[${items.trim() ? items + ', ' : ''}${value}]`)); return; }
+  if (type === 'array') { const value = prompt('Значение элемента:', '0'); if (value == null) return; const codeAt = source.search(/^\s*code\s*:/im), head = codeAt < 0 ? source : source.slice(0, codeAt); setSource(head.replace(/\[([^\]]*)\]/, (_, items) => `[${items.trim() ? items + ', ' : ''}${value}]`) + (codeAt < 0 ? '' : source.slice(codeAt))); return; }
   if (type === 'canvas') { tool = 'add'; }
 }
 async function saveToRepo(form) {
@@ -257,7 +262,7 @@ export function renderDiagramEditor() {
   try { const query = new URLSearchParams(location.hash.split('?')[1] || ''); if (query.has('src')) fromLink = { language: query.get('lang'), source: base64Utf8(query.get('src').replace(/-/g, '+').replace(/_/g, '/')) }; } catch { /* Неизвестная ссылка. */ }
   try { const saved = JSON.parse(localStorage.getItem(draftKey) || 'null'); if (saved && diagramLanguages().includes(saved.language)) { language = saved.language; source = saved.source; } } catch {}
   if (fromLink && diagramLanguages().includes(fromLink.language) && fromLink.source.length < 12000) { language = fromLink.language; source = fromLink.source; }
-  document.querySelector('#content').innerHTML = `<section class="diagram-page" id="diagram-editor"><div class="intro diagram-intro"><span class="sched-eyebrow">ВИЗУАЛЬНАЯ ЛАБОРАТОРИЯ · М3102</span><h1>Диаграммы</h1><p class="sub">Соберите граф, функцию или схему и вставьте её в конспект.</p></div><div class="diagram-toolbar"><label>Тип <select id="diagram-language">${diagramLanguages().map(lang => `<option value="${lang}" ${language === lang ? 'selected' : ''}>${labels[lang]}</option>`).join('')}</select></label><div class="diagram-template-picker">${diagramLanguages().map(lang => `<button type="button" data-diagram-template="${lang}">${labels[lang]}</button>`).join('')}</div></div><div class="diagram-tools"><button class="btn2" data-diagram-tool="select" aria-pressed="true">Выбрать</button><button class="btn2" data-diagram-add>＋ Добавить</button><button class="btn2" data-diagram-tool="edge">Соединить</button>${language === 'graph' ? '<button class="btn2" data-diagram-import>Импорт</button>' : ''}${language === 'plot' ? '<button class="btn2" data-diagram-tool="add">Точка</button>' : ''}<button class="btn2" data-diagram-delete>Удалить</button><button class="btn2" data-diagram-layout>Авто-раскладка</button><button class="btn2" data-diagram-undo>↶ Отменить</button><button class="btn2" data-diagram-redo>↷ Повторить</button><button class="btn2" data-diagram-zoom="in">＋</button><button class="btn2" data-diagram-zoom="out">−</button><button class="btn2" data-diagram-zoom="reset">100%</button></div><div class="diagram-workspace"><section class="diagram-canvas"><div class="diagram-panel-head"><span>Визуальный холст</span><span id="diagram-tool-label">Перетащите вершину или выберите инструмент</span></div><div id="diagram-preview" class="diagram-preview"></div><div id="diagram-inspector" class="diagram-inspector"></div></section><section class="diagram-source"><div class="diagram-panel-head"><span>Исходный текст</span><button data-diagram-copy-md>Копировать Markdown</button></div><div class="diagram-source-wrap"><pre id="diagram-lines" aria-hidden="true"></pre><textarea id="diagram-source" spellcheck="false" aria-label="Текст диаграммы">${esc(source)}</textarea></div><p id="diagram-error" class="diagram-error" role="alert"></p></section></div><div class="diagram-tools"><button class="btn2" data-diagram-copy-svg>Копировать SVG</button><button class="btn2" data-diagram-export="svg">Скачать SVG</button><button class="btn2" data-diagram-export="png">Скачать PNG</button><button class="btn2" data-diagram-share>Скопировать ссылку</button><button class="btn2 btn-primary" data-diagram-save>Сохранить в репозиторий</button></div><div class="diagram-help"><details><summary>Синтаксис и примеры</summary><p>В начале укажите тип: graph, plot, chart, tree, array, diagram или canvas. Поддержаны title: и caption:.</p><pre>${esc(examples[language])}</pre></details><p>Черновик хранится в браузере. На холсте: колесо — масштаб, пробел и перетаскивание — панорама, перетаскивание вершины — позиция, Ctrl/⌘+Z — отмена.</p></div></section>`;
+  document.querySelector('#content').innerHTML = `<section class="diagram-page" id="diagram-editor"><div class="intro diagram-intro"><span class="sched-eyebrow">ВИЗУАЛЬНАЯ ЛАБОРАТОРИЯ · М3102</span><h1>Диаграммы</h1><p class="sub">Соберите граф, функцию или схему и вставьте её в конспект.</p></div><div class="diagram-toolbar"><label>Тип <select id="diagram-language">${diagramLanguages().map(lang => `<option value="${lang}" ${language === lang ? 'selected' : ''}>${labels[lang]}</option>`).join('')}</select></label><div class="diagram-template-picker">${diagramLanguages().map(lang => `<button type="button" data-diagram-template="${lang}">${labels[lang]}</button>`).join('')}</div></div><div class="diagram-tools"><button class="btn2" data-diagram-tool="select" aria-pressed="true">Выбрать</button><button class="btn2" data-diagram-add>＋ Добавить</button><button class="btn2" data-diagram-tool="edge">Соединить</button>${language === 'graph' ? '<button class="btn2" data-diagram-import>Импорт</button>' : ''}${language === 'plot' ? '<button class="btn2" data-diagram-tool="add">Точка</button>' : ''}<button class="btn2" data-diagram-delete>Удалить</button><button class="btn2" data-diagram-layout>Авто-раскладка</button><button class="btn2" data-diagram-undo>↶ Отменить</button><button class="btn2" data-diagram-redo>↷ Повторить</button><button class="btn2" data-diagram-zoom="in">＋</button><button class="btn2" data-diagram-zoom="out">−</button><button class="btn2" data-diagram-zoom="reset">100%</button></div><div class="diagram-workspace"><section class="diagram-canvas"><div class="diagram-panel-head"><span>Визуальный холст</span><span id="diagram-tool-label">Перетащите вершину или выберите инструмент</span></div><div id="diagram-preview" class="diagram-preview"></div><div id="diagram-inspector" class="diagram-inspector"></div></section><section class="diagram-source"><div class="diagram-panel-head"><span>Исходный текст</span><button data-diagram-copy-md>Копировать Markdown</button></div><div class="diagram-source-wrap"><pre id="diagram-lines" aria-hidden="true"></pre><textarea id="diagram-source" spellcheck="false" aria-label="Текст диаграммы">${esc(source)}</textarea></div><p id="diagram-error" class="diagram-error" role="alert"></p></section></div><div class="diagram-tools"><button class="btn2" data-diagram-copy-svg>Копировать SVG</button><button class="btn2" data-diagram-export="svg">Скачать SVG</button><button class="btn2" data-diagram-export="png">Скачать PNG</button><button class="btn2" data-diagram-share>Скопировать ссылку</button><button class="btn2 btn-primary" data-diagram-save>Сохранить в репозиторий</button></div><div class="diagram-help"><details><summary>Синтаксис и примеры</summary><p>В начале укажите тип: graph, plot, chart, tree, array, diagram или canvas. Поддержаны title: и caption:.</p><pre>${esc(examples[language])}</pre>${language === 'array' ? arrayHelp : ''}</details><p>Черновик хранится в браузере. На холсте: колесо — масштаб, пробел и перетаскивание — панорама, перетаскивание вершины — позиция, Ctrl/⌘+Z — отмена.</p></div></section>`;
   draw();
 }
 export function installDiagramEditor() {
@@ -297,7 +302,7 @@ export function installDiagramEditor() {
     if ((event.key === 'Delete' || event.key === 'Backspace') && document.activeElement?.id !== 'diagram-source') deleteSelection();
   });
   document.addEventListener('keyup', event => { if (event.code === 'Space') space = false; });
-  document.addEventListener('wheel', event => { if (!event.target.closest('#diagram-preview')) return; event.preventDefault(); scale = Math.max(.35, Math.min(3, scale * (event.deltaY < 0 ? 1.1 : .9))); applyTransform(); }, { passive: false });
+  document.addEventListener('wheel', event => { if (!event.target.closest('#diagram-preview') || event.target.closest('.arr-live')) return; event.preventDefault(); scale = Math.max(.35, Math.min(3, scale * (event.deltaY < 0 ? 1.1 : .9))); applyTransform(); }, { passive: false });
   document.addEventListener('pointerdown', event => {
     if (!event.target.closest('#diagram-preview svg')) return;
     const node = event.target.closest('[data-dgm-node]');
@@ -320,12 +325,13 @@ export function installDiagramEditor() {
 }
 
 export function bindNoteDiagrams(container) {
+  mountArrayPlayers(container);
   container.addEventListener('click', async event => {
     const figure = event.target.closest('.dgm'); if (!figure) return;
-    const image = figure.querySelector('svg'); if (!image) return;
+    const live = figure.classList.contains('dgm-array-live'), image = live ? frameSvg(figure) : figure.querySelector('svg'); if (!image) return;
     if (event.target.closest('[data-dgm-copy]')) return navigator.clipboard.writeText(resolvedSvg(image));
     const save = event.target.closest('[data-dgm-save]'); if (save) return exportImage(save.dataset.dgmSave, image);
     if (event.target.closest('[data-dgm-edit]')) { const src = utf8Base64(figure.dataset.dgmSrc).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, ''); location.hash = `#/diagrams?lang=${figure.dataset.dgmLang}&src=${src}`; return; }
-    if (event.target.closest('.dgm-art')) { const box = document.createElement('div'); box.className = 'img-lightbox'; box.append(image.cloneNode(true)); box.onclick = () => box.remove(); document.body.append(box); }
+    if (!live && event.target.closest('.dgm-art')) { const box = document.createElement('div'); box.className = 'img-lightbox'; box.append(image.cloneNode(true)); box.onclick = () => box.remove(); document.body.append(box); }
   });
 }

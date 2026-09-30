@@ -1,4 +1,5 @@
 import { parseExpression } from './expression.js';
+import { runArrayProgram } from './array-code.js';
 
 const registry = new Map();
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -134,7 +135,11 @@ export function renderDiagram(lang, text) { const model = parseDiagram(lang, tex
 export function codeFigure(lang, text) {
   try {
     const { model, svg: image } = renderDiagram(lang, text);
-    return `<figure class="dgm" data-dgm-lang="${escape(lang)}" data-dgm-src="${escape(text)}"><div class="dgm-art">${image}</div>${model.caption ? `<figcaption>${escape(model.caption)}</figcaption>` : ''}<div class="dgm-actions"><button type="button" data-dgm-copy>Копировать SVG</button><button type="button" data-dgm-save="svg">SVG</button><button type="button" data-dgm-save="png">PNG</button><button type="button" data-dgm-edit>✎ Редактировать</button></div></figure>`;
+    // Массив с кодом: на странице показывается интерактивный плеер (его монтирует array-player.js),
+    // а статичный SVG остаётся для печати / PDF и как запасной вариант, если плеер не загрузился
+    const live = Boolean(model.steps && model.steps.length > 1);
+    const art = live ? `<div class="arr-live"></div>${image.replace(/^<svg /, '<svg class="dgm-print" ')}` : image;
+    return `<figure class="dgm${live ? ' dgm-array-live' : ''}" data-dgm-lang="${escape(lang)}" data-dgm-src="${escape(text)}"><div class="dgm-art">${art}</div>${model.caption ? `<figcaption>${escape(model.caption)}</figcaption>` : ''}<div class="dgm-actions"><button type="button" data-dgm-copy>Копировать SVG</button><button type="button" data-dgm-save="svg">SVG</button><button type="button" data-dgm-save="png">PNG</button><button type="button" data-dgm-edit>✎ Редактировать</button></div></figure>`;
   } catch (error) { return `<div class="mermaid-err" role="alert">${escape(error.message || String(error))}</div>`; }
 }
 
@@ -338,9 +343,22 @@ function drawChart(model) {
 }
 registerDiagram('chart', { parse: parseChart, render: drawChart, serialize: model => model.source });
 
+const identName = /^[A-Za-z_$][\w$]*$/;
+const numeric = value => { const text = String(value).trim(), quoted = /^(["'])(.*)\1$/.exec(text); return quoted ? quoted[2] : text !== '' && Number.isFinite(Number(text)) ? Number(text) : text; };
 function parseArray(text) {
-  const model = markup(text, (m, line, at) => {
+  // Всё после строки «code:» — программа, которая выполняется по шагам; до неё — обычная разметка массива
+  const lines = String(text).split(/\r?\n/), codeAt = lines.findIndex(line => /^\s*code\s*:/i.test(line));
+  const model = markup(codeAt < 0 ? text : lines.slice(0, codeAt).join('\n'), (m, line, at) => {
     if (/^array(?:\s+(linked|stack|queue))?$/.test(line)) { m.variant = line.split(/\s+/)[1] || 'array'; return; }
+    const option = /^(pointers|watch|print)\s*:\s*(.*)$/i.exec(line);
+    if (option) {
+      const key = option[1].toLowerCase(), value = option[2].trim();
+      if (key === 'pointers') { m.pointerNames = value.split(/[\s,]+/).filter(Boolean); if (m.pointerNames.length > 8 || m.pointerNames.some(name => !identName.test(name))) lineError(at, 'pointers: список имён переменных через запятую (не больше 8)'); }
+      else if (key === 'watch') { if (!identName.test(value)) lineError(at, 'watch: ожидалось имя переменной'); m.watch = value; }
+      else { if (!/^(first|last|\d+)$/i.test(value)) lineError(at, 'print: first, last или номер шага'); m.print = value.toLowerCase(); }
+      return;
+    }
+    if (/^hidecode$/i.test(line)) { m.hideCode = true; return; }
     const values = /^\[([^\]]*)\]/.exec(line);
     if (!values) lineError(at, 'ожидался массив [значения]');
     m.values = values[1].split(',').map(item => item.trim());
@@ -350,15 +368,35 @@ function parseArray(text) {
   });
   model.values ||= []; model.pointers ||= []; model.highlight ||= []; model.variant ||= 'array';
   if (model.values.length > 100) throw new Error('Массив слишком длинный');
+  model.source = String(text).trim();
+  if (codeAt >= 0) {
+    if (model.variant !== 'array') throw new Error('Код поддерживается только в обычном массиве (array)');
+    const rest = lines[codeAt].replace(/^\s*code\s*:\s*/i, ''), body = lines.slice(codeAt + 1);
+    const code = (rest ? [rest, ...body] : body).join('\n').replace(/\s+$/, ''), base = rest ? codeAt : codeAt + 1;
+    if (!code.trim()) throw new Error(`Строка ${codeAt + 1}: после «code:» ожидается программа`);
+    model.watch ||= 'a'; model.pointerNames ||= ['i', 'j', 'k'];
+    Object.assign(model, runArrayProgram(code, { base, watch: model.watch, pointers: model.pointerNames, initial: model.values.map(numeric) }));
+    const last = model.steps.length - 1;
+    model.printStep = model.print === 'last' ? last : /^\d+$/.test(model.print || '') ? Math.max(0, Math.min(last, Number(model.print) - 1)) : 0;
+  }
   return model;
 }
+// Кадр с номером step в виде обычной (статичной) модели массива — именно так массив рисовался раньше
+function arrayFrameModel(model, step) {
+  const s = model.steps[step];
+  return { ...model, steps: null, variant: 'array', values: s.vals, pointers: s.ptr.filter(p => p.idx >= 0 && p.idx < s.vals.length).map(p => ({ name: p.name, index: p.idx })), pointerStack: true, done: s.done, sorted: -1,
+    highlight: [...new Set([...(s.cmp || []), ...(s.write || []), ...(s.swap || []), ...(s.read || [])])] };
+}
+export function renderArrayFrame(model, step) { return drawArray(model.steps ? arrayFrameModel(model, step) : model); }
 function drawArray(model) {
+  if (model.steps) model = arrayFrameModel(model, model.printStep || 0);
   // Ячейка расширяется под самое длинное значение (68–110 px); если места всё равно мало, значение переносится/уменьшается
   const natural = Math.ceil(Math.max(0, ...model.values.map(value => lineWidth(symbols(value), 17) + 18))), preferred = Math.min(110, Math.max(68, natural));
   const width = size(model.width, Math.max(400, model.values.length * (preferred - 3) + 60)), height = size(model.height, model.variant === 'stack' ? Math.max(220, model.values.length * 58 + 60) : 180), cell = Math.min(preferred, (width - 40) / Math.max(model.values.length, 1)), start = (width - cell * model.values.length) / 2;
   let body = '';
-  model.values.forEach((value, i) => { const stackWidth = Math.max(70, preferred), x = model.variant === 'stack' ? width / 2 - stackWidth / 2 : start + i * cell, y = model.variant === 'stack' ? height - 58 * (i + 1) : 64, w = model.variant === 'stack' ? stackWidth : cell, color = model.highlight.includes(i) ? 'var(--accent)' : i <= model.sorted ? '#42a592' : 'var(--border)'; body += `<rect x="${format(x)}" y="${format(y)}" width="${format(w)}" height="54" fill="var(--card)" stroke="${color}" stroke-width="2"/>${labelSvg(x + w / 2, y + 27, value, w - 8, 44, { size: 17, min: 9 })}${model.variant === 'stack' ? '' : textSvg(x + w / 2, y + 75, i, 'text-anchor="middle" fill="var(--muted)" font-size="11"')}`; if (model.variant === 'linked' && i < model.values.length - 1) body += textSvg(x + w - 5, y + 31, '→', 'fill="var(--accent)" font-size="16"'); });
-  model.pointers.forEach((pointer, i) => { body += textSvg(start + (pointer.index + .5) * cell, 50 - i * 19, `${pointer.name} ↓`, 'text-anchor="middle" fill="var(--accent)" font-size="12"'); });
+  model.values.forEach((value, i) => { const stackWidth = Math.max(70, preferred), x = model.variant === 'stack' ? width / 2 - stackWidth / 2 : start + i * cell, y = model.variant === 'stack' ? height - 58 * (i + 1) : 64, w = model.variant === 'stack' ? stackWidth : cell, color = model.highlight.includes(i) ? 'var(--accent)' : i <= model.sorted || model.done?.includes(i) ? '#42a592' : 'var(--border)'; body += `<rect x="${format(x)}" y="${format(y)}" width="${format(w)}" height="54" fill="var(--card)" stroke="${color}" stroke-width="2"/>${labelSvg(x + w / 2, y + 27, value, w - 8, 44, { size: 17, min: 9 })}${model.variant === 'stack' ? '' : textSvg(x + w / 2, y + 75, i, 'text-anchor="middle" fill="var(--muted)" font-size="11"')}`; if (model.variant === 'linked' && i < model.values.length - 1) body += textSvg(x + w - 5, y + 31, '→', 'fill="var(--accent)" font-size="16"'); });
+  // Указатели на одной ячейке (i и j) встают друг над другом; в старых статичных массивах шаг по высоте не менялся
+  model.pointers.forEach((pointer, i) => { const rank = model.pointerStack ? model.pointers.slice(0, i).filter(other => other.index === pointer.index).length : i, lift = model.pointerStack ? 16 : 19; body += textSvg(start + (pointer.index + .5) * cell, 50 - rank * lift, `${pointer.name} ↓`, 'text-anchor="middle" fill="var(--accent)" font-size="12"'); });
   if (model.variant === 'queue') body += textSvg(start, 32, 'начало →', 'fill="var(--accent)" font-size="12"') + textSvg(width - start, 32, '← конец', 'text-anchor="end" fill="var(--accent)" font-size="12"');
   return svg(model, body, width, height);
 }

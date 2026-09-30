@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
     <html lang="ru">
     <head>
     <meta charset="UTF-8">
@@ -257,6 +257,8 @@
     import { githubFetch } from './js/github.js';
     import { installHomework, renderHomeHomework, renderHomeworkPage } from './js/homework.js';
     import { hasDiagram, codeFigure } from './js/diagrams/index.js';
+    import { printifyDiagrams } from './js/diagrams/array-player.js';
+    import { pickGreeting } from './js/greetings.js';
     import { bindNoteDiagrams, installDiagramEditor, renderDiagramEditor } from './js/diagrams/editor.js';
     import { installMemes, renderMemesPage } from './js/memes.js';
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
@@ -1142,6 +1144,8 @@
         // диаграмм могут посчитаться неверно
         root.appendChild(source);
         source.querySelectorAll('.code-copy').forEach(b=>b.remove());
+        // интерактивные массивы с кодом в PDF печатаются обычным статичным массивом (как раньше)
+        printifyDiagrams(source);
         pdfDelistify(source);
         if(document.fonts && document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
         source.style.visibility='visible';
@@ -1434,12 +1438,23 @@
         renderDeadlines(homeDeadlineItems);
       }catch(e){const box=document.getElementById('home-deadlines');if(box)box.innerHTML='<p class="empty-line">Не удалось загрузить сроки. <a href="#/deadlines">Открыть раздел дедлайнов</a></p>';}
     }
+    // Заголовок главной берётся из js/greetings.js; одиночная точка в конце сохраняет акцентный цвет
+    function greetingHtml(){
+      const text=pickGreeting(), m=/^(.*[^.])\.$/.exec(text);
+      return m?`${esc(m[1])}<span class="hero-period">.</span>`:esc(text);
+    }
+    // Подпись под датой: чётность недели / каникулы (или причина, почему расписания нет)
+    function scheduleLabel(now){
+      const schedule=getSchedule();
+      if(!schedule)return 'Расписание загружается';
+      return isVacation(now,schedule)?'Каникулы':weekParity(now,schedule)==='even'?'Чётная неделя':'Нечётная неделя';
+    }
     function renderHome(){
       const c=document.getElementById('content');
       const now=new Date();
       const tiles=HOME_TILES.map(t=>`<a class="material-link" href="#/${encodePath(t.name)}" data-nav="${esc(t.name)}"><span class="material-icon">${t.icon}</span><strong>${esc(t.name)}</strong><small>${esc(t.desc)}</small><span class="material-arrow" aria-hidden="true">↗</span></a>`).join('');
       c.innerHTML=`
-      <section class="home-hero"><div class="hero-inner"><div><h1>Ваш учебный день<span class="hero-period">.</span></h1><p class="sub">Всё важное для группы М3102 — в одном месте.</p></div><div class="hero-date"><strong>${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</strong><span>${getSchedule()?(isVacation(now,getSchedule())?'Каникулы':weekParity(now,getSchedule())==='even'?'Чётная неделя':'Нечётная неделя'):'Расписание загружается'}</span></div></div><span class="hero-orbit" aria-hidden="true"></span><span class="hero-hedgehog" aria-hidden="true">🦔</span></section>
+      <section class="home-hero"><div class="hero-inner"><div><h1>${greetingHtml()}</h1><p class="sub">Всё важное для группы М3102 — в одном месте.</p></div><div class="hero-date"><strong>${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</strong><span class="hero-week">${scheduleLabel(now)}</span></div></div><span class="hero-orbit" aria-hidden="true"></span><span class="hero-hedgehog" aria-hidden="true">🦔</span></section>
       <div class="dashboard-grid">
         <section class="dash-panel schedule-panel"><div class="panel-head"><h2>Сегодня в расписании</h2><a href="#/schedule">Все занятия <span aria-hidden="true">↗</span></a></div>${homeSchedule()}</section>
         <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">↗</span></a></div><div id="home-deadlines"><p class="empty-line">Загрузка сроков…</p></div><div id="completed-deadlines"></div></section>
@@ -1470,7 +1485,14 @@
       loadHomeDeadlines();
       renderHomeHomework();
       fetchRecentNotes();
-      ensureSchedule().then(()=>{const box=c.querySelector('.schedule-panel');if(box){const old=box.querySelector('.today-list,.empty-line');if(old)old.outerHTML=homeSchedule();}}).catch(()=>{});
+      ensureSchedule().then(()=>{
+        // раньше после загрузки обновлялась только панель расписания, а подпись под датой навсегда оставалась «загружается»
+        const week=c.querySelector('.hero-week');if(week)week.textContent=scheduleLabel(new Date());
+        const box=c.querySelector('.schedule-panel');if(box){const old=box.querySelector('.today-list,.empty-line');if(old)old.outerHTML=homeSchedule();}
+      }).catch(()=>{
+        const week=c.querySelector('.hero-week');if(week)week.textContent='Расписание недоступно';
+        const old=c.querySelector('.schedule-panel .empty-line');if(old)old.textContent='Не удалось загрузить расписание. Обновите страницу.';
+      });
     }
     const RECENT_NOTES_LIMIT=6;
     async function fetchRecentNotes(){
