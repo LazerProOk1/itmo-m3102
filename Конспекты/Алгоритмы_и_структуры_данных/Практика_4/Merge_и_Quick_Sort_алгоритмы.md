@@ -410,16 +410,18 @@ let i = lo - 1;
 let j = hi + 1;
 let res = -1;
 while (res < 0) {
-  do {
+  while (a[i] < pivot) {
     i++;
-  } while (a[i] < pivot);
-  do {
+  }
+  while (a[j] > pivot) {
     j--;
-  } while (a[j] > pivot);
+  }
   if (i >= j) {
     res = j;
   } else {
     swap(a, i, j);
+    i++;
+    j--;
   }
 }
 say("указатели разошлись: граница разбиения найдена");
