@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node scripts/normalize-names.mjs
+      - run: node tools/normalize-names.mjs
       # <-- здесь должен идти ваш существующий шаг, который пересобирает data/lectures.json
       - name: Commit
         run: |
