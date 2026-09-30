@@ -258,7 +258,7 @@ import { installHomework, renderHomeHomework, renderHomeworkPage } from './js/ho
 import { hasDiagram, codeFigure } from './js/diagrams/index.js';
 import { bindNoteDiagrams, installDiagramEditor, renderDiagramEditor } from './js/diagrams/editor.js';
 import { installMemes, renderMemesPage } from './js/memes.js';
-import { mountSidebar, mountSiteSearch, stripFrontMatter } from './js/lectures.js';
+import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName } from './js/lectures.js';
 const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
 const SUBTITLES={
   'Записи лекций':'Аудиозаписи лекций',
@@ -271,7 +271,7 @@ const EXT_ICON={pdf:'PDF',docx:'DOC',doc:'DOC',md:'MD',html:'WEB',htm:'WEB',mp3:
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 // Файлы и папки, которые не должны отображаться при просмотре материалов
 const HIDDEN_FILE_NAMES=['site.css','package.json','readme.md','.gitignore'];
-const HIDDEN_FOLDER_NAMES=['tests','inner','data','js','css','docs','img'];
+const HIDDEN_FOLDER_NAMES=['tests','inner','data','js','css','docs','img','tools', '.github'];
 function isHiddenPath(path){
   if(!path)return false;
   const parts=path.split('/');
@@ -1597,7 +1597,7 @@ async function renderBrowse(path){
 }
 
 function renderPdfView(path){
-  const name=path.split('/').pop();
+  const name=prettyName(path,path.split('/').pop());
   const c=document.getElementById('content');
   c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
   bindBack(path);
@@ -1625,7 +1625,7 @@ function renderPdfView(path){
 }
 
 function renderNoteView(path){
-  const name=path.split('/').pop();
+  const name=prettyName(path,path.split('/').pop());
   const c=document.getElementById('content');
   c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,'<button class="btn2" id="note-print-btn" type="button">📄 Скачать PDF</button>')}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
   bindBack(path);

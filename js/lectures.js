@@ -25,11 +25,40 @@ export function stripFrontMatter(text) {
   return lines.length && lines.every(line => /^[\w.-]+\s*:/.test(line.trim())) ? text.slice(m[0].length) : text;
 }
 
+/* ---------------- Порядок лекций ---------------- */
+// Лекция 1, Лекция 2, Практика 2, Лекция 3 / Лекция 2-3, Лекция 4, Лекция 5-6 ...
+const firstNum = value => { const m = /\d+/.exec(value); return m ? Number(m[0]) : Infinity; };
+const byLecture = (a, b) => (firstNum(a.name) - firstNum(b.name)) || a.name.localeCompare(b.name, 'ru', { numeric: true });
+
+/* ---------------- Оригинальные имена файлов ----------------
+   scripts/normalize-names.mjs переименовывает файлы (пробелы, запятые, точки -> «_»)
+   и записывает { "новый/путь.md": "Оригинальное имя.md" } в data/display-names.json. */
+let namesPromise = null;
+export const displayNames = {};
+export function loadDisplayNames() {
+  namesPromise ||= fetch('./data/display-names.json', { cache: 'no-cache' })
+    .then(response => (response.ok ? response.json() : {}))
+    .catch(() => ({}))
+    .then(map => { for (const [key, value] of Object.entries(map || {})) displayNames[nfc(key)] = value; return displayNames; });
+  return namesPromise;
+}
+export const prettyName = (path, fallback) => displayNames[nfc(path)] || fallback;
+
 let indexPromise = null;
 export function loadLectures() {
-  indexPromise ||= fetch('./data/lectures.json', { cache: 'no-cache' })
-    .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
-    .catch(error => { indexPromise = null; throw error; });
+  indexPromise ||= Promise.all([
+    fetch('./data/lectures.json', { cache: 'no-cache' }).then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }),
+    loadDisplayNames(),
+  ]).then(([index]) => {
+    for (const subject of index.subjects || []) {
+      subject.lectures.sort(byLecture);
+      for (const lecture of subject.lectures) for (const file of lecture.files) {
+        const original = displayNames[nfc(file.path)];
+        if (original) file.name = /\.[^.]+$/.test(file.name) ? original : original.replace(/\.[^.]+$/, '');
+      }
+    }
+    return index;
+  }).catch(error => { indexPromise = null; throw error; });
   return indexPromise;
 }
 function locate(index, path) {
@@ -51,7 +80,7 @@ export function mountSidebar(host, path, { toc = true } = {}) {
   const on = (target, type, fn, options) => target.addEventListener(type, fn, { signal: ac.signal, ...options });
   const $ = selector => host.querySelector(selector);
   let raf = 0, dead = false, items = [], btns = [], activeIdx = -2, cur = null, rendered = false, centered = false, bodyEl = null, observer = null;
-  const opened = new Set();
+  const collapsed = new Set(); // все лекции раскрыты по умолчанию; здесь — только свёрнутые вручную
   if (!toc) takeJump();
 
   host.hidden = false;
@@ -92,7 +121,7 @@ export function mountSidebar(host, path, { toc = true } = {}) {
       const lectureHit = terms.every(t => norm(lec.name).includes(t));
       const files = terms.length && !lectureHit ? lec.files.filter(f => terms.every(t => norm(f.name).includes(t))) : lec.files;
       if (!files.length) return '';
-      const open = terms.length ? true : opened.has(lec.path);
+      const open = terms.length ? true : !collapsed.has(lec.path);
       return `<div class="lec${open ? ' is-open' : ''}${lec === lecture ? ' is-current' : ''}" data-lec="${esc(lec.path)}" style="--i:${i}"><div class="lec-row"><button class="lec-chev" type="button" aria-expanded="${open}" aria-label="Файлы: ${esc(lec.name)}">${ICON_CHEV}</button><a class="lec-name" href="${hrefOf(lec.files[0])}" title="${esc(lec.name)}">${highlight(lec.name, terms)}</a><span class="lec-count">${lec.files.length}</span></div><div class="lec-files"><div class="lec-files-in">${files.map(f => `<a class="lec-file${f.main ? ' is-main' : ''}${f === file ? ' is-active' : ''}" href="${hrefOf(f)}"${f === file ? ' aria-current="page"' : ''} title="${esc(f.name)}"><span class="lec-file-name">${highlight(f.name, terms)}</span>${f.type === 'pdf' ? '<span class="lec-badge">PDF</span>' : ''}</a>`).join('')}</div></div></div>`;
     }).join('');
     list.classList.toggle('enter', !rendered);
@@ -108,7 +137,6 @@ export function mountSidebar(host, path, { toc = true } = {}) {
     cur = locate(index, path);
     if (!cur) return noLectures();
     $('.side-subject').textContent = cur.subject.name;
-    opened.add(cur.lecture.path);
     renderLectures();
   }).catch(() => { if (!dead) noLectures(); });
   on($('.side-search'), 'input', () => { if (cur) renderLectures(); });
@@ -164,7 +192,7 @@ export function mountSidebar(host, path, { toc = true } = {}) {
     if (chev) {
       const group = chev.closest('.lec'), open = !group.classList.contains('is-open');
       group.classList.toggle('is-open', open); chev.setAttribute('aria-expanded', String(open));
-      if (open) opened.add(group.dataset.lec); else opened.delete(group.dataset.lec);
+      if (open) collapsed.delete(group.dataset.lec); else collapsed.add(group.dataset.lec);
       return;
     }
     if (e.target.closest('.lec-name, .lec-file')) return setOpen(false);

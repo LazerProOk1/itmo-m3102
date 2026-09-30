@@ -1,0 +1,27 @@
+name: Normalize file names
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Конспекты/**'
+      - 'Записи лекций/**'
+      - 'Лабораторные/**'
+      - 'Материалы/**'
+permissions:
+  contents: write
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/normalize-names.mjs
+      # <-- здесь должен идти ваш существующий шаг, который пересобирает data/lectures.json
+      - name: Commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "Авто-переименование файлов [skip ci]" && git push)
