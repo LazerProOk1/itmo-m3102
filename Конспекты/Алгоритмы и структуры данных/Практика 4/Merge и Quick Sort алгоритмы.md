@@ -450,21 +450,23 @@ print: last
 code:
 function qs(lo, hi) {
   if (lo < hi) {
-    let pivot = a[lo];
-    let i = lo - 1;
-    let j = hi + 1;
+    let pivot = a[(lo + hi) >> 1];
+    let i = lo;
+    let j = hi;
     let res = -1;
     while (res < 0) {
-      do {
+      while (a[i] < pivot) {
         i++;
-      } while (a[i] < pivot);
-      do {
+      }
+      while (a[j] > pivot) {
         j--;
-      } while (a[j] > pivot);
+      }
       if (i >= j) {
         res = j;
       } else {
         swap(a, i, j);
+        i++;
+        j--;
       }
     }
     qs(lo, res);
