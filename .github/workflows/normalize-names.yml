@@ -1,4 +1,4 @@
-name: Normalize file names
+name: Normalize names and rebuild indexes
 on:
   push:
     branches: [master]
@@ -17,11 +17,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node tools/normalize-names.mjs
-      # <-- здесь должен идти ваш существующий шаг, который пересобирает data/lectures.json
+      - name: Rename files and folders
+        run: node tools/normalize-names.mjs
+      # <-- здесь должен идти ваш существующий шаг из tools/, который пересобирает data/lectures.json
+      - name: Install pdftotext
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Build search index
+        run: node tools/build-search-index.mjs
       - name: Commit
         run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || (git commit -m "Авто-переименование файлов [skip ci]" && git push)
+          git diff --cached --quiet || (git commit -m "Авто-переименование и индексы [skip ci]" && git push)

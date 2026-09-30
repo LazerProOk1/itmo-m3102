@@ -28,11 +28,11 @@ export function stripFrontMatter(text) {
 /* ---------------- Порядок лекций ---------------- */
 // Лекция 1, Лекция 2, Практика 2, Лекция 3 / Лекция 2-3, Лекция 4, Лекция 5-6 ...
 const firstNum = value => { const m = /\d+/.exec(value); return m ? Number(m[0]) : Infinity; };
-const byLecture = (a, b) => (firstNum(a.name) - firstNum(b.name)) || a.name.localeCompare(b.name, 'ru', { numeric: true });
+export const byLecture = (a, b) => (firstNum(a.name) - firstNum(b.name)) || a.name.localeCompare(b.name, 'ru', { numeric: true });
 
-/* ---------------- Оригинальные имена файлов ----------------
-   scripts/normalize-names.mjs переименовывает файлы (пробелы, запятые, точки -> «_»)
-   и записывает { "новый/путь.md": "Оригинальное имя.md" } в data/display-names.json. */
+/* ---------------- Оригинальные имена файлов и папок ----------------
+   tools/normalize-names.mjs переименовывает файлы и папки (пробелы, запятые, точки -> «_»)
+   и записывает { "новый/путь": "Оригинальное имя" } в data/display-names.json. */
 let namesPromise = null;
 export const displayNames = {};
 export function loadDisplayNames() {
@@ -44,18 +44,31 @@ export function loadDisplayNames() {
 }
 export const prettyName = (path, fallback) => displayNames[nfc(path)] || fallback;
 
+/* Старые ссылки: data/old-paths.json { "старый/путь": "новый/путь" } */
+let movedPromise = null;
+export async function findMoved(path) {
+  movedPromise ||= fetch('./data/old-paths.json', { cache: 'no-cache' }).then(response => (response.ok ? response.json() : {})).catch(() => ({}));
+  const map = await movedPromise;
+  return map[nfc(path)] || '';
+}
+
 let indexPromise = null;
 export function loadLectures() {
   indexPromise ||= Promise.all([
     fetch('./data/lectures.json', { cache: 'no-cache' }).then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }),
     loadDisplayNames(),
   ]).then(([index]) => {
+    const applyFolderName = item => { const shown = item.path && displayNames[nfc(item.path)]; if (shown) item.name = shown; };
     for (const subject of index.subjects || []) {
-      subject.lectures.sort(byLecture);
-      for (const lecture of subject.lectures) for (const file of lecture.files) {
-        const original = displayNames[nfc(file.path)];
-        if (original) file.name = /\.[^.]+$/.test(file.name) ? original : original.replace(/\.[^.]+$/, '');
+      applyFolderName(subject);
+      for (const lecture of subject.lectures) {
+        applyFolderName(lecture);
+        for (const file of lecture.files) {
+          const original = displayNames[nfc(file.path)];
+          if (original) file.name = /\.[^.]+$/.test(file.name) ? original : original.replace(/\.[^.]+$/, '');
+        }
       }
+      subject.lectures.sort(byLecture);
     }
     return index;
   }).catch(error => { indexPromise = null; throw error; });
@@ -70,6 +83,19 @@ function highlight(text, terms) {
   const n = norm(text); let start = -1, length = 0;
   for (const term of terms) { const i = n.indexOf(term); if (i >= 0 && (start < 0 || i < start)) { start = i; length = term.length; } }
   return start < 0 ? esc(text) : `${esc(text.slice(0, start))}<mark>${esc(text.slice(start, start + length))}</mark>${esc(text.slice(start + length))}`;
+}
+// Подсвечивает все вхождения всех слов (для фрагментов текста в результатах поиска)
+function highlightAll(text, terms) {
+  const n = norm(text), ranges = [];
+  for (const term of terms) for (let i = n.indexOf(term); i >= 0; i = n.indexOf(term, i + term.length)) ranges.push([i, i + term.length]);
+  ranges.sort((a, b) => a[0] - b[0]);
+  let out = '', pos = 0;
+  for (const [start, end] of ranges) {
+    if (end <= pos) continue;
+    const from = Math.max(start, pos);
+    out += `${esc(text.slice(pos, from))}<mark>${esc(text.slice(from, end))}</mark>`; pos = end;
+  }
+  return out + esc(text.slice(pos));
 }
 
 /* ---------------- Боковая панель конспекта ---------------- */
@@ -239,15 +265,69 @@ function buildEntries(index) {
 }
 const KIND_LABEL = { md: 'MD', pdf: 'PDF', h: '§', lecture: 'ЛК', page: '↗' };
 
+/* Полнотекстовый индекс: data/search-index.json (строится tools/build-search-index.mjs) */
+let textPromise = null;
+function loadTextIndex() {
+  textPromise ||= fetch('./data/search-index.json', { cache: 'no-cache' })
+    .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+    .then(raw => ({ files: raw.files || [], sections: (raw.sections || []).map(([f, h, t, p]) => ({ f, h, t, p })) }))
+    .catch(error => { textPromise = null; throw error; });
+  return textPromise;
+}
+function fileInfo(path) {
+  let acc = '';
+  const shown = path.split('/').map(segment => { acc = acc ? `${acc}/${segment}` : segment; return prettyName(acc, segment); });
+  const title = shown.pop().replace(/\.[^.]+$/, '');
+  shown.shift(); // корневая папка («Конспекты») в подписи не нужна
+  return { title, sub: shown.join(' · '), href: `${/\.pdf$/i.test(path) ? '#/view/' : '#/note/'}${enc(path)}` };
+}
+function searchText(index, terms, phrase) {
+  const scored = [];
+  for (const section of index.sections) {
+    const heading = section._h ??= norm(section.h), text = section._t ??= norm(section.t);
+    let score = 0, first = -1;
+    for (const term of terms) {
+      const inHeading = heading.includes(term);
+      let at = text.indexOf(term), count = 0;
+      if (at < 0 && !inHeading) { score = -1; break; }
+      for (; at >= 0 && count < 10; at = text.indexOf(term, at + term.length)) { if (first < 0 || at < first) first = at; count++; }
+      score += count + (inHeading ? 15 : 0);
+    }
+    if (score < 0) continue;
+    if (terms.length > 1 && text.includes(phrase)) score += 20;
+    scored.push({ section, score, first });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  const perFile = new Map(), picked = [];
+  for (const hit of scored) {
+    const used = perFile.get(hit.section.f) || 0;
+    if (used >= 2) continue;
+    perFile.set(hit.section.f, used + 1); picked.push(hit);
+    if (picked.length >= 8) break;
+  }
+  return picked;
+}
+function snippetOf(text, from, terms) {
+  let start = Math.max(0, (from < 0 ? 0 : from) - 60);
+  if (start > 0) { const space = text.indexOf(' ', start); if (space >= 0 && space < from) start = space + 1; }
+  const end = Math.min(text.length, start + 180);
+  return `${start > 0 ? '…' : ''}${highlightAll(text.slice(start, end), terms)}${end < text.length ? '…' : ''}`;
+}
+
 export function mountSiteSearch(root) {
   root.innerHTML = `<label class="ss-box">${ICON_SEARCH}<input class="ss-input" type="search" placeholder="Поиск по сайту" aria-label="Поиск по сайту" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="ss-list"><kbd aria-hidden="true">/</kbd></label><div class="ss-results" id="ss-list" role="listbox" hidden></div>`;
   const input = root.querySelector('.ss-input'), list = root.querySelector('.ss-results');
-  let entries = [], state = 'idle', selected = -1;
+  let entries = [], state = 'idle', textState = 'idle', textIndex = null, selected = -1;
 
   const ensure = () => {
-    if (state !== 'idle') return;
-    state = 'loading';
-    loadLectures().then(index => { entries = buildEntries(index); state = 'ready'; }).catch(() => { entries = buildEntries(null); state = 'failed'; }).finally(update);
+    if (state === 'idle') {
+      state = 'loading';
+      loadLectures().then(index => { entries = buildEntries(index); state = 'ready'; }).catch(() => { entries = buildEntries(null); state = 'failed'; }).finally(update);
+    }
+    if (textState === 'idle') {
+      textState = 'loading';
+      loadTextIndex().then(index => { textIndex = index; textState = 'ready'; }).catch(() => { textState = 'failed'; }).finally(update);
+    }
   };
   const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); selected = -1; };
   const place = () => {
@@ -255,7 +335,7 @@ export function mountSiteSearch(root) {
     const rect = root.parentElement.getBoundingClientRect();
     list.style.left = `${12 - rect.left}px`; list.style.width = `${innerWidth - 24}px`;
   };
-  function search(query) {
+  function search(query, limit) {
     const terms = norm(query).split(/\s+/).filter(Boolean), scored = [];
     for (const entry of entries) {
       const title = entry._t ||= norm(entry.title), sub = entry._s ||= norm(entry.sub);
@@ -268,18 +348,29 @@ export function mountSiteSearch(root) {
       score += { page: 6, lecture: 4, h: -8 }[entry.kind] || 0;
       scored.push([score, entry]);
     }
-    return { terms, results: scored.sort((a, b) => b[0] - a[0]).slice(0, 12).map(pair => pair[1]) };
+    return { terms, results: scored.sort((a, b) => b[0] - a[0]).slice(0, limit).map(pair => pair[1]) };
+  }
+  const titleItem = (r, terms) => `<a class="ss-item" role="option" href="${r.href}"${r.jump ? ` data-jump="${esc(r.jump)}"` : ''}><span class="ss-kind">${KIND_LABEL[r.kind]}</span><span class="ss-text"><strong>${highlight(r.title, terms)}</strong><small>${esc(r.sub)}</small></span></a>`;
+  function textItem({ section, first }, terms) {
+    const info = fileInfo(textIndex.files[section.f]);
+    const heading = section.h ? ` › ${section.h}` : '';
+    return `<a class="ss-item" role="option" href="${info.href}"${section.h && !section.p ? ` data-jump="${esc(section.h)}"` : ''}><span class="ss-kind">${section.p ? 'PDF' : '¶'}</span><span class="ss-text"><strong>${highlightAll(info.title + heading, terms)}</strong><small>${info.sub ? `${esc(info.sub)} · ` : ''}${snippetOf(section.t, first, terms)}</small></span></a>`;
   }
   function update() {
     const query = input.value.trim();
     if (!query) return close();
-    const { terms, results } = search(query);
+    const { terms, results } = search(query, 8);
+    const phrase = norm(query).replace(/\s+/g, ' ');
+    const hits = textState === 'ready' && query.length >= 2 ? searchText(textIndex, terms, phrase) : [];
     place();
     list.hidden = false; input.setAttribute('aria-expanded', 'true'); selected = -1;
-    const note = state === 'loading' ? '<p class="ss-note">Загружаем индекс лекций…</p>' : state === 'failed' ? '<p class="ss-note">Индекс лекций недоступен — ищем только по разделам сайта.</p>' : '';
-    list.innerHTML = note + (results.length
-      ? results.map(r => `<a class="ss-item" role="option" href="${r.href}"${r.jump ? ` data-jump="${esc(r.jump)}"` : ''}><span class="ss-kind">${KIND_LABEL[r.kind]}</span><span class="ss-text"><strong>${highlight(r.title, terms)}</strong><small>${esc(r.sub)}</small></span></a>`).join('')
-      : '<p class="ss-empty">Ничего не найдено. Попробуйте часть названия или заголовка.</p>');
+    const notes = [
+      state === 'loading' ? 'Загружаем индекс лекций…' : state === 'failed' ? 'Индекс лекций недоступен — ищем только по разделам сайта.' : '',
+      textState === 'loading' ? 'Загружаем индекс текста…' : textState === 'failed' ? 'Поиск по тексту конспектов недоступен.' : '',
+    ].filter(Boolean).map(text => `<p class="ss-note">${text}</p>`).join('');
+    const body = results.map(r => titleItem(r, terms)).join('')
+      + (hits.length ? `${results.length ? '<p class="ss-note">В тексте конспектов</p>' : ''}${hits.map(hit => textItem(hit, terms)).join('')}` : '');
+    list.innerHTML = notes + (body || '<p class="ss-empty">Ничего не найдено. Попробуйте другое слово или часть названия.</p>');
   }
   const move = step => {
     const links = [...list.querySelectorAll('.ss-item')]; if (!links.length) return;
