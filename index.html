@@ -1550,7 +1550,8 @@
       return `<div class="viewbar"><button class="btn2" id="back-btn">← Назад</button><div class="viewname">${icon} ${esc(name)}</div>${extra}<a class="btn2" href="${rawUrl(path)}" target="_blank" rel="noopener" download>Скачать</a></div>`;
     }
     function bindBack(path){document.getElementById('back-btn').onclick=()=>goto(path.split('/').slice(0,-1).join('/'));}
-
+    const stripExt=n=>n.replace(/\.[^.]+$/,'');
+    const PILL_SKIP=new Set(); // например new Set(['md']), чтобы не показывать плашку у конспектов
     async function renderBrowse(path){
       const c=document.getElementById('content');
       let intro='';
