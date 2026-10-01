@@ -74,7 +74,8 @@
 }
 
 .page {
-  overflow: hidden;
+  display: block;
+  flex-shrink: 0;
   border-radius: var(--radius-sm);
   background: #fff;
   box-shadow:

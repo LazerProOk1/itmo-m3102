@@ -1,14 +1,12 @@
 import { ChevronDown, ChevronUp, ExternalLink, Maximize2, Minus, Plus } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import { pdfjs } from 'react-pdf';
 import { IconButton } from '../../components/ui/IconButton';
-import { usePrefersReducedMotion } from '../../lib/motion';
 import styles from './PdfViewer.module.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+
+type PdfDocument = Awaited<ReturnType<typeof pdfjs.getDocument>['promise']>;
 
 interface PdfViewerProps {
   /** data: URI (загружен локально) или ссылка на файл */
@@ -16,41 +14,133 @@ interface PdfViewerProps {
 }
 
 const ZOOM_STEPS = [0.5, 0.67, 0.8, 1, 1.25, 1.5, 2];
-/** Рисуются только страницы в пределах этого расстояния от экрана, остальные выгружаются */
+/** Ширина «по ширине» — как у читалки на сайте группы */
+const MAX_WIDTH = 900;
+/** Страницы рисуются заранее, когда до них осталось столько пикселей прокрутки */
 const PRELOAD_MARGIN = '1600px 0px';
-/** Холст страницы занимает ширина × высота × плотность² × 4 байта — на 3x-экранах это десятки МБ */
+/** Чёткость холста: выше 2× разница не видна, а память растёт квадратично */
 const MAX_PIXEL_RATIO = 2;
+// ponytail: держим отрисованными последние N страниц, самые давние стираются — иначе учебник на сотни
+// страниц съест память и браузер перезагрузит вкладку. Обычный конспект (< N страниц) не стирается никогда.
+const MAX_DRAWN_PAGES = 40;
 
 /**
- * PDF целиком, сплошной лентой — листается обычной прокруткой. Рисуются только страницы рядом
- * с экраном, дальние выгружаются: иначе у толстых учебников холсты съедают память и браузер
- * перезагружает вкладку. Высота каждой страницы фиксирована — прокрутка не прыгает.
- * Панель сверху: страница, масштаб, «по ширине», открыть файл.
+ * PDF целиком, сплошной лентой — как на сайте группы: каждая страница — свой <canvas>, который
+ * создаётся один раз и рисуется при приближении к экрану. Холсты живут вне React, поэтому
+ * перерисовки страницы (счётчик страниц, прогресс чтения, синхронизация) их не сбрасывают.
+ * Размер каждой страницы задаётся сразу — прокрутка не прыгает.
  */
 export function PdfViewer({ file }: PdfViewerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [numPages, setNumPages] = useState(0);
-  const [ratio, setRatio] = useState(1.414);
-  const [width, setWidth] = useState(0);
+  const pagesRef = useRef<HTMLDivElement>(null);
+  const [pdf, setPdf] = useState<PdfDocument | null>(null);
+  const [baseWidth, setBaseWidth] = useState(0);
   const [zoomIndex, setZoomIndex] = useState(ZOOM_STEPS.indexOf(1));
   const [current, setCurrent] = useState(1);
   const [failed, setFailed] = useState(false);
 
+  // Ширина меряется один раз; мелкие изменения (появилась полоса прокрутки) не перерисовывают PDF
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    setWidth(Math.floor(root.getBoundingClientRect().width));
-    const observer = new ResizeObserver(([entry]) => setWidth(Math.floor(entry!.contentRect.width)));
+    const measure = () => Math.min(MAX_WIDTH, Math.floor(root.getBoundingClientRect().width));
+    setBaseWidth(measure());
+    const observer = new ResizeObserver(() => setBaseWidth((old) => (Math.abs(measure() - old) > 40 ? measure() : old)));
     observer.observe(root);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    const task = pdfjs.getDocument({ url: file });
+    // destroy() при уходе со страницы тоже отклоняет promise — это не ошибка файла
+    task.promise.then(
+      (doc) => active && setPdf(doc),
+      () => active && setFailed(true),
+    );
+    return () => {
+      active = false;
+      void task.destroy();
+    };
+  }, [file]);
+
   const zoom = ZOOM_STEPS[zoomIndex]!;
-  const pageWidth = Math.max(240, Math.round((width - 2) * zoom));
+  const width = Math.max(240, Math.round((baseWidth - 2) * zoom));
+
+  useEffect(() => {
+    const container = pagesRef.current;
+    if (!pdf || !container || !baseWidth) return;
+    let cancelled = false;
+    const renders: { cancel: () => void }[] = [];
+    const drawn: HTMLCanvasElement[] = [];
+
+    const draw = async (canvas: HTMLCanvasElement, pageNumber: number) => {
+      const page = await pdf.getPage(pageNumber);
+      if (cancelled) return;
+      const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+      const viewport = page.getViewport({ scale: (width / page.getViewport({ scale: 1 }).width) * ratio });
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      const task = page.render({ canvas, canvasContext: canvas.getContext('2d')!, viewport });
+      renders.push(task);
+      await task.promise.catch(() => undefined);
+      if (cancelled) return;
+      canvas.dataset.drawn = 'true';
+      drawn.push(canvas);
+      if (drawn.length > MAX_DRAWN_PAGES) {
+        const old = drawn.shift()!;
+        delete old.dataset.drawn;
+        old.width = old.height = 0;
+      }
+    };
+
+    const preload = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const canvas = entry.target as HTMLCanvasElement;
+          if (entry.isIntersecting && !canvas.dataset.drawn && !canvas.dataset.drawing) {
+            canvas.dataset.drawing = 'true';
+            void draw(canvas, Number(canvas.dataset.page)).finally(() => delete canvas.dataset.drawing);
+          }
+        }
+      },
+      { rootMargin: PRELOAD_MARGIN },
+    );
+    // Текущая страница — та, что пересекает середину экрана
+    const middle = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.isIntersecting && setCurrent(Number((entry.target as HTMLElement).dataset.page))),
+      { rootMargin: '-50% 0px -50% 0px' },
+    );
+
+    const canvases = Array.from({ length: pdf.numPages }, (_, index) => {
+      const canvas = document.createElement('canvas');
+      canvas.className = styles.page!;
+      canvas.dataset.page = String(index + 1);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${Math.round(width * 1.414)}px`;
+      return canvas;
+    });
+    container.replaceChildren(...canvases);
+    // Точная высота каждой страницы — сразу, до отрисовки (страницы бывают разного формата)
+    canvases.forEach((canvas, index) => {
+      void pdf.getPage(index + 1).then((page) => {
+        const { width: w, height: h } = page.getViewport({ scale: 1 });
+        if (!cancelled) canvas.style.height = `${Math.round((width * h) / w)}px`;
+      });
+      preload.observe(canvas);
+      middle.observe(canvas);
+    });
+
+    return () => {
+      cancelled = true;
+      preload.disconnect();
+      middle.disconnect();
+      renders.forEach((task) => task.cancel());
+    };
+  }, [pdf, width, baseWidth]);
 
   const scrollToPage = useCallback((page: number) => {
-    pageRefs.current[page - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    pagesRef.current?.children[page - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
   if (failed) {
@@ -64,14 +154,14 @@ export function PdfViewer({ file }: PdfViewerProps) {
     );
   }
 
+  const numPages = pdf?.numPages ?? 0;
+
   return (
     <div ref={rootRef} className={styles.viewer}>
       <div className={styles.toolbar}>
         <div className={styles.group}>
           <IconButton icon={ChevronUp} label="Предыдущая страница" size="sm" disabled={current <= 1} onClick={() => scrollToPage(current - 1)} />
-          <span className={styles.pageLabel}>
-            {numPages ? `${current} / ${numPages}` : '—'}
-          </span>
+          <span className={styles.pageLabel}>{numPages ? `${current} / ${numPages}` : '—'}</span>
           <IconButton icon={ChevronDown} label="Следующая страница" size="sm" disabled={current >= numPages} onClick={() => scrollToPage(current + 1)} />
         </div>
         <div className={styles.group}>
@@ -86,95 +176,10 @@ export function PdfViewer({ file }: PdfViewerProps) {
       </div>
 
       <div className={styles.scroller}>
-        <Document
-          file={file}
-          onLoadSuccess={async (pdf) => {
-            setNumPages(pdf.numPages);
-            const first = await pdf.getPage(1);
-            const viewport = first.getViewport({ scale: 1 });
-            setRatio(viewport.height / viewport.width);
-          }}
-          onLoadError={() => setFailed(true)}
-          loading={<p className={styles.loading}>Загрузка PDF…</p>}
-          className={styles.document}
-        >
-          {width > 0 &&
-            Array.from({ length: numPages }, (_, index) => (
-              <LazyPage
-                key={index}
-                pageNumber={index + 1}
-                width={pageWidth}
-                height={Math.round(pageWidth * ratio)}
-                onCurrent={setCurrent}
-                ref={(element) => {
-                  pageRefs.current[index] = element;
-                }}
-              />
-            ))}
-        </Document>
+        {!pdf && <p className={styles.loading}>Загрузка PDF…</p>}
+        {/* Холсты страниц добавляются сюда вручную — у React здесь нет детей, и он их не трогает */}
+        <div ref={pagesRef} className={styles.document} />
       </div>
-    </div>
-  );
-}
-
-interface LazyPageProps {
-  pageNumber: number;
-  width: number;
-  height: number;
-  onCurrent: (page: number) => void;
-  ref: (element: HTMLDivElement | null) => void;
-}
-
-function LazyPage({ pageNumber, width, height, onCurrent, ref }: LazyPageProps) {
-  const elementRef = useRef<HTMLDivElement | null>(null);
-  const [near, setNear] = useState(pageNumber <= 2);
-  const [rendered, setRendered] = useState(false);
-  /** Своё соотношение сторон — страницы бывают разного формата; до загрузки — как у первой */
-  const [ratio, setRatio] = useState<number | null>(null);
-  const reduceMotion = usePrefersReducedMotion();
-
-  useEffect(() => {
-    const element = elementRef.current;
-    if (!element) return;
-    const preload = new IntersectionObserver(
-      ([entry]) => {
-        setNear(entry!.isIntersecting);
-        if (!entry!.isIntersecting) setRendered(false);
-      },
-      { rootMargin: PRELOAD_MARGIN },
-    );
-    // Текущая страница — та, что пересекает середину экрана
-    const middle = new IntersectionObserver(([entry]) => entry!.isIntersecting && onCurrent(pageNumber), { rootMargin: '-50% 0px -50% 0px' });
-    preload.observe(element);
-    middle.observe(element);
-    return () => {
-      preload.disconnect();
-      middle.disconnect();
-    };
-  }, [pageNumber, onCurrent]);
-
-  return (
-    <div
-      ref={(element) => {
-        elementRef.current = element;
-        ref(element);
-      }}
-      className={styles.page}
-      style={{ width, height: ratio ? Math.round(width * ratio) : height }}
-      data-page={pageNumber}
-    >
-      {near && (
-        <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: rendered ? 1 : 0 }} transition={{ duration: 0.25 }}>
-          <Page
-            pageNumber={pageNumber}
-            width={width}
-            devicePixelRatio={Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO)}
-            loading={null}
-            onLoadSuccess={(page) => setRatio(page.originalHeight / page.originalWidth)}
-            onRenderSuccess={() => setRendered(true)}
-          />
-        </motion.div>
-      )}
     </div>
   );
 }
