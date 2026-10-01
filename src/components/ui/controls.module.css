@@ -1,0 +1,70 @@
+/* Общие стили полей ввода: Input, Textarea, триггер Dropdown */
+
+.wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.control {
+  width: 100%;
+  height: var(--control-height-md);
+  padding: 0 var(--space-2-5);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+.control::placeholder {
+  color: var(--color-text-muted);
+}
+
+.control:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.control:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.control[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.control[aria-invalid='true']:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+
+.control:disabled {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Input с иконкой слева */
+.withIcon {
+  padding-left: 30px;
+}
+
+.leadingIcon {
+  position: absolute;
+  left: 10px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Textarea */
+.textarea {
+  height: auto;
+  min-height: 88px;
+  padding: var(--space-2) var(--space-2-5);
+  line-height: var(--leading-normal);
+  resize: vertical;
+}

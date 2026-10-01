@@ -1,0 +1,20 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* Логотип белый на прозрачном фоне — как маска он красится в цвет текста и работает в обеих темах */
+.logo {
+  display: block;
+  width: 101px;
+  height: 17px;
+  background: currentColor;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}

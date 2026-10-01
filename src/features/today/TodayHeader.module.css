@@ -1,0 +1,59 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.03em;
+}
+
+.period {
+  color: var(--color-accent);
+}
+
+.sub {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-0-5);
+  font-size: var(--text-sm);
+}
+
+.date strong {
+  font-weight: var(--weight-semibold);
+  text-transform: capitalize;
+}
+
+.date span {
+  color: var(--color-text-muted);
+}
+
+/* Разворачивается слева направо один раз за сессию */
+.reveal {
+  animation: clip-reveal 480ms var(--ease-luxury-out);
+}
+
+@keyframes clip-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+@media (max-width: 767px) {
+  .date {
+    align-items: flex-start;
+  }
+}

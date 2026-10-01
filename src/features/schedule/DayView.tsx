@@ -1,0 +1,60 @@
+import { CalendarDays } from 'lucide-react';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { List } from '../../components/ui/List';
+import { cn } from '../../lib/cn';
+import { getDayOfMonth, getShortWeekdayName } from '../../lib/dates';
+import type { ISODate } from '../../types/models';
+import { DayOccurrenceRow } from './DayOccurrenceRow';
+import type { OccurrenceAction } from './OccurrenceMenuItems';
+import type { ClassOccurrence, DaySchedule } from './occurrences';
+import styles from './DayView.module.css';
+
+interface DayViewProps {
+  days: DaySchedule[];
+  selectedDate: ISODate;
+  today: ISODate;
+  time: string;
+  onSelectDate: (date: ISODate) => void;
+  onAction: (action: OccurrenceAction, occurrence: ClassOccurrence) => void;
+}
+
+/** Один день: полоса дней недели для переключения + список занятий выбранного дня. */
+export function DayView({ days, selectedDate, today, time, onSelectDate, onAction }: DayViewProps) {
+  const selected = days.find((day) => day.date === selectedDate) ?? days[0];
+
+  return (
+    <div>
+      <div className={styles.strip} role="tablist" aria-label="День недели">
+        {days.map((day) => {
+          const isSelected = day.date === selected?.date;
+          const isToday = day.date === today;
+
+          return (
+            <button
+              key={day.date}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              className={cn(styles.day, isSelected && styles.daySelected)}
+              onClick={() => onSelectDate(day.date)}
+            >
+              <span className={styles.weekday}>{getShortWeekdayName(day.date)}</span>
+              <span className={cn(styles.dayNumber, isToday && styles.dayNumberToday)}>{getDayOfMonth(day.date)}</span>
+              {day.occurrences.length > 0 && <span className={styles.dot} aria-hidden />}
+            </button>
+          );
+        })}
+      </div>
+
+      {!selected || selected.occurrences.length === 0 ? (
+        <EmptyState compact icon={CalendarDays} title="В этот день пар нет" />
+      ) : (
+        <List>
+          {selected.occurrences.map((occurrence) => (
+            <DayOccurrenceRow key={occurrence.key} occurrence={occurrence} today={today} time={time} onAction={onAction} />
+          ))}
+        </List>
+      )}
+    </div>
+  );
+}

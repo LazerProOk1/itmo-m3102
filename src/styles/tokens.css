@@ -1,0 +1,200 @@
+/*
+ * Дизайн-токены — единый источник цветов, отступов и типографики.
+ *
+ * Компоненты используют только эти переменные, а не «сырые» значения.
+ * Поэтому весь внешний вид настраивается здесь, а тёмная тема —
+ * это просто другой набор значений тех же переменных.
+ *
+ * Брейкпоинты (в CSS-переменную их не положить):
+ *   телефон  — @media (max-width: 767px)
+ *   планшет  — @media (max-width: 1023px)
+ */
+
+:root {
+  /* Типографика */
+  --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  --text-2xs: 0.6875rem; /* 11px — метки, счётчики */
+  --text-xs: 0.75rem; /* 12px — подписи под заголовками */
+  --text-sm: 0.8125rem; /* 13px — вторичный текст, меню, кнопки */
+  --text-base: 0.875rem; /* 14px — основной текст */
+  --text-md: 1rem; /* 16px — заголовки блоков и окон */
+  --text-lg: 1.375rem; /* 22px — заголовок страницы */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  --tracking-tight: -0.015em; /* крупные заголовки */
+  --tracking-wide: 0.04em; /* мелкие подписи капсом */
+
+  /* Отступы — сетка 4px: --space-N = N × 4px */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Скругления — намеренно небольшие */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Размеры каркаса */
+  --sidebar-width: 224px;
+  --content-max-width: 1280px;
+  --topbar-height: 52px;
+  --mobile-nav-height: 56px;
+
+  /* Высота полей ввода и кнопок */
+  --control-height-sm: 28px;
+  --control-height-md: 32px;
+
+  /* Слои (z-index). Модальные окна не нуждаются в z-index: <dialog> всегда сверху */
+  --z-sticky: 10;
+  --z-dropdown: 50;
+
+  /* Анимация — только короткие и спокойные переходы */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /*
+   * Именованные кривые для конкретных задач (не голый ease/ease-in-out):
+   * -out — уверенное появление с едва заметным overshoot в конце;
+   * -in — быстрый, но не резкий уход;
+   * -spring — лёгкий пружинный акцент, только для маленьких переключателей (Tabs/SegmentedControl).
+   */
+  --ease-luxury-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-luxury-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-luxury-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /*
+   * Типы занятий в расписании — лекция и практика делят цвет с акцентом/warning
+   * (они уже синий/оранжевый), лаборатория и семинар/консультация получают
+   * отдельные оттенки ниже (разные в светлой и тёмной теме).
+   */
+  --color-lecture: var(--color-accent);
+  --color-lecture-soft: var(--color-accent-soft);
+  --color-practice: var(--color-warning);
+  --color-practice-soft: var(--color-warning-soft);
+}
+
+/* Светлая тема (по умолчанию) */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Поверхности */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f7f8;
+  --color-bg-hover: #f0f0f2;
+  --color-bg-active: #e8e8eb;
+  --color-bg-elevated: #ffffff; /* выпадающие меню, модальные окна */
+  --color-backdrop: rgba(24, 24, 27, 0.28);
+
+  /* Переключатели (SegmentedControl) */
+  --color-control-track: #f0f0f2;
+  --color-control-thumb: #ffffff;
+
+  /* Границы */
+  --color-border: #ebebef;
+  --color-border-strong: #dcdce1;
+  --color-border-hover: #c9c9d0;
+
+  /* Текст */
+  --color-text: #18181b;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #8b8b94;
+
+  /* Акцент */
+  --color-accent: #3056d3;
+  --color-accent-hover: #2848b8;
+  --color-accent-soft: #eef2fc;
+  --color-accent-text: #2445ad;
+  --color-on-accent: #ffffff;
+
+  /* Статусы */
+  --color-success: #2f7d4f;
+  --color-success-soft: #eaf5ee;
+  --color-warning: #a35f0c;
+  --color-warning-soft: #fbf1e2;
+  --color-danger: #c43d3d;
+  --color-danger-soft: #fcecec;
+
+  /* Типы занятий: лабораторная (фиолетовый), семинар/консультация/другое (тёмно-синий) */
+  --color-lab: #8347c9;
+  --color-lab-soft: #f5eefc;
+  --color-consultation: #2c4a7a;
+  --color-consultation-soft: #eaeff6;
+
+  /* Фокус */
+  --color-focus: rgba(48, 86, 211, 0.45);
+  --color-focus-ring: rgba(48, 86, 211, 0.14);
+
+  /* Тени — только для всплывающих слоёв */
+  --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.06);
+  --shadow-popover: 0 8px 24px -8px rgba(24, 24, 27, 0.14), 0 2px 6px -2px rgba(24, 24, 27, 0.06);
+  --shadow-modal: 0 24px 56px -16px rgba(24, 24, 27, 0.22);
+}
+
+/* Тёмная тема */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #131315;
+  --color-bg-subtle: #0d0d0f;
+  --color-bg-hover: #202024;
+  --color-bg-active: #28282d;
+  --color-bg-elevated: #19191c;
+  --color-backdrop: rgba(0, 0, 0, 0.6);
+
+  --color-control-track: #1c1c1f;
+  --color-control-thumb: #2c2c31;
+
+  --color-border: #232327;
+  --color-border-strong: #2f2f34;
+  --color-border-hover: #3d3d44;
+
+  --color-text: #ededef;
+  --color-text-secondary: #a8a8b0;
+  --color-text-muted: #70707a;
+
+  --color-accent: #7c98f0;
+  --color-accent-hover: #93abf4;
+  --color-accent-soft: rgba(124, 152, 240, 0.12);
+  --color-accent-text: #a9bcf6;
+  --color-on-accent: #0d0d0f;
+
+  --color-success: #62bd88;
+  --color-success-soft: rgba(98, 189, 136, 0.12);
+  --color-warning: #e0a650;
+  --color-warning-soft: rgba(224, 166, 80, 0.12);
+  --color-danger: #ee7b7b;
+  --color-danger-soft: rgba(238, 123, 123, 0.12);
+
+  --color-lab: #c9a3f0;
+  --color-lab-soft: rgba(201, 163, 240, 0.12);
+  --color-consultation: #8fa8cc;
+  --color-consultation-soft: rgba(143, 168, 204, 0.12);
+
+  --color-focus: rgba(124, 152, 240, 0.5);
+  --color-focus-ring: rgba(124, 152, 240, 0.2);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-popover: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+  --shadow-modal: 0 24px 64px -16px rgba(0, 0, 0, 0.7);
+}

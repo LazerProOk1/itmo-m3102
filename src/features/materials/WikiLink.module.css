@@ -1,0 +1,15 @@
+.link {
+  color: var(--color-accent-text);
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Ссылка из Obsidian на файл, которого нет в приложении (другой поток, README, CONTRIBUTING…) */
+.missing {
+  color: var(--color-text-muted);
+  text-decoration: underline dotted;
+  text-decoration-color: var(--color-border-hover);
+  cursor: help;
+}

@@ -1,0 +1,107 @@
+.cell {
+  display: flex;
+  flex-direction: column;
+  min-height: 108px;
+  padding: var(--space-1);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.outside {
+  background: var(--color-bg-subtle);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dayNumber {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.dayNumber:hover {
+  background: var(--color-bg-hover);
+}
+
+.outside .dayNumber {
+  color: var(--color-text-muted);
+}
+
+.today {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.today:hover {
+  background: var(--color-accent-hover);
+}
+
+.addButton {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.cell:hover .addButton,
+.addButton:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .addButton {
+    opacity: 1;
+  }
+}
+
+.addButton:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: var(--space-0-5);
+  min-height: 0;
+}
+
+.more {
+  padding: 0 var(--space-1-5);
+  border: 0;
+  background: transparent;
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.more:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .cell {
+    min-height: 76px;
+  }
+}

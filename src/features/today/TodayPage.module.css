@@ -1,0 +1,13 @@
+/* Две колонки панелей, на телефоне — одна */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-10) var(--space-12);
+}
+
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-10);
+  }
+}

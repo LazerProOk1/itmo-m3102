@@ -1,0 +1,84 @@
+.grid {
+  columns: 260px;
+  column-gap: var(--space-4);
+}
+
+.card {
+  position: relative;
+  break-inside: avoid;
+  margin: 0 0 var(--space-4);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.delete {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  background: var(--color-bg-elevated);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.card:hover .delete,
+.delete:focus-visible {
+  opacity: 1;
+}
+
+.card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.card small {
+  color: var(--color-text-muted);
+}
+
+.full {
+  display: block;
+  max-width: 100%;
+  max-height: 75vh;
+  margin: 0 auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.loading,
+.error {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+@media (hover: none) {
+  .delete {
+    opacity: 1;
+  }
+}

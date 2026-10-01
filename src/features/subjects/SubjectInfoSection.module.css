@@ -1,0 +1,28 @@
+.section {
+  margin-bottom: var(--space-8);
+}
+
+.tabs {
+  margin-bottom: var(--space-4);
+}
+
+.item + .item {
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.itemTitle {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}

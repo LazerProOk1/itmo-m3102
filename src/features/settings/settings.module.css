@@ -1,0 +1,133 @@
+.page {
+  max-width: 760px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.label {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.description {
+  margin-top: var(--space-0-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.control {
+  display: flex;
+  align-items: center;
+}
+
+.dateInput {
+  width: 180px;
+}
+
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+.hiddenFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.importError {
+  margin-top: calc(-1 * var(--space-3));
+  padding-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.syncIcon {
+  transition: transform var(--duration-base) var(--ease-luxury-out);
+}
+
+/* Вращение вместо дефолтного спиннера — та же иконка действия, просто крутится, пока идёт запрос */
+.syncIconSpinning {
+  animation: sync-spin 1s linear infinite;
+}
+
+@keyframes sync-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.syncResult {
+  margin-top: calc(-1 * var(--space-3));
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.syncResultTitle {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.syncResultStats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+}
+
+.syncResultStats > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.syncResultStats dt {
+  color: var(--color-text-muted);
+}
+
+.syncResultStats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.syncResultWarning {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-warning);
+}
+
+.syncResultList {
+  margin: var(--space-1-5) 0 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.syncResultList li + li {
+  margin-top: var(--space-1);
+}
+
+.tokenFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}

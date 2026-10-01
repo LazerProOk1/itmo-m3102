@@ -1,0 +1,14 @@
+.urlRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.urlRow > *:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.urlRow > *:last-child {
+  flex-shrink: 0;
+}

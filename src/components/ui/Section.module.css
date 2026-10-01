@@ -1,0 +1,40 @@
+.section {
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.titleDanger {
+  color: var(--color-danger);
+}
+
+.meta {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  /* текст ghost-кнопки встаёт ровно по правому краю контента */
+  margin-right: calc(-1 * var(--space-2-5));
+  margin-left: auto;
+}

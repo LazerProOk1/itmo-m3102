@@ -1,0 +1,10 @@
+/* Предмет — необязательная мелочь, ему не нужна вся ширина окна */
+.subjectField {
+  max-width: 260px;
+}
+
+.content {
+  font-family: var(--font-mono);
+  line-height: var(--leading-normal);
+  resize: vertical;
+}

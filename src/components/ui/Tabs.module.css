@@ -1,0 +1,55 @@
+.list {
+  display: flex;
+  gap: var(--space-5);
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* линия снизу через тень, чтобы подчёркивание вкладки ложилось поверх неё */
+  box-shadow: inset 0 -1px 0 var(--color-border);
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.tab:hover {
+  color: var(--color-text-secondary);
+}
+
+.active,
+.active:hover {
+  color: var(--color-text);
+}
+
+/* Один общий индикатор — он и переезжает между вкладками (см. layoutId в Tabs.tsx) */
+.indicator {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--color-text);
+}
+
+.count {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}

@@ -1,2 +1,0 @@
-/* Плашка формата файла (PDF, DOC, …) в списке материалов — в стиле боковой панели лекций */
-.fmt-pill{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.04em;line-height:1.5;vertical-align:middle;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}

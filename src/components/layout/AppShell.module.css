@@ -1,0 +1,49 @@
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  min-height: 100dvh;
+  background: var(--color-bg-subtle);
+}
+
+.column {
+  min-width: 0;
+  background: var(--color-bg);
+  border-left: 1px solid var(--color-border);
+}
+
+/* Контент не растягивается на широких мониторах. position: relative — точка отсчёта
+   для уходящей страницы во время перехода (см. AnimatedPage в AppShell.tsx) */
+.content {
+  position: relative;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-10) var(--space-16);
+}
+
+@media (max-width: 767px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .column {
+    border-left: 0;
+  }
+
+  .content {
+    padding: var(--space-6) var(--space-4);
+    /* место под нижнюю панель вкладок */
+    padding-bottom: calc(var(--mobile-nav-height) + var(--space-8) + env(safe-area-inset-bottom));
+  }
+}
+
+/* «Скачать PDF» у конспекта — печать в PDF средствами браузера: только сама страница, без меню */
+@media print {
+  .shell > :not(.column),
+  .column > :not(main) {
+    display: none !important;
+  }
+
+  .content {
+    padding: 0 !important;
+  }
+}

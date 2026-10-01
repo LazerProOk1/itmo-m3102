@@ -1,3 +1,7 @@
 .playwright-cli/
 output/playwright/
 .DS_Store
+node_modules/
+dist/
+*.local
+Thumbs.db

@@ -1,0 +1,136 @@
+.dialog {
+  width: calc(100% - var(--space-8));
+  max-height: calc(100dvh - var(--space-16));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  box-shadow: var(--shadow-modal);
+  /* Точка, откуда «родилось» окно — по умолчанию центр, но Modal.tsx подставляет
+     координаты элемента, на который кликнули, чтобы окно росло оттуда, а не из воздуха */
+  transform-origin: var(--origin-x, 50%) var(--origin-y, 50%);
+}
+
+.dialog[open] {
+  animation: dialog-in 320ms cubic-bezier(0.2, 1.1, 0.3, 1);
+}
+
+.dialog.closing {
+  animation: dialog-out 140ms var(--ease-luxury-in);
+}
+
+.dialog::backdrop {
+  background: var(--color-backdrop);
+  backdrop-filter: blur(3px);
+  animation: fade-in var(--duration-base) var(--ease);
+}
+
+.dialog.closing::backdrop {
+  animation: fade-out 150ms var(--ease-luxury-in);
+}
+
+.sm {
+  max-width: 400px;
+}
+
+.md {
+  max-width: 520px;
+}
+
+.lg {
+  max-width: 680px;
+}
+
+.bare {
+  max-width: 560px;
+  margin-top: 12vh;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - var(--space-16));
+}
+
+.header {
+  padding: var(--space-5) var(--space-12) 0 var(--space-5);
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.description {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.body {
+  padding: var(--space-5);
+  overflow-y: auto;
+}
+
+.header + .body {
+  padding-top: var(--space-4);
+}
+
+.bareBody {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+@keyframes dialog-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}

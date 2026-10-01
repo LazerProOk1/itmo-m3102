@@ -1,0 +1,38 @@
+.textarea {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  line-height: var(--leading-normal);
+  resize: vertical;
+}
+
+.pdfField {
+  margin-top: var(--space-2);
+}
+
+.pdfActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.pdfStatus {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pdfHint {
+  margin-top: var(--space-1-5);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.pdfError {
+  margin-top: var(--space-1-5);
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+}

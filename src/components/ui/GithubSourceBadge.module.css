@@ -1,0 +1,7 @@
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-left: var(--space-1-5);
+  vertical-align: -1px;
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,92 @@
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Строка шире колонки на 8px с каждой стороны: фон при наведении
+ * не прилипает к тексту, а сам текст стоит ровно по краю контента.
+ */
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  margin: 0 calc(-1 * var(--space-2));
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-fast) var(--ease);
+}
+
+/* Разделитель между строками — ровно по ширине контента */
+.item + .item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: var(--space-2);
+  left: var(--space-2);
+  height: 1px;
+  background: var(--color-border);
+}
+
+.item:hover {
+  background: var(--color-bg-hover);
+}
+
+.highlighted,
+.highlighted:hover {
+  background: var(--color-accent-soft);
+}
+
+/* Рядом с подсвеченной строкой линии не нужны */
+.item:hover::before,
+.item:hover + .item::before,
+.highlighted::before,
+.highlighted + .item::before {
+  opacity: 0;
+}
+
+.leading {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  color: var(--color-text-muted);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  font-size: var(--text-base);
+  color: var(--color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  margin-top: 1px;
+  overflow: hidden;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trailing {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.muted .title {
+  color: var(--color-text-muted);
+}

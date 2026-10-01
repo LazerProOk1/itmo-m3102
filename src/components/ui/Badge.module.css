@@ -1,0 +1,66 @@
+.badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+  height: 20px;
+  padding: 0 var(--space-1-5);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.neutral {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.accent {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+}
+
+.success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.lecture {
+  background: var(--color-lecture-soft);
+  color: var(--color-lecture);
+}
+
+.practice {
+  background: var(--color-practice-soft);
+  color: var(--color-practice);
+}
+
+.lab {
+  background: var(--color-lab-soft);
+  color: var(--color-lab);
+}
+
+.consultation {
+  background: var(--color-consultation-soft);
+  color: var(--color-consultation);
+}

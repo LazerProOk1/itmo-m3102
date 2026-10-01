@@ -1,0 +1,243 @@
+/*
+ * Типографика markdown — заголовки, списки, код, таблицы, цитаты, ссылки.
+ * font-size читает --content-font-size, если снаружи (LectureNoteViewPage) его переопределили —
+ * так одна и та же вёрстка может быть компактной в списках и крупнее на странице чтения.
+ */
+.markdown {
+  font-size: var(--content-font-size, var(--text-base));
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  margin: var(--space-5) 0 var(--space-2);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.markdown h1 {
+  font-size: var(--text-lg);
+}
+
+.markdown h2 {
+  font-size: var(--text-md);
+}
+
+.markdown h3 {
+  font-size: var(--text-base);
+}
+
+.markdown p {
+  margin: var(--space-3) 0;
+}
+
+.markdown ul,
+.markdown ol {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-5);
+}
+
+.markdown li {
+  margin: var(--space-1) 0;
+}
+
+.markdown strong {
+  font-weight: var(--weight-semibold);
+}
+
+.markdown a {
+  color: var(--color-accent-text);
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}
+
+.markdown code {
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.markdown pre {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.markdown pre code {
+  padding: 0;
+  background: none;
+}
+
+.markdown blockquote {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.markdown table {
+  width: 100%;
+  margin: var(--space-3) 0;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.markdown th,
+.markdown td {
+  padding: var(--space-1-5) var(--space-2);
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.markdown th {
+  background: var(--color-bg-subtle);
+  font-weight: var(--weight-semibold);
+}
+
+.markdown hr {
+  margin: var(--space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---------- Выноски [!тип] — цвета как на сайте группы M3102 ---------- */
+.markdown :global(.callout) {
+  --callout-color: var(--color-warning);
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--callout-color);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--callout-color) 8%, transparent);
+}
+
+.markdown :global(.callout) > :first-child {
+  margin-top: 0;
+}
+
+.markdown :global(.callout) > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown :global(.callout-title) {
+  margin-bottom: var(--space-1);
+  font-weight: var(--weight-semibold);
+  color: var(--callout-color);
+}
+
+.markdown :global(.callout)[data-callout='remember'] {
+  --callout-color: #e0485c;
+}
+
+.markdown :global(.callout)[data-callout='note'] {
+  --callout-color: #dd9a2b;
+}
+
+.markdown :global(.callout)[data-callout='meaning'],
+.markdown :global(.callout)[data-callout='info'] {
+  --callout-color: #3b82f6;
+}
+
+.markdown :global(.callout)[data-callout='warning'],
+.markdown :global(.callout)[data-callout='question'] {
+  --callout-color: #f97316;
+}
+
+.markdown :global(.callout)[data-callout='example'],
+.markdown :global(.callout)[data-callout='tip'] {
+  --callout-color: #22c55e;
+}
+
+.markdown :global(.callout)[data-callout='formula'] {
+  --callout-color: #a855f7;
+}
+
+.markdown :global(.callout)[data-callout='quote'] {
+  --callout-color: var(--color-text-muted);
+}
+
+/* ---------- Подсветка кода (highlight.js) на токенах темы ---------- */
+.markdown :global(.hljs-keyword),
+.markdown :global(.hljs-selector-tag),
+.markdown :global(.hljs-built_in),
+.markdown :global(.hljs-type) {
+  color: #a855f7;
+}
+
+.markdown :global(.hljs-string),
+.markdown :global(.hljs-regexp),
+.markdown :global(.hljs-addition) {
+  color: #16a34a;
+}
+
+.markdown :global(.hljs-number),
+.markdown :global(.hljs-literal),
+.markdown :global(.hljs-symbol) {
+  color: #ea580c;
+}
+
+.markdown :global(.hljs-comment),
+.markdown :global(.hljs-quote),
+.markdown :global(.hljs-meta) {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.markdown :global(.hljs-title),
+.markdown :global(.hljs-function),
+.markdown :global(.hljs-section) {
+  color: #2563eb;
+}
+
+.markdown :global(.hljs-attr),
+.markdown :global(.hljs-variable),
+.markdown :global(.hljs-params) {
+  color: #0891b2;
+}
+
+.markdown :global(.hljs-deletion) {
+  color: #dc2626;
+}
+
+/* ---------- mermaid ---------- */
+.mermaid {
+  margin: var(--space-4) 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.mermaid :global(svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+.blockLoading {
+  margin: var(--space-4) 0;
+  padding: var(--space-6);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.blockError figcaption {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}

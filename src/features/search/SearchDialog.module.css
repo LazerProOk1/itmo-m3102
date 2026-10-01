@@ -1,0 +1,113 @@
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  height: 52px;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-md);
+  color: var(--color-text);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.muted {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.results {
+  max-height: min(420px, 60dvh);
+  padding: var(--space-2);
+  overflow-y: auto;
+}
+
+.group + .group {
+  margin-top: var(--space-2);
+}
+
+.groupLabel {
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  text-align: left;
+}
+
+.result:hover,
+.result:focus-visible,
+.active {
+  outline: none;
+  background: var(--color-bg-hover);
+}
+
+.resultTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultMeta {
+  margin-left: auto;
+  padding-left: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.hints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 40px;
+  padding: 0 var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 479px) {
+  .hints {
+    gap: var(--space-3);
+  }
+
+  .hint {
+    gap: var(--space-0-5);
+  }
+}

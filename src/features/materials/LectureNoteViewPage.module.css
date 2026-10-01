@@ -1,0 +1,73 @@
+/* Уже страницы приложения — конспект читают, а не сканируют глазами таблицу, поэтому колонка уже */
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin-bottom: var(--space-4);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.back:hover {
+  color: var(--color-text);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-1);
+}
+
+/* Крупнее и просторнее, чем обычный текст интерфейса — здесь читают, а не сканируют список */
+.content {
+  --content-font-size: var(--text-md);
+}
+
+@media (max-width: 767px) {
+  .page {
+    max-width: none;
+  }
+}
+
+@media print {
+  .back,
+  .actions {
+    display: none;
+  }
+}

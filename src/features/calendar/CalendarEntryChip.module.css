@@ -1,0 +1,55 @@
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  width: 100%;
+  height: 22px;
+  padding: 0 var(--space-1-5);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  text-align: left;
+}
+
+.chip:hover {
+  background: var(--color-bg-hover);
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.eventDot {
+  background: var(--color-accent);
+}
+
+.deadlineIcon {
+  flex-shrink: 0;
+  color: var(--color-warning);
+}
+
+.deadline {
+  color: var(--color-warning);
+}
+
+.time {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.deadline .time {
+  color: var(--color-warning);
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

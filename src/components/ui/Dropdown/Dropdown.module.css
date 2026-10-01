@@ -1,0 +1,152 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
+/* Триггер — окаймлённое поле (замена нативного <select>) */
+.fieldTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  cursor: pointer;
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.placeholder {
+  color: var(--color-text-muted);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+/* Триггер — компактная кнопка для фильтров тулбара */
+.ghostTrigger {
+  width: auto;
+}
+
+/*
+ * Меню: наследует вид от DropdownMenu (.menu), здесь — только собственные поля.
+ * Блочная раскладка, а не flex-column: с position:fixed + bottom (открытие вверх)
+ * flex-контейнер с auto-высотой схлопывает дочерний .list с overflow:auto до 0 —
+ * известная особенность flex (auto-min-size у элемента с overflow не visible).
+ */
+.menu {
+  display: block;
+  max-width: min(320px, calc(100vw - var(--space-4)));
+}
+
+.searchRow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1) var(--space-1-5);
+  margin-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.list {
+  overflow-y: auto;
+  max-height: 240px;
+}
+
+.option {
+  min-height: 30px;
+}
+
+.checkSlot {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 14px;
+}
+
+.highlighted {
+  background: var(--color-bg-hover);
+}
+
+.empty {
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Мобильный bottom sheet вместо popover */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dropdown);
+  background: var(--color-backdrop);
+  animation: backdrop-in var(--duration-base) var(--ease);
+}
+
+.sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  padding: var(--space-2) var(--space-2) calc(var(--space-3) + env(safe-area-inset-bottom));
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-modal);
+  animation: sheet-in var(--duration-base) var(--ease);
+}
+
+.sheetHandle {
+  flex-shrink: 0;
+  align-self: center;
+  width: 32px;
+  height: 4px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-border-strong);
+}
+
+.sheet .option {
+  min-height: 44px;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}

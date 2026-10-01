@@ -1,0 +1,69 @@
+.row {
+  position: relative;
+  min-height: 64px;
+  overflow: hidden;
+}
+
+/* Едва заметное пятно света, идущее за курсором — координаты пишет useCursorGlow */
+.row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(200px circle at var(--glow-x, 50%) var(--glow-y, 50%), var(--color-accent), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease);
+  pointer-events: none;
+}
+
+.row:hover::before {
+  opacity: 0.04;
+}
+
+.titleLink {
+  display: block;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titleLink:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-hover);
+  text-underline-offset: 2px;
+}
+
+.monogram {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.stat {
+  width: 88px;
+  text-align: right;
+  color: var(--color-text-muted);
+}
+
+.deadline {
+  width: 96px;
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .stat {
+    display: none;
+  }
+
+  .deadline {
+    width: auto;
+  }
+}
