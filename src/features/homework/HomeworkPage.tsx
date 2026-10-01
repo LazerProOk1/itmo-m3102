@@ -17,10 +17,11 @@ import { HOMEWORK_PATH, serializeHomework, useHomeworkStore, type HomeworkItem }
 import { PublishHomeworkDialog } from './PublishHomeworkDialog';
 import styles from './Homework.module.css';
 
-type Filter = 'active' | 'done' | 'all';
+type Filter = 'active' | 'overdue' | 'done' | 'all';
 
 const FILTERS: SegmentedOption<Filter>[] = [
   { value: 'active', label: 'Актуальные' },
+  { value: 'overdue', label: 'Просроченные' },
   { value: 'done', label: 'Выполненные' },
   { value: 'all', label: 'Все' },
 ];
@@ -45,8 +46,11 @@ export function HomeworkPage() {
   const [publishing, setPublishing] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Просроченные — срок прошёл, а «сделано» не отмечено; в «Актуальных» их нет
+  const filterOf = (item: HomeworkItem): Filter =>
+    done[item.id] ? 'done' : item.due !== '' && item.due < today ? 'overdue' : 'active';
   const visible = items
-    .filter((item) => filter === 'all' || (filter === 'done') === Boolean(done[item.id]))
+    .filter((item) => filter === 'all' || filterOf(item) === filter)
     .sort((a, b) => dueOrder(a).localeCompare(dueOrder(b)) || a.subject.localeCompare(b.subject, 'ru'));
 
   const groups = new Map<string, HomeworkItem[]>();
@@ -96,7 +100,7 @@ export function HomeworkPage() {
       {ordered.length === 0 ? (
         <EmptyState title="Всё под контролем" description="Заданий в этом списке пока нет." />
       ) : (
-        // key по фильтру: при смене «Актуальные / Выполненные / Все» каскад проигрывается заново
+        // key по фильтру: при смене вкладки каскад проигрывается заново
         <div key={filter} className="stagger">
           {ordered.map(([subject, entries]) => (
             <section key={subject} className={styles.group}>

@@ -1,10 +1,11 @@
+import type { CSSProperties } from 'react';
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber';
 import { Badge } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import { formatDuration } from '../../lib/dates';
 import { useCursorGlow } from '../../lib/useCursorGlow';
-import { CLASS_TYPE_LABELS } from '../schedule/labels';
-import type { ClassDetails } from '../../types/models';
+import { classTypeColorVar, CLASS_TYPE_LABELS } from '../schedule/labels';
+import type { ClassDetails, ClassType } from '../../types/models';
 import { useSubjectName } from '../subjects/subjectsStore';
 import type { ClassStatus } from './classStatus';
 import styles from './NextClassBlock.module.css';
@@ -22,7 +23,7 @@ export function NextClassBlock({ status }: NextClassBlockProps) {
 
   if (status.kind === 'finished') {
     return (
-      <section className={styles.block} {...glow}>
+      <section className={styles.block} style={typeColor(status.next?.occurrence.details.type)} {...glow}>
         <div>
           <p className={styles.eyebrow}>Пар сегодня больше нет</p>
           {status.next ? (
@@ -47,7 +48,7 @@ export function NextClassBlock({ status }: NextClassBlockProps) {
   const { details } = status.occurrence;
 
   return (
-    <section className={cn(styles.block, isNow && styles.now)} {...glow}>
+    <section className={cn(styles.block, isNow && styles.now)} style={typeColor(details.type)} {...glow}>
       <div>
         <p className={styles.eyebrow}>
           {isNow && <span className={styles.liveDot} aria-hidden />}
@@ -76,6 +77,9 @@ export function NextClassBlock({ status }: NextClassBlockProps) {
     </section>
   );
 }
+
+/** Таблетка слева — цвет типа пары, как в расписании */
+const typeColor = (type?: ClassType) => (type ? ({ '--type-color': classTypeColorVar(type) } as CSSProperties) : undefined);
 
 function SubjectName({ subjectId }: { subjectId: string }) {
   return <>{useSubjectName(subjectId)}</>;

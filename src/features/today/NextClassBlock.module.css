@@ -22,6 +22,18 @@
   pointer-events: none;
 }
 
+/* Таблетка типа пары, как у карточек расписания */
+.block::after {
+  content: '';
+  position: absolute;
+  top: var(--space-5);
+  bottom: var(--space-5);
+  left: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--type-color, transparent);
+}
+
 .block:hover::before {
   opacity: 0.05;
 }
