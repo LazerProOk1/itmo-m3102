@@ -1,6 +1,7 @@
 import { Markdown } from '../../components/markdown/Markdown';
 import { Section } from '../../components/ui/Section';
 import { Demo } from './Demo';
+import styles from './DesignSystemPage.module.css';
 
 const CALLOUTS = `> [!meaning] Определение
 > **Предикат** — функция $P: D^k \\to \\{0, 1\\}$.
@@ -78,10 +79,10 @@ export function ContentDemo() {
   return (
     <Section title="Конспекты">
       <Demo label="Выноски > [!тип] и :::тип … ::: · типы и цвета как на сайте группы">
-        <Markdown content={CALLOUTS} />
+        <Markdown content={CALLOUTS} className={styles.wide} />
       </Demo>
       <Demo label="Диаграммы · ```plot, diagram, tree, array, graph, chart">
-        <Markdown content={DIAGRAMS} />
+        <Markdown content={DIAGRAMS} className={styles.wide} />
       </Demo>
     </Section>
   );
