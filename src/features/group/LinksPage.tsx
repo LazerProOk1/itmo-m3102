@@ -44,7 +44,6 @@ export function LinksPage({ embedded = false }: { embedded?: boolean }) {
   const links = useGroupStore((state) => state.links);
   const { isEditMode } = useEditMode();
   const [query, setQuery] = useState('');
-  const reduceMotion = usePrefersReducedMotion();
 
   const q = query.trim().toLowerCase();
   const visible = links.filter((link) =>
@@ -59,8 +58,6 @@ export function LinksPage({ embedded = false }: { embedded?: boolean }) {
       Добавить ссылку
     </a>
   );
-
-  let index = 0;
 
   return (
     <>
@@ -94,43 +91,55 @@ export function LinksPage({ embedded = false }: { embedded?: boolean }) {
               <h2>{group}</h2>
               <span>{items.length}</span>
             </div>
-            <div className={styles.grid}>
-              {items.map((link) => {
-                const kind = linkKind(link);
-                const delay = Math.min(index++, 12) * 0.035;
-                return (
-                  <motion.a
-                    key={link.url + link.title}
-                    className={styles.card}
-                    data-tone={tone(link.subject || link.group)}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0, transition: { ...SPRING_SMOOTH, delay } }}
-                    whileHover={reduceMotion ? undefined : { y: -2 }}
-                  >
-                    <span className={styles.badge} aria-hidden>
-                      {kind.badge}
-                    </span>
-                    <span className={styles.body}>
-                      <strong>{link.title}</strong>
-                      {link.description && <small>{link.description}</small>}
-                      <span className={styles.meta}>
-                        {link.subject && <span className={styles.subject}>{link.subject}</span>}
-                        <span>{host(link.url)}</span>
-                      </span>
-                    </span>
-                    <span className={styles.arrow} aria-hidden>
-                      ↗
-                    </span>
-                  </motion.a>
-                );
-              })}
-            </div>
+            <LinkCards links={items} />
           </section>
         ))
       )}
     </>
+  );
+}
+
+/** Карточки ссылок — на странице «Ссылки» и у предмета */
+export function LinkCards({ links }: { links: GroupLink[] }) {
+  const reduceMotion = usePrefersReducedMotion();
+  return (
+    <div className={styles.grid}>
+      {links.map((link, index) => {
+        const kind = linkKind(link);
+        const delay = Math.min(index, 12) * 0.035;
+        return (
+          <motion.a
+            key={link.url + link.title}
+            className={styles.card}
+            data-tone={tone(link.subject || link.group)}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              transition: { ...SPRING_SMOOTH, delay },
+            }}
+            whileHover={reduceMotion ? undefined : { y: -2 }}
+          >
+            <span className={styles.badge} aria-hidden>
+              {kind.badge}
+            </span>
+            <span className={styles.body}>
+              <strong>{link.title}</strong>
+              {link.description && <small>{link.description}</small>}
+              <span className={styles.meta}>
+                {link.subject && <span className={styles.subject}>{link.subject}</span>}
+                <span>{host(link.url)}</span>
+              </span>
+            </span>
+            <span className={styles.arrow} aria-hidden>
+              ↗
+            </span>
+          </motion.a>
+        );
+      })}
+    </div>
   );
 }

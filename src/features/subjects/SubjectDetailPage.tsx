@@ -7,6 +7,8 @@ import { Tabs, type TabItem } from '../../components/ui/Tabs';
 import { formatShortDate } from '../../lib/dates';
 import { useClock } from '../../lib/useClock';
 import { SECTIONS } from '../../app/navigation';
+import { resolveSubjectFolder } from '../../data/m3102';
+import { useGroupStore } from '../group/groupStore';
 import { useEditMode } from '../settings/EditModeContext';
 import { LectureNoteDialog } from '../materials/LectureNoteDialog';
 import { useLectureNoteDialog } from '../materials/useLectureNoteDialog';
@@ -69,6 +71,7 @@ export function SubjectDetailPage() {
   const subjectInfo = useSubjectInfoStore((state) => state.items);
   const notes = useNotesStore((state) => state.notes);
   const classes = useScheduleStore((state) => state.classes);
+  const groupLinks = useGroupStore((state) => state.links);
 
   const [tab, setTab] = useState<SubjectTab>('overview');
   const [shouldRevealTitle] = useState(() => !hasRevealedSubjectTitle);
@@ -87,6 +90,8 @@ export function SubjectDetailPage() {
   const subjectMaterials = materials.filter((material) => material.subjectId === subject.id && material.type !== 'link');
   const subjectLectureNotes = lectureNotes.filter((note) => note.subjectId === subject.id && !note.archived);
   const subjectLinks = materials.filter((material) => material.subjectId === subject.id && material.type === 'link');
+  // Ссылки группы (data/links.json) — предмет указан названием или сокращением
+  const subjectGroupLinks = groupLinks.filter((link) => resolveSubjectFolder(link.subject) === subject.id);
   const subjectNotes = notes.filter((note) => note.subjectId === subject.id);
   const subjectInfoItems = subjectInfo.filter((item) => item.subjectId === subject.id);
   const nextDeadline = getNextDeadline(tasks, subject.id, today);
@@ -96,7 +101,7 @@ export function SubjectDetailPage() {
     { value: 'tasks', label: TAB_LABELS.tasks, count: subjectTasks.filter(isOpenTask).length },
     { value: 'materials', label: TAB_LABELS.materials, count: subjectMaterials.length + subjectLectureNotes.length },
     { value: 'notes', label: TAB_LABELS.notes, count: subjectNotes.length },
-    { value: 'links', label: TAB_LABELS.links, count: subjectLinks.length },
+    { value: 'links', label: TAB_LABELS.links, count: subjectGroupLinks.length + subjectLinks.length },
   ];
 
   const subtitle = [
@@ -134,6 +139,7 @@ export function SubjectDetailPage() {
             tasks={subjectTasks}
             materials={subjectMaterials}
             links={subjectLinks}
+            groupLinks={subjectGroupLinks}
             today={today}
             onSwitchTab={setTab}
             onEditTask={taskDialog.openEdit}
@@ -170,6 +176,7 @@ export function SubjectDetailPage() {
         {tab === 'links' && (
           <SubjectLinksTab
             links={subjectLinks}
+            groupLinks={subjectGroupLinks}
             today={today}
             onAdd={() => materialDialog.openCreate({ subjectId: subject.id, type: 'link' })}
             onEdit={materialDialog.openEdit}
