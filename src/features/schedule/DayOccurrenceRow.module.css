@@ -1,6 +1,18 @@
 .row {
-  border-left: 3px solid var(--type-color, transparent);
-  padding-left: calc(var(--space-2) - 3px);
+  position: relative;
+  padding-left: var(--space-3);
+}
+
+/* Цвет типа пары — тонкая скруглённая полоска слева, а не граница (та изгибается на скруглениях) */
+.row::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--type-color, transparent);
 }
 
 .time {

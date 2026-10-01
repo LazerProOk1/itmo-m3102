@@ -1,10 +1,10 @@
 .card {
   position: relative;
-  padding: var(--space-2) var(--space-2-5);
+  padding: var(--space-2) var(--space-2-5) var(--space-2) 14px;
   border: 1px solid transparent;
-  border-left-width: 3px;
-  border-left-color: var(--type-color, transparent);
   border-radius: var(--radius-md);
+  /* Лёгкий оттенок цветом типа пары — карточки читаются как цветные плашки, без жёстких рамок */
+  background: color-mix(in srgb, var(--type-color, transparent) 7%, transparent);
   cursor: pointer;
   box-shadow: 0 0 #0000;
   /* y/scale на hover/tap — Framer Motion spring (WeekOccurrenceCard.tsx), не CSS:
@@ -17,6 +17,18 @@
 .card:not(.now):not(.cancelled):hover {
   background: var(--color-bg-hover);
   box-shadow: var(--shadow-xs);
+}
+
+/* Полоска типа пары внутри карточки — не изгибается на скруглённых углах, как border-left */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 5px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--type-color, transparent);
 }
 
 .card + .card {

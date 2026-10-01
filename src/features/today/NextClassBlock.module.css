@@ -88,3 +88,8 @@
     padding: var(--space-4);
   }
 }
+
+.when {
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+}
