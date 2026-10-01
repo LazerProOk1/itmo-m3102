@@ -159,39 +159,50 @@ export function DataSettings() {
         </>
       )}
 
-      <SettingsRow
-        label="Экспорт резервной копии"
-        description="Данные хранятся только в этом браузере. Сохраните их в файл, чтобы перенести на другое устройство."
-      >
-        <Button variant="secondary" icon={Download} onClick={exportBackup}>
-          Экспортировать
-        </Button>
-      </SettingsRow>
+      {/* Бэкап, импорт и сброс — для того, кто правит данные: только в сборке с редактированием (react-app-dev) */}
+      {EDITING_ENABLED && (
+        <>
+          <SettingsRow
+            label="Экспорт резервной копии"
+            description="Данные хранятся только в этом браузере. Сохраните их в файл, чтобы перенести на другое устройство."
+          >
+            <Button variant="secondary" icon={Download} onClick={exportBackup}>
+              Экспортировать
+            </Button>
+          </SettingsRow>
 
-      <SettingsRow label="Импорт резервной копии" description="Заменяет текущие данные содержимым выбранного файла.">
-        <Button
-          variant="secondary"
-          icon={Upload}
-          onClick={() => {
-            setImportError('');
-            fileInputRef.current?.click();
-          }}
-        >
-          Импортировать
-        </Button>
-        <input ref={fileInputRef} type="file" accept="application/json" className={styles.hiddenFileInput} onChange={handleFileSelected} />
-      </SettingsRow>
+          <SettingsRow label="Импорт резервной копии" description="Заменяет текущие данные содержимым выбранного файла.">
+            <Button
+              variant="secondary"
+              icon={Upload}
+              onClick={() => {
+                setImportError('');
+                fileInputRef.current?.click();
+              }}
+            >
+              Импортировать
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json"
+              className={styles.hiddenFileInput}
+              onChange={handleFileSelected}
+            />
+          </SettingsRow>
 
-      {importError && <p className={styles.importError}>{importError}</p>}
+          {importError && <p className={styles.importError}>{importError}</p>}
 
-      <SettingsRow
-        label="Сбросить данные"
-        description="Удаляет ваши задачи, заметки и правки и возвращает расписание М3102 по умолчанию. Тема и режим редактирования сохранятся."
-      >
-        <Button variant="danger" icon={Trash} onClick={() => setConfirmingReset(true)}>
-          Сбросить
-        </Button>
-      </SettingsRow>
+          <SettingsRow
+            label="Сбросить данные"
+            description="Удаляет ваши задачи, заметки и правки и возвращает расписание М3102 по умолчанию. Тема и режим редактирования сохранятся."
+          >
+            <Button variant="danger" icon={Trash} onClick={() => setConfirmingReset(true)}>
+              Сбросить
+            </Button>
+          </SettingsRow>
+        </>
+      )}
 
       <Modal
         open={confirmingReset}
