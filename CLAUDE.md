@@ -121,7 +121,7 @@ npm run build      # typecheck + сборка в dist/
 - Анимации framer-motion уважают «уменьшить движение» через `<MotionConfig reducedMotion="user">` в `main.tsx`.
 - Совместимость конспектов с сайтом группы (`components/markdown/Markdown.tsx` перед разбором):
   `:::тип … :::` → выноски, `$$x$$` одной строкой → формула по центру, `|` в формулах внутри таблиц →
-  `ert` (`lib/mathCompat.ts`). `\[ … \]` в формулы НЕ превращать: в конспектах это `\[4pt]` внутри LaTeX.
+  `\vert` (`lib/mathCompat.ts`). `\[ … \]` в формулы НЕ превращать: в конспектах это `\\[4pt]` внутри LaTeX.
 - Диаграммы DSL группы (`plot`, `graph`, `diagram`, `tree`, `array`, `chart`) рисует свой рендерер в
   `components/diagrams` (синтаксис — README RedstoneLord). Код пошаговой анимации в `array` (`code:`) не
   выполняется — это чужой JS из репозитория, показывается текстом.
