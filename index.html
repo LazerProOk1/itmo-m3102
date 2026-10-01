@@ -224,6 +224,7 @@
     <link rel="stylesheet" href="./css/lectures.css">
     <link rel="stylesheet" href="./css/browse.css">
     <link rel="stylesheet" href="./css/links.css">
+    <link rel="stylesheet" href="./css/quiz.css">
     </head>
     <body>
     <div class="wrap">
@@ -263,6 +264,7 @@
     import { bindNoteDiagrams, installDiagramEditor, renderDiagramEditor } from './js/diagrams/editor.js';
     import { installMemes, renderMemesPage } from './js/memes.js';
     import { renderLinksPage, materialsSwitch } from './js/links.js';
+    import { quizFigure, bindQuizzes, printifyQuizzes, quizPageSource, mountQuizPage } from './js/quiz.js';
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
@@ -346,6 +348,7 @@
     }
     function renderCodeBlock(code,infostring){
       const lang=(infostring||'').trim().split(/\s+/)[0].toLowerCase();
+      if(lang==='quiz')return quizFigure(code);
       if(lang==='mermaid')return renderMermaidBlock(code);
       if(hasDiagram(lang))return codeFigure(lang,code);
       return highlightCode(code,lang);
@@ -469,6 +472,7 @@
     async function runNoteExtras(container){
       if(!container)return;
       bindNoteDiagrams(container);
+      bindQuizzes(container);
       // диаграммы
       const nodes=container.querySelectorAll('.mermaid[data-mermaid-id]');
       if(nodes.length){
@@ -1148,6 +1152,7 @@
         source.querySelectorAll('.code-copy').forEach(b=>b.remove());
         // интерактивные массивы с кодом в PDF печатаются обычным статичным массивом (как раньше)
         printifyDiagrams(source);
+        printifyQuizzes(source);
         pdfDelistify(source);
         if(document.fonts && document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
         source.style.visibility='visible';
@@ -1683,6 +1688,14 @@
       fetch(rawUrl(path)).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
         .then(text=>{
           if(seq!==routeSeq)return;
+          const quizSrc=quizPageSource(text);
+          if(quizSrc!==null){
+            // файл начинается с «mode: quiz» — показываем тест на всю страницу вместо конспекта
+            c.innerHTML=`<div class="quiz-page">${viewBar('MD',name,path)}<div id="quiz-root"></div></div>`;
+            bindBack(path);
+            mountQuizPage(document.getElementById('quiz-root'),quizSrc);
+            return;
+          }
           const s=document.getElementById('note-status');if(s)s.remove();
           const body=document.getElementById('note-body');
           body.innerHTML=renderNotes(stripFrontMatter(text),path);
