@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { Modal } from '../../components/ui/Modal';
-import { useEditMode } from '../settings/EditModeContext';
 import type { ID, ISODate, Task } from '../../types/models';
 import { TaskForm, type TaskFormValues } from './TaskForm';
 import type { TaskDraft } from './tasksStore';
@@ -11,9 +10,7 @@ import { useTasksStore } from './tasksStore';
 import styles from './TaskDialog.module.css';
 
 /** Что открыто в окне: новая задача (можно заранее задать предмет и/или срок) или редактирование существующей */
-export type TaskDialogTarget =
-  | { mode: 'create'; defaultSubjectId?: ID; defaultDeadline?: ISODate }
-  | { mode: 'edit'; task: Task };
+export type TaskDialogTarget = { mode: 'create'; defaultSubjectId?: ID; defaultDeadline?: ISODate } | { mode: 'edit'; task: Task };
 
 const FORM_ID = 'task-form';
 
@@ -24,7 +21,6 @@ interface TaskDialogProps {
 
 /** Создание и редактирование задачи в одном модальном окне. */
 export function TaskDialog({ target, onClose }: TaskDialogProps) {
-  const { isEditMode } = useEditMode();
   const addTask = useTasksStore((state) => state.addTask);
   const updateTask = useTasksStore((state) => state.updateTask);
   const deleteTask = useTasksStore((state) => state.deleteTask);
@@ -61,32 +57,24 @@ export function TaskDialog({ target, onClose }: TaskDialogProps) {
       <Modal
         open={target !== null}
         onClose={onClose}
-        title={!isEditMode && target?.mode === 'edit' ? target.task.title : isEditing ? 'Изменить задачу' : 'Новая задача'}
+        title={isEditing ? 'Изменить задачу' : 'Новая задача'}
         footer={
-          isEditMode ? (
-            <>
-              {isEditing && (
-                <Button variant="danger" icon={Trash} className={styles.delete} onClick={() => setConfirmingDelete(true)}>
-                  Удалить
-                </Button>
-              )}
-              <Button variant="ghost" onClick={onClose}>
-                Отмена
+          <>
+            {isEditing && (
+              <Button variant="danger" icon={Trash} className={styles.delete} onClick={() => setConfirmingDelete(true)}>
+                Удалить
               </Button>
-              <Button variant="primary" type="submit" form={FORM_ID}>
-                {isEditing ? 'Сохранить' : 'Создать задачу'}
-              </Button>
-            </>
-          ) : (
+            )}
             <Button variant="ghost" onClick={onClose}>
-              Закрыть
+              Отмена
             </Button>
-          )
+            <Button variant="primary" type="submit" form={FORM_ID}>
+              {isEditing ? 'Сохранить' : 'Создать задачу'}
+            </Button>
+          </>
         }
       >
-        {target && (
-          <TaskForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} disabled={!isEditMode} />
-        )}
+        {target && <TaskForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} />}
       </Modal>
       <ConfirmDeleteModal
         open={confirmingDelete}

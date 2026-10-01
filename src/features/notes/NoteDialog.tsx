@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { Modal } from '../../components/ui/Modal';
-import { useEditMode } from '../settings/EditModeContext';
 import type { ID, Note } from '../../types/models';
 import { NoteForm, type NoteFormValues } from './NoteForm';
 import { useNotesStore } from './notesStore';
@@ -21,7 +20,6 @@ interface NoteDialogProps {
 
 /** Создание и редактирование заметки в одном модальном окне — просторнее остальных, ей самое место для текста. */
 export function NoteDialog({ target, onClose }: NoteDialogProps) {
-  const { isEditMode } = useEditMode();
   const addNote = useNotesStore((state) => state.addNote);
   const updateNote = useNotesStore((state) => state.updateNote);
   const deleteNote = useNotesStore((state) => state.deleteNote);
@@ -53,33 +51,25 @@ export function NoteDialog({ target, onClose }: NoteDialogProps) {
       <Modal
         open={target !== null}
         onClose={onClose}
-        title={!isEditMode && target?.mode === 'edit' ? target.note.title : isEditing ? 'Изменить заметку' : 'Новая заметка'}
+        title={isEditing ? 'Изменить заметку' : 'Новая заметка'}
         size="lg"
         footer={
-          isEditMode ? (
-            <>
-              {isEditing && (
-                <Button variant="danger" icon={Trash} className={styles.delete} onClick={() => setConfirmingDelete(true)}>
-                  Удалить
-                </Button>
-              )}
-              <Button variant="ghost" onClick={onClose}>
-                Отмена
+          <>
+            {isEditing && (
+              <Button variant="danger" icon={Trash} className={styles.delete} onClick={() => setConfirmingDelete(true)}>
+                Удалить
               </Button>
-              <Button variant="primary" type="submit" form={FORM_ID}>
-                {isEditing ? 'Сохранить' : 'Создать заметку'}
-              </Button>
-            </>
-          ) : (
+            )}
             <Button variant="ghost" onClick={onClose}>
-              Закрыть
+              Отмена
             </Button>
-          )
+            <Button variant="primary" type="submit" form={FORM_ID}>
+              {isEditing ? 'Сохранить' : 'Создать заметку'}
+            </Button>
+          </>
         }
       >
-        {target && (
-          <NoteForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} disabled={!isEditMode} />
-        )}
+        {target && <NoteForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} />}
       </Modal>
       <ConfirmDeleteModal
         open={confirmingDelete}

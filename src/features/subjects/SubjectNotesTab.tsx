@@ -19,7 +19,7 @@ export function SubjectNotesTab({ notes, today, onAdd, onEdit }: SubjectNotesTab
 
   return (
     <>
-      <TabToolbar label={pluralize(notes.length, ['заметка', 'заметки', 'заметок'])} addLabel="Добавить заметку" onAdd={onAdd} />
+      <TabToolbar label={pluralize(notes.length, ['заметка', 'заметки', 'заметок'])} addLabel="Добавить заметку" onAdd={onAdd} personal />
       {sorted.length === 0 ? (
         <EmptyState icon={NotebookPen} title="Пока нет заметок" description="Храните здесь всё, что стоит запомнить." />
       ) : (

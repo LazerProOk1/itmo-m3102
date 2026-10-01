@@ -8,7 +8,6 @@ import { ListItem } from '../../components/ui/List';
 import { cn } from '../../lib/cn';
 import { formatDayLabel } from '../../lib/dates';
 import type { ISODate, Task, TaskStatus } from '../../types/models';
-import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
 import { formatTaskMeta, STATUSES } from './labels';
 import { PriorityBadge } from './PriorityBadge';
@@ -33,7 +32,6 @@ const DONE_COMMIT_DELAY = 550;
  * Используется на Tasks, Deadlines и Today.
  */
 export function TaskRow({ task, today, onEdit }: TaskRowProps) {
-  const { isEditMode } = useEditMode();
   const subjectName = useOptionalSubjectName(task.subjectId);
   const setStatus = useTasksStore((state) => state.setStatus);
   const toggleDone = useTasksStore((state) => state.toggleDone);
@@ -83,33 +81,26 @@ export function TaskRow({ task, today, onEdit }: TaskRowProps) {
           <>
             <StatusBadge status={task.status} />
             {!isDone && <PriorityBadge priority={task.priority} />}
-            {task.deadline && (
-              <span className={cn(styles.due, isOverdue && styles.overdue)}>{formatDayLabel(task.deadline, today)}</span>
-            )}
-            {isEditMode && (
-              <DropdownMenu
-                align="end"
-                trigger={(props) => <IconButton icon={Ellipsis} label="Действия с задачей" size="sm" {...props} />}
-              >
-                {STATUS_ORDER.map((status) => (
-                  <DropdownItem
-                    key={status}
-                    icon={STATUSES[status].icon}
-                    checked={task.status === status}
-                    onSelect={() => setStatus(task.id, status)}
-                  >
-                    {STATUSES[status].label}
-                  </DropdownItem>
-                ))}
-                <DropdownSeparator />
-                <DropdownItem icon={Pencil} onSelect={() => onEdit(task)}>
-                  Изменить
+            {task.deadline && <span className={cn(styles.due, isOverdue && styles.overdue)}>{formatDayLabel(task.deadline, today)}</span>}
+            <DropdownMenu align="end" trigger={(props) => <IconButton icon={Ellipsis} label="Действия с задачей" size="sm" {...props} />}>
+              {STATUS_ORDER.map((status) => (
+                <DropdownItem
+                  key={status}
+                  icon={STATUSES[status].icon}
+                  checked={task.status === status}
+                  onSelect={() => setStatus(task.id, status)}
+                >
+                  {STATUSES[status].label}
                 </DropdownItem>
-                <DropdownItem icon={Trash} onSelect={() => confirmDelete.request(task)}>
-                  Удалить
-                </DropdownItem>
-              </DropdownMenu>
-            )}
+              ))}
+              <DropdownSeparator />
+              <DropdownItem icon={Pencil} onSelect={() => onEdit(task)}>
+                Изменить
+              </DropdownItem>
+              <DropdownItem icon={Trash} onSelect={() => confirmDelete.request(task)}>
+                Удалить
+              </DropdownItem>
+            </DropdownMenu>
           </>
         }
       />
