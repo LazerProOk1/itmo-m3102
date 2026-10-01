@@ -4,6 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { CalendarPage } from '../features/calendar/CalendarPage';
 import { DeadlinesPage } from '../features/deadlines/DeadlinesPage';
 import { DesignSystemPage } from '../features/design/DesignSystemPage';
+import { LinksPage } from '../features/group/LinksPage';
 import { MemesPage } from '../features/group/MemesPage';
 import { RepoFilePage } from '../features/group/RepoFilePage';
 import { StudentsPage } from '../features/group/StudentsPage';
@@ -58,6 +59,7 @@ export function App() {
             <Route path="notes" element={<NotesPage />} />
             <Route path="homework" element={<HomeworkPage />} />
             <Route path="files/*" element={<RepoFilePage />} />
+            <Route path="links" element={<LinksPage />} />
             <Route path="students" element={<StudentsPage />} />
             <Route path="memes" element={<MemesPage />} />
             <Route path="settings" element={<SettingsPage />} />

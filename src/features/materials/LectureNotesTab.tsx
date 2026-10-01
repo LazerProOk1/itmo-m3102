@@ -13,6 +13,7 @@ import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { LectureNoteDialog } from './LectureNoteDialog';
 import { LectureNoteRow } from './LectureNoteRow';
+import { compareLessons } from './NoteReader';
 import { useLectureNoteDialog } from './useLectureNoteDialog';
 import { useLectureNotesStore } from './lectureNotesStore';
 import styles from './MaterialsPage.module.css';
@@ -78,8 +79,7 @@ export function LectureNotesTab() {
     .filter((note) => note.subjectId === subject.id)
     .sort((a, b) =>
       sort === 'number'
-        ? // Сначала лекции, потом практики, внутри — по номеру ("Лекция 2-3" < "Лекция 10")
-          a.lectureNumber.localeCompare(b.lectureNumber, 'ru', { numeric: true }) || a.title.localeCompare(b.title)
+        ? compareLessons(a, b)
         : sort === 'name'
           ? a.title.localeCompare(b.title)
           : b.createdAt.localeCompare(a.createdAt),

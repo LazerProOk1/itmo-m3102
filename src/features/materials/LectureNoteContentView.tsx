@@ -13,10 +13,12 @@ interface LectureNoteContentViewProps {
   content: string;
   /** source_ref конспекта/материала — нужен, чтобы резолвить относительные Obsidian-ссылки [[...]] */
   sourceRef?: string;
+  /** Папка файла — от неё считаются относительные картинки в markdown */
+  baseUrl?: string;
 }
 
 /** Режим просмотра конспекта: рендер зависит от contentType — текст, PDF или карточка со ссылкой. */
-export function LectureNoteContentView({ contentType, content, sourceRef }: LectureNoteContentViewProps) {
+export function LectureNoteContentView({ contentType, content, sourceRef, baseUrl }: LectureNoteContentViewProps) {
   if (!content.trim()) {
     return <p className={styles.empty}>Содержимое ещё не добавлено.</p>;
   }
@@ -41,7 +43,7 @@ export function LectureNoteContentView({ contentType, content, sourceRef }: Lect
     );
   }
 
-  return <Markdown content={content} sourceRef={sourceRef} />;
+  return <Markdown content={content} sourceRef={sourceRef} baseUrl={baseUrl} />;
 }
 
 /** Ссылки на файлы репозитория хранятся с %D0%9A… — показываем читаемый путь */

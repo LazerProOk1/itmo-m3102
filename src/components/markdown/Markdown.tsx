@@ -16,6 +16,8 @@ interface MarkdownProps {
   content: string;
   /** Путь файла в репозитории — для относительных [[wiki-ссылок]] */
   sourceRef?: string;
+  /** Адрес папки файла — относительные картинки (`../img/x.svg`) считаются от него */
+  baseUrl?: string;
   className?: string;
 }
 
@@ -29,7 +31,7 @@ const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
  * Markdown конспектов и ДЗ: GFM, формулы KaTeX, выноски Obsidian `> [!тип]`, подсветка кода,
  * схемы mermaid и [[wiki-ссылки]] между конспектами.
  */
-export function Markdown({ content, sourceRef, className }: MarkdownProps) {
+export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
   const withWikiLinks = useMemo(() => convertWikiLinks(content), [content]);
 
   return (
@@ -39,6 +41,9 @@ export function Markdown({ content, sourceRef, className }: MarkdownProps) {
         rehypePlugins={REHYPE_PLUGINS}
         components={{
           a: (props) => <WikiLinkAnchor {...props} sourceRef={sourceRef} />,
+          img: ({ src, alt, node: _node, ...rest }) => (
+            <img {...rest} src={resolveAsset(String(src ?? ''), baseUrl)} alt={alt ?? ''} loading="lazy" />
+          ),
           pre: ({ node, children, ...rest }) => {
             const code = node?.children[0];
             const isMermaid =
@@ -53,4 +58,14 @@ export function Markdown({ content, sourceRef, className }: MarkdownProps) {
       </ReactMarkdown>
     </div>
   );
+}
+
+/** Относительный путь картинки → адрес рядом с файлом конспекта на GitHub; абсолютные не трогаем */
+export function resolveAsset(src: string, baseUrl?: string): string {
+  if (!baseUrl || !src || /^([a-z][a-z0-9+.-]*:|\/\/|#)/i.test(src)) return src;
+  try {
+    return new URL(src, baseUrl).href;
+  } catch {
+    return src;
+  }
 }

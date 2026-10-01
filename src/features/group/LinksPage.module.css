@@ -1,0 +1,138 @@
+.toolbar {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.toolbar > :first-child {
+  flex: 1;
+  max-width: 360px;
+}
+
+.group {
+  margin-bottom: var(--space-8);
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.groupHead h2 {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.groupHead span {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.card {
+  --tone: var(--color-accent);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  text-decoration: none;
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--tone) 45%, var(--color-border));
+  box-shadow: 0 6px 20px -12px color-mix(in srgb, var(--tone) 60%, transparent);
+}
+
+.card[data-tone='0'] {
+  --tone: #4d87bf;
+}
+
+.card[data-tone='1'] {
+  --tone: #42a592;
+}
+
+.card[data-tone='2'] {
+  --tone: #dd7956;
+}
+
+.card[data-tone='3'] {
+  --tone: #9069cf;
+}
+
+.card[data-tone='4'] {
+  --tone: #db9451;
+}
+
+.card[data-tone='5'] {
+  --tone: #b36da3;
+}
+
+.badge {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  color: var(--tone);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.body strong {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.body small {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.subject {
+  color: var(--tone);
+}
+
+.arrow {
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.card:hover .arrow {
+  transform: translate(2px, -2px);
+  color: var(--tone);
+}

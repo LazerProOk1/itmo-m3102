@@ -1,7 +1,15 @@
-/* Уже страницы приложения — конспект читают, а не сканируют глазами таблицу, поэтому колонка уже */
+/* Текст конспекта + боковая панель «Лекции / Содержание» справа */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 720px) 240px;
+  justify-content: center;
+  gap: var(--space-12);
+  align-items: start;
+}
+
+/* Конспект читают, а не сканируют глазами таблицу, поэтому колонка узкая */
 .page {
-  max-width: 720px;
-  margin: 0 auto;
+  min-width: 0;
 }
 
 .header {
@@ -59,9 +67,9 @@
   --content-font-size: var(--text-md);
 }
 
-@media (max-width: 767px) {
-  .page {
-    max-width: none;
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: minmax(0, 720px);
   }
 }
 

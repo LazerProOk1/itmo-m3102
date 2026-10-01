@@ -3,7 +3,7 @@ import { useLectureNotesStore } from '../features/materials/lectureNotesStore';
 import { useMaterialsStore } from '../features/materials/materialsStore';
 import { useSubjectInfoStore } from '../features/subjects/subjectInfoStore';
 import { useTasksStore } from '../features/tasks/tasksStore';
-import { parseDeadlines, useGroupStore, type RepoFile } from '../features/group/groupStore';
+import { parseDeadlines, parseLinks, useGroupStore, type RepoFile } from '../features/group/groupStore';
 import { parseHomework, useHomeworkStore } from '../features/homework/homeworkStore';
 import { githubError, githubFetch } from './github';
 import { storageKey } from '../lib/storage';
@@ -15,7 +15,7 @@ import type { LectureNote, LectureNoteCollection, Material, MaterialCategory, Ma
  * group — RedstoneLord/itmo-m3102 (он же сайт группы на GitHub Pages):
  *   Конспекты/{Полное_имя_предмета}/{Лекция_N|Практика_N|Доп_Материалы}/файл.md|pdf|docx|html
  *   Материалы/{Предмет}/…, Лабораторные/{Предмет}/…, Записи лекций/{Предмет}/…, Дедлайны/deadlines.json,
- *   data/homework.json — общее ДЗ группы
+ *   data/homework.json — общее ДЗ группы, data/links.json — полезные ссылки
  *
  * stream — Kefirleos/itmo-vault, Obsidian-хранилище 1 потока:
  *   Конспекты/1 семестр/Поток 1/{Предмет}/{NN}. {Тип} - {Название} ({YYYY-MM-DD}).md
@@ -68,6 +68,7 @@ export interface SyncSummary {
   materials: number;
   deadlines: number;
   homework: number;
+  links: number;
 }
 
 const extension = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
@@ -176,9 +177,11 @@ async function buildGroupNotes(paths: string[], previous: LectureNote[], now: st
       let title = `${prettify(name)} (${ext.toUpperCase()})`;
       let content = fileUrl(path);
       if (ext === 'md') {
-        const split = splitTitle(stripFrontMatter(await fetchText(rawUrl('group', path))));
-        title = split.title ?? prettify(name);
-        content = split.content;
+        // Название — по имени файла, как на сайте группы; первый заголовок убираем, только если он его повторяет
+        const text = stripFrontMatter(await fetchText(rawUrl('group', path)));
+        const split = splitTitle(text);
+        title = prettify(name);
+        content = split.title?.toLowerCase() === title.toLowerCase() ? split.content : text;
       }
       return toNote(
         path,
@@ -290,17 +293,18 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   const [group, stream] = await Promise.allSettled([
     fetchTree('group').then(async (files) => {
       const paths = files.map((file) => file.path);
-      const [notes, deadlines, homework] = await Promise.all([
+      const [notes, deadlines, homework, links] = await Promise.all([
         buildGroupNotes(paths, notesBefore, now),
         fetchText(rawUrl('group', 'Дедлайны/deadlines.json')).then((text) => parseDeadlines(JSON.parse(text))),
         fetchText(rawUrl('group', 'data/homework.json')).then((text) => parseHomework(JSON.parse(text))),
+        fetchText(rawUrl('group', 'data/links.json')).then((text) => parseLinks(JSON.parse(text))),
       ]);
-      return { files, notes, deadlines, homework, materials: buildMaterials(paths, materialsBefore, now) };
+      return { files, notes, deadlines, homework, links, materials: buildMaterials(paths, materialsBefore, now) };
     }),
     fetchTree('stream').then((files) => buildStreamContent(files.map((file) => file.path), notesBefore, infoBefore, now)),
   ]);
 
-  const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0 };
+  const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0 };
 
   function replaceNotes(collection: LectureNoteCollection, fresh: LectureNote[]) {
     const ids = new Set(fresh.map((note) => note.id));
@@ -316,16 +320,16 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   }
 
   if (group.status === 'fulfilled') {
-    const { files, notes, deadlines, homework, materials } = group.value;
+    const { files, notes, deadlines, homework, links, materials } = group.value;
     replaceNotes('group', notes);
     useMaterialsStore.setState((state) => ({
       materials: [...materials, ...state.materials.filter((material) => !material.id.startsWith('gh:'))],
     }));
-    useGroupStore.setState({ files, deadlines });
+    useGroupStore.setState({ files, deadlines, links });
     useHomeworkStore.getState().setRemote(homework);
     // Раньше дедлайны группы складывались в задачи (id "gh:deadline:…") — теперь у них своя страница
     useTasksStore.setState((state) => ({ tasks: state.tasks.filter((task) => !task.id.startsWith('gh:')) }));
-    Object.assign(summary, { materials: materials.length, deadlines: deadlines.length, homework: homework.length });
+    Object.assign(summary, { materials: materials.length, deadlines: deadlines.length, homework: homework.length, links: links.length });
   }
 
   if (stream.status === 'fulfilled') {

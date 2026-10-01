@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
+import { LinksPage } from '../group/LinksPage';
 import { GroupFilesRoot } from '../group/RepoFilePage';
 import { LectureNotesTab } from './LectureNotesTab';
 import { MaterialsLibraryTab } from './MaterialsLibraryTab';
 import styles from './MaterialsPage.module.css';
 
-type MaterialsSection = 'notes' | 'files' | 'library';
+type MaterialsSection = 'notes' | 'files' | 'links' | 'library';
 
 const SECTION_TABS: TabItem<MaterialsSection>[] = [
   { value: 'notes', label: 'Конспекты' },
   { value: 'files', label: 'Файлы группы' },
-  { value: 'library', label: 'Материалы' },
+  { value: 'links', label: 'Ссылки' },
+  { value: 'library', label: 'Мои материалы' },
 ];
 
 /** Материалы: конспекты (1 поток и группа), файлы репозитория группы и остальные материалы. */
@@ -29,7 +31,10 @@ export function MaterialsPage() {
         className={styles.sectionTabs}
       />
       <div role="tabpanel">
-        {section === 'notes' ? <LectureNotesTab /> : section === 'files' ? <GroupFilesRoot /> : <MaterialsLibraryTab />}
+        {section === 'notes' && <LectureNotesTab />}
+        {section === 'files' && <GroupFilesRoot />}
+        {section === 'links' && <LinksPage embedded />}
+        {section === 'library' && <MaterialsLibraryTab />}
       </div>
     </>
   );

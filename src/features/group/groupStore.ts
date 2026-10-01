@@ -17,8 +17,21 @@ export interface RepoFile {
   size: number;
 }
 
+/** Полезная ссылка из data/links.json — формы сдачи, чужие конспекты, курсы */
+export interface GroupLink {
+  title: string;
+  description: string;
+  url: string;
+  /** Раздел на странице */
+  group: string;
+  subject: string;
+  /** Подпись типа; пусто — определяется по адресу */
+  kind: string;
+}
+
 interface GroupStore {
   deadlines: GroupDeadline[];
+  links: GroupLink[];
   /** Личные отметки «выполнено» — видны только в этом браузере */
   deadlinesDone: Record<string, boolean>;
   files: RepoFile[];
@@ -29,6 +42,7 @@ export const useGroupStore = create<GroupStore>()(
   persist(
     (set) => ({
       deadlines: [],
+      links: [],
       deadlinesDone: {},
       files: [],
       toggleDeadlineDone: (id, done) => set((state) => ({ deadlinesDone: { ...state.deadlinesDone, [id]: done } })),
@@ -45,9 +59,33 @@ export function parseDeadlines(raw: unknown): GroupDeadline[] {
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
 }
 
+function safeUrl(raw: string): string {
+  try {
+    const url = new URL(raw);
+    return /^https?:$/.test(url.protocol) ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
+export function parseLinks(raw: unknown): GroupLink[] {
+  const items = (raw as { items?: unknown })?.items;
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item) => item?.title && safeUrl(String(item.url ?? '')))
+    .map((item) => ({
+      title: String(item.title),
+      description: String(item.description ?? ''),
+      url: safeUrl(String(item.url)),
+      group: String(item.group || 'Прочее'),
+      subject: String(item.subject ?? ''),
+      kind: String(item.kind ?? ''),
+    }));
+}
+
 /** Файлы и папки сайта, которые не относятся к материалам — как isHiddenPath на сайте M3102 */
 const HIDDEN_FILES = ['site.css', 'package.json', 'readme.md', '.gitignore', 'index.html'];
-const HIDDEN_FOLDERS = ['tests', 'inner', 'data', 'js', 'css', 'docs', 'img', '.github', 'дедлайны'];
+const HIDDEN_FOLDERS = ['tests', 'inner', 'data', 'js', 'css', 'docs', 'img', '.github', 'дедлайны', 'tools', 'src', 'public'];
 
 export function isHiddenPath(path: string): boolean {
   const parts = path.split('/');
