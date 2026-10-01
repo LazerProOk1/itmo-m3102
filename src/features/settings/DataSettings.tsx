@@ -11,6 +11,7 @@ import { TokenFields, type TokenValue } from '../group/TokenFields';
 import { EDITING_ENABLED } from './EditModeContext';
 import { SettingsRow } from './SettingsRow';
 import styles from './settings.module.css';
+import { saveBlob } from '../../lib/download';
 
 const BACKUP_APP_ID = 'm3102';
 /** Тема и режим редактирования — настройки браузера, не данные: в бэкап и сброс не входят */
@@ -25,11 +26,7 @@ function exportBackup() {
   const blob = new Blob([JSON.stringify({ app: BACKUP_APP_ID, exportedAt: new Date().toISOString(), data }, null, 2)], {
     type: 'application/json',
   });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'm3102-backup.json';
-  link.click();
-  URL.revokeObjectURL(link.href);
+  saveBlob(blob, 'm3102-backup.json');
 }
 
 async function importBackup(file: File) {

@@ -16,13 +16,16 @@ interface PdfViewerProps {
 }
 
 const ZOOM_STEPS = [0.5, 0.67, 0.8, 1, 1.25, 1.5, 2];
-/** Страницы рисуются заранее, когда до них осталось столько пикселей прокрутки */
+/** Рисуются только страницы в пределах этого расстояния от экрана, остальные выгружаются */
 const PRELOAD_MARGIN = '1600px 0px';
+/** Холст страницы занимает ширина × высота × плотность² × 4 байта — на 3x-экранах это десятки МБ */
+const MAX_PIXEL_RATIO = 2;
 
 /**
- * PDF целиком, сплошной лентой — листается обычной прокруткой. Страницы рисуются по мере
- * приближения к экрану (у толстых учебников их сотни), до этого — заглушка нужной высоты,
- * чтобы прокрутка не прыгала. Панель сверху: страница, масштаб, «по ширине», открыть файл.
+ * PDF целиком, сплошной лентой — листается обычной прокруткой. Рисуются только страницы рядом
+ * с экраном, дальние выгружаются: иначе у толстых учебников холсты съедают память и браузер
+ * перезагружает вкладку. Высота каждой страницы фиксирована — прокрутка не прыгает.
+ * Панель сверху: страница, масштаб, «по ширине», открыть файл.
  */
 export function PdfViewer({ file }: PdfViewerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -126,13 +129,20 @@ function LazyPage({ pageNumber, width, height, onCurrent, ref }: LazyPageProps) 
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [near, setNear] = useState(pageNumber <= 2);
   const [rendered, setRendered] = useState(false);
+  /** Своё соотношение сторон — страницы бывают разного формата; до загрузки — как у первой */
+  const [ratio, setRatio] = useState<number | null>(null);
   const reduceMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const element = elementRef.current;
     if (!element) return;
-    // Раз отрисованная страница остаётся — повторная прокрутка без мигания
-    const preload = new IntersectionObserver(([entry]) => entry!.isIntersecting && setNear(true), { rootMargin: PRELOAD_MARGIN });
+    const preload = new IntersectionObserver(
+      ([entry]) => {
+        setNear(entry!.isIntersecting);
+        if (!entry!.isIntersecting) setRendered(false);
+      },
+      { rootMargin: PRELOAD_MARGIN },
+    );
     // Текущая страница — та, что пересекает середину экрана
     const middle = new IntersectionObserver(([entry]) => entry!.isIntersecting && onCurrent(pageNumber), { rootMargin: '-50% 0px -50% 0px' });
     preload.observe(element);
@@ -150,12 +160,19 @@ function LazyPage({ pageNumber, width, height, onCurrent, ref }: LazyPageProps) 
         ref(element);
       }}
       className={styles.page}
-      style={{ width, minHeight: rendered ? undefined : height }}
+      style={{ width, height: ratio ? Math.round(width * ratio) : height }}
       data-page={pageNumber}
     >
       {near && (
         <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: rendered ? 1 : 0 }} transition={{ duration: 0.25 }}>
-          <Page pageNumber={pageNumber} width={width} loading={null} onRenderSuccess={() => setRendered(true)} />
+          <Page
+            pageNumber={pageNumber}
+            width={width}
+            devicePixelRatio={Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO)}
+            loading={null}
+            onLoadSuccess={(page) => setRatio(page.originalHeight / page.originalWidth)}
+            onRenderSuccess={() => setRendered(true)}
+          />
         </motion.div>
       )}
     </div>

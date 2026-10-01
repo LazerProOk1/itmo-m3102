@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Pencil, Printer, Trash } from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink, Pencil, Printer, Trash } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
@@ -6,7 +6,8 @@ import { ConfirmDeleteModal, useConfirmDelete } from '../../components/ui/Confir
 import { GithubSourceBadge } from '../../components/ui/GithubSourceBadge';
 import { buttonClass } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
-import { noteAssetBase, noteSourceUrl } from '../../services/githubContent';
+import { downloadUrl, saveBlob } from '../../lib/download';
+import { noteAssetBase, noteSourceUrl, rawUrl } from '../../services/githubContent';
 import type { LectureNote } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
@@ -75,7 +76,14 @@ function NoteView({ note }: { note: LectureNote }) {
             </div>
 
             <div className={styles.actions}>
-              {note.contentType === 'markdown' && <IconButton icon={Printer} label="Скачать PDF" onClick={() => window.print()} />}
+              {note.contentType !== 'link' && (
+                <IconButton
+                  icon={Download}
+                  label={note.contentType === 'pdf' ? 'Скачать PDF' : 'Скачать .md'}
+                  onClick={() => void downloadNote(note, title)}
+                />
+              )}
+              {note.contentType === 'markdown' && <IconButton icon={Printer} label="Печать / сохранить как PDF" onClick={() => window.print()} />}
               {sourceUrl && (
                 <a
                   className={buttonClass('ghost', 'sm')}
@@ -126,6 +134,18 @@ function NoteView({ note }: { note: LectureNote }) {
       />
     </div>
   );
+}
+
+/** Оригинальный файл конспекта: из GitHub — как лежит в репозитории, свой — из сохранённого текста */
+async function downloadNote(note: LectureNote, title: string) {
+  const ext = note.contentType === 'pdf' ? 'pdf' : 'md';
+  const name = note.sourceRef?.split('/').pop() ?? `${title.replace(/[\\/:*?"<>|]/g, '_')}.${ext}`;
+  if (note.source === 'github' && note.sourceRef) {
+    const url = rawUrl(note.collection ?? 'group', note.sourceRef);
+    return downloadUrl(url, name).catch(() => window.open(url, '_blank', 'noopener'));
+  }
+  if (ext === 'md') return saveBlob(new Blob([note.content], { type: 'text/markdown;charset=utf-8' }), name);
+  return downloadUrl(note.content, name).catch(() => window.open(note.content, '_blank', 'noopener'));
 }
 
 function safeDecodeURIComponent(value: string): string {

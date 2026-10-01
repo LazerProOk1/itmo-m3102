@@ -2,10 +2,11 @@ import { ArrowLeft, Download, Printer } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { Markdown } from '../../components/markdown/Markdown';
-import { Button, buttonClass } from '../../components/ui/Button';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { groupRawUrl } from '../../services/github';
+import { downloadUrl } from '../../lib/download';
 import { isHiddenPath, useGroupStore, type RepoFile } from './groupStore';
 import styles from './RepoFilePage.module.css';
 
@@ -191,13 +192,16 @@ function FileView({ file }: { file: RepoFile }) {
         <span className={styles.viewname}>{name}</span>
         {ext === 'md' && (
           <Button variant="secondary" icon={Printer} onClick={() => window.print()}>
-            Скачать PDF
+            Печать / PDF
           </Button>
         )}
-        <a className={buttonClass('secondary', 'md')} href={groupRawUrl(file.path)} target="_blank" rel="noopener noreferrer" download>
-          <Download size={14} strokeWidth={1.75} aria-hidden />
+        <Button
+          variant="secondary"
+          icon={Download}
+          onClick={() => downloadUrl(groupRawUrl(file.path), name).catch(() => window.open(groupRawUrl(file.path), '_blank', 'noopener'))}
+        >
           Скачать
-        </a>
+        </Button>
       </div>
 
       {ext === 'pdf' ? (
