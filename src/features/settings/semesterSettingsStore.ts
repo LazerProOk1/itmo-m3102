@@ -24,8 +24,8 @@ export const useSemesterSettingsStore = create<SemesterSettingsStore>()(
     }),
     {
       name: storageKey('semester'),
-      // v1: чётность недель по ИТМО (21.09.2026 — нечётная)
-      version: 1,
+      // v2: чётность как на сайте группы (21.09.2026 — чётная), дальше её задаёт синхронизация
+      version: 2,
       migrate: (persisted) => ({ ...(persisted as object), ...M3102_SEMESTER }) as SemesterSettingsStore,
     },
   ),
