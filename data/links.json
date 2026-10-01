@@ -39,10 +39,17 @@
     },
     {
       "title": "Лекции по ОП Александра Хвастунова",
-      "description": "Сайт с лекциями и видео",
+      "description": "Сайт с материалами по Основам Программирования",
       "url": "https://is-itmo-c-26.github.io/lectures/",
       "group": "Материалы по предметам",
       "subject": "Основы программирования"
+    },
+        {
+      "title": "Диск с материалами по Линалу Екатерины Бровкиной",
+      "description": "Отсюда можно брать задания для ДЗ и подготовки",
+      "url": "https://drive.google.com/drive/folders/1OvnvIk0wODNIywGHOKVHQGLKGA1ZSxfk",
+      "group": "Задачники и т.д.",
+      "subject": "Линейная алгебра"
     }
   ]
 }
