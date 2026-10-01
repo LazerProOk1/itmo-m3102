@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { Root } from 'mdast';
-import { remarkCallouts, resolveCalloutType } from './remarkCallouts';
+import { convertContainerCallouts, remarkCallouts, resolveCalloutType } from './remarkCallouts';
+
+describe('convertContainerCallouts', () => {
+  it(':::тип … ::: → > [!тип], код и незакрытые блоки не трогает', () => {
+    const text = ':::warning\n**Правила:**\n\n- пункт\n:::\n\n```\n:::note\n```\n\n:::meaning Термин\nтекст\r\n:::\r\n\n:::example\nбез конца';
+    expect(convertContainerCallouts(text)).toBe(
+      '> [!warning]\n> **Правила:**\n>\n> - пункт\n\n\n```\n:::note\n```\n\n> [!meaning] Термин\n> текст\r\n\n\n:::example\nбез конца',
+    );
+  });
+});
 
 function blockquote(text: string): Root {
   return { type: 'root', children: [{ type: 'blockquote', children: [{ type: 'paragraph', children: [{ type: 'text', value: text }] }] }] };
