@@ -30,6 +30,15 @@
 Встроенную кнопку GitHub «Sync fork» **не нажимать на `react-app` / `react-app-dev`**: она предложит
 влить туда старый сайт RedstoneLord или выбросить наши коммиты.
 
+Если RedstoneLord меняет файлы в `.github/workflows/`, workflow синхронизации падает с
+`refusing to allow a GitHub App to create or update workflow` (у токена Actions нет права `workflows`).
+Тогда синхронизировать `legacy` вручную: «Sync fork» на ветке `legacy` или
+`gh api -X POST repos/LazerProOk1/itmo-m3102/merge-upstream -f branch=legacy` (токен со scope `workflow`).
+
+Изменения в репозитории группы проверять так: `gh api "repos/RedstoneLord/itmo-m3102/commits?per_page=10"`.
+Контент (конспекты, `data/*.json`) сайт подтягивает сам; в код переносить только изменения форматов и
+поведения (например, очередь: метку `queue-signup` теперь ставит их workflow, а не `?labels=` в ссылке).
+
 `react-app` и `react-app-dev` отличаются **только** файлом `.env`. Код пишется в `react-app`, затем
 переносится в dev: `git checkout react-app-dev && git merge react-app` (в `react-app` `.env` не меняется,
 поэтому `VITE_EDITING=true` в dev сохраняется сам). В обратную сторону dev в `react-app` не мержить —
