@@ -6,6 +6,7 @@ import { FeedbackDemo } from './FeedbackDemo';
 import { FoundationsDemo } from './FoundationsDemo';
 import { MotionDemo } from './MotionDemo';
 import { OverlaysDemo } from './OverlaysDemo';
+import { SiteDemo } from './SiteDemo';
 import styles from './DesignSystemPage.module.css';
 
 /** Служебная страница: бренд, токены, движение, компоненты и контент конспектов в одном месте. */
@@ -20,6 +21,7 @@ export function DesignSystemPage() {
         <ControlsDemo />
         <FeedbackDemo />
         <OverlaysDemo />
+        <SiteDemo />
         <ContentDemo />
       </div>
     </>

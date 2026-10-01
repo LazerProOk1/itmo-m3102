@@ -32,6 +32,14 @@
   width: 3px;
   border-radius: 999px;
   background: var(--type-color, transparent);
+  transform-origin: top;
+  animation: pill-in 600ms var(--ease-luxury-out) 150ms both;
+}
+
+@keyframes pill-in {
+  from {
+    transform: scaleY(0);
+  }
 }
 
 .block:hover::before {

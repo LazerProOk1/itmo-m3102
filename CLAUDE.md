@@ -90,6 +90,10 @@ npm run build      # typecheck + сборка в dist/
 - `components/hedgehog` — ёжик-маскот (SVG + CSS-анимации; по клику сальто).
 - `components/diagrams` — SVG-диаграммы из fenced-блоков конспектов; формулы — `expression.ts` (без eval).
 - `components/ui/Swap.tsx` — «перелистывание» содержимого; `.stagger` в `styles/global.css` — каскад карточек.
+- `features/design` — дизайн-система (`#/design`): бренд, токены, движение, компоненты, элементы сайта
+  группы (`SiteDemo.tsx`), контент конспектов. Новый общий элемент — добавить сюда же.
+- `lib/download.ts` — `saveBlob` / `downloadUrl` (скачивание чужих файлов через fetch: атрибут `download`
+  у ссылок на другой домен браузер игнорирует).
 - `features/*` — разделы: `today` (главная), `schedule`, `homework`, `deadlines`, `materials`
   (конспекты, читалка `NoteReader.tsx`), `group` (файлы, ссылки, студенты, мемы, токен), `search`,
   `settings`, `subjects`, `tasks` (учебный план), `notes`, `calendar`.
@@ -111,6 +115,10 @@ npm run build      # typecheck + сборка в dist/
 - Vite кеширует модули: если после правки странные ошибки — перезапустить dev-сервер.
 - id конспектов из GitHub содержат `/`, поэтому маршрут `materials/notes/*`, а не `:noteId`.
 - Порядок занятий как у группы: по номеру (Лекция 1, Практика 1, Лекция 2…), см. `compareLessons`.
+- PDF (`features/materials/PdfViewer.tsx`) рисуется как на сайте группы: холсты страниц создаются вручную
+  в контейнере без React-детей и рисуются один раз. Не переводить обратно на `<Page>` из react-pdf —
+  любая перерисовка React очищает холст, и при прокрутке страница «сбрасывается».
+- Анимации framer-motion уважают «уменьшить движение» через `<MotionConfig reducedMotion="user">` в `main.tsx`.
 - Диаграммы DSL группы (`plot`, `graph`, `diagram`, `tree`, `array`, `chart`) рисует свой рендерер в
   `components/diagrams` (синтаксис — README RedstoneLord). Код пошаговой анимации в `array` (`code:`) не
   выполняется — это чужой JS из репозитория, показывается текстом.
