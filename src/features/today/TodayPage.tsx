@@ -1,4 +1,5 @@
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
+import { Reveal } from '../../components/ui/Reveal';
 import { getStudyWeek } from '../../lib/studyWeek';
 import { useClock } from '../../lib/useClock';
 import { ClassDialog } from '../schedule/ClassDialog';
@@ -29,12 +30,18 @@ export function TodayPage() {
       <NextClassBlock status={classStatus} />
 
       <div className={styles.grid}>
-        <TodaySchedule occurrences={todayOccurrences} today={today} time={time} onAction={scheduleDialogs.handleAction} />
-        <DeadlinesPanel />
-        <HomeworkPanel today={today} />
-        <MaterialsPanel />
-        <StudyPlanPanel today={today} />
-        <RecentNotesPanel />
+        {[
+          <TodaySchedule key="schedule" occurrences={todayOccurrences} today={today} time={time} onAction={scheduleDialogs.handleAction} />,
+          <DeadlinesPanel key="deadlines" />,
+          <HomeworkPanel key="homework" today={today} />,
+          <MaterialsPanel key="materials" />,
+          <StudyPlanPanel key="plan" today={today} />,
+          <RecentNotesPanel key="notes" />,
+        ].map((panel, index) => (
+          <Reveal key={panel.key} index={index + 1}>
+            {panel}
+          </Reveal>
+        ))}
       </div>
 
       <ClassDialog target={scheduleDialogs.classTarget} onClose={scheduleDialogs.closeClassDialog} />

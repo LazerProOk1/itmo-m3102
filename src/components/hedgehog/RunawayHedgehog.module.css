@@ -1,0 +1,13 @@
+.runner {
+  position: fixed;
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  left: 0;
+  z-index: var(--z-dropdown);
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .runner {
+    bottom: calc(var(--mobile-nav-height) + var(--space-2) + env(safe-area-inset-bottom));
+  }
+}

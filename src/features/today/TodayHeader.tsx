@@ -1,6 +1,10 @@
+import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { cn } from '../../lib/cn';
+import { Hedgehog } from '../../components/hedgehog/Hedgehog';
+import { RunawayHedgehog } from '../../components/hedgehog/RunawayHedgehog';
+import { pickGreeting, RUNAWAY_GREETING, splitAccentPeriod } from '../../data/greetings';
 import { formatFullDate, getWeekdayName } from '../../lib/dates';
+import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
 import { WEEK_PARITY_LABELS, type StudyWeek } from '../../lib/studyWeek';
 import type { ISODate } from '../../types/models';
 import { isVacation } from '../schedule/occurrences';
@@ -11,29 +15,36 @@ interface TodayHeaderProps {
   week: StudyWeek;
 }
 
-// Модульная переменная, а не состояние: должна пережить уход с главной и возврат на неё,
-// чтобы reveal-анимация сыграла один раз за сессию.
-let hasRevealed = false;
-
-/** Шапка главной, как на сайте группы: «Ваш учебный день.», дата и чётность недели. */
+/** Шапка главной, как на сайте группы: случайное приветствие, дата, чётность недели — и ёжик. */
 export function TodayHeader({ date, week }: TodayHeaderProps) {
-  const [shouldReveal] = useState(() => !hasRevealed);
-  if (!hasRevealed) hasRevealed = true;
+  const [greeting] = useState(pickGreeting);
+  const [text, period] = splitAccentPeriod(greeting);
+  const reduceMotion = usePrefersReducedMotion();
+  const runaway = greeting === RUNAWAY_GREETING;
 
   return (
     <header className={styles.header}>
-      <div>
-        <h1 className={cn(styles.title, shouldReveal && styles.reveal)}>
-          Ваш учебный день<span className={styles.period}>.</span>
-        </h1>
+      <div className={styles.copy}>
+        <motion.h1
+          key={greeting}
+          className={styles.title}
+          initial={reduceMotion ? false : { opacity: 0, y: 12, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transition: SPRING_SMOOTH }}
+        >
+          {text}
+          {period && <span className={styles.period}>{period}</span>}
+        </motion.h1>
         <p className={styles.sub}>Всё важное для группы М3102 — в одном месте.</p>
+        <div className={styles.date}>
+          <strong>
+            {getWeekdayName(date)}, {formatFullDate(date)}
+          </strong>
+          <span className={styles.chip}>{isVacation(date) ? 'Каникулы' : WEEK_PARITY_LABELS[week.weekInCycle]}</span>
+        </div>
       </div>
-      <div className={styles.date}>
-        <strong>
-          {getWeekdayName(date)}, {formatFullDate(date)}
-        </strong>
-        <span>{isVacation(date) ? 'Каникулы' : WEEK_PARITY_LABELS[week.weekInCycle]}</span>
-      </div>
+      {/* Когда ёжик «вырвался на свободу», на месте его нет — он бежит по низу экрана */}
+      <div className={styles.mascot}>{!runaway && <Hedgehog size={104} />}</div>
+      {runaway && <RunawayHedgehog />}
     </header>
   );
 }

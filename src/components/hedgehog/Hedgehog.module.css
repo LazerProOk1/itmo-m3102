@@ -1,0 +1,180 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform-origin: 50% 70%;
+}
+
+.button:disabled {
+  cursor: default;
+}
+
+.button:focus-visible {
+  border-radius: var(--radius-lg);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+.bubble {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  padding: var(--space-1) var(--space-2-5);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-popover);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- Рисунок ---------- */
+.svg {
+  --hog-spikes: #8a6a50;
+  --hog-spike-lines: #6d5240;
+  --hog-face: #ecd3ae;
+  --hog-belly: #e2c49b;
+  --hog-dark: #2b2421;
+  --hog-cheek: #f2a7a0;
+  display: block;
+  overflow: visible;
+}
+
+:global([data-theme='dark']) .svg {
+  --hog-spikes: #a5836a;
+  --hog-spike-lines: #7d604d;
+  --hog-face: #e6cca6;
+  --hog-belly: #d9b98f;
+  --hog-dark: #17120f;
+}
+
+.shadow {
+  fill: var(--color-text);
+  opacity: 0.08;
+}
+
+.spikes {
+  fill: var(--hog-spikes);
+  stroke: var(--hog-spikes);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transform-origin: 56px 60px;
+  transition: transform var(--duration-base) var(--ease-luxury-spring);
+}
+
+.spikeLines {
+  fill: none;
+  stroke: var(--hog-spike-lines);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.face {
+  fill: var(--hog-face);
+}
+
+.belly {
+  fill: var(--hog-belly);
+}
+
+.nose,
+.eye circle:first-child {
+  fill: var(--hog-dark);
+}
+
+.glint {
+  fill: #fff;
+}
+
+.cheek {
+  fill: var(--hog-cheek);
+  opacity: 0.55;
+}
+
+.ear {
+  fill: var(--hog-belly);
+  stroke: var(--hog-spike-lines);
+  stroke-width: 1;
+}
+
+.leg {
+  fill: var(--hog-spike-lines);
+}
+
+/* Дыхание и моргание — постоянно, но едва заметно */
+.body {
+  transform-origin: 60px 80px;
+  animation: hog-breathe 3.2s ease-in-out infinite;
+}
+
+.eye {
+  transform-origin: 98px 52px;
+  animation: hog-blink 4.6s infinite;
+}
+
+/* Наведение — иголки топорщатся */
+.button:hover .spikes {
+  transform: scale(1.05);
+}
+
+/* Бег — перебирает лапками и подпрыгивает */
+.running .body {
+  animation: hog-hop 0.32s ease-in-out infinite;
+}
+
+.running .legFront {
+  animation: hog-step 0.32s ease-in-out infinite;
+}
+
+.running .legBack {
+  animation: hog-step 0.32s ease-in-out infinite reverse;
+}
+
+@keyframes hog-breathe {
+  50% {
+    transform: scale(1.015, 1.03);
+  }
+}
+
+@keyframes hog-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes hog-hop {
+  50% {
+    transform: translateY(-3px) rotate(-2deg);
+  }
+}
+
+@keyframes hog-step {
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .eye,
+  .running .body,
+  .running .legFront,
+  .running .legBack {
+    animation: none;
+  }
+}
