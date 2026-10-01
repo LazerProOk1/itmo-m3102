@@ -9,6 +9,7 @@ import { cn } from '../../lib/cn';
 import { remarkCallouts } from '../../lib/remarkCallouts';
 import { convertWikiLinks } from '../../lib/wikiLinks';
 import { WikiLinkAnchor } from '../../features/materials/WikiLink';
+import { DIAGRAM_LANGUAGES, DiagramBlock, isDiagramLanguage } from '../diagrams/DiagramBlock';
 import { MermaidBlock } from './MermaidBlock';
 import styles from './Markdown.module.css';
 
@@ -24,7 +25,7 @@ interface MarkdownProps {
 const REMARK_PLUGINS = [remarkGfm, remarkMath, remarkCallouts];
 const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
   rehypeKatex,
-  [rehypeHighlight, { plainText: ['mermaid'] }],
+  [rehypeHighlight, { plainText: ['mermaid', ...DIAGRAM_LANGUAGES] }],
 ];
 
 /**
@@ -46,11 +47,10 @@ export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownPro
           ),
           pre: ({ node, children, ...rest }) => {
             const code = node?.children[0];
-            const isMermaid =
-              code?.type === 'element' && String(code.properties.className ?? '').includes('language-mermaid');
-            if (!isMermaid) return <pre {...rest}>{children}</pre>;
-            const source = code.children.map((child) => (child.type === 'text' ? child.value : '')).join('');
-            return <MermaidBlock source={source.trimEnd()} />;
+            const lang = code?.type === 'element' ? /language-(\w+)/.exec(String(code.properties.className ?? ''))?.[1] : undefined;
+            if (code?.type !== 'element' || !lang || (lang !== 'mermaid' && !isDiagramLanguage(lang))) return <pre {...rest}>{children}</pre>;
+            const source = code.children.map((child) => (child.type === 'text' ? child.value : '')).join('').trimEnd();
+            return lang === 'mermaid' ? <MermaidBlock source={source} /> : <DiagramBlock lang={lang} source={source} />;
           },
         }}
       >
