@@ -81,3 +81,81 @@ html:has(dialog[open]) {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Переходы по якорям (содержание конспекта, страницы PDF) — плавно */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Смена темы перетеканием: старая и новая картинка страницы плавно сменяют друг друга */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Каскад: дети появляются по очереди снизу вверх. className="stagger" на сетке карточек */
+.stagger > * {
+  animation: stagger-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stagger > :nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.stagger > :nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.stagger > :nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.stagger > :nth-child(5) {
+  animation-delay: 180ms;
+}
+
+.stagger > :nth-child(6) {
+  animation-delay: 225ms;
+}
+
+.stagger > :nth-child(7) {
+  animation-delay: 270ms;
+}
+
+.stagger > :nth-child(8) {
+  animation-delay: 315ms;
+}
+
+.stagger > :nth-child(9) {
+  animation-delay: 360ms;
+}
+
+.stagger > :nth-child(10) {
+  animation-delay: 405ms;
+}
+
+.stagger > :nth-child(11) {
+  animation-delay: 450ms;
+}
+
+.stagger > :nth-child(12) {
+  animation-delay: 495ms;
+}
+
+.stagger > :nth-child(n + 13) {
+  animation-delay: 540ms;
+}
+
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}

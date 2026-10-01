@@ -118,7 +118,7 @@ function FolderView({ files, folder, embedded = false, exclude = [] }: FolderVie
       {listing.folders.length === 0 && listing.files.length === 0 ? (
         <EmptyState title={files.length ? 'Папка пуста' : 'Файлы ещё не загружены'} description={files.length ? undefined : 'Они появятся после синхронизации с GitHub.'} />
       ) : (
-        <div className={styles.grid}>
+        <div className={`${styles.grid} stagger`}>
           {listing.folders.map((name) => (
             <Link key={name} className={styles.card} to={filePath(folder ? `${folder}/${name}` : name)}>
               <span className={styles.icon}>↗</span>

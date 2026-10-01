@@ -117,7 +117,7 @@ export function DeadlinesPage() {
               {remaining} <small>из {deadlines.length} сроков</small>
             </strong>
           </div>
-          <div className={styles.grid}>
+          <div className={`${styles.grid} stagger`}>
             {deadlines.map((item, index) => (
               <DeadlineCard
                 key={item.id}

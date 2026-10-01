@@ -96,27 +96,30 @@ export function HomeworkPage() {
       {ordered.length === 0 ? (
         <EmptyState title="Всё под контролем" description="Заданий в этом списке пока нет." />
       ) : (
-        ordered.map(([subject, entries]) => (
-          <section key={subject} className={styles.group}>
-            <div className={styles.groupHead}>
-              <h2>{subject}</h2>
-              <span>{entries.length ? pluralize(entries.length, ['задание', 'задания', 'заданий']) : 'нет заданий'}</span>
-            </div>
-            {entries.length === 0 ? (
-              <p className={styles.empty}>Заданий нет.</p>
-            ) : (
-              entries.map((item) => (
-                <HomeworkCard
-                  key={item.id}
-                  item={item}
-                  today={today}
-                  onEdit={isEditMode ? (entry) => openDialog({ item: entry }) : undefined}
-                  onDelete={isEditMode ? setDeleting : undefined}
-                />
-              ))
-            )}
-          </section>
-        ))
+        // key по фильтру: при смене «Актуальные / Выполненные / Все» каскад проигрывается заново
+        <div key={filter} className="stagger">
+          {ordered.map(([subject, entries]) => (
+            <section key={subject} className={styles.group}>
+              <div className={styles.groupHead}>
+                <h2>{subject}</h2>
+                <span>{entries.length ? pluralize(entries.length, ['задание', 'задания', 'заданий']) : 'нет заданий'}</span>
+              </div>
+              {entries.length === 0 ? (
+                <p className={styles.empty}>Заданий нет.</p>
+              ) : (
+                entries.map((item) => (
+                  <HomeworkCard
+                    key={item.id}
+                    item={item}
+                    today={today}
+                    onEdit={isEditMode ? (entry) => openDialog({ item: entry }) : undefined}
+                    onDelete={isEditMode ? setDeleting : undefined}
+                  />
+                ))
+              )}
+            </section>
+          ))}
+        </div>
       )}
 
       {isEditMode && (

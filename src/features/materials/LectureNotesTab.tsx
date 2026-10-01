@@ -1,6 +1,7 @@
 import { ArrowDownUp, ArrowLeft, Folder, NotebookText, Plus, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
+import { Swap, useDirection } from '../../components/ui/Swap';
 import { Dropdown, type DropdownOption } from '../../components/ui/Dropdown';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { List, ListItem } from '../../components/ui/List';
@@ -45,6 +46,8 @@ export function LectureNotesTab() {
   const [collection, setCollection] = useState<LectureNoteCollection | null>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
   const [sort, setSort] = useState<LectureNoteSort>('number');
+  // Глубже (папка → предмет → конспекты) — листаем вправо, назад — влево
+  const direction = useDirection(collection ? (subjectId ? 2 : 1) : 0);
 
   const activeNotes = lectureNotes.filter((note) => !note.archived);
   const subject = subjectId ? subjects.find((item) => item.id === subjectId) : undefined;
@@ -52,10 +55,10 @@ export function LectureNotesTab() {
 
   if (!collection) {
     return (
-      <>
+      <Swap id={`${collection ?? ''}|${subjectId ?? ''}`} direction={direction}>
         <CollectionPicker notes={activeNotes} onSelect={setCollection} />
         {dialogElement}
-      </>
+      </Swap>
     );
   }
 
@@ -63,7 +66,7 @@ export function LectureNotesTab() {
 
   if (!subject) {
     return (
-      <>
+      <Swap id={`${collection ?? ''}|${subjectId ?? ''}`} direction={direction}>
         <div className={styles.subjectToolbar}>
           <button type="button" className={styles.backButton} onClick={() => setCollection(null)}>
             <ArrowLeft size={14} strokeWidth={1.75} aria-hidden />
@@ -72,18 +75,14 @@ export function LectureNotesTab() {
         </div>
         <SubjectPicker subjects={subjects} notes={collectionNotes} onSelect={setSubjectId} />
         {dialogElement}
-      </>
+      </Swap>
     );
   }
 
   const sorted = collectionNotes
     .filter((note) => note.subjectId === subject.id)
     .sort((a, b) =>
-      sort === 'number'
-        ? compareLessons(a, b)
-        : sort === 'name'
-          ? a.title.localeCompare(b.title)
-          : b.createdAt.localeCompare(a.createdAt),
+      sort === 'number' ? compareLessons(a, b) : sort === 'name' ? a.title.localeCompare(b.title) : b.createdAt.localeCompare(a.createdAt),
     );
 
   const sortOptions: DropdownOption[] = (Object.keys(SORT_LABELS) as LectureNoteSort[]).map((value) => ({
@@ -92,7 +91,7 @@ export function LectureNotesTab() {
   }));
 
   return (
-    <>
+    <Swap id={`${collection ?? ''}|${subjectId ?? ''}`} direction={direction}>
       <div className={styles.subjectToolbar}>
         <button type="button" className={styles.backButton} onClick={() => setSubjectId(null)}>
           <ArrowLeft size={14} strokeWidth={1.75} aria-hidden />
@@ -118,7 +117,11 @@ export function LectureNotesTab() {
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState icon={NotebookText} title="Пока нет конспектов" description="Нажмите «Синхронизировать» или добавьте конспект вручную." />
+        <EmptyState
+          icon={NotebookText}
+          title="Пока нет конспектов"
+          description="Нажмите «Синхронизировать» или добавьте конспект вручную."
+        />
       ) : (
         <List>
           {sorted.map((note) => (
@@ -128,7 +131,7 @@ export function LectureNotesTab() {
       )}
 
       {dialogElement}
-    </>
+    </Swap>
   );
 }
 
@@ -145,7 +148,11 @@ function CollectionPicker({ notes, onSelect }: CollectionPickerProps) {
   const run = useSyncStore((state) => state.run);
   const syncing = status === 'syncing';
   const message =
-    status === 'error' ? error : status === 'done' && summary ? `Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}` : '';
+    status === 'error'
+      ? error
+      : status === 'done' && summary
+        ? `Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}`
+        : '';
 
   return (
     <>

@@ -6,6 +6,9 @@ import { useTasksStore } from '../features/tasks/tasksStore';
 import { parseDeadlines, parseLinks, useGroupStore, type RepoFile } from '../features/group/groupStore';
 import { parseHomework, useHomeworkStore } from '../features/homework/homeworkStore';
 import { githubError, githubFetch } from './github';
+import { parseGroupSchedule, type GroupSchedule } from './groupSchedule';
+import { useScheduleStore } from '../features/schedule/scheduleStore';
+import { useSemesterSettingsStore } from '../features/settings/semesterSettingsStore';
 import { storageKey } from '../lib/storage';
 import type { LectureNote, LectureNoteCollection, Material, MaterialCategory, MaterialType, SubjectInfo } from '../types/models';
 
@@ -69,6 +72,8 @@ export interface SyncSummary {
   deadlines: number;
   homework: number;
   links: number;
+  /** Регулярных пар в расписании группы */
+  schedule: number;
 }
 
 const extension = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
@@ -276,6 +281,23 @@ export async function autoSyncGithubContent(): Promise<void> {
   await syncGithubContent();
 }
 
+/**
+ * Расписание группы заменяет встроенное (m3102-class-*) и прошлую синхронизацию (gh:*).
+ * Пары и исключения, добавленные вручную в режиме редактирования, остаются.
+ */
+function applyGroupSchedule(schedule: GroupSchedule) {
+  const isSynced = (id: string) => id.startsWith('gh:') || id.startsWith('m3102-class-');
+  useScheduleStore.setState((state) => {
+    const classes = [...schedule.classes, ...state.classes.filter((item) => !isSynced(item.id))];
+    const classIds = new Set(classes.map((item) => item.id));
+    const ownExceptions = state.exceptions.filter(
+      (item) => !isSynced(item.id) && (item.kind === 'additional' || classIds.has(item.classId)),
+    );
+    return { classes, exceptions: [...schedule.exceptions, ...ownExceptions] };
+  });
+  useSemesterSettingsStore.getState().updateSemesterSettings({ weekOneStart: schedule.weekOneStart });
+}
+
 const isGithubNoteOf = (collection: LectureNoteCollection) => (note: LectureNote) =>
   note.source === 'github' && (note.collection ?? 'group') === collection;
 
@@ -293,18 +315,22 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   const [group, stream] = await Promise.allSettled([
     fetchTree('group').then(async (files) => {
       const paths = files.map((file) => file.path);
-      const [notes, deadlines, homework, links] = await Promise.all([
+      const [notes, deadlines, homework, links, schedule] = await Promise.all([
         buildGroupNotes(paths, notesBefore, now),
         fetchText(rawUrl('group', 'Дедлайны/deadlines.json')).then((text) => parseDeadlines(JSON.parse(text))),
         fetchText(rawUrl('group', 'data/homework.json')).then((text) => parseHomework(JSON.parse(text))),
         fetchText(rawUrl('group', 'data/links.json')).then((text) => parseLinks(JSON.parse(text))),
+        // Расписание необязательно: если файл сломан или пропал, остаётся прежнее
+        fetchText(rawUrl('group', 'data/schedule.json'))
+          .then((text) => parseGroupSchedule(JSON.parse(text)))
+          .catch(() => null),
       ]);
-      return { files, notes, deadlines, homework, links, materials: buildMaterials(paths, materialsBefore, now) };
+      return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
     }),
     fetchTree('stream').then((files) => buildStreamContent(files.map((file) => file.path), notesBefore, infoBefore, now)),
   ]);
 
-  const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0 };
+  const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };
 
   function replaceNotes(collection: LectureNoteCollection, fresh: LectureNote[]) {
     const ids = new Set(fresh.map((note) => note.id));
@@ -320,12 +346,16 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   }
 
   if (group.status === 'fulfilled') {
-    const { files, notes, deadlines, homework, links, materials } = group.value;
+    const { files, notes, deadlines, homework, links, schedule, materials } = group.value;
     replaceNotes('group', notes);
     useMaterialsStore.setState((state) => ({
       materials: [...materials, ...state.materials.filter((material) => !material.id.startsWith('gh:'))],
     }));
     useGroupStore.setState({ files, deadlines, links });
+    if (schedule) {
+      applyGroupSchedule(schedule);
+      summary.schedule = schedule.classes.length;
+    }
     useHomeworkStore.getState().setRemote(homework);
     // Раньше дедлайны группы складывались в задачи (id "gh:deadline:…") — теперь у них своя страница
     useTasksStore.setState((state) => ({ tasks: state.tasks.filter((task) => !task.id.startsWith('gh:')) }));

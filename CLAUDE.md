@@ -8,7 +8,7 @@
 
 - **Коммиты — только от имени владельца**: `git -c user.name="LazerProOk1" commit …` (email берётся из
   git-конфига). Никаких строк `Co-Authored-By` и упоминаний ИИ в коммитах, PR и описаниях.
-- **Ветки**: работа идёт в `react-app` (ветка по умолчанию) и `react-app-dev`. `master` — legacy:
+- **Ветки**: работа идёт в `react-app` (ветка по умолчанию) и `react-app-dev`. `legacy` (бывший `master`):
   точная копия RedstoneLord/itmo-m3102 (их старый статический сайт), руками не коммитить — он
   обновляется только синхронизацией (см. ниже). В `RedstoneLord/itmo-m3102` ничего не пушить и PR не
   открывать без прямой просьбы владельца.
@@ -25,14 +25,15 @@
 | `react-app` | `VITE_EDITING=false` | Только просмотр. Деплоится на GitHub Pages. |
 | `react-app-dev` | `VITE_EDITING=true` | Кнопка «Редактирование / Просмотр» в шапке: правка расписания, конспектов, ДЗ (с публикацией в GitHub), мемов, ссылок, сроков. |
 
-| `master` | — | Legacy: копия RedstoneLord. Синхронизируется кнопкой Actions → «Синхронизировать master с RedstoneLord» → Run workflow (и сам раз в сутки), или встроенной «Sync fork», открыв ветку `master` на GitHub. |
+| `legacy` | — | Копия `master` из RedstoneLord. Синхронизируется кнопкой Actions → «Синхронизировать legacy с RedstoneLord» → Run workflow (и сам раз в сутки), или встроенной «Sync fork», открыв ветку `legacy` на GitHub. |
 
 Встроенную кнопку GitHub «Sync fork» **не нажимать на `react-app` / `react-app-dev`**: она предложит
 влить туда старый сайт RedstoneLord или выбросить наши коммиты.
 
-`react-app` и `react-app-dev` отличаются **только** файлом `.env`. Новая функциональность делается в `react-app-dev`, затем
-переносится в `react-app` (`git checkout react-app && git merge react-app-dev`, вернуть `.env` с
-`VITE_EDITING=false`) — либо наоборот, главное, чтобы `.env` в каждой ветке остался своим.
+`react-app` и `react-app-dev` отличаются **только** файлом `.env`. Код пишется в `react-app`, затем
+переносится в dev: `git checkout react-app-dev && git merge react-app` (в `react-app` `.env` не меняется,
+поэтому `VITE_EDITING=true` в dev сохраняется сам). В обратную сторону dev в `react-app` не мержить —
+вместе с кодом приедет `.env` с редактированием.
 
 Флаг читается в `src/features/settings/EditModeContext.tsx` (`EDITING_ENABLED`). Всё, что меняет
 общие данные, прячется за `const { isEditMode } = useEditMode()`. Личное (учебный план, отметки

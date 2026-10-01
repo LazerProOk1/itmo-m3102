@@ -66,8 +66,8 @@ export const useScheduleStore = create<ScheduleStore>()(
     }),
     {
       name: storageKey('schedule'),
-      // v1: расписание М3102 по данным ИТМО — заменяет сохранённое раньше, исключения остаются
-      version: 1,
+      // v2: запасное расписание с чётностью сайта группы; при синхронизации заменяется data/schedule.json
+      version: 2,
       migrate: (persisted) => ({ ...(persisted as object), classes: M3102_CLASSES }) as ScheduleStore,
     },
   ),

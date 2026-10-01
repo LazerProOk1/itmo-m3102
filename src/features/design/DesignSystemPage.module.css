@@ -89,3 +89,84 @@
 .loadingArea {
   margin-top: var(--space-3);
 }
+
+/* Бренд */
+.logo {
+  display: inline-block;
+  width: 160px;
+  height: 27px;
+  background: var(--color-text);
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.logoAccent {
+  background: var(--color-accent);
+}
+
+.greeting {
+  margin: 0;
+  font-size: 32px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.03em;
+}
+
+.greetingPeriod {
+  color: var(--color-accent);
+}
+
+/* Движение */
+.track {
+  position: relative;
+  width: 196px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  cursor: pointer;
+}
+
+.dot {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 4px 12px -4px var(--color-accent);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.swapCard {
+  min-width: 220px;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  font-weight: var(--weight-semibold);
+}
+
+.staggerGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 48px);
+  gap: var(--space-2);
+}
+
+.staggerCell {
+  display: grid;
+  place-items: center;
+  height: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}

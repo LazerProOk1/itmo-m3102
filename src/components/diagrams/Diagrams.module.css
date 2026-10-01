@@ -1,0 +1,250 @@
+/* Палитра DSL (red, blue…) — приглушённая, читается в обеих темах */
+.figure,
+.error {
+  --d-red: #e0485c;
+  --d-blue: #3b82f6;
+  --d-green: #16a34a;
+  --d-purple: #9061f9;
+  --d-orange: #ea8a1a;
+  --d-gray: var(--color-text-muted);
+  margin: var(--space-6) 0;
+}
+
+:global([data-theme='dark']) .figure {
+  --d-red: #f2707f;
+  --d-blue: #6aa3ff;
+  --d-green: #4ccf85;
+  --d-purple: #b090ff;
+  --d-orange: #f5a54a;
+}
+
+.figure {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+}
+
+.title {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+}
+
+.caption {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.canvas {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-sans);
+  overflow: visible;
+}
+
+/* ---------- оси и графики ---------- */
+.grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.axis {
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+}
+
+.tick {
+  fill: var(--color-text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.curve {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Кривые «прорисовываются», когда диаграмма появляется на экране */
+.figure[data-lang='plot'] .curve {
+  stroke-dasharray: none;
+}
+
+.area {
+  fill: var(--color-accent);
+  fill-opacity: 0.16;
+  stroke: var(--color-accent);
+  stroke-opacity: 0.35;
+  stroke-width: 1;
+}
+
+.point {
+  fill: var(--color-text);
+  stroke: var(--color-bg-elevated);
+  stroke-width: 2;
+}
+
+.pointLabel {
+  fill: var(--color-text);
+  font-size: 12px;
+  font-weight: 500;
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.legendBox {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border);
+  opacity: 0.94;
+}
+
+.legendText {
+  fill: var(--color-text-secondary);
+  font-size: 11.5px;
+}
+
+/* ---------- графы, блок-схемы, деревья ---------- */
+.node,
+.nodeAccent,
+.nodeWarm {
+  stroke-width: 1.4;
+  transition: filter var(--duration-fast) var(--ease);
+}
+
+.node {
+  fill: var(--color-bg-subtle);
+  stroke: var(--color-border-strong);
+}
+
+.nodeAccent {
+  fill: color-mix(in srgb, var(--color-accent) 12%, var(--color-bg-elevated));
+  stroke: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.nodeWarm {
+  fill: color-mix(in srgb, var(--d-orange) 12%, var(--color-bg-elevated));
+  stroke: color-mix(in srgb, var(--d-orange) 55%, transparent);
+}
+
+.nodeGroup:hover .node,
+.nodeGroup:hover .nodeAccent,
+.nodeGroup:hover .nodeWarm {
+  filter: brightness(1.04) drop-shadow(0 2px 6px rgb(0 0 0 / 0.12));
+}
+
+.nodeText {
+  fill: var(--color-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.edge {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.4;
+}
+
+.arrowHead {
+  fill: var(--color-text-muted);
+}
+
+.edgeLabelBox {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border);
+}
+
+.edgeLabel {
+  fill: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+/* ---------- массивы ---------- */
+.arrayWrap {
+  width: 100%;
+}
+
+.cell,
+.cellHighlight,
+.cellSorted {
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+}
+
+.cell {
+  fill: var(--color-bg-subtle);
+}
+
+.cellHighlight {
+  fill: color-mix(in srgb, var(--color-accent) 22%, var(--color-bg-elevated));
+  stroke: var(--color-accent);
+}
+
+.cellSorted {
+  fill: color-mix(in srgb, var(--d-green) 18%, var(--color-bg-elevated));
+}
+
+.cellText {
+  fill: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.code {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.code summary {
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.code pre {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+/* ---------- чарты ---------- */
+.bar,
+.slice {
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.bar:hover,
+.slice:hover {
+  opacity: 0.8;
+}
+
+.slice {
+  stroke: var(--color-bg-elevated);
+  stroke-width: 2;
+}
+
+/* ---------- ошибка ---------- */
+.error figcaption {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.error pre {
+  margin-top: var(--space-2);
+}

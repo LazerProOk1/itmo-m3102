@@ -15,7 +15,7 @@ const COLOR_GROUPS = [
   { label: 'Поверхности', tokens: ['--color-bg', '--color-bg-subtle', '--color-bg-hover', '--color-bg-elevated'] },
   { label: 'Границы', tokens: ['--color-border', '--color-border-strong', '--color-border-hover'] },
   { label: 'Текст', tokens: ['--color-text', '--color-text-secondary', '--color-text-muted'] },
-  { label: 'Акцент и статусы', tokens: ['--color-accent', '--color-success', '--color-warning', '--color-danger'] },
+  { label: 'Акцент и статусы', tokens: ['--color-accent', '--color-accent-soft', '--color-success', '--color-warning', '--color-danger'] },
   {
     label: 'Типы занятий',
     tokens: ['--color-lecture', '--color-practice', '--color-lab', '--color-consultation'],

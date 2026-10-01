@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { Swap, useDirection } from '../../components/ui/Swap';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
 import { LinksPage } from '../group/LinksPage';
 import { GroupFilesRoot, GroupFolder } from '../group/RepoFilePage';
@@ -18,6 +19,7 @@ const SECTION_TABS: TabItem<MaterialsSection>[] = [
 /** Материалы: конспекты (1 поток и группа), учебники из «Материалы/», остальные файлы группы и ссылки. */
 export function MaterialsPage() {
   const [section, setSection] = useState<MaterialsSection>('notes');
+  const direction = useDirection(SECTION_TABS.findIndex((tab) => tab.value === section));
 
   return (
     <>
@@ -30,10 +32,12 @@ export function MaterialsPage() {
         className={styles.sectionTabs}
       />
       <div role="tabpanel">
-        {section === 'notes' && <LectureNotesTab />}
-        {section === 'files' && <GroupFilesRoot />}
-        {section === 'links' && <LinksPage embedded />}
-        {section === 'materials' && <GroupFolder folder="Материалы" />}
+        <Swap id={section} direction={direction}>
+          {section === 'notes' && <LectureNotesTab />}
+          {section === 'files' && <GroupFilesRoot />}
+          {section === 'links' && <LinksPage embedded />}
+          {section === 'materials' && <GroupFolder folder="Материалы" />}
+        </Swap>
       </div>
     </>
   );
