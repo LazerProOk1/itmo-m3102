@@ -223,6 +223,7 @@
     <link rel="stylesheet" href="./css/deadlines.css">
     <link rel="stylesheet" href="./css/lectures.css">
     <link rel="stylesheet" href="./css/browse.css">
+    <link rel="stylesheet" href="./css/links.css">
     </head>
     <body>
     <div class="wrap">
@@ -261,6 +262,7 @@
     import { pickGreeting } from './js/greetings.js';
     import { bindNoteDiagrams, installDiagramEditor, renderDiagramEditor } from './js/diagrams/editor.js';
     import { installMemes, renderMemesPage } from './js/memes.js';
+    import { renderLinksPage, materialsSwitch } from './js/links.js';
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
@@ -1544,6 +1546,7 @@
       if(h==='deadlines')return{mode:'deadlines',path:''};
       if(h==='diagrams'||h.startsWith('diagrams?'))return{mode:'diagrams',path:''};
       if(h==='memes')return{mode:'memes',path:''};
+      if(h==='links')return{mode:'links',path:''};
       if(h==='students')return{mode:'students',path:''};
       if(h==='other')return{mode:'other',path:''};
       if(/^schedule\/\d{4}-\d{2}-\d{2}$/.test(h))return{mode:'schedule',path:h.slice(9)};
@@ -1578,7 +1581,7 @@
     async function renderBrowse(path){
       const c=document.getElementById('content');
       let intro='';
-      if(!path)intro='<div class="intro"><h1>Материалы группы М3102</h1><p class="sub">Конспекты, записи лекций, лабораторные и учебники по дисциплинам первого курса ИТМО. Выберите раздел, затем — предмет и нужный файл. PDF и конспекты .md открываются прямо в браузере.</p></div>';
+      if(!path)intro='<div class="intro"><h1>Материалы группы М3102</h1><p class="sub">Конспекты, записи лекций, лабораторные и учебники по дисциплинам первого курса ИТМО. Выберите раздел, затем — предмет и нужный файл. PDF и конспекты .md открываются прямо в браузере.</p></div>'+materialsSwitch('files');
       c.innerHTML=intro+breadcrumbs(path)+'<p class="state">Загрузка…</p>';
       try{
         const [res]=await Promise.all([githubFetch(apiUrl(path)),loadDisplayNames()]);
@@ -1695,6 +1698,7 @@
       else if(mode==='deadlines')renderDeadlinesPage();
       else if(mode==='diagrams')renderDiagramEditor();
       else if(mode==='memes')renderMemesPage();
+      else if(mode==='links')renderLinksPage();
       else if(mode==='students')renderStudentsPage();
       else if(mode==='other')renderOtherPage();
       else renderBrowse(path);
