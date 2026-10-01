@@ -1,4 +1,5 @@
 import { Copy, Download, ExternalLink, Plus, Upload } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
@@ -6,6 +7,7 @@ import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { SegmentedControl, type SegmentedOption } from '../../components/ui/SegmentedControl';
+import { SPRING_SMOOTH } from '../../lib/motion';
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
 import { repoEditUrl } from '../../services/github';
@@ -26,6 +28,8 @@ const FILTERS: SegmentedOption<Filter>[] = [
   { value: 'done', label: 'Выполненные' },
   { value: 'all', label: 'Все' },
 ];
+
+const LEAVE = { opacity: 0, x: 24, transition: { duration: 0.2 } };
 
 const dueOrder = (item: HomeworkItem) => item.due || '9999-12-31';
 
@@ -94,13 +98,12 @@ export function HomeworkPage() {
         </div>
       )}
 
-      {ordered.length === 0 ? (
-        <EmptyState title="Всё под контролем" description="Заданий в этом списке пока нет." />
-      ) : (
-        // key по фильтру: при смене вкладки каскад проигрывается заново
-        <div key={filter} className="stagger">
+      {/* key по фильтру: при смене вкладки каскад проигрывается заново */}
+      <div key={filter} className={`${styles.groups} stagger`}>
+        {/* Отмеченное задание уезжает из «Актуальных», остальные плавно сдвигаются на его место */}
+        <AnimatePresence mode="popLayout" initial={false}>
           {ordered.map(([subject, entries]) => (
-            <section key={subject} className={styles.group}>
+            <motion.section key={subject} layout exit={LEAVE} transition={SPRING_SMOOTH} className={styles.group}>
               <div className={styles.groupHead}>
                 <h2>{subject}</h2>
                 <span>{entries.length ? pluralize(entries.length, ['задание', 'задания', 'заданий']) : 'нет заданий'}</span>
@@ -108,19 +111,28 @@ export function HomeworkPage() {
               {entries.length === 0 ? (
                 <p className={styles.empty}>Заданий нет.</p>
               ) : (
-                entries.map((item) => (
-                  <HomeworkCard
-                    key={item.id}
-                    item={item}
-                    today={today}
-                    onEdit={isEditMode ? (entry) => openDialog({ item: entry }) : undefined}
-                    onDelete={isEditMode ? setDeleting : undefined}
-                  />
-                ))
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {entries.map((item) => (
+                    <motion.div key={item.id} layout exit={LEAVE} transition={SPRING_SMOOTH}>
+                      <HomeworkCard
+                        item={item}
+                        today={today}
+                        onEdit={isEditMode ? (entry) => openDialog({ item: entry }) : undefined}
+                        onDelete={isEditMode ? setDeleting : undefined}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               )}
-            </section>
+            </motion.section>
           ))}
-        </div>
+        </AnimatePresence>
+      </div>
+      {ordered.length === 0 && (
+        // Появляется, когда последняя карточка уже уехала
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}>
+          <EmptyState title="Всё под контролем" description="Заданий в этом списке пока нет." />
+        </motion.div>
       )}
 
       {isEditMode && (

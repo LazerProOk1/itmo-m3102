@@ -1,3 +1,4 @@
+import { MotionConfig } from 'framer-motion';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/inter';
@@ -7,6 +8,9 @@ import { App } from './app/App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    {/* «Уменьшить движение» в системе — framer-motion сам отключает сдвиги и пружины везде */}
+    <MotionConfig reducedMotion="user">
+      <App />
+    </MotionConfig>
   </StrictMode>,
 );

@@ -170,3 +170,39 @@
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
 }
+
+/* Демо блоков на всю ширину: без нижнего отступа, который у них на главной */
+.blocks {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.blocks.blocks > * {
+  margin-bottom: 0;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pill {
+  position: relative;
+  padding: var(--space-2) var(--space-3) var(--space-2) 16px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--type-color) 7%, transparent);
+  font-size: var(--text-sm);
+}
+
+.pill::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 6px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--type-color);
+}

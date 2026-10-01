@@ -29,7 +29,7 @@ export function SubjectsPage() {
         }
       />
 
-      <List>
+      <List className="stagger">
         {subjects.map((subject) => (
           <SubjectRow key={subject.id} subject={subject} />
         ))}
