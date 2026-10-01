@@ -28,9 +28,12 @@ export function NextClassBlock({ status }: NextClassBlockProps) {
           {status.next ? (
             <>
               <p className={styles.title}>
-                Следующая пара {status.next.dayLabel} в {status.next.occurrence.details.startTime}
+                <SubjectName subjectId={status.next.occurrence.details.subjectId} />
               </p>
-              <ClassDetailsLine details={status.next.occurrence.details} />
+              <ClassDetailsLine
+                details={status.next.occurrence.details}
+                when={`Следующая пара ${status.next.dayLabel} в ${status.next.occurrence.details.startTime}`}
+              />
             </>
           ) : (
             <p className={styles.title}>Нет пар в ближайшие 7 дней</p>
@@ -81,11 +84,14 @@ function SubjectName({ subjectId }: { subjectId: string }) {
 interface ClassDetailsLineProps {
   details: ClassDetails;
   showTime?: boolean;
+  /** «Следующая пара завтра в 11:30» — в начале строки, когда пар сегодня уже нет */
+  when?: string;
 }
 
-function ClassDetailsLine({ details, showTime = false }: ClassDetailsLineProps) {
+function ClassDetailsLine({ details, showTime = false, when }: ClassDetailsLineProps) {
   return (
     <p className={styles.details}>
+      {when && <span className={styles.when}>{when}</span>}
       {showTime && (
         <span>
           {details.startTime} — {details.endTime}

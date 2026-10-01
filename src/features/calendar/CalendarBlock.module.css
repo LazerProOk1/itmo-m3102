@@ -3,14 +3,24 @@
   right: 2px;
   left: 2px;
   /* Не overflow:hidden — иначе popover с деталями занятия (position:absolute внутри) обрежется */
-  padding: var(--space-1) var(--space-1-5);
-  border: 1px solid var(--color-border-strong);
-  border-left-width: 3px;
-  border-left-color: var(--type-color, var(--color-border-strong));
+  padding: var(--space-1) var(--space-1-5) var(--space-1) 12px;
+  border: 1px solid color-mix(in srgb, var(--type-color, var(--color-border-strong)) 30%, var(--color-border));
   border-radius: var(--radius-sm);
-  background: var(--color-bg);
+  background: color-mix(in srgb, var(--type-color, transparent) 9%, var(--color-bg));
   text-align: left;
   cursor: pointer;
+}
+
+/* Полоска типа пары — внутри блока, ровная на скруглениях */
+.block::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 4px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--type-color, var(--color-border-strong));
 }
 
 .header {
