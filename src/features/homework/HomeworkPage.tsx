@@ -16,6 +16,7 @@ import { useHomeworkDialog } from './HomeworkDialog';
 import { HOMEWORK_PATH, serializeHomework, useHomeworkStore, type HomeworkItem } from './homeworkStore';
 import { PublishHomeworkDialog } from './PublishHomeworkDialog';
 import styles from './Homework.module.css';
+import { saveBlob } from '../../lib/download';
 
 type Filter = 'active' | 'overdue' | 'done' | 'all';
 
@@ -62,11 +63,7 @@ export function HomeworkPage() {
   );
 
   function download() {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(new Blob([serializeHomework(items)], { type: 'application/json' }));
-    link.download = 'homework.json';
-    link.click();
-    URL.revokeObjectURL(link.href);
+    saveBlob(new Blob([serializeHomework(items)], { type: 'application/json' }), 'homework.json');
   }
 
   return (
