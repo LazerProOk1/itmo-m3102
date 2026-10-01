@@ -73,7 +73,8 @@ npm run build      # typecheck + сборка в dist/
 - `src/services/syncStore.ts` — общий статус синхронизации (кнопка в шапке, «Настройки», «Конспекты»).
   При открытии сайта синхронизация идёт сама, не чаще раза в 10 минут (лимит GitHub API — 60/час без токена).
 - `src/data/m3102.ts` — то, чего нет в репозитории: предметы, **расписание** (по скриншотам ИТМО, без
-  английского; 21.09.2026 — нечётная неделя), сопоставление папок с предметами, список студентов.
+  английского) — только запасное до первой синхронизации; дальше расписание и чётность недель берутся из
+  `data/schedule.json` группы (`services/groupSchedule.ts`). Ещё здесь: сопоставление папок с предметами, студенты.
 - `src/data/greetings.ts` — приветствия главной (те же, что `js/greetings.js` у RedstoneLord).
 
 Публикация в репозиторий группы (ДЗ, мемы) — `src/services/github.ts` (Contents API + PAT пользователя).
@@ -87,6 +88,8 @@ npm run build      # typecheck + сборка в dist/
 - `components/markdown` — рендер конспектов: GFM, KaTeX, выноски `> [!тип]` (`lib/remarkCallouts.ts`),
   подсветка кода, mermaid, `[[wiki-ссылки]]`, относительные картинки.
 - `components/hedgehog` — ёжик-маскот (SVG + CSS-анимации; по клику сальто).
+- `components/diagrams` — SVG-диаграммы из fenced-блоков конспектов; формулы — `expression.ts` (без eval).
+- `components/ui/Swap.tsx` — «перелистывание» содержимого; `.stagger` в `styles/global.css` — каскад карточек.
 - `features/*` — разделы: `today` (главная), `schedule`, `homework`, `deadlines`, `materials`
   (конспекты, читалка `NoteReader.tsx`), `group` (файлы, ссылки, студенты, мемы, токен), `search`,
   `settings`, `subjects`, `tasks` (учебный план), `notes`, `calendar`.
@@ -108,4 +111,6 @@ npm run build      # typecheck + сборка в dist/
 - Vite кеширует модули: если после правки странные ошибки — перезапустить dev-сервер.
 - id конспектов из GitHub содержат `/`, поэтому маршрут `materials/notes/*`, а не `:noteId`.
 - Порядок занятий как у группы: по номеру (Лекция 1, Практика 1, Лекция 2…), см. `compareLessons`.
-- Диаграммы DSL группы (```` ```graph ````, `plot`, `chart`…) пока не рендерятся — показываются кодом.
+- Диаграммы DSL группы (`plot`, `graph`, `diagram`, `tree`, `array`, `chart`) рисует свой рендерер в
+  `components/diagrams` (синтаксис — README RedstoneLord). Код пошаговой анимации в `array` (`code:`) не
+  выполняется — это чужой JS из репозитория, показывается текстом.
