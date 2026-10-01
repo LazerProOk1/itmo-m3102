@@ -8,15 +8,8 @@ import { IconButton } from '../../components/ui/IconButton';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { PageHeader } from '../../components/ui/PageHeader';
-import {
-  deleteRepoFile,
-  getToken,
-  groupRawUrl,
-  readRepoFile,
-  saveToken,
-  writeRepoFile,
-  writeRepoFileBase64,
-} from '../../services/github';
+import { deleteRepoFile, getToken, groupRawUrl, readRepoFile, saveToken, writeRepoFile, writeRepoFileBase64 } from '../../services/github';
+import { useEditMode } from '../settings/EditModeContext';
 import { TokenFields, type TokenValue } from './TokenFields';
 import groupStyles from './group.module.css';
 import styles from './MemesPage.module.css';
@@ -57,6 +50,7 @@ async function readMemes(): Promise<{ items: Meme[]; sha?: string }> {
 
 /** Мемы группы — общая коллекция в репозитории (img/memes + data/memes.json), как на сайте M3102. */
 export function MemesPage() {
+  const { isEditMode } = useEditMode();
   const [memes, setMemes] = useState<Meme[] | null>(null);
   const [error, setError] = useState('');
   const [open, setOpen] = useState<Meme | null>(null);
@@ -93,9 +87,11 @@ export function MemesPage() {
         title="Мемы"
         subtitle="Общая коллекция группы. Новые появятся у всех после сохранения в GitHub."
         actions={
-          <Button variant="primary" icon={Plus} onClick={() => setUploading(true)}>
-            Добавить мем
-          </Button>
+          isEditMode && (
+            <Button variant="primary" icon={Plus} onClick={() => setUploading(true)}>
+              Добавить мем
+            </Button>
+          )
         }
       />
 
@@ -112,7 +108,9 @@ export function MemesPage() {
               <button type="button" className={styles.image} onClick={() => setOpen(meme)}>
                 <img src={groupRawUrl(meme.file)} alt={meme.title || 'Мем'} loading="lazy" />
               </button>
-              <IconButton icon={X} label="Удалить мем" size="sm" className={styles.delete} onClick={() => setDeleting(meme)} />
+              {isEditMode && (
+                <IconButton icon={X} label="Удалить мем" size="sm" className={styles.delete} onClick={() => setDeleting(meme)} />
+              )}
               {(meme.title || meme.uploader) && (
                 <figcaption>
                   {meme.title && <strong>{meme.title}</strong>}
@@ -182,7 +180,10 @@ function UploadMemeDialog({ open, onClose, onUploaded }: { open: boolean; onClos
       await writeRepoFileBase64(path, dataUrl.split(',')[1] ?? '', `Мемы: добавить ${title.trim() || id}`);
       setStatus('Обновляем список…');
       const current = await readMemes();
-      const items = [...current.items, { id, file: path, title: title.trim(), uploader: uploader.trim(), createdAt: new Date().toISOString() }];
+      const items = [
+        ...current.items,
+        { id, file: path, title: title.trim(), uploader: uploader.trim(), createdAt: new Date().toISOString() },
+      ];
       await writeRepoFile(MEMES_PATH, serialize(items), `Мемы: добавить ${title.trim() || id}`, current.sha);
       onUploaded(items);
       setStatus('Мем добавлен.');

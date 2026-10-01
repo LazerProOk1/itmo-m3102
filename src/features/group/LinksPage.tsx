@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
 import { repoEditUrl } from '../../services/github';
+import { useEditMode } from '../settings/EditModeContext';
 import { useGroupStore, type GroupLink } from './groupStore';
 import styles from './LinksPage.module.css';
 
@@ -41,6 +42,7 @@ const tone = (text: string) => [...text].reduce((value, char) => (value * 31 + c
 /** Полезные ссылки группы (data/links.json): формы сдачи, чужие конспекты и курсы. */
 export function LinksPage({ embedded = false }: { embedded?: boolean }) {
   const links = useGroupStore((state) => state.links);
+  const { isEditMode } = useEditMode();
   const [query, setQuery] = useState('');
   const reduceMotion = usePrefersReducedMotion();
 
@@ -51,7 +53,7 @@ export function LinksPage({ embedded = false }: { embedded?: boolean }) {
   const groups = new Map<string, GroupLink[]>();
   for (const link of visible) groups.set(link.group, [...(groups.get(link.group) ?? []), link]);
 
-  const addButton = (
+  const addButton = isEditMode && (
     <a className={buttonClass('primary', 'md')} href={repoEditUrl('data/links.json')} target="_blank" rel="noopener noreferrer">
       <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
       Добавить ссылку
@@ -63,10 +65,21 @@ export function LinksPage({ embedded = false }: { embedded?: boolean }) {
   return (
     <>
       {!embedded && (
-        <PageHeader title="Полезные ссылки" subtitle="Формы сдачи, чужие конспекты и курсы — всё, что обычно теряется в чатах." actions={addButton} />
+        <PageHeader
+          title="Полезные ссылки"
+          subtitle="Формы сдачи, чужие конспекты и курсы — всё, что обычно теряется в чатах."
+          actions={addButton}
+        />
       )}
       <div className={styles.toolbar}>
-        <Input icon={Search} type="search" placeholder="Поиск по ссылкам" aria-label="Поиск по ссылкам" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <Input
+          icon={Search}
+          type="search"
+          placeholder="Поиск по ссылкам"
+          aria-label="Поиск по ссылкам"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
         {embedded && addButton}
       </div>
 

@@ -10,8 +10,14 @@ interface EditModeValue {
 const EditModeContext = createContext<EditModeValue | null>(null);
 
 /**
- * Режим редактирования: по умолчанию приложение открывается в режиме просмотра —
- * кнопки добавления/изменения/удаления скрыты. Переключатель живёт в localStorage.
+ * Редактирование на сайте включается при сборке: VITE_EDITING=true в .env ветки react-app-dev.
+ * В ветке react-app сайт только для просмотра — переключателя нет, правок нет.
+ */
+export const EDITING_ENABLED = import.meta.env.VITE_EDITING === 'true';
+
+/**
+ * Режим редактирования: по умолчанию сайт открывается в режиме просмотра — кнопки
+ * добавления/изменения/удаления скрыты. Переключатель живёт в localStorage.
  */
 export function EditModeProvider({ children }: { children: ReactNode }) {
   const editModeSetting = useSettingsStore((state) => state.editMode);
@@ -19,9 +25,9 @@ export function EditModeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<EditModeValue>(
     () => ({
-      isEditMode: editModeSetting,
+      isEditMode: EDITING_ENABLED && editModeSetting,
       toggleEditMode: () => setEditMode(!editModeSetting),
-      canToggleEditMode: true,
+      canToggleEditMode: EDITING_ENABLED,
     }),
     [editModeSetting, setEditMode],
   );

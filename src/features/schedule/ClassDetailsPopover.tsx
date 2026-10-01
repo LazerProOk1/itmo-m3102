@@ -66,7 +66,9 @@ export function ClassDetailsPopover({ occurrence, onClose, onEdit, anchorRef, al
   }, [onClose]);
 
   const address = [details.room && `Ауд. ${details.room}`, details.building].filter(Boolean).join(', ');
-  const mapUrl = details.building ? `https://yandex.ru/maps/?text=${encodeURIComponent(`Санкт-Петербург, ${details.building}`)}` : undefined;
+  const mapUrl = details.building
+    ? `https://yandex.ru/maps/?text=${encodeURIComponent(`Санкт-Петербург, ${details.building}`)}`
+    : undefined;
   if (!coords) return null;
 
   return createPortal(
@@ -125,18 +127,22 @@ export function ClassDetailsPopover({ occurrence, onClose, onEdit, anchorRef, al
         </div>
       )}
 
-      <Button
-        variant="ghost"
-        size="sm"
-        icon={Plus}
-        className={styles.editButton}
-        onClick={() => {
-          openHomework({ lesson: { date: occurrence.date, id: occurrence.classId ?? '', start: details.startTime, subject: subjectName } });
-          onClose();
-        }}
-      >
-        Добавить ДЗ
-      </Button>
+      {isEditMode && (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={Plus}
+          className={styles.editButton}
+          onClick={() => {
+            openHomework({
+              lesson: { date: occurrence.date, id: occurrence.classId ?? '', start: details.startTime, subject: subjectName },
+            });
+            onClose();
+          }}
+        >
+          Добавить ДЗ
+        </Button>
+      )}
 
       {isEditMode && (
         <Button variant="secondary" size="sm" icon={Pencil} className={styles.editButton} onClick={onEdit}>

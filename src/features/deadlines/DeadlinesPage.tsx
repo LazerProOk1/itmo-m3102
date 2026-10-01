@@ -9,6 +9,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { cn } from '../../lib/cn';
 import { GROUP_REPO, githubError, githubFetch, repoEditUrl } from '../../services/github';
 import { useGroupStore, type GroupDeadline } from '../group/groupStore';
+import { useEditMode } from '../settings/EditModeContext';
 import styles from './DeadlinesPage.module.css';
 
 /** Очередь сдачи — открытые issues с меткой queue-signup и заголовком "[id дедлайна] Имя" */
@@ -52,6 +53,7 @@ const formatFull = (iso: string) =>
 
 /** Дедлайны группы М3102: сроки из репозитория, общая очередь сдачи и личные отметки выполнения. */
 export function DeadlinesPage() {
+  const { isEditMode } = useEditMode();
   const deadlines = useGroupStore((state) => state.deadlines);
   const doneMap = useGroupStore((state) => state.deadlinesDone);
   const [queues, setQueues] = useState<Record<string, QueueEntry[]>>({});
@@ -90,10 +92,17 @@ export function DeadlinesPage() {
               <RefreshCw size={14} strokeWidth={2} className={cn(loading && styles.spinning)} aria-hidden />
               Обновить
             </Button>
-            <a className={buttonClass('secondary', 'md')} href={repoEditUrl('Дедлайны/deadlines.json')} target="_blank" rel="noopener noreferrer">
-              <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
-              Изменить сроки
-            </a>
+            {isEditMode && (
+              <a
+                className={buttonClass('secondary', 'md')}
+                href={repoEditUrl('Дедлайны/deadlines.json')}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
+                Изменить сроки
+              </a>
+            )}
           </>
         }
       />
@@ -182,7 +191,12 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
           join();
         }}
       >
-        <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ваше имя" aria-label={`Имя для очереди «${item.name}»`} />
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Ваше имя"
+          aria-label={`Имя для очереди «${item.name}»`}
+        />
         <Button type="submit" variant="primary" disabled={!name.trim()}>
           В очередь ↗
         </Button>

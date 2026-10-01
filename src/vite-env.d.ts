@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_API_URL: string;
+  /** "true" — сборка с редактированием на сайте (ветка react-app-dev), иначе только просмотр */
+  readonly VITE_EDITING?: string;
 }
 
 interface ImportMeta {

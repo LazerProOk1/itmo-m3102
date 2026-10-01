@@ -77,14 +77,32 @@ function Breadcrumbs({ path }: { path: string }) {
   );
 }
 
-/** Корень репозитория — вкладка «Файлы группы» в «Материалах» */
+/** У конспектов и материалов свои вкладки — в «Файлах группы» их не дублируем */
+const OWN_TABS = ['Конспекты', 'Материалы'];
+
+/** Корень репозитория — вкладка «Файлы группы» в «Материалах»: записи лекций, лабораторные и прочее */
 export function GroupFilesRoot() {
   const files = useGroupStore((state) => state.files);
-  return <FolderView files={files} folder="" embedded />;
+  return <FolderView files={files} folder="" embedded exclude={OWN_TABS} />;
 }
 
-function FolderView({ files, folder, embedded = false }: { files: RepoFile[]; folder: string; embedded?: boolean }) {
-  const listing = listFolder(files, folder);
+/** Одна папка репозитория внутри вкладки, например «Материалы» — учебники по предметам */
+export function GroupFolder({ folder }: { folder: string }) {
+  const files = useGroupStore((state) => state.files);
+  return <FolderView files={files} folder={folder} embedded />;
+}
+
+interface FolderViewProps {
+  files: RepoFile[];
+  folder: string;
+  embedded?: boolean;
+  /** Папки, которые не показываем на этом уровне */
+  exclude?: string[];
+}
+
+function FolderView({ files, folder, embedded = false, exclude = [] }: FolderViewProps) {
+  const full = listFolder(files, folder);
+  const listing = { ...full, folders: full.folders.filter((name) => !exclude.includes(name)) };
   const isRoot = folder === '';
 
   return (
@@ -110,15 +128,6 @@ function FolderView({ files, folder, embedded = false }: { files: RepoFile[]; fo
               </span>
             </Link>
           ))}
-          {isRoot && (
-            <Link className={styles.card} to="/deadlines">
-              <span className={styles.icon}>ДД</span>
-              <span className={styles.meta}>
-                <span className={styles.name}>Дедлайны</span>
-                <span className={styles.desc}>Сроки сдачи и важные даты</span>
-              </span>
-            </Link>
-          )}
           {listing.files.map((entry) => {
             const name = entry.path.slice(entry.path.lastIndexOf('/') + 1);
             const ext = extension(name);
@@ -127,7 +136,7 @@ function FolderView({ files, folder, embedded = false }: { files: RepoFile[]; fo
               <>
                 <span className={styles.icon}>{EXT_LABELS[ext] ?? 'ФАЙЛ'}</span>
                 <span className={styles.meta}>
-                  <span className={styles.name}>{name}</span>
+                  <span className={styles.name}>{name.replace(/_/g, ' ')}</span>
                   <span className={styles.desc}>
                     {formatSize(entry.size)}
                     {ext === 'pdf' && ' · читать в браузере'}

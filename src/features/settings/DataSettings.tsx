@@ -8,6 +8,7 @@ import { COLLECTION_LABELS, REPOS } from '../../services/githubContent';
 import { useSyncStore } from '../../services/syncStore';
 import { getToken, saveToken } from '../../services/github';
 import { TokenFields, type TokenValue } from '../group/TokenFields';
+import { EDITING_ENABLED } from './EditModeContext';
 import { SettingsRow } from './SettingsRow';
 import styles from './settings.module.css';
 
@@ -130,29 +131,33 @@ export function DataSettings() {
         </div>
       )}
 
-      <SettingsRow
-        label="Токен GitHub"
-        description={
-          tokenSaved
-            ? 'Токен сохранён: синхронизация идёт без лимита 60 запросов в час, можно публиковать ДЗ и мемы.'
-            : 'Нужен, чтобы публиковать ДЗ и мемы для всей группы. Заодно снимает лимит GitHub (60 запросов в час).'
-        }
-      >
-        <Button
-          variant="secondary"
-          disabled={!token.token.trim()}
-          onClick={() => {
-            saveToken(token.token, token.remember);
-            setToken({ token: '', remember: token.remember });
-            setTokenSaved(true);
-          }}
-        >
-          Сохранить токен
-        </Button>
-      </SettingsRow>
-      <div className={styles.tokenFields}>
-        <TokenFields value={token} onChange={setToken} />
-      </div>
+      {EDITING_ENABLED && (
+        <>
+          <SettingsRow
+            label="Токен GitHub"
+            description={
+              tokenSaved
+                ? 'Токен сохранён: синхронизация идёт без лимита 60 запросов в час, можно публиковать ДЗ и мемы.'
+                : 'Нужен, чтобы публиковать ДЗ и мемы для всей группы. Заодно снимает лимит GitHub (60 запросов в час).'
+            }
+          >
+            <Button
+              variant="secondary"
+              disabled={!token.token.trim()}
+              onClick={() => {
+                saveToken(token.token, token.remember);
+                setToken({ token: '', remember: token.remember });
+                setTokenSaved(true);
+              }}
+            >
+              Сохранить токен
+            </Button>
+          </SettingsRow>
+          <div className={styles.tokenFields}>
+            <TokenFields value={token} onChange={setToken} />
+          </div>
+        </>
+      )}
 
       <SettingsRow
         label="Экспорт резервной копии"

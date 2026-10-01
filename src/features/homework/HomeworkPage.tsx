@@ -9,6 +9,7 @@ import { SegmentedControl, type SegmentedOption } from '../../components/ui/Segm
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
 import { repoEditUrl } from '../../services/github';
+import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { HomeworkCard } from './HomeworkCard';
 import { useHomeworkDialog } from './HomeworkDialog';
@@ -36,6 +37,7 @@ export function HomeworkPage() {
   const discardDraft = useHomeworkStore((state) => state.discardDraft);
   const subjects = useSubjectsStore((state) => state.subjects);
 
+  const { isEditMode } = useEditMode();
   const [filter, setFilter] = useState<Filter>('active');
   const [showEmpty, setShowEmpty] = useState(false);
   const openDialog = useHomeworkDialog((state) => state.open);
@@ -51,7 +53,8 @@ export function HomeworkPage() {
   for (const item of visible) groups.set(item.subject, [...(groups.get(item.subject) ?? []), item]);
   if (showEmpty) for (const subject of subjects) if (!groups.has(subject.name)) groups.set(subject.name, []);
   const ordered = [...groups].sort(
-    ([nameA, a], [nameB, b]) => (a[0] ? dueOrder(a[0]) : '9999').localeCompare(b[0] ? dueOrder(b[0]) : '9999') || nameA.localeCompare(nameB, 'ru'),
+    ([nameA, a], [nameB, b]) =>
+      (a[0] ? dueOrder(a[0]) : '9999').localeCompare(b[0] ? dueOrder(b[0]) : '9999') || nameA.localeCompare(nameB, 'ru'),
   );
 
   function download() {
@@ -68,9 +71,11 @@ export function HomeworkPage() {
         title="Домашнее задание"
         subtitle="Задания группы по всем предметам. Выполнение видно только вам."
         actions={
-          <Button variant="primary" icon={Plus} onClick={() => openDialog({})}>
-            Добавить
-          </Button>
+          isEditMode && (
+            <Button variant="primary" icon={Plus} onClick={() => openDialog({})}>
+              Добавить
+            </Button>
+          )
         }
       />
 
@@ -79,7 +84,7 @@ export function HomeworkPage() {
         <Checkbox label="Показать предметы без заданий" checked={showEmpty} onChange={(event) => setShowEmpty(event.target.checked)} />
       </div>
 
-      {hasDraft && (
+      {isEditMode && hasDraft && (
         <div className={styles.draft}>
           Есть неопубликованные изменения — их видите только вы. Сохраните их в GitHub, чтобы увидела вся группа.{' '}
           <Button variant="ghost" size="sm" onClick={discardDraft}>
@@ -101,33 +106,43 @@ export function HomeworkPage() {
               <p className={styles.empty}>Заданий нет.</p>
             ) : (
               entries.map((item) => (
-                <HomeworkCard key={item.id} item={item} today={today} onEdit={(entry) => openDialog({ item: entry })} onDelete={setDeleting} />
+                <HomeworkCard
+                  key={item.id}
+                  item={item}
+                  today={today}
+                  onEdit={isEditMode ? (entry) => openDialog({ item: entry }) : undefined}
+                  onDelete={isEditMode ? setDeleting : undefined}
+                />
               ))
             )}
           </section>
         ))
       )}
 
-      <div className={styles.publish}>
-        <Button variant="primary" icon={Upload} onClick={() => setPublishing(true)}>
-          Сохранить в GitHub
-        </Button>
-        <Button variant="secondary" icon={Download} onClick={download}>
-          Скачать JSON
-        </Button>
-        <Button
-          variant="secondary"
-          icon={Copy}
-          onClick={() => navigator.clipboard.writeText(serializeHomework(items)).then(() => setCopied(true))}
-        >
-          {copied ? 'Скопировано' : 'Копировать JSON'}
-        </Button>
-        <a className={buttonClass('ghost', 'md')} href={repoEditUrl(HOMEWORK_PATH)} target="_blank" rel="noopener noreferrer">
-          <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
-          Открыть на GitHub
-        </a>
-      </div>
-      <p className={styles.hint}>Добавленные задания видны вам сразу. Чтобы их увидела вся группа, сохраните изменения в GitHub.</p>
+      {isEditMode && (
+        <div className={styles.publish}>
+          <Button variant="primary" icon={Upload} onClick={() => setPublishing(true)}>
+            Сохранить в GitHub
+          </Button>
+          <Button variant="secondary" icon={Download} onClick={download}>
+            Скачать JSON
+          </Button>
+          <Button
+            variant="secondary"
+            icon={Copy}
+            onClick={() => navigator.clipboard.writeText(serializeHomework(items)).then(() => setCopied(true))}
+          >
+            {copied ? 'Скопировано' : 'Копировать JSON'}
+          </Button>
+          <a className={buttonClass('ghost', 'md')} href={repoEditUrl(HOMEWORK_PATH)} target="_blank" rel="noopener noreferrer">
+            <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
+            Открыть на GitHub
+          </a>
+        </div>
+      )}
+      {isEditMode && (
+        <p className={styles.hint}>Добавленные задания видны вам сразу. Чтобы их увидела вся группа, сохраните изменения в GitHub.</p>
+      )}
 
       <PublishHomeworkDialog open={publishing} onClose={() => setPublishing(false)} />
       <ConfirmDeleteModal
