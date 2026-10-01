@@ -72,6 +72,8 @@ export function SubjectDetailPage() {
   const notes = useNotesStore((state) => state.notes);
   const classes = useScheduleStore((state) => state.classes);
   const groupLinks = useGroupStore((state) => state.links);
+  const groupDeadlines = useGroupStore((state) => state.deadlines);
+  const deadlinesDone = useGroupStore((state) => state.deadlinesDone);
 
   const [tab, setTab] = useState<SubjectTab>('overview');
   const [shouldRevealTitle] = useState(() => !hasRevealedSubjectTitle);
@@ -94,7 +96,7 @@ export function SubjectDetailPage() {
   const subjectGroupLinks = groupLinks.filter((link) => resolveSubjectFolder(link.subject) === subject.id);
   const subjectNotes = notes.filter((note) => note.subjectId === subject.id);
   const subjectInfoItems = subjectInfo.filter((item) => item.subjectId === subject.id);
-  const nextDeadline = getNextDeadline(tasks, subject.id, today);
+  const nextDeadline = getNextDeadline(tasks, subject.id, today, { deadlines: groupDeadlines, done: deadlinesDone });
 
   const tabItems: TabItem<SubjectTab>[] = [
     { value: 'overview', label: TAB_LABELS.overview },

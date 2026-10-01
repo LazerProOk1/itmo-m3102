@@ -48,14 +48,16 @@
 }
 
 .stat {
-  width: 88px;
+  width: 104px;
   text-align: right;
   color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .deadline {
-  width: 96px;
+  width: 112px;
   text-align: right;
+  white-space: nowrap;
 }
 
 @media (max-width: 767px) {
