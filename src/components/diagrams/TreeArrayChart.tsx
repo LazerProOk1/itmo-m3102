@@ -1,4 +1,5 @@
 import { resolveColor, SERIES_COLORS, textWidth, unquote, wrapText, type DiagramLines } from './parse';
+import { niceStep } from './Plot';
 import styles from './Diagrams.module.css';
 
 /* ---------------- tree: иерархия отступами ---------------- */
@@ -213,19 +214,24 @@ export function parseChart({ header, body }: DiagramLines): ChartModel {
 export function ChartView({ model }: { model: ChartModel }) {
   const width = 640;
   const height = 300;
-  const margin = { top: 16, right: 16, bottom: 34, left: 44 };
+  const legend = model.series.length > 1;
+  // Легенда — отдельной строкой над графиком, чтобы не налезать на столбцы
+  const margin = { top: legend ? 40 : 16, right: 16, bottom: 34, left: 44 };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
-  const max = Math.max(0, ...model.rows.flatMap((row) => row.values));
-  const min = Math.min(0, ...model.rows.flatMap((row) => row.values));
+  const values = model.rows.flatMap((row) => row.values);
+  // Круглые деления (0, 20, 40…), шкала доходит до ближайшего деления выше максимума
+  const step = niceStep(Math.max(0, ...values) - Math.min(0, ...values) || 1, 4);
+  const min = Math.floor(Math.min(0, ...values) / step) * step;
+  const max = Math.ceil(Math.max(0, ...values) / step) * step;
+  const ticks = Array.from({ length: Math.round((max - min) / step) + 1 }, (_, index) => Math.round((min + index * step) * 1e6) / 1e6);
   const sy = (value: number) => margin.top + innerH - ((value - min) / (max - min || 1)) * innerH;
-  const legend = model.series.length > 1;
 
   if (model.type === 'pie') {
     const total = model.rows.reduce((sum, row) => sum + Math.max(0, row.values[0] ?? 0), 0) || 1;
     let angle = -Math.PI / 2;
     return (
-      <svg viewBox={`0 0 ${width} ${height}`} className={styles.svg} role="img">
+      <svg viewBox={`0 0 ${width} ${height}`} className={`${styles.svg} ${styles.chart}`} role="img">
         {model.rows.map((row, index) => {
           const share = Math.max(0, row.values[0] ?? 0) / total;
           const start = angle;
@@ -247,16 +253,20 @@ export function ChartView({ model }: { model: ChartModel }) {
     );
   }
 
+  // Подписи легенды подряд по их длине, по центру над графиком
+  const legendWidths = model.series.map((name) => 18 + textWidth(name, 14) + 20);
+  let legendCursor = (width - legendWidths.reduce((sum, item) => sum + item, 0)) / 2;
+  const legendX = legendWidths.map((item) => (legendCursor += item) - item);
   const band = innerW / model.rows.length;
   const sx = (index: number) => margin.left + band * index + band / 2;
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className={styles.svg} role="img">
+    <svg viewBox={`0 0 ${width} ${height}`} className={`${styles.svg} ${styles.chart}`} role="img">
       <line className={styles.axis} x1={margin.left} x2={margin.left + innerW} y1={sy(0)} y2={sy(0)} />
-      {[min, (min + max) / 2, max].map((value) => (
+      {ticks.map((value) => (
         <g key={value}>
           <line className={styles.grid} x1={margin.left} x2={margin.left + innerW} y1={sy(value)} y2={sy(value)} />
           <text className={styles.tick} x={margin.left - 8} y={sy(value) + 4} textAnchor="end">
-            {Math.round(value * 100) / 100}
+            {value}
           </text>
         </g>
       ))}
@@ -287,7 +297,7 @@ export function ChartView({ model }: { model: ChartModel }) {
       })}
       {legend &&
         model.series.map((name, index) => (
-          <g key={name} transform={`translate(${margin.left + 8 + index * 120}, ${margin.top + 4})`}>
+          <g key={name} transform={`translate(${legendX[index]}, 8)`}>
             <rect width={12} height={12} rx={3} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />
             <text className={styles.legendText} x={18} y={10}>
               {name}
