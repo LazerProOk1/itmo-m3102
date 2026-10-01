@@ -1,20 +1,26 @@
 import { PageHeader } from '../../components/ui/PageHeader';
+import { BrandDemo } from './BrandDemo';
+import { ContentDemo } from './ContentDemo';
 import { ControlsDemo } from './ControlsDemo';
 import { FeedbackDemo } from './FeedbackDemo';
 import { FoundationsDemo } from './FoundationsDemo';
+import { MotionDemo } from './MotionDemo';
 import { OverlaysDemo } from './OverlaysDemo';
 import styles from './DesignSystemPage.module.css';
 
-/** Служебная страница: все токены и базовые компоненты в одном месте. */
+/** Служебная страница: бренд, токены, движение, компоненты и контент конспектов в одном месте. */
 export function DesignSystemPage() {
   return (
     <>
-      <PageHeader title="Дизайн-система" subtitle="Токены и компоненты, используемые во всём приложении." />
+      <PageHeader title="Дизайн-система М3102" subtitle="Бренд, токены, движение и компоненты сайта группы — всё, из чего он собран." />
       <div className={styles.sections}>
+        <BrandDemo />
         <FoundationsDemo />
+        <MotionDemo />
         <ControlsDemo />
         <FeedbackDemo />
         <OverlaysDemo />
+        <ContentDemo />
       </div>
     </>
   );

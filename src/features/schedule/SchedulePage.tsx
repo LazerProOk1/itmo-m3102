@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button } from '../../components/ui/Button';
+import { Swap, useDirection } from '../../components/ui/Swap';
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { addDays, formatWeekRange, getWeekDates, startOfWeek } from '../../lib/dates';
@@ -42,6 +43,8 @@ export function SchedulePage() {
 
   const weekStart = startOfWeek(selectedDate);
   const week = getStudyWeek(weekStart, scheduleData.semesterStart, scheduleData.weekOneStart);
+  // Следующая неделя приезжает справа, предыдущая — слева
+  const direction = useDirection(Date.parse(weekStart));
 
   const days: DaySchedule[] = getWeekDates(weekStart)
     .map((date) => ({ date, occurrences: getOccurrencesForDate(date, scheduleData) }))
@@ -80,24 +83,20 @@ export function SchedulePage() {
         onViewChange={setView}
       />
 
-      {view === 'week' ? (
-        <WeekView
-          days={days}
-          today={today}
-          time={time}
-          onAddDate={dialogs.openNewClass}
-          onAction={dialogs.handleAction}
-        />
-      ) : (
-        <DayView
-          days={days}
-          selectedDate={selectedDate}
-          today={today}
-          time={time}
-          onSelectDate={setSelectedDate}
-          onAction={dialogs.handleAction}
-        />
-      )}
+      <Swap id={`${view}-${weekStart}`} direction={direction}>
+        {view === 'week' ? (
+          <WeekView days={days} today={today} time={time} onAddDate={dialogs.openNewClass} onAction={dialogs.handleAction} />
+        ) : (
+          <DayView
+            days={days}
+            selectedDate={selectedDate}
+            today={today}
+            time={time}
+            onSelectDate={setSelectedDate}
+            onAction={dialogs.handleAction}
+          />
+        )}
+      </Swap>
 
       <ClassDialog target={dialogs.classTarget} onClose={dialogs.closeClassDialog} />
       <ExceptionDialog target={dialogs.exceptionTarget} onClose={dialogs.closeExceptionDialog} />

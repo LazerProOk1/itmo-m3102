@@ -1,6 +1,8 @@
+import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router';
 import { MOBILE_TABS, SECTIONS } from '../../app/navigation';
 import { cn } from '../../lib/cn';
+import { SPRING_SNAPPY } from '../../lib/motion';
 import styles from './MobileNav.module.css';
 
 const TABS = [...MOBILE_TABS, SECTIONS.more];
@@ -27,8 +29,11 @@ export function MobileNav() {
             className={cn(styles.tab, isActive && styles.active)}
             aria-current={isActive ? 'page' : undefined}
           >
-            <Icon size={20} strokeWidth={1.75} aria-hidden />
-            <span>{tab.label}</span>
+            {isActive && <motion.span layoutId="mobile-tab-active" className={styles.pill} transition={SPRING_SNAPPY} />}
+            <motion.span className={styles.iconWrap} animate={{ y: isActive ? -1 : 0, scale: isActive ? 1.08 : 1 }} transition={SPRING_SNAPPY}>
+              <Icon size={20} strokeWidth={1.75} aria-hidden />
+            </motion.span>
+            <span className={styles.text}>{tab.label}</span>
           </Link>
         );
       })}

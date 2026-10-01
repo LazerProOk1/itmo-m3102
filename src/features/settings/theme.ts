@@ -32,6 +32,14 @@ export function useApplyTheme() {
   const resolvedTheme = useResolvedTheme();
 
   useEffect(() => {
-    document.documentElement.dataset.theme = resolvedTheme;
+    const root = document.documentElement;
+    if (root.dataset.theme === resolvedTheme) return;
+    const apply = () => {
+      root.dataset.theme = resolvedTheme;
+    };
+    // Смена темы — плавным перетеканием (View Transitions), где браузер умеет и движение не выключено
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (root.dataset.theme && !reduceMotion && 'startViewTransition' in document) document.startViewTransition(apply);
+    else apply();
   }, [resolvedTheme]);
 }

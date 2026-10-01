@@ -102,7 +102,7 @@ export function MemesPage() {
       ) : sorted.length === 0 ? (
         <EmptyState title="Мемов пока нет" description="Загрузите первый — кнопка выше." />
       ) : (
-        <div className={styles.grid}>
+        <div className={`${styles.grid} stagger`}>
           {sorted.map((meme) => (
             <figure key={meme.id} className={styles.card}>
               <button type="button" className={styles.image} onClick={() => setOpen(meme)}>

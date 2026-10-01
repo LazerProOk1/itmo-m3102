@@ -17,6 +17,7 @@
 }
 
 .tab {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,4 +32,18 @@
 
 .active {
   color: var(--color-accent);
+}
+
+/* Мягкая подложка под активной вкладкой — переезжает между вкладками */
+.pill {
+  position: absolute;
+  inset: 6px 10px;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-soft);
+}
+
+.iconWrap,
+.text {
+  position: relative;
+  display: grid;
 }

@@ -11,7 +11,7 @@ export function StudentsPage() {
         title="Студенты группы М3102"
         subtitle="Ник — ссылка на GitHub-профиль, «Коммиты» — история правок студента в репозитории материалов группы."
       />
-      <div className={styles.grid}>
+      <div className={`${styles.grid} stagger`}>
         {M3102_STUDENTS.map((student) => {
           const github = `https://github.com/${encodeURIComponent(student.github)}`;
           return (
