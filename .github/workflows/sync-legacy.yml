@@ -1,6 +1,6 @@
-name: Синхронизировать master с RedstoneLord
+name: Синхронизировать legacy с RedstoneLord
 
-# master в этом форке — legacy: точная копия RedstoneLord/itmo-m3102 (их старый статический сайт).
+# Ветка legacy в этом форке — точная копия master из RedstoneLord/itmo-m3102 (их старый статический сайт).
 # Кнопка «Run workflow» во вкладке Actions или раз в сутки — подтягивает их master сюда.
 # Ветки react-app и react-app-dev не трогает.
 on:
@@ -15,9 +15,9 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Подтянуть master из RedstoneLord/itmo-m3102
+      - name: Подтянуть master из RedstoneLord/itmo-m3102 в legacy
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api -X POST "repos/${{ github.repository }}/merge-upstream" -f branch=master \
+          gh api -X POST "repos/${{ github.repository }}/merge-upstream" -f branch=legacy \
             --jq '"\(.merge_type): \(.message)"'

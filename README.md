@@ -30,8 +30,8 @@
 - `react-app` (по умолчанию) — сайт только для просмотра, публикуется на GitHub Pages.
 - `react-app-dev` — то же, но с режимом редактирования: правка расписания, конспектов, ДЗ (с публикацией
   в GitHub по токену), мемов и ссылок.
-- `master` — legacy: копия [RedstoneLord/itmo-m3102](https://github.com/RedstoneLord/itmo-m3102) со старым
-  статическим сайтом. Обновляется кнопкой **Actions → «Синхронизировать master с RedstoneLord» → Run workflow**
+- `legacy` — копия `master` из [RedstoneLord/itmo-m3102](https://github.com/RedstoneLord/itmo-m3102) со старым
+  статическим сайтом. Обновляется кнопкой **Actions → «Синхронизировать legacy с RedstoneLord» → Run workflow**
   (и автоматически раз в сутки).
 
 ## Разработка
