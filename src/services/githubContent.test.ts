@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveSubjectFolder } from '../data/m3102';
-import { cleanTitle, fileUrl, parseLessonFolder, parseStreamFilename, stripFrontMatter } from './githubContent';
+import { cleanTitle, fileUrl, parseLessonFolder, parseStreamFilename, stripFrontMatter, stripVaultSections } from './githubContent';
 
 describe('githubContent', () => {
   it('папка занятия → номер', () => {
@@ -45,6 +45,11 @@ describe('githubContent', () => {
     expect(fileUrl('Конспекты/ОП/2 практика /a.md')).toBe(
       'https://redstonelord.github.io/itmo-m3102/%D0%9A%D0%BE%D0%BD%D1%81%D0%BF%D0%B5%D0%BA%D1%82%D1%8B/%D0%9E%D0%9F/2%20%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20/a.md',
     );
+  });
+
+  it('описание курса — без разделов «Конспекты» и «Навигация»', () => {
+    const text = '> [!info] Курс\n\n---\n\n## 📊 Баллы\n\nтекст\n\n---\n\n## 📚 Конспекты лекций\n\n| № |\n\n---\n\n## 🧭 Навигация\n\n- ссылка\n';
+    expect(stripVaultSections(text)).toBe('> [!info] Курс\n\n---\n\n## 📊 Баллы\n\nтекст');
   });
 });
 

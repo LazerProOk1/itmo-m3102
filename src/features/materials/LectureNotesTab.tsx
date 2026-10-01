@@ -28,7 +28,7 @@ const SORT_LABELS: Record<LectureNoteSort, string> = {
   name: 'По названию',
 };
 
-const COLLECTIONS: LectureNoteCollection[] = ['stream', 'group'];
+const COLLECTIONS: LectureNoteCollection[] = ['group', 'stream'];
 
 const NOTE_FORMS: [string, string, string] = ['конспект', 'конспекта', 'конспектов'];
 

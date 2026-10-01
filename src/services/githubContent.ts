@@ -98,6 +98,19 @@ export function stripFrontMatter(text: string): string {
   return lines.length && lines.every((line) => /^[\w.-]+\s*:/.test(line.trim())) ? text.slice(match[0].length) : text;
 }
 
+/**
+ * Описание курса из хранилища потока без разделов «Конспекты…» и «Навигация»: список конспектов
+ * на сайте свой, а навигация ведёт по Obsidian-хранилищу. Остальное приходит синхронизацией как есть.
+ */
+export function stripVaultSections(text: string): string {
+  const kept = text
+    .split(/\r?\n(?=## )/)
+    .filter((section) => !/^## .*(Конспект|Навигаци)/i.test(section))
+    .join('\n');
+  // Разделитель `---` перед вырезанным последним разделом
+  return kept.replace(/(\s*\n---\s*)+$/, '').trimEnd();
+}
+
 /** Папка файла в raw-виде — относительные картинки в конспектах (`../img/diagram.svg`) считаются от неё */
 export function noteAssetBase(note: Pick<LectureNote, 'sourceRef' | 'collection'>): string | undefined {
   if (!note.sourceRef) return undefined;
@@ -233,13 +246,14 @@ async function buildStreamContent(paths: string[], notes: LectureNote[], info: S
       const id = `gh:${path}`;
       const old = info.find((item) => item.id === id);
       const isDescription = stem(name) === subjectFolder;
+      const infoContent = isDescription ? stripVaultSections(content) : content;
       result.info.push({
         id,
         createdAt: old?.createdAt ?? now,
-        updatedAt: old?.content === content ? old.updatedAt : now,
+        updatedAt: old?.content === infoContent ? old.updatedAt : now,
         subjectId,
         title: isDescription ? 'Описание курса (1 поток)' : stem(name),
-        content,
+        content: infoContent,
         category: isDescription ? 'description' : 'other',
         source: 'github',
         sourceRef: path,
