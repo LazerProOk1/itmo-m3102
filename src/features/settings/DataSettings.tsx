@@ -4,7 +4,8 @@ import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { cn } from '../../lib/cn';
 import { STORAGE_PREFIX, storageKey } from '../../lib/storage';
-import { COLLECTION_LABELS, REPOS, syncGithubContent, type SyncSummary } from '../../services/githubContent';
+import { COLLECTION_LABELS, REPOS } from '../../services/githubContent';
+import { useSyncStore } from '../../services/syncStore';
 import { getToken, saveToken } from '../../services/github';
 import { TokenFields, type TokenValue } from '../group/TokenFields';
 import { SettingsRow } from './SettingsRow';
@@ -53,9 +54,11 @@ export function DataSettings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = useState('');
   const [confirmingReset, setConfirmingReset] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<SyncSummary | null>(null);
-  const [syncError, setSyncError] = useState('');
+  const syncStatus = useSyncStore((state) => state.status);
+  const syncResult = useSyncStore((state) => (state.status === 'done' ? state.summary : null));
+  const syncError = useSyncStore((state) => (state.status === 'error' ? state.error : ''));
+  const runSync = useSyncStore((state) => state.run);
+  const syncing = syncStatus === 'syncing';
   const [token, setToken] = useState<TokenValue>({ token: '', remember: true });
   const [tokenSaved, setTokenSaved] = useState(() => Boolean(getToken()));
 
@@ -77,26 +80,13 @@ export function DataSettings() {
     window.location.reload();
   }
 
-  async function handleSyncGithub() {
-    setSyncing(true);
-    setSyncError('');
-    setSyncResult(null);
-    try {
-      setSyncResult(await syncGithubContent());
-    } catch (error) {
-      setSyncError(error instanceof Error ? error.message : 'Не удалось синхронизироваться с GitHub.');
-    } finally {
-      setSyncing(false);
-    }
-  }
-
   return (
     <>
       <SettingsRow
         label="Синхронизировать с GitHub"
-        description={`Конспекты 1 потока из ${REPOS.stream.name}, конспекты, материалы и дедлайны группы из ${REPOS.group.name}. Происходит и автоматически при открытии приложения (не чаще раза в 10 минут).`}
+        description={`Конспекты 1 потока из ${REPOS.stream.name}; конспекты, файлы, дедлайны, ДЗ и ссылки группы из ${REPOS.group.name}. Происходит и автоматически при открытии сайта (не чаще раза в 10 минут). Кнопка есть и в шапке.`}
       >
-        <Button variant="secondary" onClick={handleSyncGithub} disabled={syncing}>
+        <Button variant="secondary" onClick={runSync} disabled={syncing}>
           <RefreshCw size={14} strokeWidth={2} className={cn(styles.syncIcon, syncing && styles.syncIconSpinning)} aria-hidden />
           {syncing ? 'Синхронизация…' : 'Синхронизировать'}
         </Button>
@@ -127,6 +117,14 @@ export function DataSettings() {
             <div>
               <dt>Дедлайны</dt>
               <dd>{syncResult.deadlines}</dd>
+            </div>
+            <div>
+              <dt>Домашнее задание</dt>
+              <dd>{syncResult.homework}</dd>
+            </div>
+            <div>
+              <dt>Ссылки</dt>
+              <dd>{syncResult.links}</dd>
             </div>
           </dl>
         </div>

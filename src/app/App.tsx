@@ -20,7 +20,7 @@ import { SubjectDetailPage } from '../features/subjects/SubjectDetailPage';
 import { SubjectsPage } from '../features/subjects/SubjectsPage';
 import { TasksPage } from '../features/tasks/TasksPage';
 import { TodayPage } from '../features/today/TodayPage';
-import { autoSyncGithubContent } from '../services/githubContent';
+import { useSyncStore } from '../services/syncStore';
 import { SECTIONS } from './navigation';
 
 let autoSyncStarted = false;
@@ -37,7 +37,7 @@ export function App() {
     if (autoSyncStarted) return;
     autoSyncStarted = true;
     // Нет сети или исчерпан лимит GitHub — остаются данные прошлой синхронизации
-    autoSyncGithubContent().catch(() => {});
+    void useSyncStore.getState().runAuto();
   }, []);
 
   return (

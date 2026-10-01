@@ -3,6 +3,7 @@ import { findSection } from '../../app/navigation';
 import { Brand } from './Brand';
 import { EditModeToggle } from './EditModeToggle';
 import { SearchTrigger } from './SearchTrigger';
+import { SyncButton } from './SyncButton';
 import { UserMenu } from './UserMenu';
 import styles from './TopBar.module.css';
 
@@ -34,6 +35,7 @@ export function TopBar({ onOpenSearch }: TopBarProps) {
         )}
 
         <div className={styles.actions}>
+          <SyncButton />
           <EditModeToggle />
           <SearchTrigger onClick={onOpenSearch} />
           <UserMenu />

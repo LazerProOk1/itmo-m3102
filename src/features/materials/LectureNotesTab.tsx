@@ -7,7 +7,8 @@ import { List, ListItem } from '../../components/ui/List';
 import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
-import { COLLECTION_LABELS, REPOS, syncGithubContent } from '../../services/githubContent';
+import { COLLECTION_LABELS, REPOS } from '../../services/githubContent';
+import { useSyncStore } from '../../services/syncStore';
 import type { LectureNote, LectureNoteCollection, Subject } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectsStore } from '../subjects/subjectsStore';
@@ -138,28 +139,20 @@ interface CollectionPickerProps {
 
 /** Две папки конспектов + синхронизация обоих репозиториев */
 function CollectionPicker({ notes, onSelect }: CollectionPickerProps) {
-  const [syncing, setSyncing] = useState(false);
-  const [message, setMessage] = useState('');
-
-  async function handleSync() {
-    setSyncing(true);
-    setMessage('');
-    try {
-      const summary = await syncGithubContent();
-      setMessage(`Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}`);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Не удалось синхронизироваться с GitHub.');
-    } finally {
-      setSyncing(false);
-    }
-  }
+  const status = useSyncStore((state) => state.status);
+  const summary = useSyncStore((state) => state.summary);
+  const error = useSyncStore((state) => state.error);
+  const run = useSyncStore((state) => state.run);
+  const syncing = status === 'syncing';
+  const message =
+    status === 'error' ? error : status === 'done' && summary ? `Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}` : '';
 
   return (
     <>
       <div className={styles.subjectToolbar}>
         {message ? <p className={styles.syncMessage}>{message}</p> : <span />}
         <div className={styles.controls}>
-          <Button variant="ghost" onClick={handleSync} disabled={syncing}>
+          <Button variant="ghost" onClick={run} disabled={syncing}>
             <RefreshCw size={14} strokeWidth={2} className={cn(syncing && styles.spinning)} aria-hidden />
             {syncing ? 'Синхронизация…' : 'Синхронизировать'}
           </Button>
