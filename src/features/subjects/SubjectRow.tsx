@@ -6,6 +6,8 @@ import { useClock } from '../../lib/useClock';
 import { useCursorGlow } from '../../lib/useCursorGlow';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import type { Subject } from '../../types/models';
+import { useGroupStore } from '../group/groupStore';
+import { useLectureNotesStore } from '../materials/lectureNotesStore';
 import { useMaterialsStore } from '../materials/materialsStore';
 import { useTasksStore } from '../tasks/tasksStore';
 import { getNextDeadline, getOpenTasks } from './subjectStats';
@@ -20,12 +22,18 @@ export function SubjectRow({ subject }: SubjectRowProps) {
   const { today } = useClock();
   const tasks = useTasksStore((state) => state.tasks);
   const materials = useMaterialsStore((state) => state.materials);
+  const lectureNotes = useLectureNotesStore((state) => state.lectureNotes);
+  const deadlines = useGroupStore((state) => state.deadlines);
+  const done = useGroupStore((state) => state.deadlinesDone);
   const glow = useCursorGlow();
   const reduceMotion = usePrefersReducedMotion();
 
   const openTaskCount = getOpenTasks(tasks, subject.id).length;
-  const materialCount = materials.filter((material) => material.subjectId === subject.id).length;
-  const nextDeadline = getNextDeadline(tasks, subject.id, today);
+  // Как вкладка «Материалы» предмета: файлы без ссылок + конспекты
+  const materialCount =
+    materials.filter((material) => material.subjectId === subject.id && material.type !== 'link').length +
+    lectureNotes.filter((note) => note.subjectId === subject.id && !note.archived).length;
+  const nextDeadline = getNextDeadline(tasks, subject.id, today, { deadlines, done });
 
   return (
     <ListItem
