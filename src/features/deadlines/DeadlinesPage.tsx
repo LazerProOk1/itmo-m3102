@@ -36,9 +36,13 @@ async function loadQueues(): Promise<Record<string, QueueEntry[]>> {
   return queues;
 }
 
+/**
+ * Метку queue-signup ставит workflow label-deadline-signups.yml в репозитории группы: через ?labels=
+ * GitHub разрешает ставить метки только участникам репозитория, у остальных запись терялась.
+ */
 export function joinQueueUrl(deadlineId: string, name: string): string {
   const { owner, repo } = GROUP_REPO;
-  return `https://github.com/${owner}/${repo}/issues/new?labels=${encodeURIComponent(QUEUE_LABEL)}&title=${encodeURIComponent(`[${deadlineId}] ${name}`)}`;
+  return `https://github.com/${owner}/${repo}/issues/new?title=${encodeURIComponent(`[${deadlineId}] ${name}`)}`;
 }
 
 export function deadlineBadge(iso: string, now = Date.now()): { tone: BadgeTone; label: string } {
