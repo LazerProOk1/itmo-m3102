@@ -405,9 +405,9 @@ print: last
 code:
 let lo = 0;
 let hi = a.length - 1;
-let pivot = a[lo];
-let i = lo - 1;
-let j = hi + 1;
+let pivot = a[(lo+hi)/2];
+let i = lo;
+let j = hi;
 let res = -1;
 while (res < 0) {
   while (a[i] < pivot) {
