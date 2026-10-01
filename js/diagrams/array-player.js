@@ -65,6 +65,12 @@ const STYLE = `
 .arr-line{display:flex;white-space:pre;padding-right:12px;border-left:3px solid transparent;}
 .arr-line .ln{flex:none;width:2.6em;text-align:right;padding-right:10px;color:#6b6f82;user-select:none;}
 .arr-line.is-current{background:rgba(124,127,251,.26);border-left-color:#7c7ffb;color:#fff;}
+.arr-row{position:absolute;inset:0;pointer-events:none;transition:opacity .25s;}
+.arr-row.is-off{opacity:0;}
+.arr-rowlbl{position:absolute;left:0;top:0;width:52px;font:700 13px ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.1;color:var(--text);overflow:hidden;text-overflow:ellipsis;}
+.arr-rowlbl small{display:block;margin-top:2px;font:600 9px system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+.arr-rowlbl.buf,.arr-rowlbl.tmp{color:var(--muted);}
+.arr-chip.is-empty{border-style:dashed;color:var(--muted);}
 @media (prefers-reduced-motion:reduce){.arr-ptr{transition:none;}}
 @media print{.dgm-array-live .arr-live{display:none !important;}.dgm-array-live .dgm-print{display:block !important;}}
 `;
@@ -93,9 +99,11 @@ function statusHtml(s, index, last) {
     case 'start': return '<div class="arr-kind">Начало</div><div class="arr-eval">Исходный массив</div>';
     case 'end': return `<div class="arr-kind">Готово</div><div class="arr-eval">${esc(s.text || 'Программа завершена')}</div>`;
     case 'compare': return `<div class="arr-kind">Сравнение</div><div class="arr-src">${esc(s.src)}</div><div class="arr-eval"><span>${esc(s.lv)}</span><span class="op">${esc(opText(s.op))}</span><span>${esc(s.rv)}</span><span class="arr-res ${s.res ? 'is-true' : 'is-false'}">${s.res ? 'истина' : 'ложь'}</span></div>`;
-    case 'swap': return `<div class="arr-kind">Обмен</div><div class="arr-src">${esc(s.src || '')}</div><div class="arr-eval"><span>a[${s.i}]</span><span class="op">↔</span><span>a[${s.j}]</span><span class="op">→</span><span>${esc(s.vi)}, ${esc(s.vj)}</span></div>`;
-    case 'write': return `<div class="arr-kind">Запись</div><div class="arr-src">${esc(s.dst)} = ${esc(s.src)}</div><div class="arr-eval"><span>a[${s.i}]</span><span class="op">←</span><span>${esc(s.val)}</span></div>`;
+    case 'swap': return `<div class="arr-kind">Обмен</div><div class="arr-src">${esc(s.src || '')}</div><div class="arr-eval"><span>${esc(s.an || 'a')}[${s.i}]</span><span class="op">↔</span><span>${esc(s.an || 'a')}[${s.j}]</span><span class="op">→</span><span>${esc(s.vi)}, ${esc(s.vj)}</span></div>`;
+    case 'write': return `<div class="arr-kind">Запись</div><div class="arr-src">${esc(s.dst)} = ${esc(s.src)}</div><div class="arr-eval"><span>${esc(s.an || 'a')}[${s.i}]</span><span class="op">←</span><span>${esc(s.val)}</span></div>`;
     case 'load': return `<div class="arr-kind">Чтение в переменную</div><div class="arr-src">${esc(s.name)} = ${esc(s.src)}</div><div class="arr-eval"><span>${esc(s.name)}</span><span class="op">=</span><span>${esc(s.val)}</span></div>`;
+    case 'alloc': return `<div class="arr-kind">Новый массив</div><div class="arr-src">${esc(s.text)}</div><div class="arr-eval"><span>${esc(s.an)}</span><span class="op">·</span><span>${s.len} эл.</span></div>`;
+    case 'fill': return `<div class="arr-kind">Заполнение</div><div class="arr-src">${esc(s.text)}</div><div class="arr-eval"><span>${esc(s.an)}</span><span class="op">←</span><span>${esc(s.val)}</span></div>`;
     case 'pointer': return `<div class="arr-kind">Указатель</div><div class="arr-eval"><span>${esc(s.name)}</span><span class="op">=</span><span>${esc(s.val)}</span></div>`;
     case 'remove': return `<div class="arr-kind">Удаление</div><div class="arr-eval">pop() <span class="op">→</span> ${esc(s.val)}</div>`;
     default: return `<div class="arr-kind">Комментарий</div><div class="arr-eval">${esc(s.text)}</div>`;
@@ -106,9 +114,11 @@ function briefHtml(s) {
     case 'start': return 'начало';
     case 'end': return 'готово';
     case 'compare': return `${esc(s.src)} → ${esc(s.lv)} ${esc(opText(s.op))} ${esc(s.rv)} <span class="${s.res ? 't' : 'f'}">${s.res ? 'истина' : 'ложь'}</span>`;
-    case 'swap': return `обмен a[${s.i}] ↔ a[${s.j}]`;
+    case 'swap': return `обмен ${esc(s.an || 'a')}[${s.i}] ↔ ${esc(s.an || 'a')}[${s.j}]`;
     case 'write': return `${esc(s.dst)} = ${esc(s.val)}`;
     case 'load': return `${esc(s.name)} = ${esc(s.src)} → ${esc(s.val)}`;
+    case 'alloc': return `${esc(s.an)}: новый массив (${s.len})`;
+    case 'fill': return `${esc(s.text)}`;
     case 'pointer': return `${esc(s.name)} = ${esc(s.val)}`;
     case 'remove': return `pop() → ${esc(s.val)}`;
     default: return esc(s.text);
@@ -117,13 +127,19 @@ function briefHtml(s) {
 
 function createPlayer(figure, host, model) {
   const steps = model.steps, last = steps.length - 1, names = model.pointerNames || [];
-  const N = Math.max(1, ...steps.map(s => s.vals.length));
+  const mainKey = model.watch || 'a', rowKeys = [mainKey], rowKind = { [mainKey]: 'main' };
+  steps.forEach(s => (s.x || []).forEach(r => { if (!rowKeys.includes(r.key)) { rowKeys.push(r.key); rowKind[r.key] = r.kind; } else if (r.kind === 'buf') rowKind[r.key] = 'buf'; }));
+  const rowOf = (s, key) => key === mainKey ? { vals: s.vals, ids: s.ids } : (s.x || []).find(r => r.key === key);
+  const rowN = {}; rowKeys.forEach(key => { rowN[key] = Math.max(1, ...steps.map(s => rowOf(s, key)?.vals.length || 0)); });
+  const N = Math.max(...Object.values(rowN)), multi = rowKeys.length > 1, ptrKey = p => p.arr || mainKey;
+  // сколько «этажей» указателей нужно над каждой строкой (до 3)
+  const lanes = {}; rowKeys.forEach(key => { let m = key === mainKey ? 1 : 0; steps.forEach(s => { const c = {}; s.ptr.forEach(p => { if (ptrKey(p) === key) c[p.idx] = (c[p.idx] || 0) + 1; }); m = Math.max(m, ...Object.values(c)); }); lanes[key] = Math.min(3, m); });
   const handNames = [...new Set(steps.flatMap(s => s.hand.map(h => h.name)))];
-  const maxStack = Math.max(1, ...steps.map(s => { const count = {}; s.ptr.forEach(p => { count[p.idx] = (count[p.idx] || 0) + 1; }); return Math.max(1, ...Object.values(count)); }));
-  const hasHand = handNames.length > 0, ptrRows = Math.min(3, maxStack), hasCode = !model.hideCode;
+  const hasHand = handNames.length > 0, hasCode = !model.hideCode;
   let idx = Math.max(0, Math.min(last, Number(figure.dataset.startStep) || 0)), speed = 1, playing = false, timer = 0, lastWidth = 0;
-  let cw = 60, padX = 8, cellsY = 0, handH = hasHand ? HAND_H : 0;
-  const cellChips = new Map(), handChips = new Map(), ptrEls = new Map();
+  let cw = 60, padX = 8, gut = 0, handH = hasHand ? HAND_H : 0;
+  const cellY = {}, ptrTop = {};
+  const cellChips = new Map(), handChips = new Map(), ptrEls = new Map(), rowEls = new Map();
   const colorOf = name => COLORS[Math.max(0, names.indexOf(name)) % COLORS.length];
 
   host.classList.toggle('has-code', hasCode);
@@ -138,19 +154,26 @@ function createPlayer(figure, host, model) {
   const slider = $('input[type=range]'), countEl = $('.arr-count'), playBtn = $('[data-act=play]'), codeBody = $('.arr-code-body');
   const lineEls = codeBody ? [...codeBody.querySelectorAll('.arr-line')] : [];
 
-  const X = slot => padX + slot * cw + 3;
-  const cellPos = slot => ({ x: X(slot), y: cellsY });
+  const X = slot => gut + padX + slot * cw + 3;
+  const cellPos = (key, slot) => ({ x: X(slot), y: cellY[key] });
   const handPos = name => ({ x: X(Math.min(Math.max(0, handNames.indexOf(name)), N - 1)), y: 16 });
 
   function layout() {
     const W = wrap.clientWidth || 600; lastWidth = W;
-    cw = Math.max(38, Math.min(76, Math.floor((W - 16) / N))); padX = Math.max(8, Math.floor((W - N * cw) / 2));
-    cellsY = handH + ptrRows * PTR_ROW + 8;
-    stage.style.cssText = `width:${Math.max(W, padX * 2 + N * cw)}px;height:${cellsY + CELL_H + 22}px;--cw:${cw}px;`;
-    cellChips.clear(); handChips.clear(); ptrEls.clear();
+    gut = multi ? 58 : 0;
+    cw = Math.max(38, Math.min(76, Math.floor((W - 16 - gut) / N))); padX = Math.max(8, Math.floor((W - gut - N * cw) / 2));
+    let y = handH;
+    rowKeys.forEach(key => { ptrTop[key] = y; cellY[key] = y + lanes[key] * PTR_ROW + 8; y = cellY[key] + CELL_H + 22 + (multi ? 10 : 0); });
+    stage.style.cssText = `width:${Math.max(W, gut + padX * 2 + N * cw)}px;height:${y}px;--cw:${cw}px;`;
+    cellChips.clear(); handChips.clear(); ptrEls.clear(); rowEls.clear();
     let html = '';
-    for (let k = 0; k < N; k++) html += `<div class="arr-slot" style="transform:${T(cellPos(k))};width:${cw - 6}px"></div><div class="arr-idx" style="transform:${T({ x: X(k), y: cellsY + CELL_H + 4 })};width:${cw - 6}px">${k}</div>`;
+    rowKeys.forEach(key => {
+      let g = multi ? `<div class="arr-rowlbl ${rowKind[key]}" style="transform:${T({ x: 6, y: cellY[key] + 8 })}">${esc(key)}${rowKind[key] === 'buf' ? '<small>буфер</small>' : rowKind[key] === 'tmp' ? '<small>врем.</small>' : ''}</div>` : '';
+      for (let k = 0; k < rowN[key]; k++) g += `<div class="arr-slot" style="transform:${T(cellPos(key, k))};width:${cw - 6}px"></div><div class="arr-idx" style="transform:${T({ x: X(k), y: cellY[key] + CELL_H + 4 })};width:${cw - 6}px">${k}</div>`;
+      html += `<div class="arr-row">${g}</div>`;
+    });
     stage.innerHTML = html;
+    rowKeys.forEach((key, n) => rowEls.set(key, stage.children[n]));
     names.forEach(name => { const el = document.createElement('div'); el.className = 'arr-ptr is-off'; el.style.cssText = `--pc:${colorOf(name)};width:${cw - 6}px;transform:${T({ x: X(0), y: handH })}`; el.textContent = `${name} ▼`; stage.appendChild(el); ptrEls.set(name, el); });
   }
   const chipW = () => `${cw - 6}px`;
@@ -158,20 +181,29 @@ function createPlayer(figure, host, model) {
   function show(to, animate) {
     const s = steps[to], dur = animate && !reduced() ? Math.min(450, Math.round(1100 / speed * .6)) : 0;
     const swapKind = s.kind === 'swap';
-    /* ячейки массива */
-    const seen = new Set();
-    s.ids.forEach((id, slot) => {
-      let c = cellChips.get(id); const target = cellPos(slot);
-      if (!c) {
-        const el = document.createElement('div'); el.className = 'arr-chip'; el.style.width = chipW(); el.textContent = s.vals[slot]; stage.appendChild(el);
-        c = { el, slot }; cellChips.set(id, c);
-        const hint = (s.born || []).find(b => b.id === id)?.from;
-        if (hint && dur && hint.slot !== undefined) { el.style.transform = T(cellPos(hint.slot)); move(el, cellPos(hint.slot), target, dur); }
-        else if (hint && dur && hint.hand) move(el, handPos(hint.hand), target, dur);
-        else pop(el, target, dur);
-      } else if (c.slot !== slot) { move(c.el, cellPos(c.slot), target, dur, swapKind ? (slot > c.slot ? -26 : 26) : 0); c.slot = slot; }
-      else c.el.style.transform = T(target);
-      seen.add(id);
+    /* строки (основной массив, буферы, временные) и их ячейки */
+    const present = new Set(rowKeys.filter(key => rowOf(s, key)));
+    rowKeys.forEach(key => rowEls.get(key)?.classList.toggle('is-off', !present.has(key)));
+    const born = new Map((s.born || []).map(b => [b.id, b])), seen = new Set();
+    rowKeys.forEach(key => {
+      const row = rowOf(s, key); if (!row) return;
+      row.ids.forEach((id, slot) => {
+        const target = cellPos(key, slot), val = row.vals[slot];
+        let c = cellChips.get(id);
+        if (!c) {
+          const el = document.createElement('div'); el.className = 'arr-chip'; el.style.width = chipW(); el.textContent = val; stage.appendChild(el);
+          c = { el, slot, key, val }; cellChips.set(id, c);
+          const hint = born.get(id)?.from, srcKey = hint ? (hint.arr ?? mainKey) : null;
+          const from = hint?.hand ? handPos(hint.hand) : hint && hint.slot !== undefined && cellY[srcKey] !== undefined ? cellPos(srcKey, hint.slot) : null;
+          if (from && dur) { el.style.transform = T(from); move(el, from, target, dur); } else pop(el, target, dur);
+        } else {
+          if (c.val !== val) { c.el.textContent = val; c.val = val; }
+          if (c.slot !== slot || c.key !== key) { const arc = swapKind && c.key === key ? (slot > c.slot ? -26 : 26) : 0; move(c.el, cellPos(c.key, c.slot), target, dur, arc); c.slot = slot; c.key = key; }
+          else c.el.style.transform = T(target);
+        }
+        c.el.classList.toggle('is-empty', val === '·');
+        seen.add(id);
+      });
     });
     for (const [id, c] of [...cellChips]) if (!seen.has(id)) { cellChips.delete(id); vanish(c.el, dur); }
     /* переменные, в которых «лежит» элемент (tmp, key…) */
@@ -180,26 +212,24 @@ function createPlayer(figure, host, model) {
       let c = handChips.get(h.name); const at = handPos(h.name);
       if (!c) { const el = document.createElement('div'); el.className = 'arr-chip is-hand'; el.style.width = chipW(); el.innerHTML = `<span class="arr-lbl">${esc(h.name)}</span><span class="v"></span>`; stage.appendChild(el); c = { el, val: null }; handChips.set(h.name, c); el.style.transform = T(at); }
       const src = s.handBorn?.[h.name];
-      if (c.val !== h.val) { c.el.querySelector('.v').textContent = h.val; if (src !== undefined && dur) move(c.el, cellPos(src), at, dur); else if (c.val !== null && dur) pop(c.el, at, dur); }
+      if (c.val !== h.val) { c.el.querySelector('.v').textContent = h.val; if (src !== undefined && dur) move(c.el, cellPos(src.arr ?? mainKey, src.slot), at, dur); else if (c.val !== null && dur) pop(c.el, at, dur); }
       c.val = h.val; c.el.style.transform = T(at); handSeen.add(h.name);
     });
     for (const [name, c] of [...handChips]) if (!handSeen.has(name)) { handChips.delete(name); vanish(c.el, dur); }
-    /* указатели */
-    const vis = new Map(s.ptr.filter(p => p.idx >= 0 && p.idx < s.vals.length).map(p => [p.name, p.idx]));
+    /* указатели: каждый живёт на своём массиве (по умолчанию на основном) */
+    const vis = new Map(s.ptr.filter(p => { const row = rowOf(s, ptrKey(p)); return row && p.idx >= 0 && p.idx < row.vals.length; }).map(p => [p.name, { key: ptrKey(p), idx: p.idx }]));
     names.forEach(name => {
       const el = ptrEls.get(name); if (!el) return;
       if (!vis.has(name)) { el.classList.add('is-off'); return; }
-      const slot = vis.get(name), rank = names.filter(o => vis.get(o) === slot && names.indexOf(o) < names.indexOf(name)).length;
-      el.classList.remove('is-off'); el.style.transform = T({ x: X(slot), y: handH + Math.max(0, ptrRows - 1 - rank) * PTR_ROW });
+      const { key, idx: slot } = vis.get(name), rank = names.filter(o => { const v = vis.get(o); return v && v.key === key && v.idx === slot && names.indexOf(o) < names.indexOf(name); }).length;
+      el.classList.remove('is-off'); el.style.transform = T({ x: X(slot), y: ptrTop[key] + Math.max(0, lanes[key] - 1 - rank) * PTR_ROW });
     });
     /* подсветка */
-    const bySlot = []; s.ids.forEach((id, slot) => { bySlot[slot] = cellChips.get(id)?.el; });
+    const chipAt = (key, slot) => { const row = rowOf(s, key); return row ? cellChips.get(row.ids[slot])?.el : undefined; };
     cellChips.forEach(c => c.el.classList.remove('is-cmp', 'is-write', 'is-swap', 'is-read', 'is-done'));
-    (s.done || []).forEach(k => bySlot[k]?.classList.add('is-done'));
-    (s.read || []).forEach(k => bySlot[k]?.classList.add('is-read'));
-    (s.cmp || []).forEach(k => bySlot[k]?.classList.add('is-cmp'));
-    (s.write || []).forEach(k => bySlot[k]?.classList.add('is-write'));
-    (s.swap || []).forEach(k => bySlot[k]?.classList.add('is-swap'));
+    (s.done || []).forEach(k => chipAt(mainKey, k)?.classList.add('is-done'));
+    const mark = (key, kind, cls) => ((key === mainKey ? s[kind] : s.marks?.[key]?.[kind]) || []).forEach(k => chipAt(key, k)?.classList.add(cls));
+    rowKeys.forEach(key => { mark(key, 'read', 'is-read'); mark(key, 'cmp', 'is-cmp'); mark(key, 'write', 'is-write'); mark(key, 'swap', 'is-swap'); });
     /* нижняя панель */
     statusEl.innerHTML = statusHtml(s, to, last);
     varsEl.innerHTML = s.vars.map(([n, v]) => `<span class="arr-var${names.includes(n) ? ' is-ptr' : ''}" style="--pc:${colorOf(n)}">${esc(n)} = ${esc(v)}</span>`).join('');

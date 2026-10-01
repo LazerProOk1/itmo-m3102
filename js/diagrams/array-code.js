@@ -6,6 +6,14 @@
   Результат — список «шагов». Шаг = снимок массива, указателей, переменных и подпись операции
   (сравнение, запись, обмен, загрузка в переменную, сдвиг указателя, say(...)).
   Это чистая функция: работает и в браузере, и в Node.
+
+  Несколько массивов:
+  - основной массив (watch, по умолчанию `a`) рисуется всегда;
+  - буферы — массивы из строки `buffers: buf, tmp`: появляются при создании и остаются на экране до конца;
+  - временные — любые другие массивы, лежащие в переменных (`let left = a.slice(l, m)`, параметры функций):
+    видны, пока их переменная в области видимости, потом исчезают.
+  Создавать массивы можно так: `[]`, `[1, 2]`, `new Array(n)`, `Array(n).fill(0)`, `a.slice(l, r)`, C-style `int buf[n];`.
+  Указатель можно привязать к массиву: `pointers: i, l, k@buf` (по умолчанию указатель живёт на основном массиве).
 */
 
 const MAX_TICKS = 300000, MAX_STEPS = 500, MAX_DEPTH = 200, MAX_CODE = 8000, MAX_LEN = 200;
@@ -77,7 +85,7 @@ class Parser {
   skipTypes() { while (this.tok.type === 'id' && TYPES.has(this.tok.value)) this.p++; }
   declaration() {
     const line = this.tok.line; this.skipTypes(); const decls = [];
-    do { const name = this.next(); if (name.type !== 'id') this.fail(name.line, 'ожидалось имя переменной'); let init = null; if (this.accept('=')) init = this.assignment(); decls.push({ name: name.value, init, line: name.line }); } while (this.accept(','));
+    do { const name = this.next(); if (name.type !== 'id') this.fail(name.line, 'ожидалось имя переменной'); let init = null; if (this.isOp('[')) { this.p++; const size = this.expression(), close = this.tok; this.expect(']'); init = { t: 'alloc', size, line: name.line, start: name.start, end: close.end }; } if (this.accept('=')) init = this.assignment(); decls.push({ name: name.value, init, line: name.line }); } while (this.accept(','));
     return { t: 'var', decls, line };
   }
   funcDecl() {
@@ -159,6 +167,7 @@ class Parser {
   }
   unary() {
     const k = this.tok;
+    if (this.isKw('new')) { this.p++; const node = this.postfix(); return { ...node, start: k.start }; }
     if (k.type === 'op' && ['!', '-', '+', '~'].includes(k.value)) { this.p++; const arg = this.unary(); return { t: 'un', op: k.value, arg, line: k.line, start: k.start, end: arg.end }; }
     if (k.type === 'op' && (k.value === '++' || k.value === '--')) { this.p++; const target = this.lvalue(this.unary()); return { t: 'upd', op: k.value, target, line: k.line, start: k.start, end: target.end }; }
     let node = this.postfix();
@@ -192,8 +201,11 @@ class Scope {
 const BREAK = { t: 'break' }, CONTINUE = { t: 'continue' };
 
 class Machine {
-  constructor(code, { base, watch, pointers }) {
-    this.code = code; this.base = base; this.watchName = watch; this.pointerNames = pointers;
+  constructor(code, { base, watch, pointers, buffers = [] }) {
+    this.code = code; this.base = base; this.watchName = watch;
+    this.ptrTarget = {}; this.pointerNames = pointers.map(spec => { const [name, to] = spec.split('@'); if (to) this.ptrTarget[name] = to; return name; });
+    this.bufferNames = buffers;
+    this.names = new Map(); this.rank = new Map(); this.cells = new Map(); this.origin = new Map(); this.shown = new Set(); this.keep = new Map();
     this.global = new Scope(null); this.scope = this.global;
     this.arr = null; this.ids = []; this.nextId = 1; this.done = new Set();
     this.steps = []; this.ticks = 0; this.depth = 0; this.header = 0; this.cmpDepth = 0; this.reads = []; this.lastRead = null;
@@ -207,15 +219,66 @@ class Machine {
   /* снимок состояния */
   snapshot(kind, line, extra) {
     const ptr = [];
-    for (const name of this.pointerNames) { const b = this.scope.find(name); if (b && Number.isInteger(b.v)) ptr.push({ name, idx: b.v }); }
+    for (const name of this.pointerNames) { const b = this.scope.find(name); if (b && Number.isInteger(b.v)) { const to = this.ptrTarget[name]; ptr.push(to && to !== this.watchName ? { name, idx: b.v, arr: to } : { name, idx: b.v }); } }
     const chain = []; for (let s = this.scope; s; s = s.parent) chain.unshift(s);
     const vars = new Map(), hand = [];
     for (const s of chain) for (const [name, b] of s.vars) {
       if (Array.isArray(b.v) || typeof b.v === 'function' || (b.v && typeof b.v === 'object')) { vars.delete(name); continue; }
       vars.set(name, b); if (b.hand) { const at = hand.findIndex(h => h.name === name); if (at >= 0) hand.splice(at, 1); hand.push({ name, val: fmtVal(b.v) }); } else { const at = hand.findIndex(h => h.name === name); if (at >= 0) hand.splice(at, 1); }
     }
-    return { kind, line: line || 0, vals: this.arr ? this.arr.map(fmtVal) : [], ids: this.ids.slice(), ptr, hand, vars: [...vars].slice(-10).map(([n, b]) => [n, fmtVal(b.v)]), done: [...this.done].sort((a, b) => a - b), stats: { ...this.stats }, ...extra };
+    const x = this.arr ? this.live().map(l => ({ key: l.key, kind: l.kind, vals: l.arr.map(fmtVal), ids: this.idsOf(l.arr).slice() })) : [];
+    return { kind, line: line || 0, vals: this.arr ? this.arr.map(fmtVal) : [], ids: this.ids.slice(), ptr, hand, ...(x.length ? { x } : {}), vars: [...vars].slice(-10).map(([n, b]) => [n, fmtVal(b.v)]), done: [...this.done].sort((a, b) => a - b), stats: { ...this.stats }, ...extra };
   }
+  /* ---------- вспомогательные массивы: буферы и временные ---------- */
+  // id «фишек» ячеек вспомогательного массива (у основного массива они лежат в this.ids)
+  idsOf(arr) {
+    if (arr === this.arr) return this.ids;
+    let ids = this.cells.get(arr); if (!ids) this.cells.set(arr, ids = []);
+    while (ids.length < arr.length) ids.push(this.nextId++);
+    ids.length = arr.length;
+    return ids;
+  }
+  newId(arr, i) { const id = this.nextId++; this.idsOf(arr)[i] = id; return id; }
+  // массивы, которые сейчас видны: переменные из текущей цепочки областей видимости + буферы из buffers:
+  live() {
+    const out = [], seen = new Set([this.arr]), used = new Set([this.watchName]), hidden = new Set();
+    const add = (name, arr) => {
+      if (!Array.isArray(arr) || seen.has(arr)) return; seen.add(arr);
+      let key = this.names.get(arr) || name; while (used.has(key)) key += '′'; used.add(key);
+      out.push({ key, arr, kind: this.keep.get(key) === arr ? 'buf' : 'tmp' });
+    };
+    for (let s = this.scope; s; s = s.parent) for (const [name, b] of s.vars) { if (hidden.has(name)) continue; hidden.add(name); add(name, b.v); }
+    for (const [, arr] of this.keep) add('', arr);
+    return out.sort((p, q) => (this.rank.get(p.arr) ?? 1e9) - (this.rank.get(q.arr) ?? 1e9));
+  }
+  // имя строки массива на схеме (null — массив не отображается)
+  where(arr) { if (!Array.isArray(arr)) return null; if (arr === this.arr) return this.watchName; return this.live().find(l => l.arr === arr)?.key ?? null; }
+  // если node — только что прочитанный a[i] (из любого отображаемого массива), вернёт { key, idx }
+  readOf(node) {
+    const r = node && node.t === 'idx' && this.lastRead; if (!r || r.node !== node) return null;
+    const key = this.where(r.arr); return key == null ? null : { key, idx: r.idx };
+  }
+  // подсветка ячеек: основной массив — в поле kind, остальные — в marks[имя][kind]
+  hl(kind, pts) {
+    const main = [], rest = {};
+    for (const { key, i } of pts) {
+      if (key === this.watchName) { if (!main.includes(i)) main.push(i); }
+      else { const list = ((rest[key] ||= {})[kind] ||= []); if (!list.includes(i)) list.push(i); }
+    }
+    return { [kind]: main, ...(Object.keys(rest).length ? { marks: rest } : {}) };
+  }
+  // массив попал в переменную: запоминаем имя и, если он новый, показываем шаг «создан массив»
+  register(name, arr, valueNode, node) {
+    if (!Array.isArray(arr) || arr === this.arr) return;
+    if (!this.names.has(arr)) { this.names.set(arr, name); this.rank.set(arr, this.rank.size); }
+    if (this.bufferNames.includes(name)) { this.names.set(arr, name); this.keep.set(name, arr); }
+    if (this.shown.has(arr) || this.header || this.silent) return;
+    this.shown.add(arr);
+    const key = this.where(arr); if (key == null) return;
+    const src = this.origin.get(arr), from = src ? this.where(src.src) : null, ids = this.idsOf(arr);
+    this.emit('alloc', node, { an: key, len: arr.length, text: valueNode ? this.text(valueNode) : `${key}[${arr.length}]`, born: ids.map((id, k) => ({ id, row: key, from: from != null ? { arr: from, slot: src.start + k } : null })) });
+  }
+
   emit(kind, node, extra = {}) {
     if (this.silent || !this.arr) return;
     if (this.steps.length >= MAX_STEPS) throw new StepLimit();
@@ -275,29 +338,29 @@ class Machine {
   }
 
   /* чтение элемента отслеживаемого массива */
-  isWatchedIdx(node) { return node && node.t === 'idx' && this.lastRead && this.lastRead.node === node && this.lastRead.arr === this.arr; }
   bind(name, v, valueNode, node, declare) {
     let b = declare ? null : this.lookup(name, node.line);
-    const prev = b ? b.v : undefined, elem = this.isWatchedIdx(valueNode), src = elem ? this.lastRead.idx : null;
+    const prev = b ? b.v : undefined, rd = this.readOf(valueNode), elem = Boolean(rd);
     const carried = valueNode && valueNode.t === 'id' ? this.scope.find(valueNode.name)?.hand : false;
     if (!b) { b = { v, hand: false }; this.scope.vars.set(name, b); } else b.v = v;
     b.hand = Boolean(elem || carried);
     if (name === this.watchName && Array.isArray(v) && v !== this.arr) this.adopt(v, node);
+    this.register(name, v, valueNode, node);
     if (this.header) return;
-    if (elem) this.emit('load', node, { name, val: fmtVal(v), src: this.text(valueNode), read: [src], handBorn: { [name]: src } });
+    if (elem) this.emit('load', node, { name, val: fmtVal(v), src: this.text(valueNode), an: rd.key, ...this.hl('read', [{ key: rd.key, i: rd.idx }]), handBorn: { [name]: { arr: rd.key, slot: rd.idx } } });
     else if (this.pointerNames.includes(name) && v !== prev && Number.isInteger(v)) this.emit('pointer', node, { name, val: fmtVal(v) });
   }
   store(arrNode, arr, i, v, valueNode, node) {
     if (!Array.isArray(arr)) this.fail(node.line, 'индексация не массива');
     if (!Number.isInteger(i) || i < 0 || i > arr.length || i >= MAX_LEN * 50) this.fail(node.line, `индекс ${fmtVal(i)} вне массива (длина ${arr.length})`);
-    const grew = i === arr.length; arr[i] = v;
-    if (arr !== this.arr) return;
-    let from = null;
-    if (this.isWatchedIdx(valueNode)) from = { slot: this.lastRead.idx };
+    arr[i] = v;
+    const key = this.where(arr); if (key == null) return;
+    const rd = this.readOf(valueNode); let from = null;
+    if (rd) from = { arr: rd.key, slot: rd.idx };
     else if (valueNode && valueNode.t === 'id' && this.scope.find(valueNode.name)?.hand) from = { hand: valueNode.name };
-    const id = this.nextId++; if (grew) this.ids.push(id); else this.ids[i] = id;
+    const id = this.newId(arr, i);
     this.stats.wr++;
-    this.emit('write', node, { i, val: fmtVal(v), dst: arrNode ? this.text(arrNode) : `a[${i}]`, src: valueNode ? this.text(valueNode) : '', write: [i], born: [{ id, from }] });
+    this.emit('write', node, { an: key, i, val: fmtVal(v), dst: arrNode ? this.text(arrNode) : `${key}[${i}]`, src: valueNode ? this.text(valueNode) : '', ...this.hl('write', [{ key, i }]), born: [{ id, row: key, from }] });
   }
   assignTo(target, v, valueNode, node) {
     if (target.t === 'id') return this.bind(target.name, v, valueNode, node, false);
@@ -308,22 +371,23 @@ class Machine {
     if (!Array.isArray(arr) || !Number.isInteger(i) || !Number.isInteger(j) || i < 0 || j < 0 || i >= arr.length || j >= arr.length) this.fail(node.line, 'swap: индекс вне массива');
     if (i === j) return;
     [arr[i], arr[j]] = [arr[j], arr[i]];
-    if (arr !== this.arr) return;
-    [this.ids[i], this.ids[j]] = [this.ids[j], this.ids[i]];
+    const key = this.where(arr); if (key == null) return;
+    const ids = this.idsOf(arr); [ids[i], ids[j]] = [ids[j], ids[i]];
     this.stats.swp++;
-    this.emit('swap', node, { i, j, vi: fmtVal(arr[i]), vj: fmtVal(arr[j]), swap: [i, j], src: label });
+    this.emit('swap', node, { an: key, i, j, vi: fmtVal(arr[i]), vj: fmtVal(arr[j]), ...this.hl('swap', [{ key, i }, { key, i: j }]), src: label });
   }
 
   ev(n) {
     this.tick(n.line);
     switch (n.t) {
       case 'lit': return n.v;
+      case 'alloc': { const len = this.ev(n.size); if (!Number.isInteger(len) || len < 0 || len > MAX_LEN) this.fail(n.line, `длина массива — целое число от 0 до ${MAX_LEN}`); return new Array(len).fill(undefined); }
       case 'id': return this.lookup(n.name, n.line).v;
       case 'arr': { const out = n.items.map(x => this.ev(x)); if (out.length > 10000) this.fail(n.line, 'слишком большой массив'); return out; }
       case 'idx': {
         const arr = this.ev(n.obj), i = this.ev(n.index);
         if (!Array.isArray(arr) && typeof arr !== 'string') this.fail(n.line, 'индексация не массива');
-        if (arr === this.arr && Number.isInteger(i) && i >= 0 && i < arr.length) { this.lastRead = { node: n, arr, idx: i }; if (this.cmpDepth) this.reads.push(i); }
+        if (Array.isArray(arr) && Number.isInteger(i) && i >= 0 && i < arr.length) { this.lastRead = { node: n, arr, idx: i }; if (this.cmpDepth) this.reads.push({ arr, i }); }
         return arr[i];
       }
       case 'mem': {
@@ -339,8 +403,11 @@ class Machine {
         if (!CMP.has(n.op)) return this.binop(n.op, this.ev(n.l), this.ev(n.r), n);
         const mark = this.reads.length; this.cmpDepth++;
         const l = this.ev(n.l), r = this.ev(n.r); this.cmpDepth--;
-        const res = this.binop(n.op, l, r, n), mine = this.reads.splice(mark);
-        if (mine.length && !this.silent) { this.stats.cmp++; this.emit('compare', n, { src: this.text(n), op: n.op, lv: fmtVal(l), rv: fmtVal(r), res, cmp: [...new Set(mine)] }); }
+        const res = this.binop(n.op, l, r, n), raw = this.reads.splice(mark);
+        if (raw.length && !this.silent) {
+          const mine = raw.map(x => ({ key: this.where(x.arr), i: x.i })).filter(x => x.key != null);
+          if (mine.length) { this.stats.cmp++; this.emit('compare', n, { src: this.text(n), op: n.op, lv: fmtVal(l), rv: fmtVal(r), res, ...this.hl('cmp', mine) }); }
+        }
         return res;
       }
       case 'upd': {
@@ -372,10 +439,11 @@ class Machine {
   destructure(n) {
     if (n.value.t !== 'arr' || n.value.items.length !== n.targets.length) this.fail(n.line, 'справа ожидался массив той же длины, например [a[j], a[i]]');
     const vals = [], srcs = [];
-    for (const it of n.value.items) { vals.push(this.ev(it)); srcs.push(this.isWatchedIdx(it) ? this.lastRead.idx : null); }
+    for (const it of n.value.items) { vals.push(this.ev(it)); srcs.push(this.readOf(it)); }
     const dest = n.targets.map(t => t.t === 'idx' ? { arr: this.ev(t.obj), i: this.ev(t.index) } : null);
-    if (dest.length === 2 && dest[0] && dest[1] && dest[0].arr === this.arr && dest[1].arr === this.arr && srcs[0] === dest[1].i && srcs[1] === dest[0].i) {
-      return this.swapCells(this.arr, dest[0].i, dest[1].i, n, this.text(n)), undefined;
+    const key = dest[0] ? this.where(dest[0].arr) : null;
+    if (dest.length === 2 && key != null && dest[1] && dest[1].arr === dest[0].arr && srcs[0]?.key === key && srcs[1]?.key === key && srcs[0].idx === dest[1].i && srcs[1].idx === dest[0].i) {
+      return this.swapCells(dest[0].arr, dest[0].i, dest[1].i, n, this.text(n)), undefined;
     }
     n.targets.forEach((t, k) => this.assignTo(t, vals[k], n.value.items[k], n));
   }
@@ -396,6 +464,11 @@ class Machine {
     }
     const vals = args.map(a => this.ev(a));
     switch (name) {
+      case 'Array': {
+        if (vals.length !== 1 || typeof vals[0] !== 'number') return [...vals];
+        if (!Number.isInteger(vals[0]) || vals[0] < 0 || vals[0] > MAX_LEN) this.fail(n.line, `Array(n): длина — целое число от 0 до ${MAX_LEN}`);
+        return new Array(vals[0]).fill(undefined);
+      }
       case 'len': case 'size': return vals[0].length;
       case 'done': {
         const lo = vals[0], hi = vals.length > 1 ? vals[1] : vals[0];
@@ -416,15 +489,38 @@ class Machine {
     if (name === 'push' && Array.isArray(obj)) {
       if (obj.length >= MAX_LEN * 50) this.fail(n.line, 'слишком большой массив');
       obj.push(vals[0]);
-      if (obj === this.arr) { const id = this.nextId++; this.ids.push(id); this.stats.wr++; this.emit('write', n, { i: obj.length - 1, val: fmtVal(vals[0]), dst: `${this.text(n.callee.obj)}[${obj.length - 1}]`, src: this.text(n.args[0] || n), write: [obj.length - 1], born: [{ id, from: null }] }); }
+      const key = this.where(obj);
+      if (key != null) {
+        const at = obj.length - 1, id = this.newId(obj, at), rd = this.readOf(n.args[0]); this.stats.wr++;
+        this.emit('write', n, { an: key, i: at, val: fmtVal(vals[0]), dst: `${this.text(n.callee.obj)}[${at}]`, src: this.text(n.args[0] || n), ...this.hl('write', [{ key, i: at }]), born: [{ id, row: key, from: rd ? { arr: rd.key, slot: rd.idx } : null }] });
+      }
       return obj.length;
     }
     if (name === 'pop' && Array.isArray(obj)) {
-      const v = obj.pop();
-      if (obj === this.arr) { this.ids.pop(); this.emit('remove', n, { val: fmtVal(v), i: obj.length }); }
+      const v = obj.pop(), key = this.where(obj);
+      if (key != null) { if (obj === this.arr) this.ids.pop(); this.emit('remove', n, { an: key, val: fmtVal(v), i: obj.length }); }
       return v;
     }
-    if (name === 'slice') return obj.slice(vals[0], vals[1]);
+    if (name === 'fill' && Array.isArray(obj)) {
+      obj.fill(...vals);
+      const key = this.where(obj);
+      if (key != null) {
+        const norm = (x, d) => x === undefined ? d : x < 0 ? Math.max(0, obj.length + x) : Math.min(x, obj.length), lo = norm(vals[1], 0), hi = norm(vals[2], obj.length), pts = [], born = [];
+        for (let k = lo; k < hi; k++) { pts.push({ key, i: k }); born.push({ id: this.newId(obj, k), row: key, from: null }); }
+        this.stats.wr += born.length;
+        this.emit('fill', n, { an: key, val: fmtVal(vals[0]), text: this.text(n), ...this.hl('write', pts), born });
+      }
+      return obj;
+    }
+    if (name === 'slice') {
+      const r = obj.slice(vals[0], vals[1]);
+      if (Array.isArray(obj)) {
+        if (r.length > MAX_LEN) this.fail(n.line, `массив слишком длинный (максимум ${MAX_LEN})`);
+        let st = vals[0] ?? 0; if (st < 0) st = Math.max(0, obj.length + st);
+        this.origin.set(r, { src: obj, start: st });
+      }
+      return r;
+    }
     if (name === 'indexOf') return obj.indexOf(vals[0]);
     this.fail(n.line, `метод «${name}» не поддерживается`);
   }
@@ -433,6 +529,7 @@ class Machine {
     const saved = this.scope, scope = new Scope(f.scope);
     f.fn.params.forEach((p, k) => scope.vars.set(p, { v: args[k], hand: false }));
     this.scope = scope;
+    f.fn.params.forEach((p, k) => this.register(p, args[k], null, n));
     try { for (const st of f.fn.body.body) { const c = this.exec(st); if (c && c.t === 'return') return c.value; if (c) break; } }
     finally { this.scope = saved; this.depth--; }
   }
@@ -444,14 +541,15 @@ const markPrefix = node => { if (!node || typeof node !== 'object') return; if (
 /**
  * @param {string} code      текст программы
  * @param {object} opts      base — число строк перед кодом (для сообщений об ошибках), watch — имя массива,
- *                           pointers — имена переменных-указателей, initial — начальные значения массива
+ *                           pointers — имена переменных-указателей (`k@buf` — указатель на массив buf),
+ *                           buffers — имена массивов-буферов, initial — начальные значения основного массива
  */
-export function runArrayProgram(code, { base = 0, watch = 'a', pointers = ['i', 'j', 'k'], initial = [] } = {}) {
+export function runArrayProgram(code, { base = 0, watch = 'a', pointers = ['i', 'j', 'k'], buffers = [], initial = [] } = {}) {
   if (code.length > MAX_CODE) throw new Error(`Слишком длинный код (максимум ${MAX_CODE} символов)`);
   const fail = (line, msg) => { throw new Error(`Строка ${base + line}: ${msg}`); };
   const program = new Parser(tokenize(code, fail), fail).program();
   markPrefix(program);
-  const m = new Machine(code, { base, watch, pointers });
+  const m = new Machine(code, { base, watch, pointers, buffers });
   if (initial.length) { const arr = [...initial]; m.global.vars.set(watch, { v: arr, hand: false }); m.adopt(arr, null); }
   m.run(program);
   return { steps: m.steps, codeLines: code.split('\n') };

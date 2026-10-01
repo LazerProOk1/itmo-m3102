@@ -343,17 +343,18 @@ function drawChart(model) {
 }
 registerDiagram('chart', { parse: parseChart, render: drawChart, serialize: model => model.source });
 
-const identName = /^[A-Za-z_$][\w$]*$/;
+const identName = /^[A-Za-z_$][\w$]*$/, pointerSpec = /^[A-Za-z_$][\w$]*(?:@[A-Za-z_$][\w$]*)?$/;
 const numeric = value => { const text = String(value).trim(), quoted = /^(["'])(.*)\1$/.exec(text); return quoted ? quoted[2] : text !== '' && Number.isFinite(Number(text)) ? Number(text) : text; };
 function parseArray(text) {
   // Всё после строки «code:» — программа, которая выполняется по шагам; до неё — обычная разметка массива
   const lines = String(text).split(/\r?\n/), codeAt = lines.findIndex(line => /^\s*code\s*:/i.test(line));
   const model = markup(codeAt < 0 ? text : lines.slice(0, codeAt).join('\n'), (m, line, at) => {
     if (/^array(?:\s+(linked|stack|queue))?$/.test(line)) { m.variant = line.split(/\s+/)[1] || 'array'; return; }
-    const option = /^(pointers|watch|print)\s*:\s*(.*)$/i.exec(line);
+    const option = /^(pointers|watch|print|buffers)\s*:\s*(.*)$/i.exec(line);
     if (option) {
       const key = option[1].toLowerCase(), value = option[2].trim();
-      if (key === 'pointers') { m.pointerNames = value.split(/[\s,]+/).filter(Boolean); if (m.pointerNames.length > 8 || m.pointerNames.some(name => !identName.test(name))) lineError(at, 'pointers: список имён переменных через запятую (не больше 8)'); }
+      if (key === 'pointers') { m.pointerSpecs = value.split(/[\s,]+/).filter(Boolean); if (m.pointerSpecs.length > 8 || m.pointerSpecs.some(name => !pointerSpec.test(name))) lineError(at, 'pointers: список имён переменных через запятую (не больше 8); указатель на другой массив — имя@массив, например k@buf'); m.pointerNames = m.pointerSpecs.map(name => name.split('@')[0]); }
+      else if (key === 'buffers') { m.buffers = value.split(/[\s,]+/).filter(Boolean); if (m.buffers.length > 5 || m.buffers.some(name => !identName.test(name))) lineError(at, 'buffers: имена массивов-буферов через запятую (не больше 5)'); }
       else if (key === 'watch') { if (!identName.test(value)) lineError(at, 'watch: ожидалось имя переменной'); m.watch = value; }
       else { if (!/^(first|last|\d+)$/i.test(value)) lineError(at, 'print: first, last или номер шага'); m.print = value.toLowerCase(); }
       return;
@@ -374,8 +375,9 @@ function parseArray(text) {
     const rest = lines[codeAt].replace(/^\s*code\s*:\s*/i, ''), body = lines.slice(codeAt + 1);
     const code = (rest ? [rest, ...body] : body).join('\n').replace(/\s+$/, ''), base = rest ? codeAt : codeAt + 1;
     if (!code.trim()) throw new Error(`Строка ${codeAt + 1}: после «code:» ожидается программа`);
-    model.watch ||= 'a'; model.pointerNames ||= ['i', 'j', 'k'];
-    Object.assign(model, runArrayProgram(code, { base, watch: model.watch, pointers: model.pointerNames, initial: model.values.map(numeric) }));
+    model.watch ||= 'a'; model.pointerNames ||= ['i', 'j', 'k']; model.pointerSpecs ||= model.pointerNames; model.buffers ||= [];
+    if (model.buffers.includes(model.watch)) throw new Error(`buffers: «${model.watch}» — это основной массив, буфером он быть не может`);
+    Object.assign(model, runArrayProgram(code, { base, watch: model.watch, pointers: model.pointerSpecs, buffers: model.buffers, initial: model.values.map(numeric) }));
     const last = model.steps.length - 1;
     model.printStep = model.print === 'last' ? last : /^\d+$/.test(model.print || '') ? Math.max(0, Math.min(last, Number(model.print) - 1)) : 0;
   }
@@ -384,12 +386,38 @@ function parseArray(text) {
 // Кадр с номером step в виде обычной (статичной) модели массива — именно так массив рисовался раньше
 function arrayFrameModel(model, step) {
   const s = model.steps[step];
-  return { ...model, steps: null, variant: 'array', values: s.vals, pointers: s.ptr.filter(p => p.idx >= 0 && p.idx < s.vals.length).map(p => ({ name: p.name, index: p.idx })), pointerStack: true, done: s.done, sorted: -1,
-    highlight: [...new Set([...(s.cmp || []), ...(s.write || []), ...(s.swap || []), ...(s.read || [])])] };
+  return { ...model, steps: null, variant: 'array', values: s.vals, pointers: s.ptr.filter(p => !p.arr && p.idx >= 0 && p.idx < s.vals.length).map(p => ({ name: p.name, index: p.idx })), pointerStack: true, done: s.done, sorted: -1,
+    highlight: [...new Set([...(s.cmp || []), ...(s.write || []), ...(s.swap || []), ...(s.read || [])])],
+    // буферы и временные массивы этого кадра — отдельные строки под основным массивом
+    extra: (s.x || []).map(r => ({ name: r.key, kind: r.kind, values: r.vals, highlight: [...new Set(Object.values(s.marks?.[r.key] || {}).flat())],
+      pointers: s.ptr.filter(p => p.arr === r.key && p.idx >= 0 && p.idx < r.vals.length).map(p => ({ name: p.name, index: p.idx })) })) };
 }
 export function renderArrayFrame(model, step) { return drawArray(model.steps ? arrayFrameModel(model, step) : model); }
+// Несколько массивов (основной + буферы/временные): строки друг под другом, слева — имя массива
+function drawArrayRows(model) {
+  const rows = [{ name: model.watch || 'a', kind: 'main', values: model.values, highlight: model.highlight, done: model.done || [], pointers: model.pointers }, ...model.extra.map(r => ({ ...r, done: [] }))];
+  const natural = Math.ceil(Math.max(0, ...rows.flatMap(r => r.values.map(value => lineWidth(symbols(value), 17) + 18)))), preferred = Math.min(110, Math.max(68, natural));
+  const gutter = 64, cols = Math.max(1, ...rows.map(r => r.values.length));
+  const width = size(model.width, Math.max(400, cols * (preferred - 3) + gutter + 60)), cell = Math.min(preferred, (width - gutter - 40) / cols), start = gutter + (width - gutter - cell * cols) / 2;
+  let y = 8, body = '';
+  rows.forEach((row, r) => {
+    const stack = {}; row.pointers.forEach(p => { stack[p.index] = (stack[p.index] || 0) + 1; });
+    const lanes = Math.max(r === 0 ? 1 : 0, ...Object.values(stack)), top = y + lanes * 16 + 14;
+    if (r > 0) body += `<line x1="8" x2="${format(width - 8)}" y1="${format(y - 6)}" y2="${format(y - 6)}" stroke="var(--border)" stroke-dasharray="4 4"/>`;
+    body += textSvg(10, top + 31, row.name, `font-size="14" font-weight="600" fill="var(${row.kind === 'main' ? '--text' : '--muted'})"`);
+    if (row.kind !== 'main') body += textSvg(10, top + 46, row.kind === 'buf' ? 'буфер' : 'врем.', 'font-size="10" fill="var(--muted)"');
+    row.values.forEach((value, i) => {
+      const x = start + i * cell, empty = value === '·', color = row.highlight.includes(i) ? 'var(--accent)' : row.done.includes(i) ? '#42a592' : 'var(--border)';
+      body += `<rect x="${format(x)}" y="${format(top)}" width="${format(cell)}" height="54" fill="var(--card)" stroke="${color}" stroke-width="2"${empty ? ' stroke-dasharray="4 3"' : ''}/>${labelSvg(x + cell / 2, top + 27, value, cell - 8, 44, { size: 17, min: 9 })}${textSvg(x + cell / 2, top + 75, i, 'text-anchor="middle" fill="var(--muted)" font-size="11"')}`;
+    });
+    row.pointers.forEach((pointer, k) => { const rank = row.pointers.slice(0, k).filter(other => other.index === pointer.index).length; body += textSvg(start + (pointer.index + .5) * cell, top - 14 - rank * 16, `${pointer.name} ↓`, 'text-anchor="middle" fill="var(--accent)" font-size="12"'); });
+    y = top + 54 + 30;
+  });
+  return svg(model, body, width, y + 6);
+}
 function drawArray(model) {
   if (model.steps) model = arrayFrameModel(model, model.printStep || 0);
+  if (model.extra?.length) return drawArrayRows(model);
   // Ячейка расширяется под самое длинное значение (68–110 px); если места всё равно мало, значение переносится/уменьшается
   const natural = Math.ceil(Math.max(0, ...model.values.map(value => lineWidth(symbols(value), 17) + 18))), preferred = Math.min(110, Math.max(68, natural));
   const width = size(model.width, Math.max(400, model.values.length * (preferred - 3) + 60)), height = size(model.height, model.variant === 'stack' ? Math.max(220, model.values.length * 58 + 60) : 180), cell = Math.min(preferred, (width - 40) / Math.max(model.values.length, 1)), start = (width - cell * model.values.length) / 2;
