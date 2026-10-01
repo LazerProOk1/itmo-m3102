@@ -37,6 +37,11 @@
   gap: var(--space-3);
 }
 
+/* Личные ссылки предмета под карточками группы */
+.grid + * {
+  margin-top: var(--space-4);
+}
+
 .card {
   --tone: var(--color-accent);
   display: flex;

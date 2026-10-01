@@ -3,6 +3,8 @@ import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { List } from '../../components/ui/List';
 import { Section } from '../../components/ui/Section';
+import { LinkCards } from '../group/LinksPage';
+import type { GroupLink } from '../group/groupStore';
 import { MaterialRow } from '../materials/MaterialRow';
 import type { ISODate, Material, Task } from '../../types/models';
 import { isOpenTask, sortTasks } from '../tasks/taskFilters';
@@ -18,6 +20,7 @@ interface SubjectOverviewProps {
   tasks: Task[];
   materials: Material[];
   links: Material[];
+  groupLinks: GroupLink[];
   today: ISODate;
   onSwitchTab: (tab: SubjectTab) => void;
   onEditTask: (task: Task) => void;
@@ -25,7 +28,7 @@ interface SubjectOverviewProps {
 }
 
 /** Сводка по предмету: задачи на сейчас, ближайшие дедлайны, последние материалы, быстрые ссылки. */
-export function SubjectOverview({ tasks, materials, links, today, onSwitchTab, onEditTask, onEditMaterial }: SubjectOverviewProps) {
+export function SubjectOverview({ tasks, materials, links, groupLinks, today, onSwitchTab, onEditTask, onEditMaterial }: SubjectOverviewProps) {
   const tasksForNow = sortTasks(
     tasks.filter((task) => isOpenTask(task) && task.deadline !== undefined && task.deadline <= today),
     'deadline',
@@ -84,8 +87,9 @@ export function SubjectOverview({ tasks, materials, links, today, onSwitchTab, o
       </Section>
 
       <Section title="Быстрые ссылки" action={seeAll('links')}>
+        {groupLinks.length > 0 && <LinkCards links={groupLinks} />}
         {quickLinks.length === 0 ? (
-          <EmptyState compact icon={Link2} title="Пока нет ссылок" />
+          groupLinks.length === 0 && <EmptyState compact icon={Link2} title="Пока нет ссылок" />
         ) : (
           <List>
             {quickLinks.map((link) => (
