@@ -1,21 +1,25 @@
 name: Обновить индекс лекций
 
+# Индекс лекций теперь пересобирается в normalize-names.yml (вместе с переименованием
+# и поисковым индексом), чтобы параллельные запуски не конфликтовали при push.
+# Этот workflow оставлен только для ручного запуска.
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'Конспекты/**'
-      - 'tools/build-lectures-index.mjs'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: repo-index
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: master
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,4 +31,8 @@ jobs:
           git add data/lectures.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Обновить индекс лекций"
-          git push
+          for i in 1 2 3; do
+            git pull --rebase origin master && git push origin HEAD:master && exit 0
+            git rebase --abort || true
+          done
+          exit 1

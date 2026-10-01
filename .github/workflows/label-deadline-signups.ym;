@@ -1,0 +1,34 @@
+name: Label deadline signups
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label-signup:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check whether this is a deadline signup
+        id: check
+        env:
+          TITLE: ${{ github.event.issue.title }}
+        shell: bash
+        run: |
+          if [[ "$TITLE" =~ ^\[[^]]+\][[:space:]]+.+$ ]]; then
+            echo "is_signup=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_signup=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Add queue label
+        if: steps.check.outputs.is_signup == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue edit "$NUMBER" --add-label "queue-signup"

@@ -1304,8 +1304,8 @@
     }
     function fmtDeadlineFull(iso){return new Date(iso).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
     function deadlineJoinUrl(subjectId,name){
-      const title=`[${subjectId}] ${name}`;
-      return `https://github.com/${OWNER}/${REPO}/issues/new?labels=${encodeURIComponent(DEADLINES_QUEUE_LABEL)}&title=${encodeURIComponent(title)}`;
+        const title=`[${subjectId}] ${name}`;
+        return `https://github.com/${OWNER}/${REPO}/issues/new?title=${encodeURIComponent(title)}`;
     }
     async function loadDeadlineQueues(){
       const url=`https://api.github.com/repos/${OWNER}/${REPO}/issues?labels=${DEADLINES_QUEUE_LABEL}&state=open&sort=created&direction=asc&per_page=100`;
@@ -1578,19 +1578,23 @@
     function bindBack(path){document.getElementById('back-btn').onclick=()=>goto(path.split('/').slice(0,-1).join('/'));}
     const stripExt=n=>n.replace(/\.[^.]+$/,'');
     const PILL_SKIP=new Set(); // например new Set(['md']), чтобы не показывать плашку у конспектов
+    let routeSeq=0; // номер текущего перехода: поздние ответы старых страниц игнорируются
     async function renderBrowse(path){
+      const seq=routeSeq;
       const c=document.getElementById('content');
       let intro='';
       if(!path)intro='<div class="intro"><h1>Материалы группы М3102</h1><p class="sub">Конспекты, записи лекций, лабораторные и учебники по дисциплинам первого курса ИТМО. Выберите раздел, затем — предмет и нужный файл. PDF и конспекты .md открываются прямо в браузере.</p></div>'+materialsSwitch('files');
       c.innerHTML=intro+breadcrumbs(path)+'<p class="state">Загрузка…</p>';
       try{
         const [res]=await Promise.all([githubFetch(apiUrl(path)),loadDisplayNames()]);
+        if(seq!==routeSeq)return;
         if(!res.ok){
-          if(res.status===404){const moved=await findMoved(path);if(moved){location.replace('#/'+encodePath(moved));return;}}
+          if(res.status===404){const moved=await findMoved(path);if(seq!==routeSeq)return;if(moved){location.replace('#/'+encodePath(moved));return;}}
           const msg=res.status===403?'Превышен лимит запросов к GitHub API. Подождите немного и обновите страницу.':'Не удалось загрузить содержимое папки.';
           c.innerHTML=intro+breadcrumbs(path)+'<p class="state">'+msg+'</p>';return;
         }
         let items=await res.json();
+        if(seq!==routeSeq)return;
         if(!Array.isArray(items))items=[items];
         items=items.filter(it=>!isHiddenPath(it.path));
         const shown=it=>it.type==='dir'?prettyName(it.path,it.name):stripExt(prettyName(it.path,it.name));
@@ -1626,11 +1630,13 @@
         c.querySelectorAll('[data-note]').forEach(el=>el.onclick=e=>{e.preventDefault();gotoNote(el.dataset.note);});
         c.querySelectorAll('.crumbs a').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.p);});
       }catch(e){
+        if(seq!==routeSeq)return;
         c.innerHTML=intro+breadcrumbs(path)+'<p class="state">Ошибка загрузки: '+esc(e.message)+'</p>';
       }
     }
 
     function renderPdfView(path){
+      const seq=routeSeq;
       const name=prettyName(path,path.split('/').pop());
       const c=document.getElementById('content');
       c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
@@ -1639,6 +1645,7 @@
       mountSidebar(document.getElementById('note-side'),path,{toc:false});
       if(!window.__pdfWorkerSet){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';window.__pdfWorkerSet=true;}
       pdfjsLib.getDocument(rawUrl(path)).promise.then(pdf=>{
+        if(seq!==routeSeq)return;
         const status=document.getElementById('pdf-status');if(status)status.remove();
         const container=document.getElementById('pdf-pages');
         for(let n=1;n<=pdf.numPages;n++){
@@ -1654,7 +1661,9 @@
           });
         }
       }).catch(err=>{
+      if(seq!==routeSeq)return;
       findMoved(path).then(moved=>{
+        if(seq!==routeSeq)return;
         if(moved){location.replace('#/view/'+encodePath(moved));return;}
         const status=document.getElementById('pdf-status');
         if(status)status.textContent='Не удалось загрузить PDF ('+err.message+'). Попробуйте скачать файл напрямую.';
@@ -1663,6 +1672,7 @@
     }
 
     function renderNoteView(path){
+      const seq=routeSeq;
       const name=prettyName(path,path.split('/').pop());
       const c=document.getElementById('content');
       c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,'<button class="btn2" id="note-print-btn" type="button">📄 Скачать PDF</button>')}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
@@ -1672,6 +1682,7 @@
       loadDisplayNames().then(()=>{const v=document.querySelector('.viewname');if(v)v.textContent='MD '+stripExt(prettyName(path,name));});
       fetch(rawUrl(path)).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
         .then(text=>{
+          if(seq!==routeSeq)return;
           const s=document.getElementById('note-status');if(s)s.remove();
           const body=document.getElementById('note-body');
           body.innerHTML=renderNotes(stripFrontMatter(text),path);
@@ -1679,7 +1690,9 @@
           side.setBody(body);
         })
         .catch(err=>{
+      if(seq!==routeSeq)return;
       findMoved(path).then(moved=>{
+        if(seq!==routeSeq)return;
         if(moved){location.replace('#/note/'+encodePath(moved));return;}
         const s=document.getElementById('note-status');if(s)s.textContent='Не удалось загрузить файл ('+err.message+').';
       });
@@ -1687,6 +1700,7 @@
     }
 
     function route(){
+      routeSeq++;
       const {mode,path}=parseHash();
       updateActiveTab(mode,path);
       if(mode==='view')renderPdfView(path);
@@ -1704,6 +1718,12 @@
       else renderBrowse(path);
     }
     window.addEventListener('hashchange',route);
+    // Клик по ссылке на уже открытый адрес не вызывает hashchange — перерисовываем страницу вручную
+    document.addEventListener('click',e=>{
+      if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+      const a=e.target.closest('a[href^="#/"]');
+      if(a&&!a.closest('.ss-results')&&a.getAttribute('href')===location.hash){e.preventDefault();route();}
+    });
     installScheduleEditor();
     installHomework();
     installDiagramEditor();
