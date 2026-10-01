@@ -8,8 +8,9 @@ const CALLOUTS = `> [!meaning] Определение
 > [!remember] Запомнить
 > $\\overline{A \\cup B} = \\overline{A} \\cap \\overline{B}$
 
-> [!example] Пример
-> $P(x) \\equiv x > 3$, тогда $P(5) = 1$.
+:::example
+$P(x) \\equiv x > 3$, тогда $P(5) = 1$.
+:::
 
 > [!warning] Важно
 > Пустое множество — подмножество любого множества.
@@ -76,7 +77,7 @@ series: Тест | Экзамен
 export function ContentDemo() {
   return (
     <Section title="Конспекты">
-      <Demo label="Выноски > [!тип] · типы и цвета как на сайте группы">
+      <Demo label="Выноски > [!тип] и :::тип … ::: · типы и цвета как на сайте группы">
         <Markdown content={CALLOUTS} />
       </Demo>
       <Demo label="Диаграммы · ```plot, diagram, tree, array, graph, chart">

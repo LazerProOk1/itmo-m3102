@@ -86,3 +86,34 @@ function walk(node: Root | RootContent): void {
 export function remarkCallouts() {
   return (tree: Root) => walk(tree);
 }
+
+const CONTAINER_OPEN = /^:::([\p{L}\w-]+)[ \t]*(.*)$/u;
+const CONTAINER_CLOSE = /^:::\s*$/;
+const FENCE = /^[ \t]*(```|~~~)/;
+
+/**
+ * Выноски сайта группы `:::тип … :::` → `> [!тип]`, которые понимает remarkCallouts.
+ * Блоки кода не трогаем; незакрытый `:::` оставляем как есть, как и сайт группы.
+ */
+export function convertContainerCallouts(text: string): string {
+  if (!text.includes(':::')) return text;
+  const lines = text.split('\n');
+  const out: string[] = [];
+  let fence = '';
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index]!;
+    const fenceMatch = FENCE.exec(line);
+    if (fenceMatch) fence = fence ? (fence === fenceMatch[1] ? '' : fence) : fenceMatch[1]!;
+    const open = fence ? null : CONTAINER_OPEN.exec(line.trimEnd());
+    const close = open ? lines.findIndex((next, at) => at > index && CONTAINER_CLOSE.test(next)) : -1;
+    if (!open || close === -1) {
+      out.push(line);
+      continue;
+    }
+    out.push(`> [!${open[1]}] ${open[2]}`.trimEnd());
+    for (const inner of lines.slice(index + 1, close)) out.push(inner.trim() ? `> ${inner}` : '>');
+    out.push('');
+    index = close;
+  }
+  return out.join('\n');
+}

@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import 'katex/dist/katex.min.css';
 import { cn } from '../../lib/cn';
-import { remarkCallouts } from '../../lib/remarkCallouts';
+import { convertContainerCallouts, remarkCallouts } from '../../lib/remarkCallouts';
 import { convertWikiLinks } from '../../lib/wikiLinks';
 import { WikiLinkAnchor } from '../../features/materials/WikiLink';
 import { DIAGRAM_LANGUAGES, DiagramBlock, isDiagramLanguage } from '../diagrams/DiagramBlock';
@@ -33,7 +33,7 @@ const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
  * схемы mermaid и [[wiki-ссылки]] между конспектами.
  */
 export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
-  const withWikiLinks = useMemo(() => convertWikiLinks(content), [content]);
+  const withWikiLinks = useMemo(() => convertWikiLinks(convertContainerCallouts(content)), [content]);
 
   return (
     <div className={cn(styles.markdown, className)}>

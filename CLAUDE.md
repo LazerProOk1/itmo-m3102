@@ -85,7 +85,7 @@ npm run build      # typecheck + сборка в dist/
 - `components/layout` — каркас: боковое меню, шапка (поиск, синхронизация, режим), мобильная навигация.
 - `components/ui` — свои компоненты (Button, Modal, List, Tabs, Reveal…), стили — CSS-модули на токенах
   из `src/styles/tokens.css` (цвета, отступы, радиусы; светлая и тёмная темы).
-- `components/markdown` — рендер конспектов: GFM, KaTeX, выноски `> [!тип]` (`lib/remarkCallouts.ts`),
+- `components/markdown` — рендер конспектов: GFM, KaTeX, выноски `> [!тип]` и `:::тип … :::` (`lib/remarkCallouts.ts`),
   подсветка кода, mermaid, `[[wiki-ссылки]]`, относительные картинки.
 - `components/hedgehog` — ёжик-маскот (SVG + CSS-анимации; по клику сальто).
 - `components/diagrams` — SVG-диаграммы из fenced-блоков конспектов; формулы — `expression.ts` (без eval).
