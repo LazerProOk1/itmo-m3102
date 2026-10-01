@@ -20,7 +20,7 @@ export function SubjectTasksTab({ tasks, today, onAdd, onEdit }: SubjectTasksTab
 
   return (
     <>
-      <TabToolbar label={pluralize(tasks.length, ['задача', 'задачи', 'задач'])} addLabel="Добавить задачу" onAdd={onAdd} />
+      <TabToolbar label={pluralize(tasks.length, ['задача', 'задачи', 'задач'])} addLabel="Добавить задачу" onAdd={onAdd} personal />
       {sorted.length === 0 ? (
         <EmptyState
           icon={SquareCheck}

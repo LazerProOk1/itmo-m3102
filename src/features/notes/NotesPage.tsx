@@ -8,7 +8,6 @@ import { List } from '../../components/ui/List';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
-import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { NoteDialog } from './NoteDialog';
 import { searchNotes, sortNotes, type NoteSort } from './noteFilters';
@@ -27,7 +26,6 @@ const SORT_LABELS: Record<NoteSort, string> = {
  * Без папок, тегов и вложенных страниц — заметка это заголовок и текст, не более того.
  */
 export function NotesPage() {
-  const { isEditMode } = useEditMode();
   const { today } = useClock();
   const notes = useNotesStore((state) => state.notes);
   const subjects = useSubjectsStore((state) => state.subjects);
@@ -53,13 +51,11 @@ export function NotesPage() {
     <>
       <PageHeader
         title="Заметки"
-        subtitle={pluralize(notes.length, ['заметка', 'заметки', 'заметок'])}
+        subtitle={`${pluralize(notes.length, ['заметка', 'заметки', 'заметок'])} · хранятся только в этом браузере`}
         actions={
-          isEditMode && (
-            <Button variant="primary" icon={Plus} onClick={() => dialog.openCreate()}>
-              Добавить заметку
-            </Button>
-          )
+          <Button variant="primary" icon={Plus} onClick={() => dialog.openCreate()}>
+            Добавить заметку
+          </Button>
         }
       />
 

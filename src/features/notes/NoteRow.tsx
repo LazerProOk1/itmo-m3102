@@ -5,7 +5,6 @@ import { IconButton } from '../../components/ui/IconButton';
 import { ListItem } from '../../components/ui/List';
 import { formatDayLabel } from '../../lib/dates';
 import type { ISODate, Note } from '../../types/models';
-import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
 import { useNotesStore } from './notesStore';
 import styles from './NoteRow.module.css';
@@ -20,12 +19,14 @@ interface NoteRowProps {
 
 /** Первая непустая строка содержимого — короткий превью заметки в списке */
 function firstLine(content: string): string | undefined {
-  return content.split('\n').find((line) => line.trim())?.trim();
+  return content
+    .split('\n')
+    .find((line) => line.trim())
+    ?.trim();
 }
 
 /** Строка заметки: заголовок (клик — редактирование), превью содержимого, дата изменения, меню. */
 export function NoteRow({ note, today, onEdit, showSubject = false }: NoteRowProps) {
-  const { isEditMode } = useEditMode();
   const deleteNote = useNotesStore((state) => state.deleteNote);
   const subjectName = useOptionalSubjectName(note.subjectId);
   const confirmDelete = useConfirmDelete<Note>();
@@ -50,20 +51,15 @@ export function NoteRow({ note, today, onEdit, showSubject = false }: NoteRowPro
         trailing={
           <>
             <span className={styles.date}>{formatDayLabel(note.updatedAt.slice(0, 10), today)}</span>
-            {isEditMode && (
-              <DropdownMenu
-                align="end"
-                trigger={(props) => <IconButton icon={Ellipsis} label="Действия с заметкой" size="sm" {...props} />}
-              >
-                <DropdownItem icon={Pencil} onSelect={() => onEdit(note)}>
-                  Изменить
-                </DropdownItem>
-                <DropdownSeparator />
-                <DropdownItem icon={Trash} onSelect={() => confirmDelete.request(note)}>
-                  Удалить
-                </DropdownItem>
-              </DropdownMenu>
-            )}
+            <DropdownMenu align="end" trigger={(props) => <IconButton icon={Ellipsis} label="Действия с заметкой" size="sm" {...props} />}>
+              <DropdownItem icon={Pencil} onSelect={() => onEdit(note)}>
+                Изменить
+              </DropdownItem>
+              <DropdownSeparator />
+              <DropdownItem icon={Trash} onSelect={() => confirmDelete.request(note)}>
+                Удалить
+              </DropdownItem>
+            </DropdownMenu>
           </>
         }
       />

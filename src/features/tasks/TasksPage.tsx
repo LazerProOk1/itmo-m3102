@@ -7,7 +7,6 @@ import { List } from '../../components/ui/List';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Tabs } from '../../components/ui/Tabs';
 import { useClock } from '../../lib/useClock';
-import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { TaskDialog } from './TaskDialog';
 import { filterTasks, sortTasks, type TaskSort, type TaskTab } from './taskFilters';
@@ -33,7 +32,6 @@ const SORT_LABELS: Record<TaskSort, string> = {
 
 /** Страница задач: вкладки, фильтр по предмету, сортировка, создание и редактирование. */
 export function TasksPage() {
-  const { isEditMode } = useEditMode();
   const { today } = useClock();
   const tasks = useTasksStore((state) => state.tasks);
   const subjects = useSubjectsStore((state) => state.subjects);
@@ -60,14 +58,12 @@ export function TasksPage() {
   return (
     <>
       <PageHeader
-        title="Задачи"
-        subtitle={`${countFor('all')} открыто · ${countFor('overdue')} просрочено`}
+        title="Учебный план"
+        subtitle={`${countFor('all')} открыто · ${countFor('overdue')} просрочено · хранится только в этом браузере`}
         actions={
-          isEditMode && (
-            <Button variant="primary" icon={Plus} onClick={() => dialog.openCreate()}>
-              Новая задача
-            </Button>
-          )
+          <Button variant="primary" icon={Plus} onClick={() => dialog.openCreate()}>
+            Новая задача
+          </Button>
         }
       />
 
@@ -96,7 +92,12 @@ export function TasksPage() {
       </div>
 
       {visibleTasks.length === 0 ? (
-        <EmptyState compact icon={SquareCheck} title="Здесь пока нет задач" description="Задачи, подходящие под этот фильтр, появятся здесь." />
+        <EmptyState
+          compact
+          icon={SquareCheck}
+          title="Здесь пока нет задач"
+          description="Задачи, подходящие под этот фильтр, появятся здесь."
+        />
       ) : (
         <List>
           {visibleTasks.map((task) => (
