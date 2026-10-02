@@ -133,17 +133,15 @@ html {
   }
 }
 
-/* Нажатие на карточку — лёгкое «проседание» (у кнопок своё, в Button.tsx) */
-a[data-spot],
-button[data-spot],
-[role='button'][data-spot] {
-  transition-property: transform, box-shadow, border-color, background-color;
+/* Нажатие на карточку — лёгкое «проседание» (у кнопок своё, в Button.tsx). Большой карточке хватает
+   0.985: 0.97, как у кнопок, на её размере уже «проваливается». Вниз — 80 мс, обратно — плавно */
+:is(a, button, [role='button'])[data-spot] {
+  transition: transform 320ms var(--ease-luxury-out);
 }
 
-a[data-spot]:active,
-button[data-spot]:active {
+:root :is(a, button, [role='button'])[data-spot]:active {
   transform: scale(0.985);
-  transition-duration: 90ms;
+  transition-duration: 80ms;
 }
 
 /* Фокус с клавиатуры на карточках — кольцо в цвет акцента */

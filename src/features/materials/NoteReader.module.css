@@ -52,7 +52,7 @@
   color: var(--color-text);
 }
 
-.tab > span:last-child {
+.tab > span:last-of-type {
   position: relative;
 }
 
