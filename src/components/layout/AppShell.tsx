@@ -6,6 +6,7 @@ import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
 import { useApplyTheme } from '../../features/settings/theme';
 import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
+import { useScrollMemory } from '../../lib/useScrollMemory';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -23,6 +24,7 @@ export function AppShell() {
   const reduceMotion = usePrefersReducedMotion();
 
   useApplyTheme();
+  useScrollMemory();
   useSearchShortcut(openSearch);
 
   return (

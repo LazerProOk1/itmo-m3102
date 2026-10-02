@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router';
 import { AppShell } from '../components/layout/AppShell';
 import { CalendarPage } from '../features/calendar/CalendarPage';
@@ -22,6 +22,9 @@ import { TasksPage } from '../features/tasks/TasksPage';
 import { TodayPage } from '../features/today/TodayPage';
 import { useSyncStore } from '../services/syncStore';
 import { SECTIONS } from './navigation';
+
+// Игра тяжёлая (~60 КБ) — грузится, только когда её открыли
+const GamePage = lazy(() => import('../features/game/GamePage'));
 
 let autoSyncStarted = false;
 
@@ -65,6 +68,14 @@ export function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="more" element={<MorePage />} />
             <Route path="design" element={<DesignSystemPage />} />
+            <Route
+              path="game"
+              element={
+                <Suspense fallback={null}>
+                  <GamePage />
+                </Suspense>
+              }
+            />
 
             {/* Неизвестный адрес — возвращаем на главную */}
             <Route path="*" element={<Navigate to={SECTIONS.today.path} replace />} />

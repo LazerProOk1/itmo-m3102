@@ -7,6 +7,7 @@ import {
   Clock,
   Ellipsis,
   FolderOpen,
+  Gamepad2,
   House,
   Image,
   NotebookPen,
@@ -36,6 +37,7 @@ export const SECTIONS = {
   notes: { label: 'Заметки', path: '/notes', icon: NotebookPen },
   students: { label: 'Студенты', path: '/students', icon: Users },
   memes: { label: 'Мемы', path: '/memes', icon: Image },
+  game: { label: 'Ёжик-кувырок', path: '/game', icon: Gamepad2 },
   settings: { label: 'Настройки', path: '/settings', icon: Settings },
   more: { label: 'Ещё', path: '/more', icon: Ellipsis },
   // Служебная страница со всеми компонентами. В меню её нет — открывается из меню пользователя.
@@ -56,7 +58,7 @@ export const SIDEBAR_PRIMARY: Section[] = [
 ];
 
 /** Боковое меню: «Другое», после разделителя. */
-export const SIDEBAR_SECONDARY: Section[] = [SECTIONS.students, SECTIONS.memes];
+export const SIDEBAR_SECONDARY: Section[] = [SECTIONS.students, SECTIONS.memes, SECTIONS.game];
 
 /** Нижняя панель на телефоне (плюс кнопка «Ещё»). */
 export const MOBILE_TABS: Section[] = [SECTIONS.today, SECTIONS.schedule, SECTIONS.materials];
@@ -71,6 +73,7 @@ export const MORE_PAGE_SECTIONS: Section[] = [
   SECTIONS.notes,
   SECTIONS.students,
   SECTIONS.memes,
+  SECTIONS.game,
   SECTIONS.settings,
 ];
 

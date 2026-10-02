@@ -1,4 +1,4 @@
-import { useMemo, useState, type ComponentProps } from 'react';
+import { memo, useMemo, useState, type ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -11,6 +11,7 @@ import { convertContainerCallouts, remarkCallouts } from '../../lib/remarkCallou
 import { convertWikiLinks } from '../../lib/wikiLinks';
 import { WikiLinkAnchor } from '../../features/materials/WikiLink';
 import { DIAGRAM_LANGUAGES, DiagramBlock, isDiagramLanguage } from '../diagrams/DiagramBlock';
+import { Quiz } from '../quiz/Quiz';
 import { MermaidBlock } from './MermaidBlock';
 import styles from './Markdown.module.css';
 
@@ -26,14 +27,18 @@ interface MarkdownProps {
 const REMARK_PLUGINS = [remarkGfm, remarkMath, remarkCallouts];
 const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
   rehypeKatex,
-  [rehypeHighlight, { plainText: ['mermaid', ...DIAGRAM_LANGUAGES] }],
+  [rehypeHighlight, { plainText: ['mermaid', 'quiz', ...DIAGRAM_LANGUAGES] }],
 ];
 
 /**
  * Markdown конспектов и ДЗ: GFM, формулы KaTeX, выноски Obsidian `> [!тип]`, подсветка кода,
  * схемы mermaid и [[wiki-ссылки]] между конспектами.
  */
-export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
+/**
+ * memo: разбор markdown с KaTeX и подсветкой — сотни миллисекунд на длинном конспекте. Без memo он
+ * повторялся при каждой перерисовке читалки (оглавление отмечает раздел при прокрутке) — и прокрутка дёргалась.
+ */
+export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
   const withWikiLinks = useMemo(() => convertWikiLinks(normalizeMath(convertContainerCallouts(content))), [content]);
 
   return (
@@ -49,8 +54,10 @@ export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownPro
           pre: ({ node, children, ...rest }) => {
             const code = node?.children[0];
             const lang = code?.type === 'element' ? /language-(\w+)/.exec(String(code.properties.className ?? ''))?.[1] : undefined;
-            if (code?.type !== 'element' || !lang || (lang !== 'mermaid' && !isDiagramLanguage(lang))) return <CodeBlock {...rest}>{children}</CodeBlock>;
+            if (code?.type !== 'element' || !lang || (lang !== 'mermaid' && lang !== 'quiz' && !isDiagramLanguage(lang)))
+              return <CodeBlock {...rest}>{children}</CodeBlock>;
             const source = code.children.map((child) => (child.type === 'text' ? child.value : '')).join('').trimEnd();
+            if (lang === 'quiz') return <Quiz source={source} />;
             return lang === 'mermaid' ? <MermaidBlock source={source} /> : <DiagramBlock lang={lang} source={source} />;
           },
         }}
@@ -59,7 +66,7 @@ export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownPro
       </ReactMarkdown>
     </div>
   );
-}
+});
 
 /** Блок кода с кнопкой «Копировать» при наведении — как на сайте группы */
 function CodeBlock(props: ComponentProps<'pre'>) {

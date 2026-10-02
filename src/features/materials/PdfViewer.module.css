@@ -25,9 +25,9 @@
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-bg-elevated) 88%, transparent);
+  /* Без backdrop-filter: размытие под прилипшей панелью пересчитывается на каждом кадре прокрутки */
+  background: var(--color-bg-elevated);
   box-shadow: var(--shadow-xs);
-  backdrop-filter: blur(10px);
 }
 
 .group {

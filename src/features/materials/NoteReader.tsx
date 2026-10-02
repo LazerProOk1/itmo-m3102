@@ -17,6 +17,10 @@ export interface TocItem {
 
 const firstNumber = (value: string) => Number(/\d+/.exec(value)?.[0] ?? Infinity);
 
+/** «Лекция 2. Название»; у папок без номера («Тесты», «Семинары») приставку не пишем — дублирует название */
+export const noteTitle = (note: Pick<LectureNote, 'lectureNumber' | 'title'>) =>
+  note.lectureNumber && /\d/.test(note.lectureNumber) ? `${note.lectureNumber}. ${note.title}` : note.title;
+
 /**
  * Порядок как на сайте группы: по номеру занятия (Лекция 1, Практика 1, Лекция 2…), занятия без
  * номера («Доп материалы») — в конце; внутри занятия сначала текстовые конспекты, потом PDF и файлы.

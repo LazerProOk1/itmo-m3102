@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Swap, useDirection } from '../../components/ui/Swap';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
@@ -18,7 +18,10 @@ const SECTION_TABS: TabItem<MaterialsSection>[] = [
 
 /** Материалы: конспекты (1 поток и группа), учебники из «Материалы/», остальные файлы группы и ссылки. */
 export function MaterialsPage() {
-  const [section, setSection] = useState<MaterialsSection>('notes');
+  // Раздел — в адресе (?tab=…): «Назад» в браузере возвращает на прошлую вкладку, а не в начало
+  const [params, setParams] = useSearchParams();
+  const section = SECTION_TABS.find((tab) => tab.value === params.get('tab'))?.value ?? 'notes';
+  const setSection = (value: MaterialsSection) => setParams(value === 'notes' ? {} : { tab: value });
   const direction = useDirection(SECTION_TABS.findIndex((tab) => tab.value === section));
 
   return (
