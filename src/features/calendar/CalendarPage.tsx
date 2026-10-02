@@ -3,16 +3,8 @@ import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { PageHeader } from '../../components/ui/PageHeader';
-import {
-  addDays,
-  addMonths,
-  formatFullDate,
-  formatMonthLabel,
-  formatWeekRange,
-  getWeekDates,
-  getWeekdayName,
-  startOfWeek,
-} from '../../lib/dates';
+import { Swap, useDirection } from '../../components/ui/Swap';
+import { addDays, addMonths, formatFullDate, formatMonthLabel, formatWeekRange, getWeekDates, getWeekdayName, startOfWeek } from '../../lib/dates';
 import { getStudyWeek, WEEK_PARITY_LABELS } from '../../lib/studyWeek';
 import { useClock } from '../../lib/useClock';
 import type { ISODate } from '../../types/models';
@@ -77,6 +69,8 @@ export function CalendarPage() {
 
   const week = getStudyWeek(anchor, scheduleData.semesterStart, scheduleData.weekOneStart);
   const weekStart = startOfWeek(anchor);
+  const period = mode === 'month' ? anchor.slice(0, 7) : mode === 'week' ? weekStart : anchor;
+  const direction = useDirection(Date.parse(mode === 'month' ? `${period}-01` : period));
 
   const subtitle =
     mode === 'month'
@@ -101,36 +95,33 @@ export function CalendarPage() {
         }
       />
 
-      <CalendarToolbar
-        mode={mode}
-        onModeChange={setMode}
-        onPrevious={goToPrevious}
-        onNext={goToNext}
-        onToday={() => setAnchor(today)}
-      />
+      <CalendarToolbar mode={mode} onModeChange={setMode} onPrevious={goToPrevious} onNext={goToNext} onToday={() => setAnchor(today)} />
 
-      {mode === 'month' ? (
-        <CalendarMonthView
-          anchor={anchor}
-          today={today}
-          data={data}
-          onOpenDay={openDay}
-          onEditTask={taskDialog.openEdit}
-          onEditEvent={eventDialog.openEdit}
-          onAddEvent={eventDialog.openCreate}
-        />
-      ) : (
-        <TimeGrid
-          days={mode === 'week' ? getWeekDates(weekStart) : [anchor]}
-          today={today}
-          time={time}
-          data={data}
-          onClassAction={scheduleDialogs.handleAction}
-          onEditTask={taskDialog.openEdit}
-          onEditEvent={eventDialog.openEdit}
-          onAddEvent={eventDialog.openCreate}
-        />
-      )}
+      {/* Смена месяца/недели/дня — «перелистывание» в сторону перехода */}
+      <Swap id={`${mode}-${period}`} direction={direction}>
+        {mode === 'month' ? (
+          <CalendarMonthView
+            anchor={anchor}
+            today={today}
+            data={data}
+            onOpenDay={openDay}
+            onEditTask={taskDialog.openEdit}
+            onEditEvent={eventDialog.openEdit}
+            onAddEvent={eventDialog.openCreate}
+          />
+        ) : (
+          <TimeGrid
+            days={mode === 'week' ? getWeekDates(weekStart) : [anchor]}
+            today={today}
+            time={time}
+            data={data}
+            onClassAction={scheduleDialogs.handleAction}
+            onEditTask={taskDialog.openEdit}
+            onEditEvent={eventDialog.openEdit}
+            onAddEvent={eventDialog.openCreate}
+          />
+        )}
+      </Swap>
 
       <ClassDialog target={scheduleDialogs.classTarget} onClose={scheduleDialogs.closeClassDialog} />
       <ExceptionDialog target={scheduleDialogs.exceptionTarget} onClose={scheduleDialogs.closeExceptionDialog} />

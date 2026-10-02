@@ -211,3 +211,63 @@
 .wide {
   width: 100%;
 }
+
+/* ---------- Оформление и свет ---------- */
+.accentRow,
+.glowRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.accentChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.accentChip span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--chip);
+  box-shadow: 0 0 10px -2px var(--chip);
+}
+
+.accentChip[data-active='true'] {
+  border-color: var(--chip);
+}
+
+.glowCard {
+  display: grid;
+  gap: 2px;
+  width: 170px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-elevated);
+}
+
+.glowCard small {
+  color: var(--color-text-muted);
+}
+
+.glowIndex {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-accent-text);
+}
+
+.heroDemo {
+  font-size: 2rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}

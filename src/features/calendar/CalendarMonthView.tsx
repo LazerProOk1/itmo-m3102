@@ -33,7 +33,7 @@ export function CalendarMonthView({ anchor, today, data, onOpenDay, onEditTask, 
   }
 
   return (
-    <div>
+    <div className={styles.month}>
       <div className={styles.weekdayRow}>
         {WEEKDAY_HEADERS.map((label) => (
           <div key={label} className={styles.weekdayHeader}>
@@ -43,10 +43,11 @@ export function CalendarMonthView({ anchor, today, data, onOpenDay, onEditTask, 
       </div>
 
       <div className={styles.grid}>
-        {dates.map((date) => (
+        {dates.map((date, index) => (
           <MonthCell
             key={date}
             date={date}
+            index={index}
             isCurrentMonth={date.slice(0, 7) === currentMonth}
             isToday={date === today}
             entries={getCalendarEntriesForDate(date, data)}

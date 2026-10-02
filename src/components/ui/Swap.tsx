@@ -1,10 +1,11 @@
 import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { useRef, type ReactNode } from 'react';
-import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
+import { usePrefersReducedMotion } from '../../lib/motion';
 
+// Без filter: blur — на широкой сетке (неделя расписания) он дорогой и давал рывки; без пружины — без перехлёста
 const variants: Variants = {
-  enter: (direction: number) => ({ opacity: 0, x: direction * 28, filter: 'blur(2px)' }),
-  center: { opacity: 1, x: 0, filter: 'blur(0px)', transition: SPRING_SMOOTH },
+  enter: (direction: number) => ({ opacity: 0, x: direction * 24 }),
+  center: { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } },
   exit: (direction: number) => ({ opacity: 0, x: direction * -20, transition: { duration: 0.12, ease: [0.7, 0, 0.84, 0] } }),
 };
 

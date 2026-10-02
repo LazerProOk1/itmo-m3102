@@ -20,7 +20,6 @@ import { useScheduleDialogs } from './useScheduleDialogs';
 import { WeekView } from './WeekView';
 
 /** Индекс субботы в неделе, которая начинается с понедельника */
-const SATURDAY_INDEX = 5;
 
 /** На телефоне удобнее начинать с одного дня */
 function getDefaultView(): ScheduleView {
@@ -47,9 +46,7 @@ export function SchedulePage() {
   const direction = useDirection(Date.parse(weekStart));
 
   const days: DaySchedule[] = getWeekDates(weekStart)
-    .map((date) => ({ date, occurrences: getOccurrencesForDate(date, scheduleData) }))
-    // Понедельник–суббота всегда; воскресенье — только если в нём есть занятия или оно выбрано
-    .filter((day, index) => index <= SATURDAY_INDEX || day.occurrences.length > 0 || day.date === selectedDate);
+    .map((date) => ({ date, occurrences: getOccurrencesForDate(date, scheduleData) }));
 
   function moveWeeks(count: number) {
     setSelectedDate(addDays(selectedDate, 7 * count));
