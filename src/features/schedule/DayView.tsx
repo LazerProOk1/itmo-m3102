@@ -40,7 +40,12 @@ export function DayView({ days, selectedDate, today, time, onSelectDate, onActio
             >
               <span className={styles.weekday}>{getShortWeekdayName(day.date)}</span>
               <span className={cn(styles.dayNumber, isToday && styles.dayNumberToday)}>{getDayOfMonth(day.date)}</span>
-              {day.occurrences.length > 0 && <span className={styles.dot} aria-hidden />}
+              {/* Точек столько, сколько пар (до шести) — видно, насколько загружен день */}
+              <span className={styles.dots} aria-label={`${day.occurrences.length} пар`}>
+                {day.occurrences.slice(0, 6).map((occurrence) => (
+                  <span key={occurrence.key} className={styles.dot} />
+                ))}
+              </span>
             </button>
           );
         })}

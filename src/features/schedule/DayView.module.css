@@ -46,6 +46,13 @@
   color: var(--color-accent-text);
 }
 
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  min-height: 3px;
+}
+
 .dot {
   width: 3px;
   height: 3px;

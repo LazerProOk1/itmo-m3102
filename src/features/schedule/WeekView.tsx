@@ -17,7 +17,7 @@ interface WeekViewProps {
   onAction: (action: OccurrenceAction, occurrence: ClassOccurrence) => void;
 }
 
-/** Неделя колонками: Mon–Sat (+Sun, если в нём есть занятия). */
+/** Неделя колонками: понедельник–воскресенье. */
 export function WeekView({ days, today, time, onAddDate, onAction }: WeekViewProps) {
   const { isEditMode } = useEditMode();
 

@@ -1,4 +1,5 @@
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AppearanceDemo } from './AppearanceDemo';
 import { BrandDemo } from './BrandDemo';
 import { ContentDemo } from './ContentDemo';
 import { ControlsDemo } from './ControlsDemo';
@@ -13,10 +14,11 @@ import styles from './DesignSystemPage.module.css';
 export function DesignSystemPage() {
   return (
     <>
-      <PageHeader title="Дизайн-система М3102" subtitle="Бренд, токены, движение и компоненты сайта группы — всё, из чего он собран." />
+      <PageHeader title="Дизайн-система М3102" subtitle="Бренд, токены, свет, движение и компоненты сайта группы — всё, из чего он собран." />
       <div className={styles.sections}>
         <BrandDemo />
         <FoundationsDemo />
+        <AppearanceDemo />
         <MotionDemo />
         <ControlsDemo />
         <FeedbackDemo />

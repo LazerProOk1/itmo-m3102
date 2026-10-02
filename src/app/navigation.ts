@@ -50,10 +50,10 @@ export const SECTIONS = {
 export const SIDEBAR_PRIMARY: Section[] = [
   SECTIONS.today,
   SECTIONS.schedule,
+  SECTIONS.calendar,
   SECTIONS.materials,
   SECTIONS.homework,
   SECTIONS.deadlines,
-  SECTIONS.calendar,
   SECTIONS.tasks,
   SECTIONS.subjects,
   SECTIONS.notes,
@@ -67,9 +67,9 @@ export const MOBILE_TABS: Section[] = [SECTIONS.today, SECTIONS.schedule, SECTIO
 
 /** Всё, что не поместилось в нижнюю панель, — на странице «Ещё». */
 export const MORE_PAGE_SECTIONS: Section[] = [
+  SECTIONS.calendar,
   SECTIONS.homework,
   SECTIONS.deadlines,
-  SECTIONS.calendar,
   SECTIONS.tasks,
   SECTIONS.subjects,
   SECTIONS.notes,
