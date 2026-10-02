@@ -2170,7 +2170,7 @@ class Game{
         flipping=true;
       }else h.flipAng-=TAU*Math.round(h.flipAng/TAU);
       h.curlT=(flipping||down||dying)?1:0;
-      if(h.vy>0&&h.cy+R*0.92>=T.y(h.cx))this.land();
+      if((h.vy>0||h.air>0.08)&&h.cy+R*0.92>=T.y(h.cx))this.land();
     }
     h.curl+=(h.curlT-h.curl)*Math.min(1,dt*18);
     h.squash+=(0-h.squash)*Math.min(1,dt*9);
@@ -2194,6 +2194,10 @@ class Game{
         if(h.curl>0.6){
           if(h.onGround)h.s*=0.92;this.trick+=25*this.mult();this.audio.sfx('land',0.5);
           this.text(o.x,top-14,'Бам!','#fff3b0',20);
+          if(h.inv<=0){
+            if(h.shd>0){h.shd=0;h.inv=1.2;this.text(c.x,c.y-R*2,'Щит лопнул!','#bfe3ff',24);}
+            else{this.sleep=Math.min(1,this.sleep+0.12);if(this.sleep>=1){this.die();return;}}
+          }
         }else this.stumble(0.22,['Бонк!','Ой-ой!','Колючий конфуз!','Кто тут камень поставил?!'][(Math.random()*4)|0]);
       }
     }
@@ -2288,7 +2292,7 @@ class Game{
     const gx=h.x,gyy=h.y;
     if(vin>140)this.audio.sfx('land',vin/900);
     this.burst(gx,gyy-2,Math.round(7+clamp(vin/80,0,12)),{a0:-Math.PI*0.95,a1:-Math.PI*0.05,sp:160,col:'rgba(255,255,255,0.7)',size:4,life:0.5,g:300});this.burst(gx,gyy-2,5,{a0:-Math.PI*0.9,a1:-Math.PI*0.1,sp:220,col:this.pal.gHi,size:3,life:0.7,g:600,type:'petal'});
-    if(fail){this.combo=0;h.s*=0.85;this.audio.sfx('nope');this.text(gx,gyy-R*2.4,'Недокрутил…','#ffd0dc',22);return;}
+    if(fail){this.combo=0;this.audio.sfx('nope');this.stumble(0.18,'Недокрутил…');return;}
     if(done>0||perfect){
       const m=this.mult(),pts=Math.round((done*150+(perfect?100:0))*m);
       this.trick+=pts;this.combo=Math.min(25,this.combo+(done>0?1:0)+(perfect?1:0));this.comboT=8;
