@@ -94,16 +94,31 @@ export function PdfViewer({ file }: PdfViewerProps) {
       }
     };
 
+    // Очередь отрисовки: строго по одной странице, как на сайте группы. Несколько page.render разом
+    // забивали главный поток прямо во время прокрутки — отсюда рывки. Страницы у экрана — вне очереди.
+    const queue: HTMLCanvasElement[] = [];
+    let busy = false;
+    const pump = async () => {
+      if (busy) return;
+      busy = true;
+      while (queue.length && !cancelled) {
+        const canvas = queue.shift()!;
+        if (canvas.dataset.drawn) continue;
+        await draw(canvas, Number(canvas.dataset.page));
+      }
+      busy = false;
+    };
+    const enqueue = (canvas: HTMLCanvasElement, urgent: boolean) => {
+      if (canvas.dataset.drawn) return;
+      const at = queue.indexOf(canvas);
+      if (at !== -1) queue.splice(at, 1);
+      if (urgent) queue.unshift(canvas);
+      else queue.push(canvas);
+      void pump();
+    };
+
     const preload = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const canvas = entry.target as HTMLCanvasElement;
-          if (entry.isIntersecting && !canvas.dataset.drawn && !canvas.dataset.drawing) {
-            canvas.dataset.drawing = 'true';
-            void draw(canvas, Number(canvas.dataset.page)).finally(() => delete canvas.dataset.drawing);
-          }
-        }
-      },
+      (entries) => entries.forEach((entry) => entry.isIntersecting && enqueue(entry.target as HTMLCanvasElement, true)),
       { rootMargin: PRELOAD_MARGIN },
     );
     // Текущая страница — та, что пересекает середину экрана
@@ -130,6 +145,8 @@ export function PdfViewer({ file }: PdfViewerProps) {
       preload.observe(canvas);
       middle.observe(canvas);
     });
+    // Остальные — заранее, в фоне (не больше, чем держим в памяти)
+    canvases.slice(0, MAX_DRAWN_PAGES).forEach((canvas) => enqueue(canvas, false));
 
     return () => {
       cancelled = true;

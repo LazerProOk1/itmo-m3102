@@ -1,4 +1,4 @@
-import { useMemo, useState, type ComponentProps } from 'react';
+import { memo, useMemo, useState, type ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -34,7 +34,11 @@ const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
  * Markdown конспектов и ДЗ: GFM, формулы KaTeX, выноски Obsidian `> [!тип]`, подсветка кода,
  * схемы mermaid и [[wiki-ссылки]] между конспектами.
  */
-export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
+/**
+ * memo: разбор markdown с KaTeX и подсветкой — сотни миллисекунд на длинном конспекте. Без memo он
+ * повторялся при каждой перерисовке читалки (оглавление отмечает раздел при прокрутке) — и прокрутка дёргалась.
+ */
+export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
   const withWikiLinks = useMemo(() => convertWikiLinks(normalizeMath(convertContainerCallouts(content))), [content]);
 
   return (
@@ -62,7 +66,7 @@ export function Markdown({ content, sourceRef, baseUrl, className }: MarkdownPro
       </ReactMarkdown>
     </div>
   );
-}
+});
 
 /** Блок кода с кнопкой «Копировать» при наведении — как на сайте группы */
 function CodeBlock(props: ComponentProps<'pre'>) {

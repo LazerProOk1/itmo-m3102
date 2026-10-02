@@ -107,3 +107,149 @@
 .hh-prev{cursor:pointer;}
 .hh-prev.hh-boing{animation:hhboing .38s;}
 @keyframes hhboing{0%{transform:scale(1);}35%{transform:scale(1.28,.78);}70%{transform:scale(.9,1.18);}100%{transform:scale(1);}}
+
+/* ---------- Правка поверх оригинала: вид как у остального сайта М3102 ---------- */
+.hh-root,
+.hh-root button {
+  font-family: inherit;
+}
+
+.hh-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.hh-name,
+.hh-h {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--color-text);
+}
+
+.hh-h {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.hh-sub {
+  color: var(--color-text-secondary);
+}
+
+.hh-card {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+}
+
+.hh-ic {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.hh-root .btn2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: var(--weight-medium);
+}
+
+.hh-root .btn2[aria-pressed='false'] {
+  color: var(--color-text-muted);
+}
+
+.hh-tool[aria-pressed='true'] {
+  border-color: var(--color-border);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  font-weight: var(--weight-medium);
+}
+
+.hh-big {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.hh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-color: transparent;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.hh-chip .hh-ic {
+  width: 13px;
+  height: 13px;
+}
+
+.hh-sec {
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.hh-goal {
+  border-radius: var(--radius-md);
+}
+
+.hh-gt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hh-gt .hh-ic {
+  color: var(--color-text-muted);
+}
+
+.hh-done .hh-gt .hh-ic,
+.hh-done .hh-gp {
+  color: var(--color-success);
+}
+
+.hh-gp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hh-gp .hh-ic,
+.hh-hat span .hh-ic {
+  width: 12px;
+  height: 12px;
+}
+
+.hh-hat span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.hh-help {
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+}
+
+.hh-stat-grid b {
+  font-weight: var(--weight-semibold);
+}
+
+.hh-new {
+  font-weight: var(--weight-semibold);
+  color: var(--color-danger);
+}
+
+.hh-hat {
+  border-radius: var(--radius-md);
+}
+
+.hh-foot {
+  color: var(--color-text-muted);
+}
