@@ -1,5 +1,6 @@
 import { ArrowDownUp, ArrowLeft, Folder, NotebookText, Plus, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Button } from '../../components/ui/Button';
 import { Swap, useDirection } from '../../components/ui/Swap';
 import { Dropdown, type DropdownOption } from '../../components/ui/Dropdown';
@@ -43,8 +44,12 @@ export function LectureNotesTab() {
   const subjects = useSubjectsStore((state) => state.subjects);
   const dialog = useLectureNoteDialog();
 
-  const [collection, setCollection] = useState<LectureNoteCollection | null>(null);
-  const [subjectId, setSubjectId] = useState<string | null>(null);
+  // Папка и предмет — в адресе (?c=group&s=aisd): «Назад» и выход из конспекта возвращают сюда же, а не в начало
+  const [params, setParams] = useSearchParams();
+  const collection = COLLECTIONS.find((item) => item === params.get('c')) ?? null;
+  const subjectId = collection ? params.get('s') : null;
+  const setCollection = (value: LectureNoteCollection | null) => setParams(value ? { c: value } : {});
+  const setSubjectId = (value: string | null) => setParams(value ? { c: collection!, s: value } : { c: collection! });
   const [sort, setSort] = useState<LectureNoteSort>('number');
   // Глубже (папка → предмет → конспекты) — листаем вправо, назад — влево
   const direction = useDirection(collection ? (subjectId ? 2 : 1) : 0);

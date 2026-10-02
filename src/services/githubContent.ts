@@ -7,6 +7,7 @@ import { parseDeadlines, parseLinks, useGroupStore, type RepoFile } from '../fea
 import { parseHomework, useHomeworkStore } from '../features/homework/homeworkStore';
 import { githubError, githubFetch } from './github';
 import { parseGroupSchedule, type GroupSchedule } from './groupSchedule';
+import { quizPageToMarkdown } from '../components/quiz/parseQuiz';
 import { useScheduleStore } from '../features/schedule/scheduleStore';
 import { useSemesterSettingsStore } from '../features/settings/semesterSettingsStore';
 import { storageKey } from '../lib/storage';
@@ -196,7 +197,8 @@ async function buildGroupNotes(paths: string[], previous: LectureNote[], now: st
       let content = fileUrl(path);
       if (ext === 'md') {
         // Название — по имени файла, как на сайте группы; первый заголовок убираем, только если он его повторяет
-        const text = stripFrontMatter(await fetchText(rawUrl('group', path)));
+        // Файл-тест (mode: quiz) — один блок ```quiz, обычный конспект — без служебной шапки
+        const text = stripFrontMatter(quizPageToMarkdown(await fetchText(rawUrl('group', path))));
         const split = splitTitle(text);
         title = prettify(name);
         content = split.title?.toLowerCase() === title.toLowerCase() ? split.content : text;

@@ -15,7 +15,7 @@ import { LectureNoteContentView } from './LectureNoteContentView';
 import { LectureNoteDialog } from './LectureNoteDialog';
 import { useLectureNoteDialog } from './useLectureNoteDialog';
 import { useLectureNotesStore } from './lectureNotesStore';
-import { NotePager, NoteSidebar, ReadingProgress, useSiblingNotes, useToc } from './NoteReader';
+import { NotePager, NoteSidebar, noteTitle, ReadingProgress, useSiblingNotes, useToc } from './NoteReader';
 import styles from './LectureNoteViewPage.module.css';
 
 /**
@@ -32,8 +32,8 @@ export function LectureNoteViewPage() {
   const touchLectureNote = useLectureNotesStore((state) => state.touchLectureNote);
 
   useEffect(() => {
+    // Наверх при открытии и возврат к месту по «Назад» — useScrollMemory в AppShell
     if (noteId) touchLectureNote(noteId);
-    window.scrollTo({ top: 0 });
   }, [noteId, touchLectureNote]);
 
   if (!note) return <Navigate to={SECTIONS.materials.path} replace />;
@@ -53,7 +53,7 @@ function NoteView({ note }: { note: LectureNote }) {
   const siblings = useSiblingNotes(note);
   const toc = useToc(contentRef, note.id + note.updatedAt);
 
-  const title = note.lectureNumber ? `${note.lectureNumber}. ${note.title}` : note.title;
+  const title = noteTitle(note);
   const sourceUrl = noteSourceUrl(note);
 
   return (

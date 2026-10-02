@@ -12,6 +12,7 @@ import { useOptionalSubjectName } from '../subjects/subjectsStore';
 import { LECTURE_NOTE_CONTENT_ICONS } from './labels';
 import { useLectureNotesStore } from './lectureNotesStore';
 import styles from './LectureNoteRow.module.css';
+import { noteTitle } from './NoteReader';
 
 interface LectureNoteRowProps {
   note: LectureNote;
@@ -27,7 +28,7 @@ export function LectureNoteRow({ note, today, onEdit, showSubject = false }: Lec
   const { isEditMode } = useEditMode();
   const deleteLectureNote = useLectureNotesStore((state) => state.deleteLectureNote);
   const subjectName = useOptionalSubjectName(note.subjectId);
-  const title = note.lectureNumber ? `${note.lectureNumber}. ${note.title}` : note.title;
+  const title = noteTitle(note);
   const confirmDelete = useConfirmDelete<LectureNote>();
   const ContentIcon = LECTURE_NOTE_CONTENT_ICONS[note.contentType];
 

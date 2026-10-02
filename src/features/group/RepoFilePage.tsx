@@ -7,6 +7,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { groupRawUrl } from '../../services/github';
 import { downloadUrl } from '../../lib/download';
+import { quizPageToMarkdown } from '../../components/quiz/parseQuiz';
 import { isHiddenPath, useGroupStore, type RepoFile } from './groupStore';
 import styles from './RepoFilePage.module.css';
 
@@ -178,7 +179,7 @@ function FileView({ file }: { file: RepoFile }) {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.text();
       })
-      .then(setText)
+      .then((raw) => setText(quizPageToMarkdown(raw)))
       .catch((reason: Error) => setError(`Не удалось загрузить файл (${reason.message}).`));
   }, [ext, file.path]);
 

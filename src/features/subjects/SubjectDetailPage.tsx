@@ -1,6 +1,6 @@
 import { Pencil } from 'lucide-react';
 import { useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router';
 import { Button } from '../../components/ui/Button';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
@@ -75,7 +75,10 @@ export function SubjectDetailPage() {
   const groupDeadlines = useGroupStore((state) => state.deadlines);
   const deadlinesDone = useGroupStore((state) => state.deadlinesDone);
 
-  const [tab, setTab] = useState<SubjectTab>('overview');
+  // Вкладка — в адресе (?tab=materials): после конспекта «Назад» возвращает на неё же
+  const [params, setParams] = useSearchParams();
+  const tab = (Object.keys(TAB_LABELS) as SubjectTab[]).find((value) => value === params.get('tab')) ?? 'overview';
+  const setTab = (value: SubjectTab) => setParams(value === 'overview' ? {} : { tab: value });
   const [shouldRevealTitle] = useState(() => !hasRevealedSubjectTitle);
   hasRevealedSubjectTitle = true;
   const subjectDialog = useSubjectDialog();
