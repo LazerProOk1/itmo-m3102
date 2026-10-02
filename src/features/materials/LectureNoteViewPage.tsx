@@ -127,7 +127,10 @@ function NoteView({ note }: { note: LectureNote }) {
 
         <div ref={contentRef} className={styles.content}>
           <LectureNoteContentView contentType={note.contentType} content={note.content} sourceRef={note.sourceRef} baseUrl={noteAssetBase(note)} />
-          {note.source === 'github' && (note.collection ?? 'group') === 'group' && <SiteQuiz sourceRef={note.sourceRef} />}
+          {/* Свой тест — только к конспектам группы и только если в конспекте нет теста от самой группы */}
+          {note.source === 'github' && (note.collection ?? 'group') === 'group' && !note.content.includes('```quiz') && (
+            <SiteQuiz sourceRef={note.sourceRef} />
+          )}
         </div>
         <NotePager note={note} siblings={siblings} />
       </article>

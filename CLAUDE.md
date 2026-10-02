@@ -163,6 +163,19 @@ ESLint пока не подключён: `typescript-eslint` поддержив�
 - Клик-эффекты (`lib/ripple.ts`, включаются «Свечением»): волна — `<i class="ripple">`, временно добавляемый в
   конец кнопки/ссылки/карточки. Внутри кнопок не опираться на `:last-child` (брать `span:last-of-type`).
   Рамка за курсором — `::after` у `[data-spot]`; карточке со своим `::after` ставить `data-spot="own"`.
+- Награда за «сделано» (`lib/celebrate.ts`): `<Checkbox celebrate>` — искры у галочки; `useConfettiWhenCleared(open)` —
+  конфетти, когда человек закрыл последний пункт списка. Конфетти только за вехи, не за каждую отметку.
+- Переход «карточка → страница» (`lib/morph.ts`): ссылка `data-morph`, внутри `[data-morph-title]`; цель — h1 с
+  `data-morph-target` (уже в PageHeader и читалке). `viewTransition` у `<Link>` с HashRouter не работает.
+- Загрузка: страницы — отдельные куски (`page()` в App.tsx) с докачкой в простое. На главной Markdown только
+  через `LazyMarkdown`; не импортировать из страниц в главную (так `filePath` тянул за собой весь Markdown).
+- Шрифт заголовков — `--font-display` (Unbounded), текст — Inter. Серые подкрашены акцентом, свечение — оттенки
+  одного акцента: радужные градиенты и градиентный текст выглядят «сгенерированно».
+- Тесты «Проверь себя» к конспектам M3102 — наши, не из репозитория группы: `src/data/siteQuizzes/<путь как в
+  Конспекты/>.md` (формат parseQuiz), подключение — `features/materials/siteQuizzes.ts`. Показываются, только если в
+  конспекте нет своего ```quiz. Новый конспект у группы — добавить тест сюда же; `siteQuizzes.test.ts` проверяет разбор.
+- Тесты интерфейса — `*.test.tsx` с `// @vitest-environment jsdom` (Testing Library); заглушки jsdom и отключённая
+  сеть — в `src/test/setup.ts`.
 - Диаграммы DSL группы (`plot`, `graph`, `diagram`, `tree`, `array`, `chart`) рисует свой рендерер в
   `components/diagrams` (синтаксис — README RedstoneLord). Код пошаговой анимации в `array` (`code:`) не
   выполняется — это чужой JS из репозитория, показывается текстом.
