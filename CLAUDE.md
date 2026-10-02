@@ -65,6 +65,10 @@ npm run build      # typecheck + сборка в dist/
 ```
 
 Перед каждым коммитом: `npm test` и `npm run build` должны проходить.
+Форматирование — `npm run format` (Prettier, `.prettierrc.json`: одинарные кавычки, строка до 150);
+`npm run format:check` — проверка. Код игры (`features/game/hedgehogGame.*`) Prettier не трогает (`.prettierignore`).
+ESLint пока не подключён: `typescript-eslint` поддерживает TypeScript только до 6.0, а у нас 7 — добавить,
+когда выйдет поддержка. TypeScript строгий: `strict`, `noUncheckedIndexedAccess`, `noImplicitReturns`.
 
 ## Деплой
 
