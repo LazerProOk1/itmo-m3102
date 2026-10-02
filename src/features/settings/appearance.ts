@@ -13,8 +13,19 @@ export const ACCENTS = [
   { id: 'rose', name: 'Роза', color: '#ec4899' },
 ] as const;
 
+/** Свой цвет из пипетки — OKLCH с постоянной яркостью: любой оттенок одинаково читается, не «кислотный» */
+export const CUSTOM_LIGHTNESS = 0.66;
+export const customAccent = (hue: number, chroma: number) => `oklch(${CUSTOM_LIGHTNESS} ${chroma.toFixed(3)} ${Math.round(hue)})`;
+
+/** Оттенок и насыщенность своего цвета — чтобы пипетка открывалась на нём же */
+export function parseCustomAccent(accent: string): { hue: number; chroma: number } | null {
+  const match = /^oklch\(\s*[\d.]+\s+([\d.]+)\s+([\d.]+)\s*\)$/.exec(accent);
+  return match ? { chroma: Number(match[1]), hue: Number(match[2]) } : null;
+}
+
 export const accentColor = (accent: string) =>
-  ACCENTS.find((item) => item.id === accent)?.color ?? (/^#[0-9a-f]{6}$/i.test(accent) ? accent : ACCENTS[0].color);
+  ACCENTS.find((item) => item.id === accent)?.color ??
+  (/^#[0-9a-f]{6}$/i.test(accent) || parseCustomAccent(accent) ? accent : ACCENTS[0].color);
 
 /**
  * Оформление на <html>: --accent-base (из него в tokens.css считаются все оттенки акцента),
