@@ -1,29 +1,39 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, useEffect, type ComponentType } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router';
 import { AppShell } from '../components/layout/AppShell';
-import { CalendarPage } from '../features/calendar/CalendarPage';
-import { DeadlinesPage } from '../features/deadlines/DeadlinesPage';
-import { DesignSystemPage } from '../features/design/DesignSystemPage';
-import { DiagramEditorPage } from '../features/diagrams/DiagramEditorPage';
-import { LinksPage } from '../features/group/LinksPage';
-import { MemesPage } from '../features/group/MemesPage';
-import { RepoFilePage } from '../features/group/RepoFilePage';
-import { StudentsPage } from '../features/group/StudentsPage';
-import { HomeworkPage } from '../features/homework/HomeworkPage';
 import { EditModeProvider } from '../features/settings/EditModeContext';
-import { LectureNoteViewPage } from '../features/materials/LectureNoteViewPage';
-import { MaterialsPage } from '../features/materials/MaterialsPage';
-import { MorePage } from '../features/more/MorePage';
-import { NotesPage } from '../features/notes/NotesPage';
-import { SchedulePage } from '../features/schedule/SchedulePage';
-import { SettingsPage } from '../features/settings/SettingsPage';
-import { SubjectDetailPage } from '../features/subjects/SubjectDetailPage';
-import { SubjectsPage } from '../features/subjects/SubjectsPage';
-import { TasksPage } from '../features/tasks/TasksPage';
 import { TodayPage } from '../features/today/TodayPage';
 import { useSyncStore } from '../services/syncStore';
 import { SECTIONS } from './navigation';
 
+/**
+ * Страницы грузятся отдельными кусками: при открытии сайта качается только главная (web.dev: code splitting
+ * по маршрутам). Остальные докачиваются в простое браузера — переход по меню всё равно мгновенный.
+ */
+const loaders: (() => Promise<unknown>)[] = [];
+function page<M>(load: () => Promise<M>, name: keyof M) {
+  loaders.push(load);
+  return lazy(() => load().then((module) => ({ default: module[name] as ComponentType })));
+}
+
+const CalendarPage = page(() => import('../features/calendar/CalendarPage'), 'CalendarPage');
+const DeadlinesPage = page(() => import('../features/deadlines/DeadlinesPage'), 'DeadlinesPage');
+const DesignSystemPage = page(() => import('../features/design/DesignSystemPage'), 'DesignSystemPage');
+const DiagramEditorPage = page(() => import('../features/diagrams/DiagramEditorPage'), 'DiagramEditorPage');
+const LinksPage = page(() => import('../features/group/LinksPage'), 'LinksPage');
+const MemesPage = page(() => import('../features/group/MemesPage'), 'MemesPage');
+const RepoFilePage = page(() => import('../features/group/RepoFilePage'), 'RepoFilePage');
+const StudentsPage = page(() => import('../features/group/StudentsPage'), 'StudentsPage');
+const HomeworkPage = page(() => import('../features/homework/HomeworkPage'), 'HomeworkPage');
+const LectureNoteViewPage = page(() => import('../features/materials/LectureNoteViewPage'), 'LectureNoteViewPage');
+const MaterialsPage = page(() => import('../features/materials/MaterialsPage'), 'MaterialsPage');
+const MorePage = page(() => import('../features/more/MorePage'), 'MorePage');
+const NotesPage = page(() => import('../features/notes/NotesPage'), 'NotesPage');
+const SchedulePage = page(() => import('../features/schedule/SchedulePage'), 'SchedulePage');
+const SettingsPage = page(() => import('../features/settings/SettingsPage'), 'SettingsPage');
+const SubjectDetailPage = page(() => import('../features/subjects/SubjectDetailPage'), 'SubjectDetailPage');
+const SubjectsPage = page(() => import('../features/subjects/SubjectsPage'), 'SubjectsPage');
+const TasksPage = page(() => import('../features/tasks/TasksPage'), 'TasksPage');
 // Игра тяжёлая (~60 КБ) — грузится, только когда её открыли
 const GamePage = lazy(() => import('../features/game/GamePage'));
 
@@ -40,6 +50,8 @@ export function App() {
     // Повторный вызов (StrictMode) безопасен: syncStore не запускает вторую синхронизацию поверх идущей
     const sync = () => void useSyncStore.getState().runAuto();
     sync();
+    const idle = window.requestIdleCallback ?? ((callback: () => void) => setTimeout(callback, 1500));
+    idle(() => loaders.forEach((load) => void load()));
     // Вернулась сеть — догоняем
     addEventListener('online', sync);
     return () => removeEventListener('online', sync);
@@ -71,14 +83,7 @@ export function App() {
             <Route path="more" element={<MorePage />} />
             <Route path="design" element={<DesignSystemPage />} />
             <Route path="diagrams" element={<DiagramEditorPage />} />
-            <Route
-              path="game"
-              element={
-                <Suspense fallback={null}>
-                  <GamePage />
-                </Suspense>
-              }
-            />
+            <Route path="game" element={<GamePage />} />
 
             {/* Неизвестный адрес — возвращаем на главную */}
             <Route path="*" element={<Navigate to={SECTIONS.today.path} replace />} />

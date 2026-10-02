@@ -96,3 +96,6 @@ export function isHiddenPath(path: string): boolean {
   const parts = path.split('/');
   return HIDDEN_FILES.includes(parts[parts.length - 1]!.toLowerCase()) || parts.some((part) => HIDDEN_FOLDERS.includes(part.toLowerCase()));
 }
+
+/** Адрес страницы просмотра файла из репозитория группы (`#/files/...`) */
+export const filePath = (path: string) => `/files/${path.split('/').map(encodeURIComponent).join('/')}`;

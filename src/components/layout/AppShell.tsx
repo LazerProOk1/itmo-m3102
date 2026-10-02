@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useCallback, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
 import { SearchDialog } from '../../features/search/SearchDialog';
@@ -61,7 +61,9 @@ export function AppShell() {
             initial={reduceMotion ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
           >
-            <Outlet />
+            <Suspense fallback={null}>
+              <Outlet />
+            </Suspense>
           </motion.div>
         </main>
       </div>
