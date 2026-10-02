@@ -100,64 +100,78 @@ html {
   }
 }
 
-/* Каскад: дети появляются по очереди снизу вверх. className="stagger" на сетке карточек */
+/* Каскад: карточки сетки проявляются по очереди. Тихо — сдвиг 4px без масштаба, шаг 30 мс, не дольше
+   шести карточек: длинный список не должен «ползти» полсекунды. className="stagger" на сетке */
 .stagger > * {
-  animation: stagger-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: stagger-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .stagger > :nth-child(2) {
-  animation-delay: 45ms;
+  animation-delay: 30ms;
 }
 
 .stagger > :nth-child(3) {
-  animation-delay: 90ms;
+  animation-delay: 60ms;
 }
 
 .stagger > :nth-child(4) {
-  animation-delay: 135ms;
+  animation-delay: 90ms;
 }
 
 .stagger > :nth-child(5) {
-  animation-delay: 180ms;
+  animation-delay: 120ms;
 }
 
-.stagger > :nth-child(6) {
-  animation-delay: 225ms;
-}
-
-.stagger > :nth-child(7) {
-  animation-delay: 270ms;
-}
-
-.stagger > :nth-child(8) {
-  animation-delay: 315ms;
-}
-
-.stagger > :nth-child(9) {
-  animation-delay: 360ms;
-}
-
-.stagger > :nth-child(10) {
-  animation-delay: 405ms;
-}
-
-.stagger > :nth-child(11) {
-  animation-delay: 450ms;
-}
-
-.stagger > :nth-child(12) {
-  animation-delay: 495ms;
-}
-
-.stagger > :nth-child(n + 13) {
-  animation-delay: 540ms;
+.stagger > :nth-child(n + 6) {
+  animation-delay: 150ms;
 }
 
 @keyframes stagger-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.985);
+    transform: translateY(4px);
   }
+}
+
+/* Нажатие на карточку — лёгкое «проседание» (у кнопок своё, в Button.tsx) */
+a[data-spot],
+button[data-spot],
+[role='button'][data-spot] {
+  transition-property: transform, box-shadow, border-color, background-color;
+}
+
+a[data-spot]:active,
+button[data-spot]:active {
+  transform: scale(0.985);
+  transition-duration: 90ms;
+}
+
+/* Фокус с клавиатуры на карточках — кольцо в цвет акцента */
+[data-spot]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* «Перейти к содержимому» — первая остановка Tab, видна только при фокусе */
+.skip-link {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 100;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transform: translateY(-160%);
+  cursor: pointer;
+}
+
+.skip-link:focus-visible {
+  transform: none;
 }
 
 /* ---------- Печать и «Сохранить как PDF»: A4, светлая тема (tokens.css), колонтитул ---------- */

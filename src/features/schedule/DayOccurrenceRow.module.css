@@ -62,3 +62,12 @@
   text-decoration-color: var(--color-border-hover);
   text-underline-offset: 2px;
 }
+
+/* Идущая пара — тонкая полоска прогресса внизу (--progress из DayOccurrenceRow.tsx) */
+.row[style*='--progress'] {
+  background-image: linear-gradient(var(--color-accent), var(--color-accent));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: var(--progress) 2px;
+  transition: background-size 1s linear;
+}

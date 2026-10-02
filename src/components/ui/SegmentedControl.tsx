@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useId } from 'react';
 import { cn } from '../../lib/cn';
+import { onRovingKeyDown } from '../../lib/rovingKeys';
 import { SPRING_SNAPPY } from '../../lib/motion';
 import styles from './SegmentedControl.module.css';
 
@@ -24,7 +25,12 @@ export function SegmentedControl<T extends string>({ options, value, onChange, l
   const thumbId = useId();
 
   return (
-    <div role="radiogroup" aria-label={label} className={styles.root}>
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={styles.root}
+      onKeyDown={(event) => onRovingKeyDown(event, options.map((option) => option.value), value, onChange)}
+    >
       {options.map((option) => {
         const Icon = option.icon;
         const isActive = option.value === value;
@@ -35,6 +41,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, l
             type="button"
             role="radio"
             aria-checked={isActive}
+            tabIndex={isActive ? 0 : -1}
             className={cn(styles.item, isActive && styles.active)}
             onClick={() => onChange(option.value)}
           >

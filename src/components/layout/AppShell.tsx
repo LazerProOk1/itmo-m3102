@@ -6,7 +6,7 @@ import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
 import { useApplyAppearance } from '../../features/settings/appearance';
 import { useApplyTheme } from '../../features/settings/theme';
-import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
+import { usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
 import { RadioCapsule } from '../radio/RadioCapsule';
 import { MobileNav } from './MobileNav';
@@ -32,6 +32,10 @@ export function AppShell() {
 
   return (
     <div className={styles.shell}>
+      {/* Кнопка, а не ссылка #main: адрес после # занят роутером */}
+      <button type="button" className="skip-link" onClick={() => document.getElementById('main')?.focus()}>
+        Перейти к содержимому
+      </button>
       {/* Слой сияния за страницей (styles/aurora.css), выключается в настройках оформления */}
       <div className="aurora" aria-hidden>
         <i />
@@ -42,7 +46,7 @@ export function AppShell() {
 
       <div className={styles.column}>
         <TopBar onOpenSearch={openSearch} />
-        <main className={styles.content}>
+        <main id="main" tabIndex={-1} className={styles.content}>
           {/*
            * Нарочно без AnimatePresence/exit-анимации ухода: <Outlet/> — общий на всё
            * приложение компонент, подписанный на роутер-контекст. Если "замороженную"
@@ -54,8 +58,8 @@ export function AppShell() {
            */}
           <motion.div
             key={location.pathname}
-            initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0, transition: SPRING_SMOOTH }}
+            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
           >
             <Outlet />
           </motion.div>

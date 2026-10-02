@@ -4,14 +4,17 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-16) var(--space-6);
-  border: 1px solid var(--color-border);
+  border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-lg);
+  /* Мягкий свет сверху — «здесь появится», а не «ничего нет» */
+  background: radial-gradient(ellipse 60% 70% at 50% 0%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 70%);
   text-align: center;
 }
 
 .compact {
   padding: var(--space-8) var(--space-4);
   border: 0;
+  background: none;
 }
 
 .icon {
@@ -20,10 +23,28 @@
   width: 40px;
   height: 40px;
   margin-bottom: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, var(--color-border));
   border-radius: var(--radius-lg);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-muted);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+  box-shadow: 0 6px 18px -10px var(--color-accent);
+  animation: empty-float 4s ease-in-out infinite;
+}
+
+@keyframes empty-float {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.mascot {
+  margin-bottom: var(--space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    animation: none;
+  }
 }
 
 .compact .icon {

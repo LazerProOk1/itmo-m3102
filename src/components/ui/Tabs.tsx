@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useId } from 'react';
 import { cn } from '../../lib/cn';
+import { onRovingKeyDown } from '../../lib/rovingKeys';
 import { SPRING_SNAPPY } from '../../lib/motion';
 import styles from './Tabs.module.css';
 
@@ -25,7 +26,12 @@ export function Tabs<T extends string>({ items, value, onChange, label, classNam
   const indicatorId = useId();
 
   return (
-    <div role="tablist" aria-label={label} className={cn(styles.list, className)}>
+    <div
+      role="tablist"
+      aria-label={label}
+      className={cn(styles.list, className)}
+      onKeyDown={(event) => onRovingKeyDown(event, items.map((item) => item.value), value, onChange)}
+    >
       {items.map((item) => {
         const isActive = item.value === value;
 
@@ -35,6 +41,7 @@ export function Tabs<T extends string>({ items, value, onChange, label, classNam
             type="button"
             role="tab"
             aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
             className={cn(styles.tab, isActive && styles.active)}
             onClick={() => onChange(item.value)}
           >

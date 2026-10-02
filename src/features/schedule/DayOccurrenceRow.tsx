@@ -1,3 +1,4 @@
+import { minutesBetween } from '../../lib/dates';
 import { AnimatePresence } from 'framer-motion';
 import { useRef, useState, type CSSProperties } from 'react';
 import { ListItem } from '../../components/ui/List';
@@ -42,7 +43,13 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
       className={styles.row}
       highlighted={isNow}
       muted={isCancelled}
-      style={{ '--type-color': classTypeColorVar(details.type) } as CSSProperties}
+      style={
+        {
+          '--type-color': classTypeColorVar(details.type),
+          // Идущая пара: сколько уже прошло — полоска внизу строки
+          ...(isNow && { '--progress': `${Math.round((minutesBetween(details.startTime, time) / minutesBetween(details.startTime, details.endTime)) * 100)}%` }),
+        } as CSSProperties
+      }
       leading={
         <span className={cn(styles.time, isNow && styles.timeNow)}>
           {details.startTime}
