@@ -1,6 +1,6 @@
 import { ExternalLink, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, type BadgeTone } from '../../components/ui/Badge';
+import { Badge } from '../../components/ui/Badge';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -9,6 +9,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { cn } from '../../lib/cn';
 import { GROUP_REPO, githubError, githubFetch, repoEditUrl } from '../../services/github';
 import { useGroupStore, type GroupDeadline } from '../group/groupStore';
+import { deadlineInfo, orderDeadlines } from './deadlineInfo';
 import { useEditMode } from '../settings/EditModeContext';
 import styles from './DeadlinesPage.module.css';
 
@@ -45,12 +46,6 @@ export function joinQueueUrl(deadlineId: string, name: string): string {
   return `https://github.com/${owner}/${repo}/issues/new?title=${encodeURIComponent(`[${deadlineId}] ${name}`)}`;
 }
 
-export function deadlineBadge(iso: string, now = Date.now()): { tone: BadgeTone; label: string } {
-  const hours = (new Date(iso).getTime() - now) / 3_600_000;
-  if (hours <= 0) return { tone: 'danger', label: 'дедлайн прошёл' };
-  if (hours < 24) return { tone: 'danger', label: 'меньше суток' };
-  return { tone: hours < 72 ? 'warning' : 'success', label: `через ${Math.ceil(hours / 24)} дн.` };
-}
 
 const formatFull = (iso: string) =>
   new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -122,7 +117,7 @@ export function DeadlinesPage() {
             </strong>
           </div>
           <div className={`${styles.grid} stagger`}>
-            {deadlines.map((item, index) => (
+            {orderDeadlines(deadlines, doneMap).map((item, index) => (
               <DeadlineCard
                 key={item.id}
                 item={item}
@@ -152,7 +147,7 @@ interface DeadlineCardProps {
 function DeadlineCard({ item, index, done, queue, queueError, onJoined }: DeadlineCardProps) {
   const toggleDone = useGroupStore((state) => state.toggleDeadlineDone);
   const [name, setName] = useState('');
-  const badge = deadlineBadge(item.deadline);
+  const badge = deadlineInfo(item.deadline);
 
   function join() {
     if (!name.trim()) return;

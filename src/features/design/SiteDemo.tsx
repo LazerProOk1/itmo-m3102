@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Badge } from '../../components/ui/Badge';
 import { Section } from '../../components/ui/Section';
-import { deadlineBadge } from '../deadlines/DeadlinesPage';
+import { deadlineInfo } from '../deadlines/deadlineInfo';
 import { LinkCards } from '../group/LinksPage';
 import { classTypeColorVar, CLASS_TYPE_LABELS } from '../schedule/labels';
 import type { ClassOccurrence } from '../schedule/occurrences';
@@ -19,7 +19,7 @@ const occurrence = (subjectId: string, type: ClassType, startTime: string, endTi
 
 const HOUR = 3_600_000;
 const NOW = Date.parse('2026-10-01T12:00:00+03:00');
-const DEADLINES = [-1, 5, 40, 24 * 9].map((hours) => deadlineBadge(new Date(NOW + hours * HOUR).toISOString(), NOW));
+const DEADLINES = [-1, 5, 40, 24 * 9].map((hours) => deadlineInfo(new Date(NOW + hours * HOUR).toISOString(), NOW));
 
 const LINKS = [
   { title: 'Yonote по алгоритмам', description: 'Общие материалы курса', url: 'https://dm-aisd.yonote.ru', group: 'Демо', subject: 'Алгоритмы и структуры данных', kind: '' },
@@ -46,7 +46,7 @@ export function SiteDemo() {
           ))}
         </div>
       </Demo>
-      <Demo label="Срок дедлайна · прошёл, меньше суток, скоро, есть время">
+      <Demo label="Срок дедлайна · по календарным дням: просрочен, сегодня, скоро, есть время">
         {DEADLINES.map((badge) => (
           <Badge key={badge.label} tone={badge.tone}>
             {badge.label}

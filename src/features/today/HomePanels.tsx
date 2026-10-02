@@ -12,6 +12,7 @@ import { daysBetween, formatShortDate } from '../../lib/dates';
 import type { ISODate } from '../../types/models';
 import { filePath } from '../group/RepoFilePage';
 import { useGroupStore, type GroupDeadline } from '../group/groupStore';
+import { deadlineInfo, orderDeadlines } from '../deadlines/deadlineInfo';
 import { HomeworkCard } from '../homework/HomeworkCard';
 import { useHomeworkStore } from '../homework/homeworkStore';
 import { useLectureNotesStore } from '../materials/lectureNotesStore';
@@ -27,11 +28,6 @@ function SectionLink({ to, children }: { to: string; children: string }) {
   );
 }
 
-function deadlineStatus(iso: string): string {
-  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
-  return days < 0 ? 'Просрочен' : days === 0 ? 'Сегодня' : days === 1 ? 'Завтра' : `Через ${days} дн.`;
-}
-
 const dayMonth = (iso: string) => new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 
 function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
@@ -44,7 +40,7 @@ function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
         <strong>{item.name}</strong>
         <small>{item.note || 'Общий дедлайн'}</small>
       </span>
-      {!done && <span className={styles.status}>{deadlineStatus(item.deadline)}</span>}
+      {!done && <span className={styles.status}>{deadlineInfo(item.deadline).label}</span>}
     </label>
   );
 }
@@ -53,7 +49,8 @@ function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
 export function DeadlinesPanel() {
   const deadlines = useGroupStore((state) => state.deadlines);
   const done = useGroupStore((state) => state.deadlinesDone);
-  const active = deadlines.filter((item) => !done[item.id]);
+  // Ближайшие впереди, просроченные — после них (как на сайте группы)
+  const active = orderDeadlines(deadlines, done).filter((item) => !done[item.id]);
   const completed = deadlines.filter((item) => done[item.id]);
 
   return (
