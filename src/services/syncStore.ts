@@ -3,6 +3,8 @@ import { autoSyncGithubContent, syncGithubContent, type SyncSummary } from './gi
 
 type SyncStatus = 'idle' | 'syncing' | 'done' | 'error';
 
+const OFFLINE = 'Нет интернета — показаны сохранённые данные. Синхронизируемся, когда сеть вернётся.';
+
 interface SyncStore {
   status: SyncStatus;
   /** Итог последней синхронизации или текст ошибки */
@@ -17,13 +19,20 @@ interface SyncStore {
 /** Общее состояние синхронизации — его видят кнопка в шапке, «Настройки» и вкладка «Конспекты» */
 export const useSyncStore = create<SyncStore>()((set, get) => {
   async function track(task: () => Promise<SyncSummary | void>) {
+    // Статус ставится до первого await — второй вызов (StrictMode, кнопка + автосинхронизация) ничего не делает
     if (get().status === 'syncing') return;
+    if (!navigator.onLine) {
+      set({ status: 'error', error: OFFLINE });
+      return;
+    }
     set({ status: 'syncing', error: '' });
     try {
       const summary = await task();
       set((state) => ({ status: 'done', summary: summary ?? state.summary }));
     } catch (error) {
-      set({ status: 'error', error: error instanceof Error ? error.message : 'Не удалось синхронизироваться с GitHub.' });
+      // fetch без сети бросает TypeError «Failed to fetch» — человеку это ничего не говорит
+      const message = error instanceof TypeError || !navigator.onLine ? OFFLINE : error instanceof Error ? error.message : 'Не удалось синхронизироваться с GitHub.';
+      set({ status: 'error', error: message });
     }
   }
 

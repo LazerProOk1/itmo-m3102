@@ -53,8 +53,20 @@ export function githubFetch(url: string, init: RequestInit = {}): Promise<Respon
   });
 }
 
-/** write — запись (публикация): там 403 — нет прав; при чтении 403/429 — почти всегда лимит запросов */
-export function githubError(status: number, write = false): string {
+/** Когда сбросится лимит GitHub API — «14:05», если ответ сообщил об исчерпанном лимите */
+export function rateLimitReset(response: Response): string | undefined {
+  if (response.headers.get('x-ratelimit-remaining') !== '0') return undefined;
+  const reset = Number(response.headers.get('x-ratelimit-reset'));
+  return reset ? new Date(reset * 1000).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : undefined;
+}
+
+/**
+ * Текст ошибки GitHub. write — запись (публикация): там 403 — нет прав; при чтении 403/429 — почти всегда
+ * лимит запросов. Передайте сам ответ — тогда в тексте будет время, когда лимит обновится.
+ */
+export function githubError(status: number, write = false, response?: Response): string {
+  const reset = response && rateLimitReset(response);
+  if (reset) return `Лимит запросов к GitHub исчерпан (60 в час без токена) — обновится в ${reset}. Пока показаны сохранённые данные.`;
   if (status === 401) return 'Токен неверен или срок его действия истёк.';
   if ((status === 403 || status === 429) && write) return 'Нет прав на запись в репозиторий группы или достигнут лимит GitHub API.';
   if (status === 403 || status === 429) return 'Превышен лимит запросов к GitHub API (60 в час без токена). Подождите немного и обновите.';
@@ -81,7 +93,7 @@ const contentsUrl = (path: string) => `${API_BASE}/contents/${encodeRepoPath(pat
 export async function readRepoFile(path: string): Promise<{ sha: string; text: string } | null> {
   const response = await githubFetch(`${contentsUrl(path)}?ref=${GROUP_REPO.branch}`);
   if (response.status === 404) return null;
-  if (!response.ok) throw new Error(githubError(response.status));
+  if (!response.ok) throw new Error(githubError(response.status, false, response));
   const file = (await response.json()) as { sha: string; content?: string };
   return { sha: file.sha, text: file.content ? base64Utf8(file.content) : '' };
 }
@@ -93,7 +105,7 @@ export async function writeRepoFileBase64(path: string, base64: string, message:
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, content: base64, branch: GROUP_REPO.branch, ...(sha ? { sha } : {}) }),
   });
-  if (!response.ok) throw new Error(githubError(response.status, true));
+  if (!response.ok) throw new Error(githubError(response.status, true, response));
 }
 
 export const writeRepoFile = (path: string, text: string, message: string, sha?: string) =>
@@ -106,5 +118,5 @@ export async function deleteRepoFile(path: string, message: string, sha: string)
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, sha, branch: GROUP_REPO.branch }),
   });
-  if (!response.ok) throw new Error(githubError(response.status, true));
+  if (!response.ok) throw new Error(githubError(response.status, true, response));
 }

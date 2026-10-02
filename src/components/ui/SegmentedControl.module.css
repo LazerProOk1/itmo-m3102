@@ -1,9 +1,22 @@
 .root {
   display: inline-flex;
+  /* Не помещается (телефон, много вариантов) — листается вбок пальцем, а не обрезается */
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
   gap: var(--space-0-5);
   padding: var(--space-0-5);
   border-radius: var(--radius-md);
   background: var(--color-control-track);
+}
+
+.root::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex-shrink: 0;
 }
 
 .item {
