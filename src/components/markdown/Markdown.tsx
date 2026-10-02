@@ -12,6 +12,7 @@ import { convertWikiLinks } from '../../lib/wikiLinks';
 import { WikiLinkAnchor } from '../../features/materials/WikiLink';
 import { DIAGRAM_LANGUAGES, DiagramBlock, isDiagramLanguage } from '../diagrams/DiagramBlock';
 import { Quiz } from '../quiz/Quiz';
+import { quizPageToMarkdown } from '../quiz/parseQuiz';
 import { MermaidBlock } from './MermaidBlock';
 import styles from './Markdown.module.css';
 
@@ -39,7 +40,11 @@ const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
  * повторялся при каждой перерисовке читалки (оглавление отмечает раздел при прокрутке) — и прокрутка дёргалась.
  */
 export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
-  const withWikiLinks = useMemo(() => convertWikiLinks(normalizeMath(convertContainerCallouts(content))), [content]);
+  // Файл-тест (mode: quiz) распознаётся и здесь: в браузере могла остаться копия с синхронизации до появления тестов
+  const withWikiLinks = useMemo(
+    () => convertWikiLinks(normalizeMath(convertContainerCallouts(quizPageToMarkdown(content)))),
+    [content],
+  );
 
   return (
     <div className={cn(styles.markdown, className)}>
