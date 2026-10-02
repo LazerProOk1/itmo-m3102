@@ -53,9 +53,11 @@ export function githubFetch(url: string, init: RequestInit = {}): Promise<Respon
   });
 }
 
-export function githubError(status: number): string {
+/** write — запись (публикация): там 403 — нет прав; при чтении 403/429 — почти всегда лимит запросов */
+export function githubError(status: number, write = false): string {
   if (status === 401) return 'Токен неверен или срок его действия истёк.';
-  if (status === 403 || status === 429) return 'Нет прав на запись или достигнут лимит GitHub API (60 запросов в час без токена).';
+  if ((status === 403 || status === 429) && write) return 'Нет прав на запись в репозиторий группы или достигнут лимит GitHub API.';
+  if (status === 403 || status === 429) return 'Превышен лимит запросов к GitHub API (60 в час без токена). Подождите немного и обновите.';
   if (status === 404) return 'Репозиторий, ветка или файл недоступны.';
   if (status === 409 || status === 422) return 'Файл изменился на GitHub. Загрузите свежую версию и повторите попытку.';
   return `GitHub ответил с ошибкой ${status}.`;
@@ -91,7 +93,7 @@ export async function writeRepoFileBase64(path: string, base64: string, message:
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, content: base64, branch: GROUP_REPO.branch, ...(sha ? { sha } : {}) }),
   });
-  if (!response.ok) throw new Error(githubError(response.status));
+  if (!response.ok) throw new Error(githubError(response.status, true));
 }
 
 export const writeRepoFile = (path: string, text: string, message: string, sha?: string) =>
@@ -104,5 +106,5 @@ export async function deleteRepoFile(path: string, message: string, sha: string)
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, sha, branch: GROUP_REPO.branch }),
   });
-  if (!response.ok) throw new Error(githubError(response.status));
+  if (!response.ok) throw new Error(githubError(response.status, true));
 }
