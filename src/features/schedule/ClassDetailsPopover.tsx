@@ -66,9 +66,7 @@ export function ClassDetailsPopover({ occurrence, onClose, onEdit, anchorRef, al
   }, [onClose]);
 
   const address = [details.room && `Ауд. ${details.room}`, details.building].filter(Boolean).join(', ');
-  const mapUrl = details.building
-    ? `https://yandex.ru/maps/?text=${encodeURIComponent(`Санкт-Петербург, ${details.building}`)}`
-    : undefined;
+  const mapUrl = details.building ? `https://yandex.ru/maps/?text=${encodeURIComponent(`Санкт-Петербург, ${details.building}`)}` : undefined;
   if (!coords) return null;
 
   return createPortal(

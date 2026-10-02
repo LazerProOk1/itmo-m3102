@@ -14,9 +14,7 @@ import styles from './ClassDialog.module.css';
 
 /** Что открыто в окне: новое занятие, еженедельное занятие или разовое */
 export type ClassDialogTarget =
-  | { mode: 'create'; date: ISODate }
-  | { mode: 'editClass'; session: ClassSession }
-  | { mode: 'editAdditional'; exception: AdditionalClass };
+  { mode: 'create'; date: ISODate } | { mode: 'editClass'; session: ClassSession } | { mode: 'editAdditional'; exception: AdditionalClass };
 
 const FORM_ID = 'class-form';
 
@@ -58,11 +56,7 @@ export function ClassDialog({ target, onClose }: ClassDialogProps) {
 
   const isEditing = target !== null && target.mode !== 'create';
   const viewSubjectId =
-    target?.mode === 'editClass'
-      ? target.session.subjectId
-      : target?.mode === 'editAdditional'
-        ? target.exception.details.subjectId
-        : undefined;
+    target?.mode === 'editClass' ? target.session.subjectId : target?.mode === 'editAdditional' ? target.exception.details.subjectId : undefined;
   const viewSubjectName = useSubjectName(viewSubjectId);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 

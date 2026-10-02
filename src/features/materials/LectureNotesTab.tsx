@@ -122,11 +122,7 @@ export function LectureNotesTab() {
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState
-          icon={NotebookText}
-          title="Пока нет конспектов"
-          description="Нажмите «Синхронизировать» или добавьте конспект вручную."
-        />
+        <EmptyState icon={NotebookText} title="Пока нет конспектов" description="Нажмите «Синхронизировать» или добавьте конспект вручную." />
       ) : (
         <List>
           {sorted.map((note) => (
@@ -153,11 +149,7 @@ function CollectionPicker({ notes, onSelect }: CollectionPickerProps) {
   const run = useSyncStore((state) => state.run);
   const syncing = status === 'syncing';
   const message =
-    status === 'error'
-      ? error
-      : status === 'done' && summary
-        ? `Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}`
-        : '';
+    status === 'error' ? error : status === 'done' && summary ? `Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}` : '';
 
   return (
     <>

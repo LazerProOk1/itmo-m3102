@@ -217,7 +217,10 @@ function NodeShapeView({ node }: { node: GraphNode }) {
     case 'db':
       return (
         <g>
-          <path className={styles.node} d={`M${x - w / 2},${y - h / 2 + 6} v${h - 12} a${w / 2},6 0 0 0 ${w},0 v${-(h - 12)} a${w / 2},6 0 0 0 ${-w},0 z`} />
+          <path
+            className={styles.node}
+            d={`M${x - w / 2},${y - h / 2 + 6} v${h - 12} a${w / 2},6 0 0 0 ${w},0 v${-(h - 12)} a${w / 2},6 0 0 0 ${-w},0 z`}
+          />
           <ellipse className={styles.node} cx={x} cy={y - h / 2 + 6} rx={w / 2} ry={6} />
         </g>
       );

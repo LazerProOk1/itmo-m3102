@@ -24,8 +24,7 @@ export function parseCustomAccent(accent: string): { hue: number; chroma: number
 }
 
 export const accentColor = (accent: string) =>
-  ACCENTS.find((item) => item.id === accent)?.color ??
-  (/^#[0-9a-f]{6}$/i.test(accent) || parseCustomAccent(accent) ? accent : ACCENTS[0].color);
+  ACCENTS.find((item) => item.id === accent)?.color ?? (/^#[0-9a-f]{6}$/i.test(accent) || parseCustomAccent(accent) ? accent : ACCENTS[0].color);
 
 /**
  * Оформление на <html>: --accent-base (из него в tokens.css считаются все оттенки акцента),

@@ -23,12 +23,7 @@ export function MobileNav() {
         const isActive = tab === activeTab;
 
         return (
-          <Link
-            key={tab.path}
-            to={tab.path}
-            className={cn(styles.tab, isActive && styles.active)}
-            aria-current={isActive ? 'page' : undefined}
-          >
+          <Link key={tab.path} to={tab.path} className={cn(styles.tab, isActive && styles.active)} aria-current={isActive ? 'page' : undefined}>
             {isActive && <motion.span layoutId="mobile-tab-active" className={styles.pill} transition={SPRING_SNAPPY} />}
             <motion.span className={styles.iconWrap} animate={{ y: isActive ? -1 : 0, scale: isActive ? 1.08 : 1 }} transition={SPRING_SNAPPY}>
               <Icon size={20} strokeWidth={1.75} aria-hidden />

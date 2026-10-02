@@ -37,7 +37,11 @@ export function TokenFields({ value, onChange }: TokenFieldsProps) {
         />
       </Field>
       <div className={styles.tokenRow}>
-        <Checkbox label="Запомнить на этом устройстве" checked={value.remember} onChange={(event) => onChange({ ...value, remember: event.target.checked })} />
+        <Checkbox
+          label="Запомнить на этом устройстве"
+          checked={value.remember}
+          onChange={(event) => onChange({ ...value, remember: event.target.checked })}
+        />
         <a href={PAT_URL} target="_blank" rel="noopener noreferrer">
           Создать токен ↗
         </a>

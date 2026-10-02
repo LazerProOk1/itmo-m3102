@@ -84,12 +84,7 @@ export function TaskRow({ task, today, onEdit }: TaskRowProps) {
             {task.deadline && <span className={cn(styles.due, isOverdue && styles.overdue)}>{formatDayLabel(task.deadline, today)}</span>}
             <DropdownMenu align="end" trigger={(props) => <IconButton icon={Ellipsis} label="Действия с задачей" size="sm" {...props} />}>
               {STATUS_ORDER.map((status) => (
-                <DropdownItem
-                  key={status}
-                  icon={STATUSES[status].icon}
-                  checked={task.status === status}
-                  onSelect={() => setStatus(task.id, status)}
-                >
+                <DropdownItem key={status} icon={STATUSES[status].icon} checked={task.status === status} onSelect={() => setStatus(task.id, status)}>
                   {STATUSES[status].label}
                 </DropdownItem>
               ))}

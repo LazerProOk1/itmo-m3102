@@ -21,9 +21,7 @@ function getActiveOccurrences(date: ISODate, data: ScheduleData): ClassOccurrenc
 export function getClassStatus(data: ScheduleData, today: ISODate, time: string): ClassStatus {
   const todayOccurrences = getActiveOccurrences(today, data);
 
-  const current = todayOccurrences.find(
-    (occurrence) => occurrence.details.startTime <= time && time < occurrence.details.endTime,
-  );
+  const current = todayOccurrences.find((occurrence) => occurrence.details.startTime <= time && time < occurrence.details.endTime);
   if (current) {
     return { kind: 'now', occurrence: current, minutesLeft: minutesBetween(time, current.details.endTime) };
   }

@@ -46,7 +46,6 @@ export function joinQueueUrl(deadlineId: string, name: string): string {
   return `https://github.com/${owner}/${repo}/issues/new?title=${encodeURIComponent(`[${deadlineId}] ${name}`)}`;
 }
 
-
 const formatFull = (iso: string) =>
   new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -92,12 +91,7 @@ export function DeadlinesPage() {
               Обновить
             </Button>
             {isEditMode && (
-              <a
-                className={buttonClass('secondary', 'md')}
-                href={repoEditUrl('Дедлайны/deadlines.json')}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a className={buttonClass('secondary', 'md')} href={repoEditUrl('Дедлайны/deadlines.json')} target="_blank" rel="noopener noreferrer">
                 <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
                 Изменить сроки
               </a>
@@ -190,12 +184,7 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
           join();
         }}
       >
-        <Input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Ваше имя"
-          aria-label={`Имя для очереди «${item.name}»`}
-        />
+        <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ваше имя" aria-label={`Имя для очереди «${item.name}»`} />
         <Button type="submit" variant="primary" disabled={!name.trim()}>
           В очередь ↗
         </Button>

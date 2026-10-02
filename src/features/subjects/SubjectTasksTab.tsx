@@ -22,11 +22,7 @@ export function SubjectTasksTab({ tasks, today, onAdd, onEdit }: SubjectTasksTab
     <>
       <TabToolbar label={pluralize(tasks.length, ['задача', 'задачи', 'задач'])} addLabel="Добавить задачу" onAdd={onAdd} personal />
       {sorted.length === 0 ? (
-        <EmptyState
-          icon={SquareCheck}
-          title="Пока нет задач"
-          description="Здесь появятся задачи этого предмета."
-        />
+        <EmptyState icon={SquareCheck} title="Пока нет задач" description="Здесь появятся задачи этого предмета." />
       ) : (
         <List>
           {sorted.map((task) => (

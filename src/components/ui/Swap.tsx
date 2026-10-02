@@ -24,7 +24,17 @@ export function useDirection(order: number): number {
  * Смена содержимого с «перелистыванием»: при новом `id` старое уезжает, новое приезжает с той стороны,
  * куда идёт пользователь (direction: 1 — вперёд/вправо, −1 — назад/влево).
  */
-export function Swap({ id, direction = 0, children, className }: { id: string | number; direction?: number; children: ReactNode; className?: string }) {
+export function Swap({
+  id,
+  direction = 0,
+  children,
+  className,
+}: {
+  id: string | number;
+  direction?: number;
+  children: ReactNode;
+  className?: string;
+}) {
   const reduceMotion = usePrefersReducedMotion();
   if (reduceMotion) return <div className={className}>{children}</div>;
 

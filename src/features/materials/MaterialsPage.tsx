@@ -27,13 +27,7 @@ export function MaterialsPage() {
   return (
     <>
       <PageHeader title="Материалы" />
-      <Tabs
-        label="Раздел материалов"
-        items={SECTION_TABS}
-        value={section}
-        onChange={setSection}
-        className={styles.sectionTabs}
-      />
+      <Tabs label="Раздел материалов" items={SECTION_TABS} value={section} onChange={setSection} className={styles.sectionTabs} />
       <div role="tabpanel">
         <Swap id={section} direction={direction}>
           {section === 'notes' && <LectureNotesTab />}

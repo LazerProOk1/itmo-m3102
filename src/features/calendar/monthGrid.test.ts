@@ -37,7 +37,7 @@ describe('chunkIntoWeeks', () => {
     const weeks = chunkIntoWeeks(getMonthGridDates('2026-09-15'));
     expect(weeks).toHaveLength(6);
     expect(weeks.every((week) => week.length === 7)).toBe(true);
-    expect(weeks[0][0]).toBe('2026-08-31');
-    expect(weeks[5][6]).toBe('2026-10-11');
+    expect(weeks[0]![0]).toBe('2026-08-31');
+    expect(weeks[5]![6]).toBe('2026-10-11');
   });
 });

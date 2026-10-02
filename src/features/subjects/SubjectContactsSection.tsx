@@ -27,11 +27,7 @@ export function SubjectContactsSection({ contacts, telegramChatUrl }: SubjectCon
               trailing={
                 <>
                   {contact.email && (
-                    <a
-                      className={styles.contactLink}
-                      href={`mailto:${contact.email}`}
-                      aria-label={`Написать на почту: ${contact.teacherName}`}
-                    >
+                    <a className={styles.contactLink} href={`mailto:${contact.email}`} aria-label={`Написать на почту: ${contact.teacherName}`}>
                       <Mail size={13} strokeWidth={1.75} aria-hidden />
                     </a>
                   )}

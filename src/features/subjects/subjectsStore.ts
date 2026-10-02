@@ -30,9 +30,7 @@ export const useSubjectsStore = create<SubjectsStore>()(
       addSubject: (draft) => set((state) => ({ subjects: [...state.subjects, createEntity({ ...draft, archived: false })] })),
       updateSubject: (id, draft) =>
         set((state) => ({
-          subjects: state.subjects.map((subject) =>
-            subject.id === id ? replaceEntity(subject, draft, { archived: subject.archived }) : subject,
-          ),
+          subjects: state.subjects.map((subject) => (subject.id === id ? replaceEntity(subject, draft, { archived: subject.archived }) : subject)),
         })),
       deleteSubject: (id) => set((state) => ({ subjects: state.subjects.filter((subject) => subject.id !== id) })),
     }),
@@ -51,9 +49,7 @@ export const useSubjectsStore = create<SubjectsStore>()(
 
 /** Название предмета по id. Компонент перерисуется, если название изменится. Для случаев, где предмет обязателен. */
 export function useSubjectName(id: ID | undefined): string {
-  return useSubjectsStore(
-    (state) => state.subjects.find((subject) => subject.id === id)?.name ?? 'Неизвестный предмет',
-  );
+  return useSubjectsStore((state) => state.subjects.find((subject) => subject.id === id)?.name ?? 'Неизвестный предмет');
 }
 
 /**

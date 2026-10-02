@@ -22,8 +22,7 @@ export const useNotesStore = create<NotesStore>()(
     (set) => ({
       notes: [],
       addNote: (draft) => set((state) => ({ notes: [createEntity(draft), ...state.notes] })),
-      updateNote: (id, draft) =>
-        set((state) => ({ notes: state.notes.map((note) => (note.id === id ? replaceEntity(note, draft) : note)) })),
+      updateNote: (id, draft) => set((state) => ({ notes: state.notes.map((note) => (note.id === id ? replaceEntity(note, draft) : note)) })),
       deleteNote: (id) => set((state) => ({ notes: state.notes.filter((note) => note.id !== id) })),
     }),
     { name: storageKey('notes') },

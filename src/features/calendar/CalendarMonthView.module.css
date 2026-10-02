@@ -3,7 +3,9 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--color-bg);
-  box-shadow: 0 0 0 1px var(--color-border), 0 12px 32px -20px rgb(0 0 0 / 0.35);
+  box-shadow:
+    0 0 0 1px var(--color-border),
+    0 12px 32px -20px rgb(0 0 0 / 0.35);
 }
 
 .weekdayRow {

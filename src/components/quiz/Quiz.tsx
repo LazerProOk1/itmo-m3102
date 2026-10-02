@@ -110,7 +110,14 @@ function QuizRunner({ data, full }: { data: QuizData; full: boolean }) {
       <Swap id={`${phase}-${round}-${pos}`} direction={1}>
         {phase === 'intro' && <Intro data={data} onStart={() => setPhase('question')} />}
         {phase === 'question' && (
-          <QuestionCard key={`${round}-${pos}`} question={data.questions[order[pos]!]!} last={pos + 1 >= total} full={full} onAnswer={answered} onNext={next} />
+          <QuestionCard
+            key={`${round}-${pos}`}
+            question={data.questions[order[pos]!]!}
+            last={pos + 1 >= total}
+            full={full}
+            onAnswer={answered}
+            onNext={next}
+          />
         )}
         {phase === 'result' && <Result results={order.map((index) => Boolean(results[index]))} best={best} onRestart={restart} />}
       </Swap>
@@ -188,7 +195,9 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
     }
     setVerdict({ ok, message: pick(ok ? OK_MESSAGES : BAD_MESSAGES) });
     const anchor =
-      question.type === 'text' ? inputRef.current : optionRefs.current[question.options.findIndex((option, index) => option.ok && selected.includes(index))];
+      question.type === 'text'
+        ? inputRef.current
+        : optionRefs.current[question.options.findIndex((option, index) => option.ok && selected.includes(index))];
     onAnswer(ok, anchor?.getBoundingClientRect());
   }
 
@@ -227,9 +236,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
       animate={verdict ? (verdict.ok ? { scale: [1, 1.015, 1] } : { x: [0, -6, 6, -4, 0] }) : undefined}
       transition={{ duration: 0.4 }}
     >
-      <p className={styles.kind}>
-        {question.type === 'text' ? 'Введите ответ' : single ? 'Выберите один ответ' : 'Выберите все верные ответы'}
-      </p>
+      <p className={styles.kind}>{question.type === 'text' ? 'Введите ответ' : single ? 'Выберите один ответ' : 'Выберите все верные ответы'}</p>
       <Markdown content={question.question} className={styles.question} />
 
       {question.type === 'text' ? (
@@ -352,7 +359,7 @@ function Result({ results, best, onRestart }: { results: boolean[]; best: number
           : ['Стоит перечитать конспект', styles.poor];
 
   useEffect(() => {
-    if (share < 0.8 || !ringRef.current) return;
+    if (share < 0.8 || !ringRef.current) return undefined;
     const rect = ringRef.current.getBoundingClientRect();
     burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 90);
     rain(share === 1 ? 170 : 70);
@@ -362,6 +369,7 @@ function Result({ results, best, onRestart }: { results: boolean[]; best: number
       );
       return () => timers.forEach(clearTimeout);
     }
+    return undefined;
   }, [share]);
 
   return (
@@ -384,9 +392,7 @@ function Result({ results, best, onRestart }: { results: boolean[]; best: number
           {good}/{total}
         </span>
       </div>
-      <p className={styles.resultTitle}>
-        {title}
-      </p>
+      <p className={styles.resultTitle}>{title}</p>
       <p className={styles.resultSub}>
         Верно: {Math.round(share * 100)}%{best >= 2 && ` · лучшая серия: ${best} подряд`}
       </p>

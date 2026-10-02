@@ -81,13 +81,7 @@ export function ControlsDemo() {
         </Demo>
         <Demo label="Выбор и дата">
           <Field label="Предмет" htmlFor="demo-subject" className={styles.field}>
-            <Dropdown
-              id="demo-subject"
-              options={SUBJECT_OPTIONS}
-              placeholder="Без предмета"
-              value={demoSubject}
-              onChange={setDemoSubject}
-            />
+            <Dropdown id="demo-subject" options={SUBJECT_OPTIONS} placeholder="Без предмета" value={demoSubject} onChange={setDemoSubject} />
           </Field>
           <Field label="Срок" htmlFor="demo-date" optional className={styles.field}>
             <Input id="demo-date" type="date" />
@@ -113,24 +107,14 @@ export function ControlsDemo() {
 
       <Section title="Выбор">
         <Demo label="Чекбокс">
-          <Checkbox
-            label="Повторять каждую неделю"
-            checked={isRepeating}
-            onChange={(event) => setRepeating(event.target.checked)}
-          />
+          <Checkbox label="Повторять каждую неделю" checked={isRepeating} onChange={(event) => setRepeating(event.target.checked)} />
           <Checkbox label="Недоступно" disabled />
         </Demo>
         <Demo label="Сегментированный переключатель">
           <SegmentedControl label="Вид календаря" options={VIEW_OPTIONS} value={view} onChange={setView} />
         </Demo>
         <Demo label="Вкладки">
-          <Tabs
-            label="Разделы предмета"
-            items={SUBJECT_TABS}
-            value={subjectTab}
-            onChange={setSubjectTab}
-            className={styles.wide}
-          />
+          <Tabs label="Разделы предмета" items={SUBJECT_TABS} value={subjectTab} onChange={setSubjectTab} className={styles.wide} />
         </Demo>
       </Section>
     </>

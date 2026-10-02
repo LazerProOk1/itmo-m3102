@@ -55,7 +55,12 @@ export function parseDeadlines(raw: unknown): GroupDeadline[] {
   if (!Array.isArray(raw)) throw new Error('Неверный формат deadlines.json');
   return raw
     .filter((item): item is GroupDeadline => Boolean(item?.id && item?.name && Number.isFinite(new Date(item.deadline).getTime())))
-    .map(({ id, name, deadline, note }) => ({ id: String(id), name: String(name), deadline: String(deadline), note: note ? String(note) : undefined }))
+    .map(({ id, name, deadline, note }) => ({
+      id: String(id),
+      name: String(name),
+      deadline: String(deadline),
+      note: note ? String(note) : undefined,
+    }))
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
 }
 

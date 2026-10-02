@@ -25,8 +25,7 @@ export const useEventsStore = create<EventsStore>()(
     (set) => ({
       events: [],
       addEvent: (draft) => set((state) => ({ events: [createEntity(draft), ...state.events] })),
-      updateEvent: (id, draft) =>
-        set((state) => ({ events: state.events.map((event) => (event.id === id ? replaceEntity(event, draft) : event)) })),
+      updateEvent: (id, draft) => set((state) => ({ events: state.events.map((event) => (event.id === id ? replaceEntity(event, draft) : event)) })),
       deleteEvent: (id) => set((state) => ({ events: state.events.filter((event) => event.id !== id) })),
     }),
     { name: storageKey('events') },

@@ -82,12 +82,7 @@ export function ExceptionForm({ id, kind, initialValues, onSubmit, disabled }: E
             />
           </Field>
           <Field label="Тип" htmlFor="exception-type">
-            <Dropdown
-              id="exception-type"
-              value={values.type}
-              options={CLASS_TYPE_OPTIONS}
-              onChange={(value) => update('type', value as ClassType)}
-            />
+            <Dropdown id="exception-type" value={values.type} options={CLASS_TYPE_OPTIONS} onChange={(value) => update('type', value as ClassType)} />
           </Field>
         </FormRow>
       )}
@@ -115,12 +110,7 @@ export function ExceptionForm({ id, kind, initialValues, onSubmit, disabled }: E
 
       <FormRow>
         <Field label="Аудитория" htmlFor="exception-room" optional>
-          <Input
-            id="exception-room"
-            value={values.room}
-            placeholder="например, 1405"
-            onChange={(event) => update('room', event.target.value)}
-          />
+          <Input id="exception-room" value={values.room} placeholder="например, 1405" onChange={(event) => update('room', event.target.value)} />
         </Field>
         <Field
           label={kind === 'replaced' ? 'Преподаватель' : 'Преподаватель (если сменился)'}

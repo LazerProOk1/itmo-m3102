@@ -34,11 +34,9 @@ export const useTasksStore = create<TasksStore>()(
     (set) => ({
       tasks: [],
       addTask: (draft) => set((state) => ({ tasks: [createEntity(draft), ...state.tasks] })),
-      updateTask: (id, draft) =>
-        set((state) => ({ tasks: state.tasks.map((task) => (task.id === id ? replaceEntity(task, draft) : task)) })),
+      updateTask: (id, draft) => set((state) => ({ tasks: state.tasks.map((task) => (task.id === id ? replaceEntity(task, draft) : task)) })),
       deleteTask: (id) => set((state) => ({ tasks: state.tasks.filter((task) => task.id !== id) })),
-      toggleDone: (id) =>
-        set((state) => ({ tasks: patch(state.tasks, id, (task) => ({ status: task.status === 'done' ? 'todo' : 'done' })) })),
+      toggleDone: (id) => set((state) => ({ tasks: patch(state.tasks, id, (task) => ({ status: task.status === 'done' ? 'todo' : 'done' })) })),
       setStatus: (id, status) => set((state) => ({ tasks: patch(state.tasks, id, () => ({ status })) })),
     }),
     { name: storageKey('tasks') },

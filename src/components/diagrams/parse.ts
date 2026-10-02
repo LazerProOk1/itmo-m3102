@@ -23,7 +23,10 @@ export function splitLines(source: string, lang: string): DiagramLines {
   let first = true;
 
   source.split(/\r?\n/).forEach((raw, index) => {
-    const text = raw.replace(/\s+\/\/.*$/, '').replace(/^\s*(#|\/\/).*$/, '').trimEnd();
+    const text = raw
+      .replace(/\s+\/\/.*$/, '')
+      .replace(/^\s*(#|\/\/).*$/, '')
+      .trimEnd();
     if (!text.trim()) return;
     const trimmed = text.trim();
 

@@ -91,12 +91,7 @@ export function OverlaysDemo() {
         >
           <Form id={FORM_ID} onSubmit={handleSubmit}>
             <Field label="Предмет" htmlFor="demo-class-subject">
-              <Dropdown
-                id="demo-class-subject"
-                options={SUBJECT_OPTIONS}
-                value={demoSubject}
-                onChange={setDemoSubject}
-              />
+              <Dropdown id="demo-class-subject" options={SUBJECT_OPTIONS} value={demoSubject} onChange={setDemoSubject} />
             </Field>
             <FormRow>
               <Field label="Начало" htmlFor="demo-class-start">

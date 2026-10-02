@@ -24,12 +24,7 @@ export function UserMenu() {
       <DropdownSeparator />
       <DropdownLabel>Тема</DropdownLabel>
       {THEME_OPTIONS.map((option) => (
-        <DropdownItem
-          key={option.value}
-          icon={option.icon}
-          checked={theme === option.value}
-          onSelect={() => setTheme(option.value)}
-        >
+        <DropdownItem key={option.value} icon={option.icon} checked={theme === option.value} onSelect={() => setTheme(option.value)}>
           {option.label}
         </DropdownItem>
       ))}

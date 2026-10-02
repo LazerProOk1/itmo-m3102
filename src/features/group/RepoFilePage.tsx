@@ -21,7 +21,18 @@ const SUBTITLES: Record<string, string> = {
   Материалы: 'Учебники и вспомогательные материалы',
 };
 
-const EXT_LABELS: Record<string, string> = { pdf: 'PDF', docx: 'DOC', doc: 'DOC', md: 'MD', html: 'WEB', htm: 'WEB', mp3: 'MP3', wav: 'WAV', djvu: 'DJVU', txt: 'TXT' };
+const EXT_LABELS: Record<string, string> = {
+  pdf: 'PDF',
+  docx: 'DOC',
+  doc: 'DOC',
+  md: 'MD',
+  html: 'WEB',
+  htm: 'WEB',
+  mp3: 'MP3',
+  wav: 'WAV',
+  djvu: 'DJVU',
+  txt: 'TXT',
+};
 
 const extension = (name: string) => (name.includes('.') ? name.slice(name.lastIndexOf('.') + 1).toLowerCase() : '');
 
@@ -118,7 +129,10 @@ function FolderView({ files, folder, embedded = false, exclude = [] }: FolderVie
       {!embedded && <Breadcrumbs path={folder} />}
 
       {listing.folders.length === 0 && listing.files.length === 0 ? (
-        <EmptyState title={files.length ? 'Папка пуста' : 'Файлы ещё не загружены'} description={files.length ? undefined : 'Они появятся после синхронизации с GitHub.'} />
+        <EmptyState
+          title={files.length ? 'Папка пуста' : 'Файлы ещё не загружены'}
+          description={files.length ? undefined : 'Они появятся после синхронизации с GitHub.'}
+        />
       ) : (
         <div className={`${styles.grid} stagger`}>
           {listing.folders.map((name) => (

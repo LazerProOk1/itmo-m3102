@@ -179,12 +179,24 @@ export function PdfViewer({ file }: PdfViewerProps) {
         <div className={styles.group}>
           <IconButton icon={ChevronUp} label="Предыдущая страница" size="sm" disabled={current <= 1} onClick={() => scrollToPage(current - 1)} />
           <span className={styles.pageLabel}>{numPages ? `${current} / ${numPages}` : '—'}</span>
-          <IconButton icon={ChevronDown} label="Следующая страница" size="sm" disabled={current >= numPages} onClick={() => scrollToPage(current + 1)} />
+          <IconButton
+            icon={ChevronDown}
+            label="Следующая страница"
+            size="sm"
+            disabled={current >= numPages}
+            onClick={() => scrollToPage(current + 1)}
+          />
         </div>
         <div className={styles.group}>
           <IconButton icon={Minus} label="Уменьшить" size="sm" disabled={zoomIndex === 0} onClick={() => setZoomIndex((index) => index - 1)} />
           <span className={styles.pageLabel}>{Math.round(zoom * 100)}%</span>
-          <IconButton icon={Plus} label="Увеличить" size="sm" disabled={zoomIndex === ZOOM_STEPS.length - 1} onClick={() => setZoomIndex((index) => index + 1)} />
+          <IconButton
+            icon={Plus}
+            label="Увеличить"
+            size="sm"
+            disabled={zoomIndex === ZOOM_STEPS.length - 1}
+            onClick={() => setZoomIndex((index) => index + 1)}
+          />
           <IconButton icon={Maximize2} label="По ширине" size="sm" disabled={zoom === 1} onClick={() => setZoomIndex(ZOOM_STEPS.indexOf(1))} />
           <a className={styles.open} href={file} target="_blank" rel="noopener noreferrer" title="Открыть файл в новой вкладке">
             <ExternalLink size={14} strokeWidth={1.75} aria-hidden />

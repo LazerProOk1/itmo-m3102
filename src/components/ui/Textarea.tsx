@@ -8,11 +8,5 @@ interface TextareaProps extends ComponentProps<'textarea'> {
 
 /** Многострочное поле ввода. */
 export function Textarea({ invalid, className, ...rest }: TextareaProps) {
-  return (
-    <textarea
-      className={cn(styles.control, styles.textarea, className)}
-      aria-invalid={invalid || undefined}
-      {...rest}
-    />
-  );
+  return <textarea className={cn(styles.control, styles.textarea, className)} aria-invalid={invalid || undefined} {...rest} />;
 }

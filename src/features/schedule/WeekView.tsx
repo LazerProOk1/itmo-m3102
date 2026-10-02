@@ -38,13 +38,7 @@ export function WeekView({ days, today, time, onAddDate, onAction }: WeekViewPro
 
             <div className={styles.body}>
               {day.occurrences.map((occurrence) => (
-                <WeekOccurrenceCard
-                  key={occurrence.key}
-                  occurrence={occurrence}
-                  today={today}
-                  time={time}
-                  onAction={onAction}
-                />
+                <WeekOccurrenceCard key={occurrence.key} occurrence={occurrence} today={today} time={time} onAction={onAction} />
               ))}
 
               {isEditMode && (

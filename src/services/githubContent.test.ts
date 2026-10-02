@@ -52,4 +52,3 @@ describe('githubContent', () => {
     expect(stripVaultSections(text)).toBe('> [!info] Курс\n\n---\n\n## 📊 Баллы\n\nтекст');
   });
 });
-

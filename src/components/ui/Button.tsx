@@ -32,16 +32,7 @@ export function buttonClass(variant: ButtonVariant = 'secondary', size: ButtonSi
  * Кнопка с настоящей пружинной физикой нажатия (Framer Motion whileHover/whileTap),
  * а не CSS-transition — приподнимается на hover, мгновенно «проседает» под пальцем.
  */
-export function Button({
-  variant = 'secondary',
-  size = 'md',
-  icon: Icon,
-  disabled,
-  type = 'button',
-  className,
-  children,
-  ...rest
-}: ButtonProps) {
+export function Button({ variant = 'secondary', size = 'md', icon: Icon, disabled, type = 'button', className, children, ...rest }: ButtonProps) {
   const iconSize = size === 'sm' ? 14 : 16;
   const lifts = LIFTS_ON_HOVER.has(variant);
 

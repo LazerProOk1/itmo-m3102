@@ -75,14 +75,7 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction }: WeekOc
       {moveNote && <p className={styles.note}>{moveNote}</p>}
 
       <AnimatePresence>
-        {popoverOpen && (
-          <ClassDetailsPopover
-            occurrence={occurrence}
-            anchorRef={cardRef}
-            onClose={() => setPopoverOpen(false)}
-            onEdit={handleEdit}
-          />
-        )}
+        {popoverOpen && <ClassDetailsPopover occurrence={occurrence} anchorRef={cardRef} onClose={() => setPopoverOpen(false)} onEdit={handleEdit} />}
       </AnimatePresence>
     </motion.div>
   );

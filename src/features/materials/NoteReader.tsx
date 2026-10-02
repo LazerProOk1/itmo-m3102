@@ -158,7 +158,14 @@ export function NoteSidebar({ note, siblings, toc }: NoteSidebarProps) {
 
         {tab === 'lectures' ? (
           <div className={styles.section}>
-            <Input icon={Search} type="search" placeholder="Поиск в предмете" aria-label="Поиск в предмете" value={query} onChange={(event) => setQuery(event.target.value)} />
+            <Input
+              icon={Search}
+              type="search"
+              placeholder="Поиск в предмете"
+              aria-label="Поиск в предмете"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
             {[...groups].map(([lesson, items]) => (
               <div key={lesson} className={styles.lesson}>
                 <p className={styles.lessonName}>{lesson}</p>

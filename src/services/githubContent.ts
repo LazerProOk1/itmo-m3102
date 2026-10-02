@@ -256,7 +256,14 @@ async function buildStreamContent(paths: string[], notes: LectureNote[], info: S
       const lesson = parseStreamFilename(name);
 
       if (lesson) {
-        const fields: NoteFields = { subjectId, lectureNumber: lesson.lectureNumber, title: lesson.title, contentType: 'markdown', content, collection: 'stream' };
+        const fields: NoteFields = {
+          subjectId,
+          lectureNumber: lesson.lectureNumber,
+          title: lesson.title,
+          contentType: 'markdown',
+          content,
+          collection: 'stream',
+        };
         result.notes.push(toNote(path, fields, notes, now, `${lesson.date}T00:00:00.000Z`));
         return;
       }
@@ -322,9 +329,7 @@ function applyGroupSchedule(schedule: GroupSchedule) {
   useScheduleStore.setState((state) => {
     const classes = [...schedule.classes, ...state.classes.filter((item) => !isSynced(item.id))];
     const classIds = new Set(classes.map((item) => item.id));
-    const ownExceptions = state.exceptions.filter(
-      (item) => !isSynced(item.id) && (item.kind === 'additional' || classIds.has(item.classId)),
-    );
+    const ownExceptions = state.exceptions.filter((item) => !isSynced(item.id) && (item.kind === 'additional' || classIds.has(item.classId)));
     return { classes, exceptions: [...schedule.exceptions, ...ownExceptions] };
   });
   useSemesterSettingsStore.getState().updateSemesterSettings({ weekOneStart: schedule.weekOneStart });
@@ -359,7 +364,14 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       ]);
       return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
     }),
-    fetchTree('stream').then((files) => buildStreamContent(files.map((file) => file.path), notesBefore, infoBefore, now)),
+    fetchTree('stream').then((files) =>
+      buildStreamContent(
+        files.map((file) => file.path),
+        notesBefore,
+        infoBefore,
+        now,
+      ),
+    ),
   ]);
 
   const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };

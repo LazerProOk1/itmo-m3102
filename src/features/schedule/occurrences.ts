@@ -51,12 +51,7 @@ export function takesPlace(occurrence: ClassOccurrence): boolean {
 
 /** Идёт ли занятие прямо сейчас */
 export function isHappeningNow(occurrence: ClassOccurrence, today: ISODate, time: string): boolean {
-  return (
-    takesPlace(occurrence) &&
-    occurrence.date === today &&
-    occurrence.details.startTime <= time &&
-    time < occurrence.details.endTime
-  );
+  return takesPlace(occurrence) && occurrence.date === today && occurrence.details.startTime <= time && time < occurrence.details.endTime;
 }
 
 /** Дата, которую меняет исключение. Для перенесённого занятия — исходная, а не новая. */
@@ -132,8 +127,7 @@ export function getOccurrencesForDate(date: ISODate, data: ScheduleData): ClassO
 
 function findException(exceptions: ScheduleException[], classId: ID, date: ISODate): ClassException | undefined {
   return exceptions.find(
-    (exception): exception is ClassException =>
-      exception.kind !== 'additional' && exception.classId === classId && exception.date === date,
+    (exception): exception is ClassException => exception.kind !== 'additional' && exception.classId === classId && exception.date === date,
   );
 }
 

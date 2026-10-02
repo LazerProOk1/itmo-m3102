@@ -62,11 +62,7 @@ export function LinksPage({ embedded = false }: { embedded?: boolean }) {
   return (
     <>
       {!embedded && (
-        <PageHeader
-          title="Полезные ссылки"
-          subtitle="Формы сдачи, чужие конспекты и курсы — всё, что обычно теряется в чатах."
-          actions={addButton}
-        />
+        <PageHeader title="Полезные ссылки" subtitle="Формы сдачи, чужие конспекты и курсы — всё, что обычно теряется в чатах." actions={addButton} />
       )}
       <div className={styles.toolbar}>
         <Input

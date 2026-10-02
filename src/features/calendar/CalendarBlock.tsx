@@ -72,12 +72,7 @@ function ClassBlock({ entry, style, onAction }: ClassBlockProps) {
 
       <AnimatePresence>
         {popoverOpen && (
-          <ClassDetailsPopover
-            occurrence={occurrence}
-            anchorRef={blockRef}
-            onClose={() => setPopoverOpen(false)}
-            onEdit={handleEdit}
-          />
+          <ClassDetailsPopover occurrence={occurrence} anchorRef={blockRef} onClose={() => setPopoverOpen(false)} onEdit={handleEdit} />
         )}
       </AnimatePresence>
     </div>

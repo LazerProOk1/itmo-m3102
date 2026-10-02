@@ -89,12 +89,7 @@ export function ClassForm({ id, initialValues, repeatOptions, onSubmit, disabled
 
       {repeatOptions.length > 0 && (
         <Field label="Повторение" hint="Нечётная/чётная — занятие только по таким неделям.">
-          <SegmentedControl
-            label="Повторение"
-            options={repeatOptions}
-            value={values.repeat}
-            onChange={(value) => update('repeat', value)}
-          />
+          <SegmentedControl label="Повторение" options={repeatOptions} value={values.repeat} onChange={(value) => update('repeat', value)} />
         </Field>
       )}
 
@@ -120,12 +115,7 @@ export function ClassForm({ id, initialValues, repeatOptions, onSubmit, disabled
           </Field>
         )}
         <Field label="Тип" htmlFor="class-type">
-          <Dropdown
-            id="class-type"
-            value={values.type}
-            options={CLASS_TYPE_OPTIONS}
-            onChange={(value) => update('type', value as ClassType)}
-          />
+          <Dropdown id="class-type" value={values.type} options={CLASS_TYPE_OPTIONS} onChange={(value) => update('type', value as ClassType)} />
         </Field>
       </FormRow>
 
@@ -152,12 +142,7 @@ export function ClassForm({ id, initialValues, repeatOptions, onSubmit, disabled
 
       <FormRow>
         <Field label="Аудитория" htmlFor="class-room" optional>
-          <Input
-            id="class-room"
-            value={values.room}
-            placeholder="например, 1405"
-            onChange={(event) => update('room', event.target.value)}
-          />
+          <Input id="class-room" value={values.room} placeholder="например, 1405" onChange={(event) => update('room', event.target.value)} />
         </Field>
         <Field label="Корпус / адрес" htmlFor="class-building" optional>
           <Input

@@ -48,17 +48,9 @@ export function useFloatingPosition(
       const preferredLeft = align === 'end' ? anchorRect.right - contentWidth : anchorRect.left;
       const overflowsRight = preferredLeft + contentWidth > window.innerWidth - GAP;
       const overflowsLeft = preferredLeft < GAP;
-      const left = overflowsRight
-        ? Math.max(GAP, anchorRect.right - contentWidth)
-        : overflowsLeft
-          ? GAP
-          : preferredLeft;
+      const left = overflowsRight ? Math.max(GAP, anchorRect.right - contentWidth) : overflowsLeft ? GAP : preferredLeft;
 
-      setCoords(
-        openUp
-          ? { left, bottom: window.innerHeight - anchorRect.top + GAP }
-          : { left, top: anchorRect.bottom + GAP },
-      );
+      setCoords(openUp ? { left, bottom: window.innerHeight - anchorRect.top + GAP } : { left, top: anchorRect.bottom + GAP });
     }
 
     measure();

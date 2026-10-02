@@ -10,9 +10,7 @@ import { useMaterialsStore } from './materialsStore';
 import styles from './MaterialDialog.module.css';
 
 /** Что открыто в окне: новый материал (можно заранее задать предмет и/или тип) или редактирование существующего */
-export type MaterialDialogTarget =
-  | { mode: 'create'; defaultSubjectId?: ID; defaultType?: MaterialType }
-  | { mode: 'edit'; material: Material };
+export type MaterialDialogTarget = { mode: 'create'; defaultSubjectId?: ID; defaultType?: MaterialType } | { mode: 'edit'; material: Material };
 
 const FORM_ID = 'material-form';
 
@@ -84,14 +82,7 @@ export function MaterialDialog({ target, onClose }: MaterialDialogProps) {
           )
         }
       >
-        {target && (
-          <MaterialForm
-            id={FORM_ID}
-            initialValues={getInitialValues(target)}
-            onSubmit={handleSubmit}
-            disabled={!isEditMode}
-          />
-        )}
+        {target && <MaterialForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} disabled={!isEditMode} />}
       </Modal>
       <ConfirmDeleteModal
         open={confirmingDelete}

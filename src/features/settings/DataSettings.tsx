@@ -179,13 +179,7 @@ export function DataSettings() {
             >
               Импортировать
             </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/json"
-              className={styles.hiddenFileInput}
-              onChange={handleFileSelected}
-            />
+            <input ref={fileInputRef} type="file" accept="application/json" className={styles.hiddenFileInput} onChange={handleFileSelected} />
           </SettingsRow>
 
           {importError && <p className={styles.importError}>{importError}</p>}

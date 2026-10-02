@@ -1,14 +1,5 @@
 import { X } from 'lucide-react';
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type MouseEvent,
-  type PointerEvent,
-  type ReactNode,
-} from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import { IconButton } from './IconButton';
 import styles from './Modal.module.css';
@@ -37,16 +28,7 @@ interface ModalProps {
  * Браузер сам держит фокус внутри окна и закрывает его по Esc.
  * Содержимое создаётся заново при каждом открытии — формы внутри сбрасываются сами.
  */
-export function Modal({
-  open,
-  onClose,
-  title,
-  description,
-  children,
-  footer,
-  size = 'md',
-  bare = false,
-}: ModalProps) {
+export function Modal({ open, onClose, title, description, children, footer, size = 'md', bare = false }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pressedOnBackdrop = useRef(false);
   const titleId = useId();

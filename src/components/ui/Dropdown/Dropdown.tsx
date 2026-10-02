@@ -106,7 +106,12 @@ export function Dropdown({
   function openMenu() {
     if (disabled) return;
     setQuery('');
-    setHighlighted(Math.max(0, options.findIndex((option) => option.value === value)));
+    setHighlighted(
+      Math.max(
+        0,
+        options.findIndex((option) => option.value === value),
+      ),
+    );
     setOpen(true);
   }
 
@@ -143,11 +148,7 @@ export function Dropdown({
 
       // При открытии вверх якорим через bottom, а не top — тогда меню растёт вверх само,
       // и не нужно заранее знать его точную высоту, чтобы не promахнуться мимо триггера.
-      setCoords(
-        openUp
-          ? { left, width, bottom: window.innerHeight - triggerRect.top + GAP }
-          : { left, width, top: triggerRect.bottom + GAP },
-      );
+      setCoords(openUp ? { left, width, bottom: window.innerHeight - triggerRect.top + GAP } : { left, width, top: triggerRect.bottom + GAP });
     }
 
     measure();

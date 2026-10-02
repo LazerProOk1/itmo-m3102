@@ -30,15 +30,9 @@ export function classTypeColorVar(type: ClassType): string {
 }
 
 /** value — номер дня недели: "1" — понедельник … "7" — воскресенье */
-export const WEEKDAY_OPTIONS: DropdownOption[] = [
-  'Понедельник',
-  'Вторник',
-  'Среда',
-  'Четверг',
-  'Пятница',
-  'Суббота',
-  'Воскресенье',
-].map((label, index) => ({ value: String(index + 1), label }));
+export const WEEKDAY_OPTIONS: DropdownOption[] = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'].map(
+  (label, index) => ({ value: String(index + 1), label }),
+);
 
 /** Метки занятий, изменённых исключениями. У обычного занятия метки нет. */
 export const OCCURRENCE_BADGES: Partial<Record<OccurrenceStatus, { label: string; tone: BadgeTone }>> = {
