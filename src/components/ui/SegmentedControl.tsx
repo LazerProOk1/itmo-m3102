@@ -29,7 +29,14 @@ export function SegmentedControl<T extends string>({ options, value, onChange, l
       role="radiogroup"
       aria-label={label}
       className={styles.root}
-      onKeyDown={(event) => onRovingKeyDown(event, options.map((option) => option.value), value, onChange)}
+      onKeyDown={(event) =>
+        onRovingKeyDown(
+          event,
+          options.map((option) => option.value),
+          value,
+          onChange,
+        )
+      }
     >
       {options.map((option) => {
         const Icon = option.icon;
@@ -46,13 +53,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, l
             onClick={() => onChange(option.value)}
           >
             {/* Один и тот же layoutId переезжает с прошлой активной кнопки на новую — отсюда «проезд» вместо телепортации */}
-            {isActive && (
-              <motion.span
-                layoutId={`segmented-thumb-${thumbId}`}
-                className={styles.thumb}
-                transition={SPRING_SNAPPY}
-              />
-            )}
+            {isActive && <motion.span layoutId={`segmented-thumb-${thumbId}`} className={styles.thumb} transition={SPRING_SNAPPY} />}
             <span className={styles.content}>
               {Icon && <Icon size={14} strokeWidth={1.75} aria-hidden />}
               {option.label}

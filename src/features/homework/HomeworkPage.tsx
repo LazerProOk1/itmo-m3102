@@ -52,8 +52,7 @@ export function HomeworkPage() {
   const [copied, setCopied] = useState(false);
 
   // Просроченные — срок прошёл, а «сделано» не отмечено; в «Актуальных» их нет
-  const filterOf = (item: HomeworkItem): Filter =>
-    done[item.id] ? 'done' : item.due !== '' && item.due < today ? 'overdue' : 'active';
+  const filterOf = (item: HomeworkItem): Filter => (done[item.id] ? 'done' : item.due !== '' && item.due < today ? 'overdue' : 'active');
   const visible = items
     .filter((item) => filter === 'all' || filterOf(item) === filter)
     .sort((a, b) => dueOrder(a).localeCompare(dueOrder(b)) || a.subject.localeCompare(b.subject, 'ru'));
@@ -62,8 +61,7 @@ export function HomeworkPage() {
   for (const item of visible) groups.set(item.subject, [...(groups.get(item.subject) ?? []), item]);
   if (showEmpty) for (const subject of subjects) if (!groups.has(subject.name)) groups.set(subject.name, []);
   const ordered = [...groups].sort(
-    ([nameA, a], [nameB, b]) =>
-      (a[0] ? dueOrder(a[0]) : '9999').localeCompare(b[0] ? dueOrder(b[0]) : '9999') || nameA.localeCompare(nameB, 'ru'),
+    ([nameA, a], [nameB, b]) => (a[0] ? dueOrder(a[0]) : '9999').localeCompare(b[0] ? dueOrder(b[0]) : '9999') || nameA.localeCompare(nameB, 'ru'),
   );
 
   function download() {
@@ -143,11 +141,7 @@ export function HomeworkPage() {
           <Button variant="secondary" icon={Download} onClick={download}>
             Скачать JSON
           </Button>
-          <Button
-            variant="secondary"
-            icon={Copy}
-            onClick={() => navigator.clipboard.writeText(serializeHomework(items)).then(() => setCopied(true))}
-          >
+          <Button variant="secondary" icon={Copy} onClick={() => navigator.clipboard.writeText(serializeHomework(items)).then(() => setCopied(true))}>
             {copied ? 'Скопировано' : 'Копировать JSON'}
           </Button>
           <a className={buttonClass('ghost', 'md')} href={repoEditUrl(HOMEWORK_PATH)} target="_blank" rel="noopener noreferrer">
@@ -156,9 +150,7 @@ export function HomeworkPage() {
           </a>
         </div>
       )}
-      {isEditMode && (
-        <p className={styles.hint}>Добавленные задания видны вам сразу. Чтобы их увидела вся группа, сохраните изменения в GitHub.</p>
-      )}
+      {isEditMode && <p className={styles.hint}>Добавленные задания видны вам сразу. Чтобы их увидела вся группа, сохраните изменения в GitHub.</p>}
 
       <PublishHomeworkDialog open={publishing} onClose={() => setPublishing(false)} />
       <ConfirmDeleteModal

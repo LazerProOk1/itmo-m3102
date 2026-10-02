@@ -22,8 +22,22 @@ const NOW = Date.parse('2026-10-01T12:00:00+03:00');
 const DEADLINES = [-1, 5, 40, 24 * 9].map((hours) => deadlineInfo(new Date(NOW + hours * HOUR).toISOString(), NOW));
 
 const LINKS = [
-  { title: 'Yonote по алгоритмам', description: 'Общие материалы курса', url: 'https://dm-aisd.yonote.ru', group: 'Демо', subject: 'Алгоритмы и структуры данных', kind: '' },
-  { title: 'Форма сдачи лабы', description: 'Ссылка из data/links.json', url: 'https://forms.gle/demo', group: 'Демо', subject: 'Основы программирования', kind: '' },
+  {
+    title: 'Yonote по алгоритмам',
+    description: 'Общие материалы курса',
+    url: 'https://dm-aisd.yonote.ru',
+    group: 'Демо',
+    subject: 'Алгоритмы и структуры данных',
+    kind: '',
+  },
+  {
+    title: 'Форма сдачи лабы',
+    description: 'Ссылка из data/links.json',
+    url: 'https://forms.gle/demo',
+    group: 'Демо',
+    subject: 'Основы программирования',
+    kind: '',
+  },
 ];
 
 /** Элементы, из которых собраны страницы группы: главная, расписание, дедлайны, ссылки. */
@@ -34,7 +48,9 @@ export function SiteDemo() {
         <div className={styles.blocks}>
           <NextClassBlock status={{ kind: 'now', occurrence: occurrence('linal', 'practice', '11:30', '13:00', '2430'), minutesLeft: 42 }} />
           <NextClassBlock status={{ kind: 'next', occurrence: occurrence('aisd', 'lecture', '13:30', '15:00', '1404'), minutesUntil: 25 }} />
-          <NextClassBlock status={{ kind: 'finished', next: { occurrence: occurrence('op', 'lab', '09:50', '11:20', '2238'), dayLabel: 'завтра' } }} />
+          <NextClassBlock
+            status={{ kind: 'finished', next: { occurrence: occurrence('op', 'lab', '09:50', '11:20', '2238'), dayLabel: 'завтра' } }}
+          />
         </div>
       </Demo>
       <Demo label="Типы пар · полоска-таблетка у карточек расписания, календаря и главной">

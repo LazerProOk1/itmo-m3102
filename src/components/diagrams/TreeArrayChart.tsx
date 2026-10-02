@@ -42,10 +42,12 @@ export function TreeView({ tree }: { tree: TreeNode }) {
     node.children.forEach((child) => collect(child, depth + 1));
   };
   collect(tree, 0);
-  const sizes = new Map(all.map(({ node }) => {
-    const lines = wrapText(node.label, 24);
-    return [node, { lines, w: Math.max(40, ...lines.map((line) => textWidth(line) + 22)) }];
-  }));
+  const sizes = new Map(
+    all.map(({ node }) => {
+      const lines = wrapText(node.label, 24);
+      return [node, { lines, w: Math.max(40, ...lines.map((line) => textWidth(line) + 22)) }];
+    }),
+  );
   const slot = Math.min(Math.max(...[...sizes.values()].map((size) => size.w)) + 16, 220);
   const rowHeight = Math.max(...[...sizes.values()].map((size) => size.lines.length)) * 15 + 52;
 
@@ -85,9 +87,22 @@ export function TreeView({ tree }: { tree: TreeNode }) {
         const h = item.lines.length * 15 + 12;
         return (
           <g key={index} className={styles.nodeGroup}>
-            <rect className={item.depth === 0 ? styles.nodeAccent : styles.node} x={item.x - item.w / 2} y={y(item.depth) - h / 2} width={item.w} height={h} rx={8} />
+            <rect
+              className={item.depth === 0 ? styles.nodeAccent : styles.node}
+              x={item.x - item.w / 2}
+              y={y(item.depth) - h / 2}
+              width={item.w}
+              height={h}
+              rx={8}
+            />
             {item.lines.map((line, lineIndex) => (
-              <text key={lineIndex} className={styles.nodeText} x={item.x} y={y(item.depth) + (lineIndex - (item.lines.length - 1) / 2) * 15 + 4} textAnchor="middle">
+              <text
+                key={lineIndex}
+                className={styles.nodeText}
+                x={item.x}
+                y={y(item.depth) + (lineIndex - (item.lines.length - 1) / 2) * 15 + 4}
+                textAnchor="middle"
+              >
                 {line}
               </text>
             ))}
@@ -124,7 +139,11 @@ const indices = (text: string) =>
 export function parseArray({ body }: DiagramLines, source: string): ArrayModel {
   const model: ArrayModel = { values: [], highlight: new Set(), sorted: new Set() };
   const codeAt = source.search(/^code:\s*$/m);
-  if (codeAt !== -1) model.code = source.slice(codeAt).replace(/^code:\s*\r?\n/, '').trimEnd();
+  if (codeAt !== -1)
+    model.code = source
+      .slice(codeAt)
+      .replace(/^code:\s*\r?\n/, '')
+      .trimEnd();
 
   for (const { text } of body) {
     if (text === 'code:') break;
@@ -241,7 +260,11 @@ export function ChartView({ model }: { model: ChartModel }) {
           const d = `M${cx},${cy} L${cx + r * Math.cos(start)},${cy + r * Math.sin(start)} A${r},${r} 0 ${large} 1 ${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)} Z`;
           return (
             <g key={index}>
-              <path d={share >= 0.9999 ? `M${cx - r},${cy} a${r},${r} 0 1 0 ${2 * r},0 a${r},${r} 0 1 0 ${-2 * r},0` : d} fill={resolveColor(undefined, index)} className={styles.slice} />
+              <path
+                d={share >= 0.9999 ? `M${cx - r},${cy} a${r},${r} 0 1 0 ${2 * r},0 a${r},${r} 0 1 0 ${-2 * r},0` : d}
+                fill={resolveColor(undefined, index)}
+                className={styles.slice}
+              />
               <rect x={340} y={40 + index * 24} width={12} height={12} rx={3} fill={resolveColor(undefined, index)} />
               <text className={styles.legendText} x={360} y={50 + index * 24}>
                 {row.label} — {Math.round(share * 100)}%
@@ -282,7 +305,18 @@ export function ChartView({ model }: { model: ChartModel }) {
           return model.rows.map((row, index) => {
             const value = row.values[seriesIndex] ?? 0;
             const x = sx(index) - (band * 0.7) / 2 + seriesIndex * barW;
-            return <rect key={`${seriesIndex}-${index}`} className={styles.bar} x={x} y={Math.min(sy(value), sy(0))} width={barW - 2} height={Math.abs(sy(value) - sy(0))} rx={3} fill={color} />;
+            return (
+              <rect
+                key={`${seriesIndex}-${index}`}
+                className={styles.bar}
+                x={x}
+                y={Math.min(sy(value), sy(0))}
+                width={barW - 2}
+                height={Math.abs(sy(value) - sy(0))}
+                rx={3}
+                fill={color}
+              />
+            );
           });
         }
         const points = model.rows.map((row, index) => `${sx(index)},${sy(row.values[seriesIndex] ?? 0)}`);

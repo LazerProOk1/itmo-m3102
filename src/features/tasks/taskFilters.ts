@@ -19,9 +19,7 @@ export function filterTasks(tasks: Task[], tab: TaskTab, today: ISODate): Task[]
     case 'today':
       return tasks.filter((task) => isOpenTask(task) && task.deadline === today);
     case 'week':
-      return tasks.filter(
-        (task) => isOpenTask(task) && task.deadline !== undefined && task.deadline >= today && task.deadline < weekEnd,
-      );
+      return tasks.filter((task) => isOpenTask(task) && task.deadline !== undefined && task.deadline >= today && task.deadline < weekEnd);
     case 'overdue':
       return tasks.filter((task) => isOpenTask(task) && task.deadline !== undefined && task.deadline < today);
     case 'completed':
@@ -33,7 +31,5 @@ export function sortTasks(tasks: Task[], sort: TaskSort): Task[] {
   const byDeadline = (a: Task, b: Task) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999');
   const byPriority = (a: Task, b: Task) => PRIORITIES[a.priority].order - PRIORITIES[b.priority].order;
 
-  return [...tasks].sort((a, b) =>
-    sort === 'priority' ? byPriority(a, b) || byDeadline(a, b) : byDeadline(a, b) || byPriority(a, b),
-  );
+  return [...tasks].sort((a, b) => (sort === 'priority' ? byPriority(a, b) || byDeadline(a, b) : byDeadline(a, b) || byPriority(a, b)));
 }

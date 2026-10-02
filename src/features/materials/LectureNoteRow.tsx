@@ -51,10 +51,7 @@ export function LectureNoteRow({ note, today, onEdit, showSubject = false }: Lec
           <>
             <span className={styles.date}>{formatDayLabel(note.createdAt.slice(0, 10), today)}</span>
             {isEditMode && (
-              <DropdownMenu
-                align="end"
-                trigger={(props) => <IconButton icon={Ellipsis} label="Действия с конспектом" size="sm" {...props} />}
-              >
+              <DropdownMenu align="end" trigger={(props) => <IconButton icon={Ellipsis} label="Действия с конспектом" size="sm" {...props} />}>
                 <DropdownItem icon={Pencil} onSelect={() => onEdit(note)}>
                   Изменить
                 </DropdownItem>

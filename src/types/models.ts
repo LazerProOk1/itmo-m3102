@@ -150,15 +150,7 @@ export interface Task extends BaseEntity {
   links: string[];
 }
 
-export type MaterialType =
-  | 'pdf'
-  | 'document'
-  | 'presentation'
-  | 'image'
-  | 'link'
-  | 'google_drive'
-  | 'google_docs'
-  | 'other';
+export type MaterialType = 'pdf' | 'document' | 'presentation' | 'image' | 'link' | 'google_drive' | 'google_docs' | 'other';
 
 /** Категория материала — независима от MaterialType (PDF может быть и «Литературой», и «Заданием») */
 export type MaterialCategory = 'literature' | 'assignments' | 'presentations' | 'other';

@@ -25,8 +25,7 @@ export function isAllDay(entry: CalendarEntry): boolean {
 
 /** Занятие всегда со временем; событие — только если оно указано при создании (иначе оно «весь день») */
 export type TimedCalendarEntry =
-  | Extract<CalendarEntry, { kind: 'class' }>
-  | (Extract<CalendarEntry, { kind: 'event' }> & { startTime: string; endTime: string });
+  Extract<CalendarEntry, { kind: 'class' }> | (Extract<CalendarEntry, { kind: 'event' }> & { startTime: string; endTime: string });
 
 /** Есть ли у записи конкретное время — тогда ей место на сетке времени, а не в строке «весь день» */
 export function isTimedEntry(entry: CalendarEntry): entry is TimedCalendarEntry {

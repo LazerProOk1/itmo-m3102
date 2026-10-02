@@ -108,8 +108,7 @@ export async function writeRepoFileBase64(path: string, base64: string, message:
   if (!response.ok) throw new Error(githubError(response.status, true, response));
 }
 
-export const writeRepoFile = (path: string, text: string, message: string, sha?: string) =>
-  writeRepoFileBase64(path, utf8Base64(text), message, sha);
+export const writeRepoFile = (path: string, text: string, message: string, sha?: string) => writeRepoFileBase64(path, utf8Base64(text), message, sha);
 
 export async function deleteRepoFile(path: string, message: string, sha: string): Promise<void> {
   if (!getToken()) throw new Error('Для удаления нужен токен.');

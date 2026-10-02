@@ -153,7 +153,13 @@ export function HomeworkDialog() {
           </Button>
         </div>
         <Field label="Ссылки на материалы" htmlFor="hw-links" hint="По одной на строку: название | https://…" optional>
-          <Textarea id="hw-links" rows={3} value={links} placeholder="Листок | https://example.com/file.pdf" onChange={(event) => setLinks(event.target.value)} />
+          <Textarea
+            id="hw-links"
+            rows={3}
+            value={links}
+            placeholder="Листок | https://example.com/file.pdf"
+            onChange={(event) => setLinks(event.target.value)}
+          />
         </Field>
         {error && (
           <p className={styles.error} role="alert">

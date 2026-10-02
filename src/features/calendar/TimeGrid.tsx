@@ -6,14 +6,7 @@ import { useEditMode } from '../settings/EditModeContext';
 import type { Event, ISODate, Task } from '../../types/models';
 import type { OccurrenceAction } from '../schedule/OccurrenceMenuItems';
 import type { ClassOccurrence } from '../schedule/occurrences';
-import {
-  getCalendarEntriesForDate,
-  isAllDay,
-  isTimedEntry,
-  type CalendarData,
-  type CalendarEntry,
-  type TimedCalendarEntry,
-} from './calendarEntries';
+import { getCalendarEntriesForDate, isAllDay, isTimedEntry, type CalendarData, type CalendarEntry, type TimedCalendarEntry } from './calendarEntries';
 import { CalendarBlock } from './CalendarBlock';
 import { CalendarEntryChip } from './CalendarEntryChip';
 import styles from './TimeGrid.module.css';
@@ -114,13 +107,7 @@ export function TimeGrid({ days, today, time, data, onClassAction, onEditTask, o
       {columns.map(({ date, entries }) => (
         <div key={date} className={styles.dayColumn} style={{ height: TOTAL_HEIGHT }}>
           {entries.filter(isTimedEntry).map((entry) => (
-            <CalendarBlock
-              key={entry.key}
-              entry={entry}
-              style={getBlockStyle(entry)}
-              onClassAction={onClassAction}
-              onEditEvent={onEditEvent}
-            />
+            <CalendarBlock key={entry.key} entry={entry} style={getBlockStyle(entry)} onClassAction={onClassAction} onEditEvent={onEditEvent} />
           ))}
           {date === today && showNowLine && <div className={styles.nowLine} style={{ top: nowOffset }} />}
         </div>

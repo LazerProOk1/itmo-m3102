@@ -30,7 +30,14 @@ export function DayView({ days, selectedDate, today, time, onSelectDate, onActio
         className={styles.strip}
         role="tablist"
         aria-label="День недели"
-        onKeyDown={(event) => onRovingKeyDown(event, days.map((day) => day.date), selected?.date ?? days[0]!.date, onSelectDate)}
+        onKeyDown={(event) =>
+          onRovingKeyDown(
+            event,
+            days.map((day) => day.date),
+            selected?.date ?? days[0]!.date,
+            onSelectDate,
+          )
+        }
       >
         {days.map((day) => {
           const isSelected = day.date === selected?.date;

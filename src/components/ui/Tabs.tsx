@@ -30,7 +30,14 @@ export function Tabs<T extends string>({ items, value, onChange, label, classNam
       role="tablist"
       aria-label={label}
       className={cn(styles.list, className)}
-      onKeyDown={(event) => onRovingKeyDown(event, items.map((item) => item.value), value, onChange)}
+      onKeyDown={(event) =>
+        onRovingKeyDown(
+          event,
+          items.map((item) => item.value),
+          value,
+          onChange,
+        )
+      }
     >
       {items.map((item) => {
         const isActive = item.value === value;
@@ -48,13 +55,7 @@ export function Tabs<T extends string>({ items, value, onChange, label, classNam
             {item.label}
             {item.count !== undefined && <span className={styles.count}>{item.count}</span>}
             {/* Один и тот же layoutId переезжает между вкладками — отсюда «проезд» подчёркивания */}
-            {isActive && (
-              <motion.span
-                layoutId={`tabs-indicator-${indicatorId}`}
-                className={styles.indicator}
-                transition={SPRING_SNAPPY}
-              />
-            )}
+            {isActive && <motion.span layoutId={`tabs-indicator-${indicatorId}`} className={styles.indicator} transition={SPRING_SNAPPY} />}
           </button>
         );
       })}

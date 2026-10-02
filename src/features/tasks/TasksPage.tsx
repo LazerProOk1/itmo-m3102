@@ -92,12 +92,7 @@ export function TasksPage() {
       </div>
 
       {visibleTasks.length === 0 ? (
-        <EmptyState
-          compact
-          icon={SquareCheck}
-          title="Здесь пока нет задач"
-          description="Задачи, подходящие под этот фильтр, появятся здесь."
-        />
+        <EmptyState compact icon={SquareCheck} title="Здесь пока нет задач" description="Задачи, подходящие под этот фильтр, появятся здесь." />
       ) : (
         <List>
           {visibleTasks.map((task) => (

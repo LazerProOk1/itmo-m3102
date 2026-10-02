@@ -15,11 +15,7 @@ export function Input({ icon: Icon, invalid, className, ...rest }: InputProps) {
   return (
     <div className={cn(styles.wrapper, className)}>
       {Icon && <Icon size={14} strokeWidth={1.75} className={styles.leadingIcon} aria-hidden />}
-      <input
-        className={cn(styles.control, Icon && styles.withIcon)}
-        aria-invalid={invalid || undefined}
-        {...rest}
-      />
+      <input className={cn(styles.control, Icon && styles.withIcon)} aria-invalid={invalid || undefined} {...rest} />
     </div>
   );
 }

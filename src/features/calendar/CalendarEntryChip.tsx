@@ -20,11 +20,7 @@ export function CalendarEntryChip({ entry, onSelect }: CalendarEntryChipProps) {
   const title = entry.kind === 'class' ? (subjectName ?? 'Пара') : entry.kind === 'deadline' ? entry.task.title : entry.event.title;
 
   return (
-    <button
-      type="button"
-      className={cn(styles.chip, entry.kind === 'deadline' && styles.deadline)}
-      onClick={() => onSelect(entry)}
-    >
+    <button type="button" className={cn(styles.chip, entry.kind === 'deadline' && styles.deadline)} onClick={() => onSelect(entry)}>
       {entry.kind === 'deadline' ? (
         <Clock size={11} strokeWidth={2} className={styles.deadlineIcon} aria-hidden />
       ) : (

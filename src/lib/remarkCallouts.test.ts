@@ -25,7 +25,10 @@ describe('remarkCallouts', () => {
   it('[!info] Заголовок\nтекст → div.callout с заголовком и текстом', () => {
     const tree = blockquote('[!info] Метаданные\nтекст');
     remarkCallouts()(tree);
-    const node = tree.children[0] as unknown as { data: { hName: string; hProperties: { dataCallout: string } }; children: { children: { value: string }[] }[] };
+    const node = tree.children[0] as unknown as {
+      data: { hName: string; hProperties: { dataCallout: string } };
+      children: { children: { value: string }[] }[];
+    };
     expect(node.data.hName).toBe('div');
     expect(node.data.hProperties.dataCallout).toBe('info');
     expect(node.children[0]!.children[0]!.value).toBe('Метаданные');

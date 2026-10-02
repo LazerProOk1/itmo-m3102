@@ -143,7 +143,13 @@ export function StudyPlanPanel({ today }: { today: ISODate }) {
       action={<Checkbox label="Скрыть выполненные" checked={hideCompleted} onChange={(event) => setHideCompleted(event.target.checked)} />}
     >
       <form className={styles.planForm} onSubmit={add}>
-        <Input value={title} maxLength={120} placeholder="Добавить свою задачу…" aria-label="Новая задача" onChange={(event) => setTitle(event.target.value)} />
+        <Input
+          value={title}
+          maxLength={120}
+          placeholder="Добавить свою задачу…"
+          aria-label="Новая задача"
+          onChange={(event) => setTitle(event.target.value)}
+        />
         <Input type="date" value={date} aria-label="Срок задачи" onChange={(event) => setDate(event.target.value)} />
         <Button type="submit" variant="secondary" disabled={!title.trim()}>
           Добавить

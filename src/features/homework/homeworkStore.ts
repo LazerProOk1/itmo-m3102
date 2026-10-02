@@ -57,9 +57,7 @@ export const useHomeworkStore = create<HomeworkStore>()(
       saveItem: (item) =>
         set((state) => ({
           hasDraft: true,
-          items: state.items.some((row) => row.id === item.id)
-            ? state.items.map((row) => (row.id === item.id ? item : row))
-            : [...state.items, item],
+          items: state.items.some((row) => row.id === item.id) ? state.items.map((row) => (row.id === item.id ? item : row)) : [...state.items, item],
         })),
       deleteItem: (id) => set((state) => ({ hasDraft: true, items: state.items.filter((row) => row.id !== id) })),
       toggleDone: (id, done) =>
@@ -101,7 +99,10 @@ export function parseHomework(raw: unknown): HomeworkItem[] {
       due: String(item.due ?? ''),
       links: Array.isArray(item.links)
         ? item.links
-            .map((link: { title?: unknown; url?: unknown }) => ({ title: String(link?.title ?? link?.url ?? ''), url: validUrl(String(link?.url ?? '')) }))
+            .map((link: { title?: unknown; url?: unknown }) => ({
+              title: String(link?.title ?? link?.url ?? ''),
+              url: validUrl(String(link?.url ?? '')),
+            }))
             .filter((link: HomeworkLink) => link.url)
         : [],
       createdAt: String(item.createdAt ?? ''),

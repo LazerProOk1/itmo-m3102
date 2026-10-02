@@ -51,10 +51,7 @@ export function MaterialRow({ material, today, onEdit, showSubject = false }: Ma
               onClick={() => window.open(material.url, '_blank', 'noopener,noreferrer')}
             />
             {isEditMode && (
-              <DropdownMenu
-                align="end"
-                trigger={(props) => <IconButton icon={Ellipsis} label="Действия с материалом" size="sm" {...props} />}
-              >
+              <DropdownMenu align="end" trigger={(props) => <IconButton icon={Ellipsis} label="Действия с материалом" size="sm" {...props} />}>
                 <DropdownItem icon={Pencil} onSelect={() => onEdit(material)}>
                   Изменить
                 </DropdownItem>

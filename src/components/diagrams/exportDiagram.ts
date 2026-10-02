@@ -69,4 +69,7 @@ export async function downloadPng(svg: SVGSVGElement, name: string, background: 
 
 /** Имя файла из заголовка диаграммы */
 export const fileName = (title: string | undefined, lang: string) =>
-  (title || lang).replace(/\$[^$]*\$/g, '').replace(/[\\/:*?"<>|]+/g, '_').trim() || lang;
+  (title || lang)
+    .replace(/\$[^$]*\$/g, '')
+    .replace(/[\\/:*?"<>|]+/g, '_')
+    .trim() || lang;

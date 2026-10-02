@@ -88,7 +88,11 @@ export function DiagramEditorPage() {
         </section>
 
         <section className={styles.preview} aria-label="Предпросмотр">
-          {source.trim() ? <DiagramBlock lang={draft.lang} source={source} editable={false} /> : <p className={styles.empty}>Пусто — начните с шаблона.</p>}
+          {source.trim() ? (
+            <DiagramBlock lang={draft.lang} source={source} editable={false} />
+          ) : (
+            <p className={styles.empty}>Пусто — начните с шаблона.</p>
+          )}
           <div className={styles.actions}>
             <Button
               variant="primary"

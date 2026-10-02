@@ -45,8 +45,7 @@ export function SchedulePage() {
   // Следующая неделя приезжает справа, предыдущая — слева
   const direction = useDirection(Date.parse(weekStart));
 
-  const days: DaySchedule[] = getWeekDates(weekStart)
-    .map((date) => ({ date, occurrences: getOccurrencesForDate(date, scheduleData) }));
+  const days: DaySchedule[] = getWeekDates(weekStart).map((date) => ({ date, occurrences: getOccurrencesForDate(date, scheduleData) }));
 
   function moveWeeks(count: number) {
     setSelectedDate(addDays(selectedDate, 7 * count));
@@ -84,14 +83,7 @@ export function SchedulePage() {
         {view === 'week' ? (
           <WeekView days={days} today={today} time={time} onAddDate={dialogs.openNewClass} onAction={dialogs.handleAction} />
         ) : (
-          <DayView
-            days={days}
-            selectedDate={selectedDate}
-            today={today}
-            time={time}
-            onSelectDate={setSelectedDate}
-            onAction={dialogs.handleAction}
-          />
+          <DayView days={days} selectedDate={selectedDate} today={today} time={time} onSelectDate={setSelectedDate} onAction={dialogs.handleAction} />
         )}
       </Swap>
 

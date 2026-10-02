@@ -29,9 +29,7 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
   const [popoverOpen, setPopoverOpen] = useState(false);
   const titleRef = useRef<HTMLButtonElement>(null);
 
-  const metaParts = [CLASS_TYPE_LABELS[details.type], details.room && `Аудитория ${details.room}`, details.teacher].filter(
-    Boolean,
-  );
+  const metaParts = [CLASS_TYPE_LABELS[details.type], details.room && `Аудитория ${details.room}`, details.teacher].filter(Boolean);
 
   function handleEdit() {
     setPopoverOpen(false);
@@ -47,7 +45,9 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
         {
           '--type-color': classTypeColorVar(details.type),
           // Идущая пара: сколько уже прошло — полоска внизу строки
-          ...(isNow && { '--progress': `${Math.round((minutesBetween(details.startTime, time) / minutesBetween(details.startTime, details.endTime)) * 100)}%` }),
+          ...(isNow && {
+            '--progress': `${Math.round((minutesBetween(details.startTime, time) / minutesBetween(details.startTime, details.endTime)) * 100)}%`,
+          }),
         } as CSSProperties
       }
       leading={
@@ -63,12 +63,7 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
           </button>
           <AnimatePresence>
             {popoverOpen && (
-              <ClassDetailsPopover
-                occurrence={occurrence}
-                anchorRef={titleRef}
-                onClose={() => setPopoverOpen(false)}
-                onEdit={handleEdit}
-              />
+              <ClassDetailsPopover occurrence={occurrence} anchorRef={titleRef} onClose={() => setPopoverOpen(false)} onEdit={handleEdit} />
             )}
           </AnimatePresence>
         </>

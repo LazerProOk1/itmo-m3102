@@ -116,7 +116,12 @@ export function parseQuiz(source: string): QuizData {
     }
     if ((m = /^=\s*(.+)$/.exec(t))) {
       if (!q) return fail(n, 'ответ «=» вне вопроса');
-      q.answers.push(...m[1]!.split('|').map((s) => s.trim()).filter(Boolean));
+      q.answers.push(
+        ...m[1]!
+          .split('|')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      );
       field = null;
       return;
     }
@@ -195,7 +200,10 @@ const MODE_RE = /^[ \t]*(mode|режим)[ \t]*:[ \t]*(quiz|тест|викто�
  * Возвращает текст теста или null, если это обычный конспект.
  */
 export function quizPageSource(raw: string): string | null {
-  const text = raw.replace(/^﻿/, '').replace(/\r/g, '').replace(/^(\s*\n)+/, '');
+  const text = raw
+    .replace(/^﻿/, '')
+    .replace(/\r/g, '')
+    .replace(/^(\s*\n)+/, '');
   let out: string | null = null;
   const front = /^---[ \t]*\n([\s\S]*?)\n---[ \t]*(?:\n|$)/.exec(text);
   if (front) {
@@ -223,7 +231,12 @@ export function quizPageToMarkdown(raw: string): string {
 export const isQuizPage = (source: string) => MODE_RE.test(source.split('\n')[0] ?? '');
 
 const normalize = (value: string) =>
-  value.trim().toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').replace(/[.!?]+$/, '');
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/\s+/g, ' ')
+    .replace(/[.!?]+$/, '');
 const asNumber = (value: string) => {
   const text = value.trim().replace(',', '.').replace(/\s/g, '');
   return /^[-+]?\d+(\.\d+)?$/.test(text) ? parseFloat(text) : null;
@@ -231,7 +244,5 @@ const asNumber = (value: string) => {
 
 /** Ответ текстом: без учёта регистра, ё/е, лишних пробелов и точки в конце; числа — по значению (0,5 = 0.5) */
 export function matchesAnswer(answers: string[], value: string): boolean {
-  return answers.some(
-    (answer) => normalize(answer) === normalize(value) || (asNumber(value) !== null && asNumber(answer) === asNumber(value)),
-  );
+  return answers.some((answer) => normalize(answer) === normalize(value) || (asNumber(value) !== null && asNumber(answer) === asNumber(value)));
 }

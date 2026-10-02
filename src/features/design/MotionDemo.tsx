@@ -47,7 +47,7 @@ export function MotionDemo() {
           </Swap>
         </div>
       </Demo>
-      <Demo label="Каскад · className=&quot;stagger&quot; на сетке карточек">
+      <Demo label='Каскад · className="stagger" на сетке карточек'>
         <div className={styles.stack}>
           <div key={replay} className={`${styles.staggerGrid} stagger`}>
             {Array.from({ length: 6 }, (_, index) => (

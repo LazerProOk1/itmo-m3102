@@ -12,15 +12,7 @@ interface IconButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 }
 
 /** Квадратная кнопка только с иконкой — тактильное сжатие под пальцем (Framer Motion spring). */
-export function IconButton({
-  icon: Icon,
-  label,
-  size = 'md',
-  type = 'button',
-  className,
-  disabled,
-  ...rest
-}: IconButtonProps) {
+export function IconButton({ icon: Icon, label, size = 'md', type = 'button', className, disabled, ...rest }: IconButtonProps) {
   return (
     <motion.button
       type={type}

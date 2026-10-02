@@ -1,15 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { SPRING_SNAPPY } from '../../lib/motion';
 import { useFloatingPosition } from '../../lib/useFloatingPosition';

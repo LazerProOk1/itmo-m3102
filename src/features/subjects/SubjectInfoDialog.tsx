@@ -46,9 +46,7 @@ export function SubjectInfoDialog({ target, onClose }: SubjectInfoDialogProps) {
         onClose={onClose}
         title="Изменить информацию о курсе"
         description={
-          target?.source === 'github'
-            ? 'Синхронизировано из GitHub — если файл в репозитории изменится, правки здесь будут перезаписаны.'
-            : undefined
+          target?.source === 'github' ? 'Синхронизировано из GitHub — если файл в репозитории изменится, правки здесь будут перезаписаны.' : undefined
         }
         size="lg"
         footer={
@@ -74,12 +72,7 @@ export function SubjectInfoDialog({ target, onClose }: SubjectInfoDialogProps) {
           />
         )}
       </Modal>
-      <ConfirmDeleteModal
-        open={confirmingDelete}
-        title={target?.title ?? ''}
-        onCancel={() => setConfirmingDelete(false)}
-        onConfirm={handleDelete}
-      />
+      <ConfirmDeleteModal open={confirmingDelete} title={target?.title ?? ''} onCancel={() => setConfirmingDelete(false)} onConfirm={handleDelete} />
     </>
   );
 }

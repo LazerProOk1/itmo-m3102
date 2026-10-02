@@ -30,4 +30,3 @@ export function convertWikiLinks(markdown: string): string {
 }
 
 export const WIKI_LINK_PREFIX = 'wikilink/';
-

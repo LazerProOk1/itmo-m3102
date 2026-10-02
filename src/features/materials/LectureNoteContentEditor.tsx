@@ -38,19 +38,14 @@ function readAsDataUrl(file: File): Promise<string> {
 function describePdfContent(content: string): string {
   if (!content) return '';
   if (content.startsWith('data:')) {
-    const approxKb = Math.round(((content.length * 3) / 4) / 1024);
+    const approxKb = Math.round((content.length * 3) / 4 / 1024);
     return `Файл загружен (~${approxKb} КБ)`;
   }
   return content;
 }
 
 /** Наполнение конспекта: markdown-текст, загрузка PDF (локально или из Google Drive) или ссылка. */
-export function LectureNoteContentEditor({
-  contentType,
-  content,
-  onContentTypeChange,
-  onContentChange,
-}: LectureNoteContentEditorProps) {
+export function LectureNoteContentEditor({ contentType, content, onContentTypeChange, onContentChange }: LectureNoteContentEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pdfError, setPdfError] = useState('');
 
@@ -81,12 +76,7 @@ export function LectureNoteContentEditor({
 
   return (
     <Field label="Содержание" optional>
-      <SegmentedControl
-        label="Тип содержимого"
-        options={CONTENT_TYPE_OPTIONS}
-        value={contentType}
-        onChange={onContentTypeChange}
-      />
+      <SegmentedControl label="Тип содержимого" options={CONTENT_TYPE_OPTIONS} value={contentType} onChange={onContentTypeChange} />
 
       {contentType === 'markdown' && (
         <Textarea
@@ -107,13 +97,7 @@ export function LectureNoteContentEditor({
             <Button type="button" variant="secondary" size="sm" icon={HardDrive} onClick={handlePickFromDrive}>
               Выбрать из Google Drive
             </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf"
-              className={styles.hiddenInput}
-              onChange={handleFileSelected}
-            />
+            <input ref={fileInputRef} type="file" accept="application/pdf" className={styles.hiddenInput} onChange={handleFileSelected} />
           </div>
           {content && <p className={styles.pdfStatus}>{describePdfContent(content)}</p>}
           {pdfError ? (
@@ -125,12 +109,7 @@ export function LectureNoteContentEditor({
       )}
 
       {contentType === 'link' && (
-        <Input
-          type="url"
-          value={content}
-          placeholder="https://docs.google.com/…"
-          onChange={(event) => onContentChange(event.target.value)}
-        />
+        <Input type="url" value={content} placeholder="https://docs.google.com/…" onChange={(event) => onContentChange(event.target.value)} />
       )}
     </Field>
   );

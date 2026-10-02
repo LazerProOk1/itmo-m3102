@@ -88,23 +88,13 @@ export function TaskForm({ id, initialValues, onSubmit, disabled }: TaskFormProp
           />
         </Field>
         <Field label="Тип" htmlFor="task-type">
-          <Dropdown
-            id="task-type"
-            value={values.type}
-            options={TYPE_OPTIONS}
-            onChange={(value) => update('type', value as TaskType)}
-          />
+          <Dropdown id="task-type" value={values.type} options={TYPE_OPTIONS} onChange={(value) => update('type', value as TaskType)} />
         </Field>
       </FormRow>
 
       <FormRow>
         <Field label="Срок" htmlFor="task-deadline" optional>
-          <Input
-            id="task-deadline"
-            type="date"
-            value={values.deadline}
-            onChange={(event) => update('deadline', event.target.value)}
-          />
+          <Input id="task-deadline" type="date" value={values.deadline} onChange={(event) => update('deadline', event.target.value)} />
         </Field>
         <Field label="Приоритет" htmlFor="task-priority">
           <Dropdown
@@ -117,12 +107,7 @@ export function TaskForm({ id, initialValues, onSubmit, disabled }: TaskFormProp
       </FormRow>
 
       <Field label="Статус" htmlFor="task-status">
-        <Dropdown
-          id="task-status"
-          value={values.status}
-          options={STATUS_OPTIONS}
-          onChange={(value) => update('status', value as TaskStatus)}
-        />
+        <Dropdown id="task-status" value={values.status} options={STATUS_OPTIONS} onChange={(value) => update('status', value as TaskStatus)} />
       </Field>
 
       <Field label="Описание" htmlFor="task-description" optional>

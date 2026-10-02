@@ -108,15 +108,11 @@ export function MemesPage() {
               <button type="button" className={styles.image} onClick={() => setOpen(meme)}>
                 <img src={groupRawUrl(meme.file)} alt={meme.title || 'Мем'} loading="lazy" />
               </button>
-              {isEditMode && (
-                <IconButton icon={X} label="Удалить мем" size="sm" className={styles.delete} onClick={() => setDeleting(meme)} />
-              )}
+              {isEditMode && <IconButton icon={X} label="Удалить мем" size="sm" className={styles.delete} onClick={() => setDeleting(meme)} />}
               {(meme.title || meme.uploader) && (
                 <figcaption>
                   {meme.title && <strong>{meme.title}</strong>}
-                  <small>
-                    {[meme.uploader, meme.createdAt && new Date(meme.createdAt).toLocaleDateString('ru-RU')].filter(Boolean).join(' · ')}
-                  </small>
+                  <small>{[meme.uploader, meme.createdAt && new Date(meme.createdAt).toLocaleDateString('ru-RU')].filter(Boolean).join(' · ')}</small>
                 </figcaption>
               )}
             </figure>
@@ -180,10 +176,7 @@ function UploadMemeDialog({ open, onClose, onUploaded }: { open: boolean; onClos
       await writeRepoFileBase64(path, dataUrl.split(',')[1] ?? '', `Мемы: добавить ${title.trim() || id}`);
       setStatus('Обновляем список…');
       const current = await readMemes();
-      const items = [
-        ...current.items,
-        { id, file: path, title: title.trim(), uploader: uploader.trim(), createdAt: new Date().toISOString() },
-      ];
+      const items = [...current.items, { id, file: path, title: title.trim(), uploader: uploader.trim(), createdAt: new Date().toISOString() }];
       await writeRepoFile(MEMES_PATH, serialize(items), `Мемы: добавить ${title.trim() || id}`, current.sha);
       onUploaded(items);
       setStatus('Мем добавлен.');

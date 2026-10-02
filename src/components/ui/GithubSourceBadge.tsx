@@ -9,10 +9,7 @@ import styles from './GithubSourceBadge.module.css';
  */
 export function GithubSourceBadge() {
   return (
-    <span
-      className={styles.icon}
-      title="Синхронизировано из GitHub — изменения могут быть перезаписаны при следующей синхронизации"
-    >
+    <span className={styles.icon} title="Синхронизировано из GitHub — изменения могут быть перезаписаны при следующей синхронизации">
       <GitBranch size={12} strokeWidth={1.75} aria-label="Синхронизировано из GitHub" />
     </span>
   );

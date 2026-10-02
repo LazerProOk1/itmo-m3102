@@ -96,7 +96,15 @@ export function parseGroupSchedule(raw: unknown): GroupSchedule {
       const details = toDetails(lesson, weekday, defaultLocation, unknown);
       if (!details) return;
       const sourceId = String(lesson.id || `cycle-${index + 1}-${position + 1}`);
-      const session = { ...details, id: `gh:schedule:${sourceId}`, sourceId, weekday, weeks: 1 as WeekRepeat, createdAt: SYNC_TIME, updatedAt: SYNC_TIME };
+      const session = {
+        ...details,
+        id: `gh:schedule:${sourceId}`,
+        sourceId,
+        weekday,
+        weeks: 1 as WeekRepeat,
+        createdAt: SYNC_TIME,
+        updatedAt: SYNC_TIME,
+      };
       (index < 7 ? odd : even).push(session);
     });
   });
@@ -124,18 +132,36 @@ export function parseGroupSchedule(raw: unknown): GroupSchedule {
     const weekStartMonday = addDays(date, 1 - weekday);
     const parity: WeekRepeat = isOddWeek(weekStartMonday) ? 1 : 2;
     const regular = classes.filter((item) => item.weekday === weekday && (item.weeks === 'every' || item.weeks === parity));
-    const wanted = override.lessons.map((lesson) => toDetails(lesson, weekday, defaultLocation, unknown)).filter((item): item is ClassDetails => item !== null);
+    const wanted = override.lessons
+      .map((lesson) => toDetails(lesson, weekday, defaultLocation, unknown))
+      .filter((item): item is ClassDetails => item !== null);
     const note = override.note ? String(override.note) : undefined;
 
     regular
       .filter((item) => !wanted.some((details) => sameClass(details, item)))
       .forEach((item) =>
-        exceptions.push({ id: `gh:override:${date}:cancel:${item.id}`, kind: 'cancelled', classId: item.id, date, note, createdAt: SYNC_TIME, updatedAt: SYNC_TIME }),
+        exceptions.push({
+          id: `gh:override:${date}:cancel:${item.id}`,
+          kind: 'cancelled',
+          classId: item.id,
+          date,
+          note,
+          createdAt: SYNC_TIME,
+          updatedAt: SYNC_TIME,
+        }),
       );
     wanted
       .filter((details) => !regular.some((item) => sameClass(details, item)))
       .forEach((details, index) =>
-        exceptions.push({ id: `gh:override:${date}:add:${index}`, kind: 'additional', date, details, note, createdAt: SYNC_TIME, updatedAt: SYNC_TIME }),
+        exceptions.push({
+          id: `gh:override:${date}:add:${index}`,
+          kind: 'additional',
+          date,
+          details,
+          note,
+          createdAt: SYNC_TIME,
+          updatedAt: SYNC_TIME,
+        }),
       );
   }
 

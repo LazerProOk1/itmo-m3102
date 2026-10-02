@@ -60,7 +60,12 @@ export function parsePlot({ body }: DiagramLines): PlotModel {
 
       const area = /^area\s+between\s+y\s*=\s*(.+?)\s+and\s+y\s*=\s*(.+?)\s+from\s+(\S+)\s+to\s+(\S+)$/.exec(text);
       if (area) {
-        model.items.push({ kind: 'area', top: compileExpression(area[1]!), bottom: compileExpression(area[2]!), range: [num(area[3]!), num(area[4]!)] });
+        model.items.push({
+          kind: 'area',
+          top: compileExpression(area[1]!),
+          bottom: compileExpression(area[2]!),
+          range: [num(area[3]!), num(area[4]!)],
+        });
         continue;
       }
       const areaUnder = /^area\s+y\s*=\s*(.+?)\s+from\s+(\S+)\s+to\s+(\S+)$/.exec(text);
@@ -249,12 +254,28 @@ export function PlotView({ model, width = 640, height = 360 }: { model: PlotMode
               const t = t0 + ((t1 - t0) * i) / SAMPLES;
               return [safe(item.fx, { t }), safe(item.fy, { t })];
             });
-            return <path key={index} className={styles.curve} d={sampled(points)} stroke={item.color} strokeDasharray={item.options.dashed ? '6 5' : undefined} />;
+            return (
+              <path
+                key={index}
+                className={styles.curve}
+                d={sampled(points)}
+                stroke={item.color}
+                strokeDasharray={item.options.dashed ? '6 5' : undefined}
+              />
+            );
           }
           if (item.kind === 'vline') {
             return (
               <g key={index}>
-                <line className={styles.curve} x1={sx(item.x)} x2={sx(item.x)} y1={margin.top} y2={margin.top + innerH} stroke={item.color} strokeDasharray={item.options.dashed ? '6 5' : undefined} />
+                <line
+                  className={styles.curve}
+                  x1={sx(item.x)}
+                  x2={sx(item.x)}
+                  y1={margin.top}
+                  y2={margin.top + innerH}
+                  stroke={item.color}
+                  strokeDasharray={item.options.dashed ? '6 5' : undefined}
+                />
                 {item.options.label && (
                   <text className={styles.pointLabel} x={sx(item.x) + 6} y={margin.top + 14}>
                     {item.options.label}
@@ -295,7 +316,12 @@ export function PlotView({ model, width = 640, height = 360 }: { model: PlotMode
 
       {legend.length > 0 && (
         <g transform={`translate(${margin.left + 10}, ${margin.top + 10})`}>
-          <rect className={styles.legendBox} width={Math.max(...legend.map((item) => item.options.label!.length)) * 6.6 + 40} height={legend.length * 18 + 8} rx={6} />
+          <rect
+            className={styles.legendBox}
+            width={Math.max(...legend.map((item) => item.options.label!.length)) * 6.6 + 40}
+            height={legend.length * 18 + 8}
+            rx={6}
+          />
           {legend.map((item, index) => (
             <g key={index} transform={`translate(10, ${index * 18 + 16})`}>
               <line x1={0} x2={18} y1={-4} y2={-4} stroke={item.color} strokeWidth={2.4} strokeDasharray={item.options.dashed ? '4 3' : undefined} />

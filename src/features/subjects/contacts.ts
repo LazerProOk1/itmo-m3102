@@ -34,18 +34,12 @@ function sameTeacher(a: string, b: string): boolean {
  * источник email/telegram для того же преподавателя и той же роли. Если занятий ещё нет —
  * ручные записи остаются как есть (fallback).
  */
-export function resolveSubjectContacts(
-  subjectId: ID,
-  classes: ClassSession[],
-  manualContacts: SubjectContact[],
-): SubjectContact[] {
+export function resolveSubjectContacts(subjectId: ID, classes: ClassSession[], manualContacts: SubjectContact[]): SubjectContact[] {
   const computed = getSubjectContacts(subjectId, classes);
   if (computed.length === 0) return manualContacts;
 
   return computed.map((contact) => {
-    const manual = manualContacts.find(
-      (entry) => entry.role === contact.role && sameTeacher(entry.teacherName, contact.teacherName),
-    );
+    const manual = manualContacts.find((entry) => entry.role === contact.role && sameTeacher(entry.teacherName, contact.teacherName));
     return { ...contact, email: manual?.email, telegram: manual?.telegram };
   });
 }

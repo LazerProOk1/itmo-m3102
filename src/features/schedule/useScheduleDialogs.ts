@@ -20,9 +20,7 @@ export function useScheduleDialogs() {
   // безвозвратно стирает занятие целиком, а не просто возвращает обычное расписание
   const [deleteTarget, setDeleteTarget] = useState<ClassOccurrence | null>(null);
   const deleteTargetSubjectName = useSubjectName(deleteTarget?.details.subjectId);
-  const deleteConfirmTitle = deleteTarget
-    ? `${deleteTargetSubjectName} — ${CLASS_TYPE_LABELS[deleteTarget.details.type]}`
-    : '';
+  const deleteConfirmTitle = deleteTarget ? `${deleteTargetSubjectName} — ${CLASS_TYPE_LABELS[deleteTarget.details.type]}` : '';
 
   function openNewClass(date: ISODate) {
     setClassTarget({ mode: 'create', date });

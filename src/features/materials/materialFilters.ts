@@ -21,14 +21,9 @@ export function searchMaterials(materials: Material[], query: string): Material[
   const normalized = query.trim().toLowerCase();
   if (!normalized) return materials;
 
-  return materials.filter(
-    (material) =>
-      material.name.toLowerCase().includes(normalized) || material.description?.toLowerCase().includes(normalized),
-  );
+  return materials.filter((material) => material.name.toLowerCase().includes(normalized) || material.description?.toLowerCase().includes(normalized));
 }
 
 export function sortMaterials(materials: Material[], sort: MaterialSort): Material[] {
-  return [...materials].sort((a, b) =>
-    sort === 'name' ? a.name.localeCompare(b.name) : b.createdAt.localeCompare(a.createdAt),
-  );
+  return [...materials].sort((a, b) => (sort === 'name' ? a.name.localeCompare(b.name) : b.createdAt.localeCompare(a.createdAt)));
 }

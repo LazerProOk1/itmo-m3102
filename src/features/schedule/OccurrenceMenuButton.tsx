@@ -16,10 +16,7 @@ export function OccurrenceMenuButton({ occurrence, onAction }: OccurrenceMenuBut
   if (!isEditMode) return null;
 
   return (
-    <DropdownMenu
-      align="end"
-      trigger={(props) => <IconButton icon={Ellipsis} label="Действия с парой" size="sm" {...props} />}
-    >
+    <DropdownMenu align="end" trigger={(props) => <IconButton icon={Ellipsis} label="Действия с парой" size="sm" {...props} />}>
       <OccurrenceMenuItems occurrence={occurrence} onAction={onAction} />
     </DropdownMenu>
   );

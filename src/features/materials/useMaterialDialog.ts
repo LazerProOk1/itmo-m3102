@@ -13,8 +13,7 @@ export function useMaterialDialog() {
 
   return {
     target,
-    openCreate: (defaults?: CreateDefaults) =>
-      setTarget({ mode: 'create', defaultSubjectId: defaults?.subjectId, defaultType: defaults?.type }),
+    openCreate: (defaults?: CreateDefaults) => setTarget({ mode: 'create', defaultSubjectId: defaults?.subjectId, defaultType: defaults?.type }),
     openEdit: (material: Material) => setTarget({ mode: 'edit', material }),
     close: () => setTarget(null),
   };

@@ -78,9 +78,7 @@ export function EventDialog({ target, onClose }: EventDialogProps) {
           )
         }
       >
-        {target && (
-          <EventForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} disabled={!isEditMode} />
-        )}
+        {target && <EventForm id={FORM_ID} initialValues={getInitialValues(target)} onSubmit={handleSubmit} disabled={!isEditMode} />}
       </Modal>
       <ConfirmDeleteModal
         open={confirmingDelete}

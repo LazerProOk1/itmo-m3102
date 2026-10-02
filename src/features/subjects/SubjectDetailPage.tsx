@@ -171,12 +171,7 @@ export function SubjectDetailPage() {
           />
         )}
         {tab === 'notes' && (
-          <SubjectNotesTab
-            notes={subjectNotes}
-            today={today}
-            onAdd={() => noteDialog.openCreate(subject.id)}
-            onEdit={noteDialog.openEdit}
-          />
+          <SubjectNotesTab notes={subjectNotes} today={today} onAdd={() => noteDialog.openCreate(subject.id)} onEdit={noteDialog.openEdit} />
         )}
         {tab === 'links' && (
           <SubjectLinksTab
@@ -189,11 +184,7 @@ export function SubjectDetailPage() {
         )}
       </div>
 
-      <SubjectDialog
-        target={subjectDialog.target}
-        onClose={subjectDialog.close}
-        onDeleted={() => navigate(SECTIONS.subjects.path)}
-      />
+      <SubjectDialog target={subjectDialog.target} onClose={subjectDialog.close} onDeleted={() => navigate(SECTIONS.subjects.path)} />
       <TaskDialog target={taskDialog.target} onClose={taskDialog.close} />
       <MaterialDialog target={materialDialog.target} onClose={materialDialog.close} />
       <LectureNoteDialog target={lectureNoteDialog.target} onClose={lectureNoteDialog.close} />

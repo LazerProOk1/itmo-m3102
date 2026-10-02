@@ -55,11 +55,21 @@ export function AppearanceSettings() {
       </SettingsRow>
 
       <SettingsRow label="Фон-сияние" description="Мягкие пятна света в цвете акцента за страницей.">
-        <SegmentedControl label="Фон-сияние" options={ON_OFF} value={aurora ? 'on' : 'off'} onChange={(value) => setAppearance({ aurora: value === 'on' })} />
+        <SegmentedControl
+          label="Фон-сияние"
+          options={ON_OFF}
+          value={aurora ? 'on' : 'off'}
+          onChange={(value) => setAppearance({ aurora: value === 'on' })}
+        />
       </SettingsRow>
 
       <SettingsRow label="Свечение" description="Подсветка карточек под курсором и светящиеся кнопки.">
-        <SegmentedControl label="Свечение" options={ON_OFF} value={glow ? 'on' : 'off'} onChange={(value) => setAppearance({ glow: value === 'on' })} />
+        <SegmentedControl
+          label="Свечение"
+          options={ON_OFF}
+          value={glow ? 'on' : 'off'}
+          onChange={(value) => setAppearance({ glow: value === 'on' })}
+        />
       </SettingsRow>
 
       <SettingsRow label="Скругления" description="Углы карточек, кнопок и полей.">

@@ -11,8 +11,7 @@ import styles from './LectureNoteDialog.module.css';
 
 /** Что открыто в окне: новый конспект (можно заранее задать предмет) или редактирование существующего */
 export type LectureNoteDialogTarget =
-  | { mode: 'create'; defaultSubjectId?: ID; defaultCollection?: LectureNoteCollection }
-  | { mode: 'edit'; note: LectureNote };
+  { mode: 'create'; defaultSubjectId?: ID; defaultCollection?: LectureNoteCollection } | { mode: 'edit'; note: LectureNote };
 
 const FORM_ID = 'lecture-note-form';
 

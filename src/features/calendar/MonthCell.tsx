@@ -38,12 +38,7 @@ export function MonthCell({ date, index, isCurrentMonth, isToday, entries, onOpe
           {getDayOfMonth(date)}
         </button>
         {isEditMode && (
-          <button
-            type="button"
-            className={styles.addButton}
-            aria-label="Добавить событие"
-            onClick={() => onAddEvent(date)}
-          >
+          <button type="button" className={styles.addButton} aria-label="Добавить событие" onClick={() => onAddEvent(date)}>
             <Plus size={11} strokeWidth={2} aria-hidden />
           </button>
         )}

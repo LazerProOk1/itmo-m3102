@@ -41,10 +41,7 @@ const REHYPE_PLUGINS: ComponentProps<typeof ReactMarkdown>['rehypePlugins'] = [
  */
 export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, className }: MarkdownProps) {
   // Файл-тест (mode: quiz) распознаётся и здесь: в браузере могла остаться копия с синхронизации до появления тестов
-  const withWikiLinks = useMemo(
-    () => convertWikiLinks(normalizeMath(convertContainerCallouts(quizPageToMarkdown(content)))),
-    [content],
-  );
+  const withWikiLinks = useMemo(() => convertWikiLinks(normalizeMath(convertContainerCallouts(quizPageToMarkdown(content)))), [content]);
 
   return (
     <div className={cn(styles.markdown, className)}>
@@ -61,7 +58,10 @@ export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, cl
             const lang = code?.type === 'element' ? /language-(\w+)/.exec(String(code.properties.className ?? ''))?.[1] : undefined;
             if (code?.type !== 'element' || !lang || (lang !== 'mermaid' && lang !== 'quiz' && !isDiagramLanguage(lang)))
               return <CodeBlock {...rest}>{children}</CodeBlock>;
-            const source = code.children.map((child) => (child.type === 'text' ? child.value : '')).join('').trimEnd();
+            const source = code.children
+              .map((child) => (child.type === 'text' ? child.value : ''))
+              .join('')
+              .trimEnd();
             if (lang === 'quiz') return <Quiz source={source} />;
             return lang === 'mermaid' ? <MermaidBlock source={source} /> : <DiagramBlock lang={lang} source={source} />;
           },

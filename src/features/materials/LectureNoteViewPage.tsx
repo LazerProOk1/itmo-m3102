@@ -109,13 +109,7 @@ function NoteView({ note }: { note: LectureNote }) {
               )}
               {note.contentType === 'markdown' && <IconButton icon={Printer} label="Печать / сохранить как PDF" onClick={() => window.print()} />}
               {sourceUrl && (
-                <a
-                  className={buttonClass('ghost', 'sm')}
-                  href={sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Оригинал на GitHub"
-                >
+                <a className={buttonClass('ghost', 'sm')} href={sourceUrl} target="_blank" rel="noopener noreferrer" title="Оригинал на GitHub">
                   <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
                   GitHub
                 </a>
@@ -131,12 +125,7 @@ function NoteView({ note }: { note: LectureNote }) {
         </header>
 
         <div ref={contentRef} className={styles.content}>
-          <LectureNoteContentView
-            contentType={note.contentType}
-            content={note.content}
-            sourceRef={note.sourceRef}
-            baseUrl={noteAssetBase(note)}
-          />
+          <LectureNoteContentView contentType={note.contentType} content={note.content} sourceRef={note.sourceRef} baseUrl={noteAssetBase(note)} />
         </div>
         <NotePager note={note} siblings={siblings} />
       </article>

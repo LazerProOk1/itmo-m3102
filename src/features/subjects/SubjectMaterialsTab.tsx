@@ -53,13 +53,9 @@ export function SubjectMaterialsTab({
   const [chip, setChip] = useState<MaterialChip>('all');
 
   const sortedNotes = [...lectureNotes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const continueReading = [...lectureNotes]
-    .filter((note) => note.lastOpenedAt)
-    .sort((a, b) => b.lastOpenedAt!.localeCompare(a.lastOpenedAt!))[0];
+  const continueReading = [...lectureNotes].filter((note) => note.lastOpenedAt).sort((a, b) => b.lastOpenedAt!.localeCompare(a.lastOpenedAt!))[0];
 
-  const sortedMaterials = [...materials]
-    .filter((material) => matchesChip(material, chip))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const sortedMaterials = [...materials].filter((material) => matchesChip(material, chip)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return (
     <>
@@ -110,12 +106,7 @@ export function SubjectMaterialsTab({
         }
       >
         {sortedMaterials.length === 0 ? (
-          <EmptyState
-            compact
-            icon={FolderOpen}
-            title="Пока нет материалов"
-            description="Добавьте слайды, документы или ссылки этого предмета."
-          />
+          <EmptyState compact icon={FolderOpen} title="Пока нет материалов" description="Добавьте слайды, документы или ссылки этого предмета." />
         ) : (
           <List>
             {sortedMaterials.map((material) => (

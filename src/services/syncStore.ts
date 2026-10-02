@@ -31,7 +31,12 @@ export const useSyncStore = create<SyncStore>()((set, get) => {
       set((state) => ({ status: 'done', summary: summary ?? state.summary }));
     } catch (error) {
       // fetch без сети бросает TypeError «Failed to fetch» — человеку это ничего не говорит
-      const message = error instanceof TypeError || !navigator.onLine ? OFFLINE : error instanceof Error ? error.message : 'Не удалось синхронизироваться с GitHub.';
+      const message =
+        error instanceof TypeError || !navigator.onLine
+          ? OFFLINE
+          : error instanceof Error
+            ? error.message
+            : 'Не удалось синхронизироваться с GitHub.';
       set({ status: 'error', error: message });
     }
   }

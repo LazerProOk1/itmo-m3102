@@ -32,7 +32,10 @@ export function RadioCapsule() {
   const [open, setOpen] = useState(false);
   const [muted, setMuted] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const index = Math.max(0, STATIONS.findIndex((item) => item.id === prefs.station));
+  const index = Math.max(
+    0,
+    STATIONS.findIndex((item) => item.id === prefs.station),
+  );
   const station = STATIONS[index]!;
 
   useEffect(() => {
@@ -156,7 +159,12 @@ export function RadioCapsule() {
               <button type="button" className={styles.iconButton} onClick={() => choose(index + 1)} aria-label="Следующая станция">
                 <SkipForward size={16} strokeWidth={2} aria-hidden />
               </button>
-              <button type="button" className={styles.iconButton} onClick={() => setMuted((value) => !value)} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>
+              <button
+                type="button"
+                className={styles.iconButton}
+                onClick={() => setMuted((value) => !value)}
+                aria-label={muted ? 'Включить звук' : 'Выключить звук'}
+              >
                 {muted || prefs.volume === 0 ? <VolumeX size={16} strokeWidth={2} aria-hidden /> : <Volume2 size={16} strokeWidth={2} aria-hidden />}
               </button>
               <input
@@ -190,7 +198,13 @@ export function RadioCapsule() {
         <button type="button" className={styles.play} onClick={toggle} aria-label={active ? 'Пауза' : `Включить радио «${station.name}»`}>
           <PlayIcon status={status} size={15} />
         </button>
-        <button type="button" className={styles.label} onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label="Радио: станции и громкость">
+        <button
+          type="button"
+          className={styles.label}
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-label="Радио: станции и громкость"
+        >
           {active ? <Bars playing={status === 'playing'} /> : <Radio size={14} strokeWidth={2} aria-hidden />}
           <span>{status === 'error' ? 'Нет связи' : station.name}</span>
         </button>

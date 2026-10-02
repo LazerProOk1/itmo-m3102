@@ -14,7 +14,17 @@ export interface ClassDraft extends ClassDetails {
 
 export type ExceptionDraft =
   | { kind: 'cancelled'; classId: ID; date: string; note?: string }
-  | { kind: 'moved'; classId: ID; date: string; newDate: string; startTime: string; endTime: string; room?: string; teacherOverride?: string; note?: string }
+  | {
+      kind: 'moved';
+      classId: ID;
+      date: string;
+      newDate: string;
+      startTime: string;
+      endTime: string;
+      room?: string;
+      teacherOverride?: string;
+      note?: string;
+    }
   | { kind: 'replaced'; classId: ID; date: string; details: ClassDetails; note?: string }
   | { kind: 'additional'; date: string; details: ClassDetails; note?: string };
 
@@ -57,7 +67,12 @@ export const useScheduleStore = create<ScheduleStore>()(
           const others = state.exceptions.filter(
             (exception) =>
               exception.id !== saved.id &&
-              !(saved.kind !== 'additional' && exception.kind !== 'additional' && exception.classId === saved.classId && exception.date === saved.date),
+              !(
+                saved.kind !== 'additional' &&
+                exception.kind !== 'additional' &&
+                exception.classId === saved.classId &&
+                exception.date === saved.date
+              ),
           );
           return { exceptions: [...others, saved] };
         }),
