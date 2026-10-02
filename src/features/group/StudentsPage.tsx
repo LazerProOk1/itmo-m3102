@@ -15,7 +15,7 @@ export function StudentsPage() {
         {M3102_STUDENTS.map((student) => {
           const github = `https://github.com/${encodeURIComponent(student.github)}`;
           return (
-            <article key={student.github} className={styles.card}>
+            <article key={student.github} className={styles.card} data-spot>
               <img
                 className={styles.photo}
                 src={`${github}.png?size=160`}

@@ -47,3 +47,17 @@
     padding: 0 !important;
   }
 }
+
+/* Сияние за страницей просвечивает сквозь каркас (styles/aurora.css): свой слой у каркаса,
+   сияние в нём на z-index -1 — под содержимым, но над фоном; fixed-элементы (радио, нижняя панель) не трогаем */
+:global(:root[data-aurora='on']) .shell {
+  isolation: isolate;
+  background: var(--color-bg);
+}
+
+:global(:root[data-aurora='on']) .column {
+  /* clip, а не hidden: свечение за шапкой главной не даёт горизонтальной прокрутки, sticky не ломается */
+  overflow-x: clip;
+  background: transparent;
+  border-left-color: color-mix(in srgb, var(--color-border) 70%, transparent);
+}

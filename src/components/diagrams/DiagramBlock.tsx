@@ -80,6 +80,7 @@ export function DiagramBlock({ lang, source, editable = true }: DiagramBlockProp
     <motion.figure
       ref={figureRef}
       className={styles.figure}
+      data-spot
       data-lang={lang}
       initial={reduceMotion ? false : { opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}

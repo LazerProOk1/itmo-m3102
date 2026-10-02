@@ -122,7 +122,7 @@ function FolderView({ files, folder, embedded = false, exclude = [] }: FolderVie
       ) : (
         <div className={`${styles.grid} stagger`}>
           {listing.folders.map((name) => (
-            <Link key={name} className={styles.card} to={filePath(folder ? `${folder}/${name}` : name)}>
+            <Link key={name} className={styles.card} data-spot to={filePath(folder ? `${folder}/${name}` : name)}>
               <span className={styles.icon}>↗</span>
               <span className={styles.meta}>
                 <span className={styles.name}>{name}</span>
@@ -148,11 +148,11 @@ function FolderView({ files, folder, embedded = false, exclude = [] }: FolderVie
               </>
             );
             return readable ? (
-              <Link key={entry.path} className={styles.card} to={filePath(entry.path)}>
+              <Link key={entry.path} className={styles.card} data-spot to={filePath(entry.path)}>
                 {body}
               </Link>
             ) : (
-              <a key={entry.path} className={styles.card} href={groupRawUrl(entry.path)} target="_blank" rel="noopener noreferrer" download>
+              <a key={entry.path} className={styles.card} data-spot href={groupRawUrl(entry.path)} target="_blank" rel="noopener noreferrer" download>
                 {body}
                 <Download size={14} strokeWidth={1.75} className={styles.download} aria-label="Скачать" />
               </a>

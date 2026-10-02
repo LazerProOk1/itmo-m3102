@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
 import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
+import { useApplyAppearance } from '../../features/settings/appearance';
 import { useApplyTheme } from '../../features/settings/theme';
 import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
@@ -25,11 +26,18 @@ export function AppShell() {
   const reduceMotion = usePrefersReducedMotion();
 
   useApplyTheme();
+  useApplyAppearance();
   useScrollMemory();
   useSearchShortcut(openSearch);
 
   return (
     <div className={styles.shell}>
+      {/* Слой сияния за страницей (styles/aurora.css), выключается в настройках оформления */}
+      <div className="aurora" aria-hidden>
+        <i />
+        <i />
+        <i />
+      </div>
       <Sidebar />
 
       <div className={styles.column}>

@@ -111,6 +111,7 @@ export function LinkCards({ links }: { links: GroupLink[] }) {
           <motion.a
             key={link.url + link.title}
             className={styles.card}
+            data-spot
             data-tone={tone(link.subject || link.group)}
             href={link.url}
             target="_blank"
