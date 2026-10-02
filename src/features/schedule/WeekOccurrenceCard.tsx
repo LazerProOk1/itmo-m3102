@@ -42,6 +42,7 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction }: WeekOc
       className={cn(styles.card, isNow && styles.now, isCancelled && styles.cancelled)}
       style={{ '--type-color': classTypeColorVar(occurrence.details.type) } as CSSProperties}
       onClick={() => setPopoverOpen(true)}
+      data-spot
       role="button"
       tabIndex={0}
       onKeyDown={(event) => event.key === 'Enter' && setPopoverOpen(true)}

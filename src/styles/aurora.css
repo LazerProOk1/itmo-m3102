@@ -19,7 +19,7 @@
 }
 
 :root[data-theme='dark'] .aurora {
-  --aurora-strength: 0.95;
+  --aurora-strength: 0.7;
 }
 
 .aurora i {
@@ -99,11 +99,11 @@
 :root[data-aurora='on'] .hero::before {
   content: '';
   position: absolute;
-  inset: -120px -80px -60px -80px;
+  /* Только за заголовком: не уходит под карточки ниже, иначе «плиты» света накладываются */
+  inset: -80px -40px 0 -40px;
   z-index: -1;
-  background:
-    radial-gradient(ellipse 45% 60% at 25% 45%, color-mix(in srgb, var(--glow-a) 28%, transparent), transparent 70%),
-    radial-gradient(ellipse 35% 50% at 70% 30%, color-mix(in srgb, var(--glow-b) 20%, transparent), transparent 70%);
+  background: radial-gradient(ellipse 50% 70% at 22% 40%, color-mix(in srgb, var(--glow-a) 18%, transparent), transparent 72%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
   pointer-events: none;
 }
 
@@ -137,6 +137,11 @@
   to {
     background-position: 0 0;
   }
+}
+
+/* Карточки — почти сплошные: сияние фона не мешается с их содержимым */
+:root[data-aurora='on'] [data-spot] {
+  background-color: color-mix(in srgb, var(--color-bg-elevated) 94%, transparent);
 }
 
 /* ---------- свечение карточек ---------- */
