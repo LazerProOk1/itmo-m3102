@@ -26,7 +26,7 @@ async function loadQueues(): Promise<Record<string, QueueEntry[]>> {
   const response = await githubFetch(
     `https://api.github.com/repos/${owner}/${repo}/issues?labels=${QUEUE_LABEL}&state=open&sort=created&direction=asc&per_page=100`,
   );
-  if (!response.ok) throw new Error(githubError(response.status));
+  if (!response.ok) throw new Error(githubError(response.status, false, response));
   const issues = (await response.json()) as { title?: string; html_url: string; pull_request?: unknown }[];
   const queues: Record<string, QueueEntry[]> = {};
   for (const issue of issues) {

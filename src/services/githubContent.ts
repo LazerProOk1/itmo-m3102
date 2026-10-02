@@ -160,7 +160,7 @@ async function fetchText(url: string): Promise<string> {
 async function fetchTree(repo: keyof typeof REPOS): Promise<RepoFile[]> {
   const { name, branch } = REPOS[repo];
   const response = await githubFetch(`https://api.github.com/repos/${name}/git/trees/${branch}?recursive=1`);
-  if (!response.ok) throw new Error(`${name}: ${githubError(response.status)}`);
+  if (!response.ok) throw new Error(`${name}: ${githubError(response.status, false, response)}`);
   const tree = (await response.json()) as { tree: { path: string; type: string; size?: number }[] };
   return tree.tree.filter((entry) => entry.type === 'blob').map((entry) => ({ path: entry.path, size: entry.size ?? 0 }));
 }

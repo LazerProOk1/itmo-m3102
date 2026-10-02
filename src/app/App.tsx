@@ -27,8 +27,6 @@ import { SECTIONS } from './navigation';
 // Игра тяжёлая (~60 КБ) — грузится, только когда её открыли
 const GamePage = lazy(() => import('../features/game/GamePage'));
 
-let autoSyncStarted = false;
-
 /**
  * Все страницы приложения. Данные живут в localStorage (backend нет), конспекты, материалы
  * и дедлайны группы подтягиваются из GitHub при открытии — см. services/githubContent.
@@ -38,10 +36,13 @@ let autoSyncStarted = false;
  */
 export function App() {
   useEffect(() => {
-    if (autoSyncStarted) return;
-    autoSyncStarted = true;
-    // Нет сети или исчерпан лимит GitHub — остаются данные прошлой синхронизации
-    void useSyncStore.getState().runAuto();
+    // Нет сети или исчерпан лимит GitHub — остаются данные прошлой синхронизации.
+    // Повторный вызов (StrictMode) безопасен: syncStore не запускает вторую синхронизацию поверх идущей
+    const sync = () => void useSyncStore.getState().runAuto();
+    sync();
+    // Вернулась сеть — догоняем
+    addEventListener('online', sync);
+    return () => removeEventListener('online', sync);
   }, []);
 
   return (
