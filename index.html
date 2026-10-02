@@ -2157,7 +2157,7 @@ class Game{
       if(h.curl>0.5&&h.s>260&&h.dust<=0&&!this.reduce){h.dust=0.06;this.burst(h.x,h.y-2,1,{a0:-Math.PI*0.95,a1:-Math.PI*0.6,sp:60,life:0.4,size:3,col:'rgba(255,255,255,0.6)',g:-40});}
     }else{
       const down=!dying&&this.downHeld();
-      h.vy+=(down?G*1.6:GA*(h.fea>0?0.55:1))*dt;if(h.fea>0&&Math.random()<0.02)this.burst(h.cx,h.cy+R*0.5,1,{type:'petal',col:'#fff3a8',size:3,sp:30,life:0.8,g:-20});if(!h.spaced&&T.y(h.cx)-h.cy>850){h.spaced=true;this.addBanner('🚀 Привет, космос!');this.burst(h.cx,h.cy,14,{type:'star',col:'#fff',size:6,sp:260,life:0.9,g:0});this.zk=-0.08;}h.cx+=h.vx*dt;h.cy+=h.vy*dt;h.air+=dt;h.leg+=dt*14;
+      h.vy+=(down?G*1.6:GA*(h.fea>0?0.55:1))*dt;if(h.fea>0&&Math.random()<0.02)this.burst(h.cx,h.cy+R*0.5,1,{type:'petal',col:'#fff3a8',size:3,sp:30,life:0.8,g:-20});if(!h.spaced&&T.y(h.cx)-h.cy>700){h.spaced=true;this.addBanner('🚀 Привет, космос!');this.burst(h.cx,h.cy,14,{type:'star',col:'#fff',size:6,sp:260,life:0.9,g:0});this.zk=-0.08;}h.cx+=h.vx*dt;h.cy+=h.vy*dt;h.air+=dt;h.leg+=dt*14;
       let flipping=h.flipRemain!==0;
       if(!dying&&h.stumbleT<=0){
         const fd=this.flipDir();
@@ -2194,7 +2194,7 @@ class Game{
         if(h.curl>0.6){
           if(h.onGround)h.s*=0.92;this.trick+=25*this.mult();this.audio.sfx('land',0.5);
           this.text(o.x,top-14,'Бам!','#fff3b0',20);
-        }else this.stumble(0.14,['Бонк!','Ой-ой!','Колючий конфуз!','Кто тут камень поставил?!'][(Math.random()*4)|0]);
+        }else this.stumble(0.22,['Бонк!','Ой-ой!','Колючий конфуз!','Кто тут камень поставил?!'][(Math.random()*4)|0]);
       }
     }
     for(const m of this.world.marks){
@@ -2223,7 +2223,7 @@ class Game{
   jump(){
     const h=this.hog,sp=h.s;
     const pw=clamp(sp/780*0.7+clamp(h.holdT/0.9,0,1)*0.5,0.1,1);
-    const J=lerp(360,1000,pw*pw*0.6+pw*0.4);
+    const J=lerp(290,780,pw*pw*0.6+pw*0.4);
     const a=h.a,nx=Math.sin(a),ny=-Math.cos(a);
     h.cx=h.x+nx*R;h.cy=h.y+ny*R;
     h.vx=sp*Math.cos(a)+nx*J*0.8+J*0.22;h.vy=sp*Math.sin(a)+ny*J*0.95;
@@ -2334,7 +2334,7 @@ class Game{
       h.berryStreak++;h.berryT=0.9;this.save.berries++;this.run.berries++;this.dayAdd('berries',1);this.trick+=5*m;
       this.audio.sfx('berry',h.berryStreak-1);this.burst(k.x,k.y,5,{col:'#ff7fae',size:3,sp:100,life:0.4,g:0});
     }else if(k.kind==='apple'){
-      this.sleep=Math.max(0,this.sleep-0.18);this.run.apples++;this.dayAdd('apples',1);this.trick+=50*m;
+      this.sleep=Math.max(0,this.sleep-0.25);this.run.apples++;this.dayAdd('apples',1);this.trick+=50*m;
       this.audio.sfx('apple');this.text(k.x,k.y-24,'Ням! Бодрость +','#ffb3b3',22);this.burst(k.x,k.y,10,{col:'#ff6a6a',size:4,sp:160,life:0.6});
     }else if(k.kind==='mush'){
       h.boostT=2.5;if(h.onGround)h.s+=160;else h.vx+=160;this.save.berries+=3;this.run.berries+=3;this.dayAdd('berries',3);
@@ -2374,13 +2374,13 @@ class Game{
     const z0=clamp(Math.min(this.H/620,this.W/900),0.4,1.4);
     const sp=h.onGround?h.s:Math.hypot(h.vx,h.vy);
     const hgt=h.onGround?0:clamp((T.y(cen.x)-cen.y-R)/450,0,1);
-    let zt=menu?z0*1.05:z0*lerp(1,0.84,clamp((sp-300)/500,0,1))*lerp(1,0.74,hgt)*(1+this.zk);
+    let zt=menu?z0*1.05:z0*lerp(1,0.89,clamp((sp-300)/500,0,1))*lerp(1,0.82,hgt)*(1+this.zk*0.55);
     if(this.state==='dying')zt*=1.12;
-    c.zoom=c.init?c.zoom+(zt-c.zoom)*Math.min(1,dt*3.2):zt;
+    c.zoom=c.init?c.zoom+(zt-c.zoom)*Math.min(1,dt*2.6):zt;
     const vw=this.W/c.zoom,vh=this.H/c.zoom;
-    const tx=cen.x-vw*(menu?0.2:0.3)+(menu?0:sp*0.2),ty=lerp(cen.y,T.y(cen.x)-R,0.55)-vh*0.62;
+    const tx=cen.x-vw*(menu?0.2:0.3)+(menu?0:sp*0.14),ty=lerp(cen.y,T.y(cen.x)-R,0.62)-vh*0.62;
     if(!c.init){c.x=tx;c.y=ty;c.init=true;}
-    const A0=c.x+this.W*0.3/c.zoom;c.x+=(tx-c.x)*Math.min(1,dt*10);c.y+=(ty-c.y)*Math.min(1,dt*4);const A1=c.x+this.W*0.3/c.zoom;c.vA=(A1-A0)/Math.max(dt,0.001);const rt=menu?0:clamp(-(h.onGround?h.a:Math.atan2(h.vy,h.vx)*0.4)*0.2,-0.07,0.07);c.roll+=(rt-c.roll)*Math.min(1,dt*3);this.spd=sp;
+    const A0=c.x+this.W*0.3/c.zoom;c.x+=(tx-c.x)*Math.min(1,dt*8);c.y+=(ty-c.y)*Math.min(1,dt*3.2);const A1=c.x+this.W*0.3/c.zoom;c.vA=(A1-A0)/Math.max(dt,0.001);const rt=menu?0:clamp(-(h.onGround?h.a:Math.atan2(h.vy,h.vx)*0.4)*0.13,-0.045,0.045);c.roll+=(rt-c.roll)*Math.min(1,dt*2.5);this.spd=sp;
   }
 
   /* --- отрисовка --- */
@@ -2719,8 +2719,8 @@ class Game{
     this.drawSky(pal);this.peaks(pal);this.drawLife('sky',pal);
     this.layer(FAR,pal.far);this.farProps(pal);this.layer(MID,pal.mid);this.trees(pal);this.drawLife('mid',pal);
     ctx.save();
-    if(this.shake>0){ctx.translate((Math.random()-0.5)*this.shake*22,(Math.random()-0.5)*this.shake*22);}
-    ctx.translate(an,H*0.6);ctx.rotate(c.roll+(this.shake>0?(Math.random()-0.5)*this.shake*0.04:0));ctx.translate(-an,-H*0.6);
+    if(this.shake>0){ctx.translate((Math.random()-0.5)*this.shake*13,(Math.random()-0.5)*this.shake*13);}
+    ctx.translate(an,H*0.6);ctx.rotate(c.roll+(this.shake>0?(Math.random()-0.5)*this.shake*0.022:0));ctx.translate(-an,-H*0.6);
     ctx.scale(z,z);ctx.translate(-c.x,-c.y);
     this.drawGround(pal);this.drawMarks(0,pal);
     for(const o of this.world.obstacles){if(o.dead||o.x<c.x-80||o.x>c.x+W/z+80)continue;drawObstacle(ctx,o,this.world.terrain,pal,this.clock);}
