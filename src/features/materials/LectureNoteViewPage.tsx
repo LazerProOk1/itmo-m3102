@@ -12,6 +12,7 @@ import type { LectureNote } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
 import { LectureNoteContentView } from './LectureNoteContentView';
+import { SiteQuiz } from './SiteQuiz';
 import { LectureNoteDialog } from './LectureNoteDialog';
 import { useLectureNoteDialog } from './useLectureNoteDialog';
 import { useLectureNotesStore } from './lectureNotesStore';
@@ -126,6 +127,10 @@ function NoteView({ note }: { note: LectureNote }) {
 
         <div ref={contentRef} className={styles.content}>
           <LectureNoteContentView contentType={note.contentType} content={note.content} sourceRef={note.sourceRef} baseUrl={noteAssetBase(note)} />
+          {/* Свой тест — только к конспектам группы и только если в конспекте нет теста от самой группы */}
+          {note.source === 'github' && (note.collection ?? 'group') === 'group' && !note.content.includes('```quiz') && (
+            <SiteQuiz sourceRef={note.sourceRef} />
+          )}
         </div>
         <NotePager note={note} siblings={siblings} />
       </article>

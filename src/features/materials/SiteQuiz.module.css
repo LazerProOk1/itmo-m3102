@@ -1,0 +1,43 @@
+.section {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px dashed var(--color-border-strong);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Метка происхождения — честно отделяет наш тест от материалов группы */
+.origin {
+  padding: 2px var(--space-2-5);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+  border-radius: 999px;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+}
+
+.note {
+  margin: var(--space-2) 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+@media print {
+  .section {
+    display: none;
+  }
+}

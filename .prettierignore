@@ -1,3 +1,4 @@
 # Код игры RedstoneLord — как в оригинале, чтобы сравнивать с его index.html при обновлении
 src/features/game/hedgehogGame.js
 src/features/game/hedgehogGame.css
+src/data/siteQuizzes
