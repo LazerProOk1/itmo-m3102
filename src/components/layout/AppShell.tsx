@@ -7,6 +7,7 @@ import { useSearchShortcut } from '../../features/search/useSearchShortcut';
 import { useApplyTheme } from '../../features/settings/theme';
 import { SPRING_SMOOTH, usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
+import { RadioCapsule } from '../radio/RadioCapsule';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -54,6 +55,7 @@ export function AppShell() {
       </div>
 
       <MobileNav />
+      <RadioCapsule />
       <SearchDialog open={isSearchOpen} onClose={() => setSearchOpen(false)} />
       <HomeworkDialog />
     </div>
