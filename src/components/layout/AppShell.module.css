@@ -61,3 +61,8 @@
   background: transparent;
   border-left-color: color-mix(in srgb, var(--color-border) 70%, transparent);
 }
+
+/* Фокус после «Перейти к содержимому» — без рамки вокруг всей страницы */
+.content:focus {
+  outline: none;
+}

@@ -2,6 +2,7 @@ import { CalendarDays } from 'lucide-react';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { List } from '../../components/ui/List';
 import { cn } from '../../lib/cn';
+import { onRovingKeyDown } from '../../lib/rovingKeys';
 import { getDayOfMonth, getShortWeekdayName } from '../../lib/dates';
 import type { ISODate } from '../../types/models';
 import { DayOccurrenceRow } from './DayOccurrenceRow';
@@ -24,7 +25,12 @@ export function DayView({ days, selectedDate, today, time, onSelectDate, onActio
 
   return (
     <div>
-      <div className={styles.strip} role="tablist" aria-label="День недели">
+      <div
+        className={styles.strip}
+        role="tablist"
+        aria-label="День недели"
+        onKeyDown={(event) => onRovingKeyDown(event, days.map((day) => day.date), selected?.date ?? days[0]!.date, onSelectDate)}
+      >
         {days.map((day) => {
           const isSelected = day.date === selected?.date;
           const isToday = day.date === today;
@@ -35,6 +41,7 @@ export function DayView({ days, selectedDate, today, time, onSelectDate, onActio
               type="button"
               role="tab"
               aria-selected={isSelected}
+              tabIndex={isSelected ? 0 : -1}
               className={cn(styles.day, isSelected && styles.daySelected)}
               onClick={() => onSelectDate(day.date)}
             >
