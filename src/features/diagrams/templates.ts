@@ -1,0 +1,71 @@
+import type { DiagramLanguage } from '../../components/diagrams/DiagramBlock';
+
+/** Типы конструктора и стартовые шаблоны — синтаксис из README репозитория группы */
+export const DIAGRAM_TYPES: { value: DiagramLanguage; label: string; hint: string; template: string }[] = [
+  {
+    value: 'plot',
+    label: 'График',
+    hint: 'x/y — диапазоны осей, grid — сетка. Кривые: y = …, x = …, параметрические. Опции в {…}: color, label, dashed.',
+    template: `title: Рост функций
+x: 1..8 y: 0..40 grid
+y = x {color: blue, label: "n"}
+y = x*log2(x) {color: purple, label: "n log n"}
+y = x^2 {color: red, label: "n^2"}`,
+  },
+  {
+    value: 'graph',
+    label: 'Граф',
+    hint: 'Рёбра: A -> B (ориентированное) или A -- B, вес после двоеточия. layout: circle | grid | layered.',
+    template: `title: Граф
+layout: circle
+A -> B : 5
+B -> C : 2
+C -> A
+C -> D : 7`,
+  },
+  {
+    value: 'diagram',
+    label: 'Блок-схема',
+    hint: 'Узлы: id: форма "текст" (round, box, diamond). Стрелки: A -> B : подпись.',
+    template: `title: Блок-схема
+A: round "Старт"
+B: diamond "n > 1?"
+C: box "n = n - 1"
+D: round "Конец"
+A -> B
+B -> C : Да
+C -> B
+B -> D : Нет`,
+  },
+  {
+    value: 'tree',
+    label: 'Дерево',
+    hint: 'Каждый уровень — отступ в два пробела.',
+    template: `title: Дерево слияний
+[0; 7)
+  [0; 4)
+    [0; 2)
+    [2; 4)
+  [4; 7)
+    [4; 6)
+    [6; 7)`,
+  },
+  {
+    value: 'array',
+    label: 'Массив',
+    hint: 'Массив в квадратных скобках; highlight: — выделить индексы, sorted: — отсортированная часть.',
+    template: `title: Массив
+[8, 3, 7, 1, 9] highlight: 1,3`,
+  },
+  {
+    value: 'chart',
+    label: 'Диаграмма данных',
+    hint: 'chart bar | line | pie | scatter. series: — названия рядов, дальше строки «подпись | число | …».',
+    template: `chart bar
+title: Баллы за курс
+series: Тест | Экзамен
+ДМ | 78 | 91
+Линал | 72 | 88
+Матан | 64 | 80`,
+  },
+];

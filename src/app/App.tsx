@@ -4,6 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { CalendarPage } from '../features/calendar/CalendarPage';
 import { DeadlinesPage } from '../features/deadlines/DeadlinesPage';
 import { DesignSystemPage } from '../features/design/DesignSystemPage';
+import { DiagramEditorPage } from '../features/diagrams/DiagramEditorPage';
 import { LinksPage } from '../features/group/LinksPage';
 import { MemesPage } from '../features/group/MemesPage';
 import { RepoFilePage } from '../features/group/RepoFilePage';
@@ -68,6 +69,7 @@ export function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="more" element={<MorePage />} />
             <Route path="design" element={<DesignSystemPage />} />
+            <Route path="diagrams" element={<DiagramEditorPage />} />
             <Route
               path="game"
               element={

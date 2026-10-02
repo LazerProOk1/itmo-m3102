@@ -10,12 +10,15 @@
   margin: var(--space-6) 0;
 }
 
-:global([data-theme='dark']) .figure {
-  --d-red: #f2707f;
-  --d-blue: #6aa3ff;
-  --d-green: #4ccf85;
-  --d-purple: #b090ff;
-  --d-orange: #f5a54a;
+/* Только на экране — на печати диаграммы в светлой палитре, как и вся страница */
+@media screen {
+  :global([data-theme='dark']) .figure {
+    --d-red: #f2707f;
+    --d-blue: #6aa3ff;
+    --d-green: #4ccf85;
+    --d-purple: #b090ff;
+    --d-orange: #f5a54a;
+  }
 }
 
 .figure {
@@ -257,4 +260,46 @@
 
 .error pre {
   margin-top: var(--space-2);
+}
+
+/* ---------- панель под диаграммой ---------- */
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.tools button,
+.tools a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.tools button:hover,
+.tools a:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+}
+
+@media print {
+  .tools {
+    display: none;
+  }
 }
