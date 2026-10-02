@@ -1,9 +1,10 @@
-import { ArrowRight, Check, Pipette } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
 import { buttonClass } from '../../components/ui/Button';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
-import { ACCENTS, accentColor } from './appearance';
+import { AccentPicker } from './AccentPicker';
+import { ACCENTS } from './appearance';
 import { useSettingsStore, type RadiusPreference } from './settingsStore';
 import styles from './settings.module.css';
 import { SettingsRow } from './SettingsRow';
@@ -25,7 +26,6 @@ export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
   const { accent, aurora, glow, radius, setAppearance } = useSettingsStore();
-  const custom = !ACCENTS.some((item) => item.id === accent);
 
   return (
     <>
@@ -50,21 +50,7 @@ export function AppearanceSettings() {
               {accent === item.id && <Check size={14} strokeWidth={3} aria-hidden />}
             </button>
           ))}
-          <label
-            className={styles.swatch}
-            style={{ '--swatch': custom ? accentColor(accent) : 'var(--color-bg-hover)' } as React.CSSProperties}
-            title="Свой цвет"
-            aria-checked={custom}
-          >
-            {custom ? <Check size={14} strokeWidth={3} aria-hidden /> : <Pipette size={14} strokeWidth={2} aria-hidden className={styles.pipette} />}
-            <input
-              type="color"
-              className={styles.colorInput}
-              value={accentColor(accent)}
-              onChange={(event) => setAppearance({ accent: event.target.value })}
-              aria-label="Свой цвет акцента"
-            />
-          </label>
+          <AccentPicker accent={accent} onChange={(value) => setAppearance({ accent: value })} />
         </div>
       </SettingsRow>
 
