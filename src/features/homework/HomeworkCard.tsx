@@ -32,7 +32,7 @@ export function HomeworkCard({ item, today, compact = false, onEdit, onDelete }:
   const overdue = !done && item.due !== '' && item.due < today;
 
   return (
-    <article className={cn(styles.card, done && styles.done)} data-spot>
+    <article className={cn(styles.card, done && styles.done)}>
       <Checkbox aria-label={`Отметить «${item.subject}» выполненным`} checked={done} onChange={(event) => toggleDone(item.id, event.target.checked)} />
       <div className={styles.body}>
         <div className={styles.top}>
