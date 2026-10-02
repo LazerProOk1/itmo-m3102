@@ -14,19 +14,15 @@ interface PageHeaderProps {
    * страница сама решает, было ли это уже показано за сессию, и не передаёт true повторно.
    */
   reveal?: boolean;
-  /** view-transition-name для перехода из списка предметов (см. SubjectRow) */
-  titleViewTransitionName?: string;
 }
 
 /** Заголовок страницы. Одинаковый на всех страницах. */
-export function PageHeader({ title, subtitle, actions, reveal = false, titleViewTransitionName }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, actions, reveal = false }: PageHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.text}>
-        <h1
-          className={cn(styles.title, reveal && styles.reveal)}
-          style={titleViewTransitionName ? { viewTransitionName: titleViewTransitionName } : undefined}
-        >
+        {/* data-morph-target — сюда перетекает заголовок карточки (lib/morph.ts) */}
+        <h1 className={cn(styles.title, reveal && styles.reveal)} data-morph-target>
           {title}
         </h1>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}

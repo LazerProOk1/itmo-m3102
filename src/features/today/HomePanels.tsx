@@ -2,16 +2,18 @@ import { Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
+import { AnimatedNumber } from '../../components/ui/AnimatedNumber';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { IconButton } from '../../components/ui/IconButton';
 import { Input } from '../../components/ui/Input';
 import { Section } from '../../components/ui/Section';
+import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
 import { daysBetween, formatShortDate } from '../../lib/dates';
+import { pluralize } from '../../lib/pluralize';
 import type { ISODate } from '../../types/models';
-import { filePath } from '../group/RepoFilePage';
-import { useGroupStore, type GroupDeadline } from '../group/groupStore';
+import { filePath, useGroupStore, type GroupDeadline } from '../group/groupStore';
 import { deadlineInfo, orderDeadlines } from '../deadlines/deadlineInfo';
 import { HomeworkCard } from '../homework/HomeworkCard';
 import { useHomeworkStore } from '../homework/homeworkStore';
@@ -34,7 +36,12 @@ function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
   const toggle = useGroupStore((state) => state.toggleDeadlineDone);
   return (
     <label className={cn(styles.row, done && styles.done)}>
-      <Checkbox aria-label={`Отметить «${item.name}» выполненным`} checked={done} onChange={(event) => toggle(item.id, event.target.checked)} />
+      <Checkbox
+        celebrate
+        aria-label={`Отметить «${item.name}» выполненным`}
+        checked={done}
+        onChange={(event) => toggle(item.id, event.target.checked)}
+      />
       <span className={styles.day}>{dayMonth(item.deadline)}</span>
       <span className={styles.detail}>
         <strong>{item.name}</strong>
@@ -52,6 +59,7 @@ export function DeadlinesPanel() {
   // Ближайшие впереди, просроченные — после них (как на сайте группы)
   const active = orderDeadlines(deadlines, done).filter((item) => !done[item.id]);
   const completed = deadlines.filter((item) => done[item.id]);
+  useConfettiWhenCleared(active.length);
 
   return (
     <Section title="Ближайшие дедлайны" action={<SectionLink to={SECTIONS.deadlines.path}>Все дедлайны</SectionLink>}>
@@ -76,10 +84,9 @@ export function DeadlinesPanel() {
 export function HomeworkPanel({ today }: { today: ISODate }) {
   const items = useHomeworkStore((state) => state.items);
   const done = useHomeworkStore((state) => state.done);
-  const active = items
-    .filter((item) => !done[item.id])
-    .sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'))
-    .slice(0, 5);
+  const open = items.filter((item) => !done[item.id]);
+  useConfettiWhenCleared(open.length);
+  const active = open.sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).slice(0, 5);
 
   return (
     <Section title="Домашнее задание" action={<SectionLink to={SECTIONS.homework.path}>Все задания</SectionLink>}>
@@ -92,22 +99,41 @@ export function HomeworkPanel({ today }: { today: ISODate }) {
   );
 }
 
-const TILES = [
-  { name: 'Конспекты', desc: 'Лекции и практики по предметам', to: SECTIONS.materials.path },
-  { name: 'Записи лекций', desc: 'Аудио прошедших занятий', to: filePath('Записи лекций') },
-  { name: 'Лабораторные', desc: 'Задания и отчёты', to: filePath('Лабораторные') },
-  { name: 'Материалы', desc: 'Учебники и полезные файлы', to: filePath('Материалы') },
+const FOLDERS = [
+  { name: 'Записи лекций', desc: 'Аудио прошедших занятий' },
+  { name: 'Лабораторные', desc: 'Задания и отчёты' },
+  { name: 'Материалы', desc: 'Учебники и полезные файлы' },
 ];
 
+/**
+ * Бенто, а не четыре одинаковые плитки: конспекты — главное, крупно и с числом; папки — компактно.
+ * Ровная сетка равных карточек — примета шаблонного сайта, асимметрия читается как решение (21st.dev)
+ */
 export function MaterialsPanel() {
+  const notes = useLectureNotesStore((state) => state.lectureNotes.filter((note) => !note.archived).length);
+  const files = useGroupStore((state) => state.files);
+  const count = (folder: string) => files.filter((file) => file.path.startsWith(`${folder}/`)).length;
+
   return (
     <Section title="Материалы" action={<SectionLink to="/files">Все материалы</SectionLink>}>
       <div className={styles.tiles}>
-        {TILES.map((tile, index) => (
-          <Link key={tile.name} to={tile.to} className={styles.tile} data-spot>
-            <span className={styles.tileIndex}>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{tile.name}</strong>
-            <small>{tile.desc}</small>
+        <Link to={SECTIONS.materials.path} className={cn(styles.tile, styles.tileMain)} data-spot>
+          <span className={styles.tileIndex}>01</span>
+          <strong>Конспекты</strong>
+          <small>Лекции и практики по предметам</small>
+          <span className={styles.tileCount}>
+            <AnimatedNumber value={notes} />
+            <small>{pluralize(notes, ['конспект', 'конспекта', 'конспектов']).split(' ')[1]}</small>
+          </span>
+        </Link>
+        {FOLDERS.map((folder, index) => (
+          <Link key={folder.name} to={filePath(folder.name)} className={styles.tile} data-spot>
+            <span className={styles.tileIndex}>{String(index + 2).padStart(2, '0')}</span>
+            <strong>{folder.name}</strong>
+            <small>
+              {folder.desc}
+              {count(folder.name) > 0 && ` · ${count(folder.name)}`}
+            </small>
           </Link>
         ))}
       </div>
@@ -163,7 +189,7 @@ export function StudyPlanPanel({ today }: { today: ISODate }) {
           const overdue = !done && task.deadline !== undefined && daysBetween(today, task.deadline) < 0;
           return (
             <div key={task.id} className={cn(styles.row, done && styles.done)}>
-              <Checkbox label={task.title} checked={done} onChange={() => toggleDone(task.id)} />
+              <Checkbox celebrate label={task.title} checked={done} onChange={() => toggleDone(task.id)} />
               {task.deadline && <span className={cn(styles.planDate, overdue && styles.overdue)}>{formatShortDate(task.deadline)}</span>}
               <IconButton icon={Trash2} label={`Удалить задачу «${task.title}»`} size="sm" onClick={() => deleteTask(task.id)} />
             </div>
@@ -191,8 +217,8 @@ export function RecentNotesPanel() {
       ) : (
         <div className={styles.notes}>
           {recent.map((note) => (
-            <Link key={note.id} to={`/materials/notes/${note.id}`} className={styles.note} data-spot>
-              <strong>{note.title}</strong>
+            <Link key={note.id} to={`/materials/notes/${note.id}`} className={styles.note} data-spot data-morph>
+              <strong data-morph-title>{note.title}</strong>
               <small>
                 {subjects.find((subject) => subject.id === note.subjectId)?.name ?? 'Прочее'} · {note.lectureNumber} ·{' '}
                 {new Date(note.createdAt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })}

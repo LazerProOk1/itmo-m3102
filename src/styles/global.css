@@ -218,3 +218,29 @@ html {
     color: inherit;
   }
 }
+
+/* Перетекание заголовка карточки в заголовок страницы (lib/morph.ts). Пока снимается старое состояние
+   (класс morph-from), у заголовка текущей страницы имени нет — два одинаковых имени браузер не принимает */
+:root:not(.morph-from) [data-morph-target] {
+  view-transition-name: morph-title;
+}
+
+::view-transition-group(morph-title) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Текст масштабируется по высоте и прижат влево — без растягивания, когда ширина карточки и заголовка разная */
+::view-transition-old(morph-title),
+::view-transition-new(morph-title) {
+  width: auto;
+  height: 100%;
+}
+
+/* Искры и конфетти за «сделано» (lib/celebrate.ts) — поверх всего, не ловят клики */
+.burst-piece {
+  position: fixed;
+  z-index: 1000;
+  border-radius: 1px;
+  pointer-events: none;
+}

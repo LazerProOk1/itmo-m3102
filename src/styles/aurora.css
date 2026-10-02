@@ -1,7 +1,7 @@
 /*
  * «Сияние» — слой первого впечатления (ветка design-aurora). Всё включается атрибутами на <html>
  * из настроек оформления (features/settings/appearance.ts) и выключается начисто:
- *   data-aurora="on" — пятна света за страницей, сетка, шум, градиентный заголовок;
+ *   data-aurora="on" — пятна света за страницей (оттенки одного акцента), сетка, шум;
  *   data-glow="on"   — подсветка под курсором на карточках, светящиеся кнопки, многослойные тени.
  * Принципы (исследования первого впечатления, стиль Linear/Vercel/Raycast): структура страницы
  * привычная, «вау» — в свете и глубине. Анимируются только transform/opacity, никаких blur/backdrop-filter
@@ -107,36 +107,10 @@
   pointer-events: none;
 }
 
-/* Главный заголовок — градиент от текста к акценту и медленный блик */
-:root[data-aurora='on'] .hero-title {
-  background: linear-gradient(
-    100deg,
-    var(--color-text) 0%,
-    var(--color-text) 35%,
-    var(--color-accent) 60%,
-    var(--glow-b) 80%,
-    var(--color-text) 100%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: hero-sheen 9s ease-in-out infinite alternate;
-}
-
+/* Главный заголовок — сплошной текст (градиентный перелив по тексту — штамп сгенерированных сайтов),
+   светится только акцентная точка в конце */
 :root[data-aurora='on'] .hero-title > * {
-  -webkit-text-fill-color: var(--color-accent);
   text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 70%, transparent);
-}
-
-@keyframes hero-sheen {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: 0 0;
-  }
 }
 
 /* Карточки — почти сплошные: сияние фона не мешается с их содержимым */
@@ -270,8 +244,7 @@
 
 /* ---------- всё зацикленное стоит, если просили меньше движения ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .aurora i,
-  :root[data-aurora='on'] .hero-title {
+  .aurora i {
     animation: none;
   }
 }

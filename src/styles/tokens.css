@@ -13,6 +13,9 @@
 :root {
   /* Типографика */
   --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Заголовки — Unbounded: выразительный, с полной кириллицей; текст остаётся на Inter.
+     «Необычный заголовочный + простой текстовый» — главный совет против шаблонного вида (21st.dev) */
+  --font-display: 'Unbounded Variable', var(--font-sans);
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
 
   --text-2xs: 0.6875rem; /* 11px — метки, счётчики */
@@ -98,22 +101,22 @@
 :root[data-theme='light'] {
   color-scheme: light;
 
-  /* Поверхности */
+  /* Поверхности. Серые чуть подкрашены акцентом — палитра из одного цвета выглядит выбранной, а не дефолтной */
   --color-bg: #ffffff;
-  --color-bg-subtle: #f7f7f8;
-  --color-bg-hover: #f0f0f2;
-  --color-bg-active: #e8e8eb;
+  --color-bg-subtle: color-mix(in oklab, #f7f7f8 95%, var(--accent-base));
+  --color-bg-hover: color-mix(in oklab, #f0f0f2 94%, var(--accent-base));
+  --color-bg-active: color-mix(in oklab, #e8e8eb 93%, var(--accent-base));
   --color-bg-elevated: #ffffff; /* выпадающие меню, модальные окна */
   --color-backdrop: rgba(24, 24, 27, 0.28);
 
   /* Переключатели (SegmentedControl) */
-  --color-control-track: #f0f0f2;
+  --color-control-track: color-mix(in oklab, #f0f0f2 94%, var(--accent-base));
   --color-control-thumb: #ffffff;
 
   /* Границы */
-  --color-border: #ebebef;
-  --color-border-strong: #dcdce1;
-  --color-border-hover: #c9c9d0;
+  --color-border: color-mix(in oklab, #ebebef 93%, var(--accent-base));
+  --color-border-strong: color-mix(in oklab, #dcdce1 93%, var(--accent-base));
+  --color-border-hover: color-mix(in oklab, #c9c9d0 92%, var(--accent-base));
 
   /* Текст */
   --color-text: #18181b;
@@ -130,8 +133,9 @@
   --color-on-accent: #ffffff;
   /* Свет для эффектов: пятна фона, свечение кнопок и карточек */
   --glow-a: var(--accent-base);
-  --glow-b: color-mix(in oklch, var(--accent-base), #ff4fd8 45%);
-  --glow-c: color-mix(in oklch, var(--accent-base), #2ee6ff 45%);
+  /* Оттенки одного цвета, без чужих розовых и голубых: радужный градиент — первый признак «сгенерированного» сайта */
+  --glow-b: color-mix(in oklch, var(--accent-base) 70%, white);
+  --glow-c: color-mix(in oklch, var(--accent-base) 75%, black);
 
   /* Статусы */
   --color-success: #2f7d4f;
@@ -162,19 +166,19 @@
   :root[data-theme='dark'] {
     color-scheme: dark;
 
-    --color-bg: #131315;
-    --color-bg-subtle: #0d0d0f;
-    --color-bg-hover: #202024;
-    --color-bg-active: #28282d;
-    --color-bg-elevated: #19191c;
+    --color-bg: color-mix(in oklab, #131315 95%, var(--accent-base));
+    --color-bg-subtle: color-mix(in oklab, #0d0d0f 96%, var(--accent-base));
+    --color-bg-hover: color-mix(in oklab, #202024 93%, var(--accent-base));
+    --color-bg-active: color-mix(in oklab, #28282d 92%, var(--accent-base));
+    --color-bg-elevated: color-mix(in oklab, #19191c 95%, var(--accent-base));
     --color-backdrop: rgba(0, 0, 0, 0.6);
 
-    --color-control-track: #1c1c1f;
-    --color-control-thumb: #2c2c31;
+    --color-control-track: color-mix(in oklab, #1c1c1f 94%, var(--accent-base));
+    --color-control-thumb: color-mix(in oklab, #2c2c31 92%, var(--accent-base));
 
-    --color-border: #232327;
-    --color-border-strong: #2f2f34;
-    --color-border-hover: #3d3d44;
+    --color-border: color-mix(in oklab, #232327 92%, var(--accent-base));
+    --color-border-strong: color-mix(in oklab, #2f2f34 91%, var(--accent-base));
+    --color-border-hover: color-mix(in oklab, #3d3d44 90%, var(--accent-base));
 
     --color-text: #ededef;
     --color-text-secondary: #a8a8b0;

@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { Link } from 'react-router';
-import { Markdown } from '../../components/markdown/Markdown';
+import { LazyMarkdown as Markdown } from '../../components/markdown/LazyMarkdown';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { IconButton } from '../../components/ui/IconButton';
 import { cn } from '../../lib/cn';
@@ -34,6 +34,7 @@ export function HomeworkCard({ item, today, compact = false, onEdit, onDelete }:
   return (
     <article className={cn(styles.card, done && styles.done)}>
       <Checkbox
+        celebrate
         aria-label={`Отметить «${item.subject}» выполненным`}
         checked={done}
         onChange={(event) => toggleDone(item.id, event.target.checked)}

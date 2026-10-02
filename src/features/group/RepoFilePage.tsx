@@ -8,7 +8,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { groupRawUrl } from '../../services/github';
 import { downloadUrl } from '../../lib/download';
 import { quizPageToMarkdown } from '../../components/quiz/parseQuiz';
-import { isHiddenPath, useGroupStore, type RepoFile } from './groupStore';
+import { filePath, isHiddenPath, useGroupStore, type RepoFile } from './groupStore';
 import styles from './RepoFilePage.module.css';
 
 const PdfViewer = lazy(() => import('../materials/PdfViewer').then((module) => ({ default: module.PdfViewer })));
@@ -41,8 +41,6 @@ export function formatSize(bytes: number): string {
   if (bytes < 1_048_576) return `${(bytes / 1024).toFixed(0)} КБ`;
   return `${(bytes / 1_048_576).toFixed(1)} МБ`;
 }
-
-export const filePath = (path: string) => `/files/${path.split('/').map(encodeURIComponent).join('/')}`;
 
 /** Папки и файлы, лежащие прямо внутри `folder` */
 export function listFolder(files: RepoFile[], folder: string): { folders: string[]; files: RepoFile[] } {

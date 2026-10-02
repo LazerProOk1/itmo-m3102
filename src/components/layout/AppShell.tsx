@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
-import { useCallback, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
 import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
 import { useApplyAppearance } from '../../features/settings/appearance';
 import { useApplyTheme } from '../../features/settings/theme';
+import { useMorphLinks } from '../../lib/morph';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
 import { RadioCapsule } from '../radio/RadioCapsule';
@@ -29,6 +30,7 @@ export function AppShell() {
   useApplyAppearance();
   useScrollMemory();
   useSearchShortcut(openSearch);
+  useMorphLinks();
 
   return (
     <div className={styles.shell}>
@@ -61,7 +63,9 @@ export function AppShell() {
             initial={reduceMotion ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
           >
-            <Outlet />
+            <Suspense fallback={null}>
+              <Outlet />
+            </Suspense>
           </motion.div>
         </main>
       </div>

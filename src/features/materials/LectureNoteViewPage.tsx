@@ -92,7 +92,7 @@ function NoteView({ note }: { note: LectureNote }) {
 
           <div className={styles.titleRow}>
             <div>
-              <h1 className={styles.title}>
+              <h1 className={styles.title} data-morph-target>
                 {title}
                 {note.source === 'github' && <GithubSourceBadge />}
               </h1>
