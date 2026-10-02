@@ -73,3 +73,31 @@
 .daySelected .dot {
   background: var(--color-accent);
 }
+
+/* ---------- перерывы между парами ---------- */
+.break {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px 0 2px calc(var(--space-3) + 52px);
+  list-style: none;
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+}
+
+.break::after {
+  content: '';
+  flex: 1;
+  border-top: 1px dashed var(--color-border);
+}
+
+/* Длинное окно — заметнее: можно успеть поесть или дойти до другого корпуса */
+.window {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  color: var(--color-accent-text);
+}
+
+.window::after {
+  border-top-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
