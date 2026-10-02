@@ -121,11 +121,17 @@
   --color-text-muted: #8b8b94;
 
   /* Акцент */
-  --color-accent: #3056d3;
-  --color-accent-hover: #2848b8;
-  --color-accent-soft: #eef2fc;
-  --color-accent-text: #2445ad;
+  /* Все оттенки — из одного цвета --accent-base, его выбирают в настройках (appearance.ts) */
+  --accent-base: #5b6cf9;
+  --color-accent: color-mix(in oklab, var(--accent-base) 92%, black);
+  --color-accent-hover: color-mix(in oklab, var(--accent-base) 80%, black);
+  --color-accent-soft: color-mix(in srgb, var(--accent-base) 10%, white);
+  --color-accent-text: color-mix(in oklab, var(--accent-base) 72%, black);
   --color-on-accent: #ffffff;
+  /* Свет для эффектов: пятна фона, свечение кнопок и карточек */
+  --glow-a: var(--accent-base);
+  --glow-b: color-mix(in oklch, var(--accent-base), #ff4fd8 45%);
+  --glow-c: color-mix(in oklch, var(--accent-base), #2ee6ff 45%);
 
   /* Статусы */
   --color-success: #2f7d4f;
@@ -174,10 +180,10 @@
     --color-text-secondary: #a8a8b0;
     --color-text-muted: #70707a;
 
-    --color-accent: #7c98f0;
-    --color-accent-hover: #93abf4;
-    --color-accent-soft: rgba(124, 152, 240, 0.12);
-    --color-accent-text: #a9bcf6;
+    --color-accent: color-mix(in oklab, var(--accent-base) 80%, white);
+    --color-accent-hover: color-mix(in oklab, var(--accent-base) 68%, white);
+    --color-accent-soft: color-mix(in srgb, var(--accent-base) 16%, transparent);
+    --color-accent-text: color-mix(in oklab, var(--accent-base) 55%, white);
     --color-on-accent: #0d0d0f;
 
     --color-success: #62bd88;
@@ -199,4 +205,17 @@
     --shadow-popover: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
     --shadow-modal: 0 24px 64px -16px rgba(0, 0, 0, 0.7);
   }
+}
+
+/* Скругления — из настроек оформления */
+:root[data-radius='sharp'] {
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+}
+
+:root[data-radius='round'] {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
 }

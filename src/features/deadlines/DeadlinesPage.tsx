@@ -156,7 +156,7 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
   }
 
   return (
-    <article className={cn(styles.card, done && styles.done)}>
+    <article className={cn(styles.card, done && styles.done)} data-spot>
       <div className={styles.cardTop}>
         <span className={styles.index}>{String(index + 1).padStart(2, '0')}</span>
         <Badge tone={badge.tone}>{badge.label}</Badge>

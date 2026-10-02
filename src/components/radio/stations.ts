@@ -1,4 +1,7 @@
-/** Станции капсулы-радио: открытые потоки, которые разрешают слушать на сторонних сайтах */
+/**
+ * Станции капсулы-радио — открытые потоки laut.fm: играют на сторонних сайтах без ограничений.
+ * (SomaFM не подходит: из браузера на чужом сайте отдаёт ошибку, проверено.)
+ */
 export interface Station {
   id: string;
   name: string;
@@ -7,18 +10,19 @@ export interface Station {
   source: { name: string; href: string };
 }
 
-const SOMA = { name: 'SomaFM', href: 'https://somafm.com' };
+const laut = (id: string, name: string, description: string): Station => ({
+  id,
+  name,
+  description,
+  url: `https://stream.laut.fm/${id}`,
+  source: { name: 'laut.fm', href: `https://laut.fm/${id}` },
+});
 
 export const STATIONS: Station[] = [
-  {
-    id: 'lofi',
-    name: 'Lo-fi',
-    description: 'Лоу-фай хип-хоп для учёбы',
-    url: 'https://stream.laut.fm/lofi',
-    source: { name: 'laut.fm', href: 'https://laut.fm/lofi' },
-  },
-  { id: 'fluid', name: 'Fluid', description: 'Инструментальный хип-хоп и соул', url: 'https://ice2.somafm.com/fluid-128-mp3', source: SOMA },
-  { id: 'groove', name: 'Groove Salad', description: 'Чилаут и даунтемпо', url: 'https://ice4.somafm.com/groovesalad-128-mp3', source: SOMA },
-  { id: 'lush', name: 'Lush', description: 'Спокойный вокал и электроника', url: 'https://ice2.somafm.com/lush-128-mp3', source: SOMA },
-  { id: 'space', name: 'Deep Space', description: 'Эмбиент — когда нужна тишина, но не совсем', url: 'https://ice2.somafm.com/deepspaceone-128-mp3', source: SOMA },
+  laut('lofi', 'Lo-fi', 'Лоу-фай хип-хоп для учёбы'),
+  laut('chillout', 'Chillout', 'Спокойная электроника'),
+  laut('lounge', 'Lounge', 'Лаунж и даунтемпо'),
+  laut('jazz', 'Jazz', 'Джаз для фона'),
+  laut('synthwave', 'Synthwave', 'Ретро-синтвейв для дедлайнов'),
+  laut('ambient', 'Ambient', 'Эмбиент — почти тишина'),
 ];

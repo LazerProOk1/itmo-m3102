@@ -104,7 +104,7 @@ export function MemesPage() {
       ) : (
         <div className={`${styles.grid} stagger`}>
           {sorted.map((meme) => (
-            <figure key={meme.id} className={styles.card}>
+            <figure key={meme.id} className={styles.card} data-spot>
               <button type="button" className={styles.image} onClick={() => setOpen(meme)}>
                 <img src={groupRawUrl(meme.file)} alt={meme.title || 'Мем'} loading="lazy" />
               </button>

@@ -104,7 +104,7 @@ export function MaterialsPanel() {
     <Section title="Материалы" action={<SectionLink to="/files">Все материалы</SectionLink>}>
       <div className={styles.tiles}>
         {TILES.map((tile, index) => (
-          <Link key={tile.name} to={tile.to} className={styles.tile}>
+          <Link key={tile.name} to={tile.to} className={styles.tile} data-spot>
             <span className={styles.tileIndex}>{String(index + 1).padStart(2, '0')}</span>
             <strong>{tile.name}</strong>
             <small>{tile.desc}</small>

@@ -11,17 +11,31 @@ interface LocalSettings {
   theme: ThemePreference;
   /** Режим редактирования: показывать ли кнопки добавления/изменения/удаления. */
   editMode: boolean;
+  /** Цвет акцента: id готового (appearance.ts) или свой — «#rrggbb» */
+  accent: string;
+  /** Фон-сияние: медленные пятна света в цвете акцента за страницей */
+  aurora: boolean;
+  /** Свечение карточек: подсветка под курсором и светящиеся кнопки */
+  glow: boolean;
+  radius: RadiusPreference;
 }
+
+export type RadiusPreference = 'sharp' | 'normal' | 'round';
 
 interface SettingsStore extends LocalSettings {
   setTheme: (theme: ThemePreference) => void;
   setEditMode: (editMode: boolean) => void;
+  setAppearance: (patch: Partial<Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'radius'>>) => void;
 }
 
 const DEFAULT_SETTINGS: LocalSettings = {
   theme: 'system',
   /** По умолчанию — режим просмотра, интерфейс максимально чистый */
   editMode: false,
+  accent: 'indigo',
+  aurora: true,
+  glow: true,
+  radius: 'normal',
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -30,6 +44,7 @@ export const useSettingsStore = create<SettingsStore>()(
       ...DEFAULT_SETTINGS,
       setTheme: (theme) => set({ theme }),
       setEditMode: (editMode) => set({ editMode }),
+      setAppearance: (patch) => set(patch),
     }),
     {
       name: storageKey('settings'),
