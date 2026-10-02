@@ -66,6 +66,7 @@ export function TaskRow({ task, today, onEdit }: TaskRowProps) {
         muted={isDone}
         leading={
           <Checkbox
+            celebrate
             checked={isDone}
             onChange={handleToggle}
             aria-label={`${isDone ? 'Отметить как невыполненное' : 'Отметить как выполненное'}: ${task.title}`}

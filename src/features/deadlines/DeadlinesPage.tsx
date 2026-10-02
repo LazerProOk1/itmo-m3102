@@ -6,6 +6,7 @@ import { Checkbox } from '../../components/ui/Checkbox';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
 import { GROUP_REPO, githubError, githubFetch, repoEditUrl } from '../../services/github';
 import { useGroupStore, type GroupDeadline } from '../group/groupStore';
@@ -54,6 +55,7 @@ export function DeadlinesPage() {
   const { isEditMode } = useEditMode();
   const deadlines = useGroupStore((state) => state.deadlines);
   const doneMap = useGroupStore((state) => state.deadlinesDone);
+  useConfettiWhenCleared(deadlines.filter((item) => !doneMap[item.id]).length);
   const [queues, setQueues] = useState<Record<string, QueueEntry[]>>({});
   const [queueError, setQueueError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -189,7 +191,7 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
           В очередь ↗
         </Button>
       </form>
-      <Checkbox label="Выполнено для меня" checked={done} onChange={(event) => toggleDone(item.id, event.target.checked)} />
+      <Checkbox celebrate label="Выполнено для меня" checked={done} onChange={(event) => toggleDone(item.id, event.target.checked)} />
     </article>
   );
 }

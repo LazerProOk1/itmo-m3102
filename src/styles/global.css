@@ -236,3 +236,11 @@ html {
   width: auto;
   height: 100%;
 }
+
+/* Искры и конфетти за «сделано» (lib/celebrate.ts) — поверх всего, не ловят клики */
+.burst-piece {
+  position: fixed;
+  z-index: 1000;
+  border-radius: 1px;
+  pointer-events: none;
+}

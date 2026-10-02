@@ -7,6 +7,7 @@ import { Checkbox } from '../../components/ui/Checkbox';
 import { IconButton } from '../../components/ui/IconButton';
 import { Input } from '../../components/ui/Input';
 import { Section } from '../../components/ui/Section';
+import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
 import { daysBetween, formatShortDate } from '../../lib/dates';
 import type { ISODate } from '../../types/models';
@@ -33,7 +34,12 @@ function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
   const toggle = useGroupStore((state) => state.toggleDeadlineDone);
   return (
     <label className={cn(styles.row, done && styles.done)}>
-      <Checkbox aria-label={`Отметить «${item.name}» выполненным`} checked={done} onChange={(event) => toggle(item.id, event.target.checked)} />
+      <Checkbox
+        celebrate
+        aria-label={`Отметить «${item.name}» выполненным`}
+        checked={done}
+        onChange={(event) => toggle(item.id, event.target.checked)}
+      />
       <span className={styles.day}>{dayMonth(item.deadline)}</span>
       <span className={styles.detail}>
         <strong>{item.name}</strong>
@@ -51,6 +57,7 @@ export function DeadlinesPanel() {
   // Ближайшие впереди, просроченные — после них (как на сайте группы)
   const active = orderDeadlines(deadlines, done).filter((item) => !done[item.id]);
   const completed = deadlines.filter((item) => done[item.id]);
+  useConfettiWhenCleared(active.length);
 
   return (
     <Section title="Ближайшие дедлайны" action={<SectionLink to={SECTIONS.deadlines.path}>Все дедлайны</SectionLink>}>
@@ -75,10 +82,9 @@ export function DeadlinesPanel() {
 export function HomeworkPanel({ today }: { today: ISODate }) {
   const items = useHomeworkStore((state) => state.items);
   const done = useHomeworkStore((state) => state.done);
-  const active = items
-    .filter((item) => !done[item.id])
-    .sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'))
-    .slice(0, 5);
+  const open = items.filter((item) => !done[item.id]);
+  useConfettiWhenCleared(open.length);
+  const active = open.sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).slice(0, 5);
 
   return (
     <Section title="Домашнее задание" action={<SectionLink to={SECTIONS.homework.path}>Все задания</SectionLink>}>
@@ -162,7 +168,7 @@ export function StudyPlanPanel({ today }: { today: ISODate }) {
           const overdue = !done && task.deadline !== undefined && daysBetween(today, task.deadline) < 0;
           return (
             <div key={task.id} className={cn(styles.row, done && styles.done)}>
-              <Checkbox label={task.title} checked={done} onChange={() => toggleDone(task.id)} />
+              <Checkbox celebrate label={task.title} checked={done} onChange={() => toggleDone(task.id)} />
               {task.deadline && <span className={cn(styles.planDate, overdue && styles.overdue)}>{formatShortDate(task.deadline)}</span>}
               <IconButton icon={Trash2} label={`Удалить задачу «${task.title}»`} size="sm" onClick={() => deleteTask(task.id)} />
             </div>

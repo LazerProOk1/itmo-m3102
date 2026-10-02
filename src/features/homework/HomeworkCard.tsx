@@ -34,6 +34,7 @@ export function HomeworkCard({ item, today, compact = false, onEdit, onDelete }:
   return (
     <article className={cn(styles.card, done && styles.done)}>
       <Checkbox
+        celebrate
         aria-label={`Отметить «${item.subject}» выполненным`}
         checked={done}
         onChange={(event) => toggleDone(item.id, event.target.checked)}
