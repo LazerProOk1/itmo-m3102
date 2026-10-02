@@ -264,7 +264,7 @@
     import { bindNoteDiagrams, installDiagramEditor, renderDiagramEditor } from './js/diagrams/editor.js';
     import { installMemes, renderMemesPage } from './js/memes.js';
     import { renderLinksPage, materialsSwitch } from './js/links.js';
-    import { quizFigure, bindQuizzes, printifyQuizzes, quizPageSource, mountQuizPage } from './js/quiz.js';
+    import { quizFigure, bindQuizzes, quizPageSource, mountQuizPage } from './js/quiz.js';
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
@@ -348,7 +348,7 @@
     }
     function renderCodeBlock(code,infostring){
       const lang=(infostring||'').trim().split(/\s+/)[0].toLowerCase();
-      if(lang==='quiz')return quizFigure(code);
+      if(lang==='quiz')return `<div class="quiz-block" data-pdf-hide>${quizFigure(code)}</div>`; // data-pdf-hide: тесты не попадают в PDF
       if(lang==='mermaid')return renderMermaidBlock(code);
       if(hasDiagram(lang))return codeFigure(lang,code);
       return highlightCode(code,lang);
@@ -1152,7 +1152,8 @@
         source.querySelectorAll('.code-copy').forEach(b=>b.remove());
         // интерактивные массивы с кодом в PDF печатаются обычным статичным массивом (как раньше)
         printifyDiagrams(source);
-        printifyQuizzes(source);
+        // тесты в PDF не выводим вообще — просто убираем из клона до вёрстки страниц
+        source.querySelectorAll('[data-pdf-hide]').forEach(el=>el.remove());
         pdfDelistify(source);
         if(document.fonts && document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
         source.style.visibility='visible';
