@@ -352,7 +352,7 @@ function Result({ results, best, onRestart }: { results: boolean[]; best: number
           : ['Стоит перечитать конспект', styles.poor];
 
   useEffect(() => {
-    if (share < 0.8 || !ringRef.current) return;
+    if (share < 0.8 || !ringRef.current) return undefined;
     const rect = ringRef.current.getBoundingClientRect();
     burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 90);
     rain(share === 1 ? 170 : 70);
@@ -362,6 +362,7 @@ function Result({ results, best, onRestart }: { results: boolean[]; best: number
       );
       return () => timers.forEach(clearTimeout);
     }
+    return undefined;
   }, [share]);
 
   return (

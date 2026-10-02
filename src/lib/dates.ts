@@ -100,17 +100,17 @@ export function daysBetween(from: ISODate, to: ISODate): number {
 
 /** "2026-09-15" → "Вторник" (именительный падеж, для отдельной подписи) */
 export function getWeekdayName(date: ISODate): string {
-  return WEEKDAYS[toDate(date).getDay()];
+  return WEEKDAYS[toDate(date).getDay()]!;
 }
 
 /** "2026-09-15" → "Вт" (короткое обозначение для заголовков колонок) */
 export function getShortWeekdayName(date: ISODate): string {
-  return SHORT_WEEKDAYS[toDate(date).getDay()];
+  return SHORT_WEEKDAYS[toDate(date).getDay()]!;
 }
 
 /** "2026-09-15" → "во вторник" (для фраз вида «Следующая пара во вторник») */
 export function formatOnWeekday(date: ISODate): string {
-  return WEEKDAYS_ON[toDate(date).getDay()];
+  return WEEKDAYS_ON[toDate(date).getDay()]!;
 }
 
 /** "2026-09-15" → 15 */
@@ -133,7 +133,7 @@ export function formatMonthLabel(date: ISODate): string {
 /** "2026-09-18" → "18 сен" или "18 сентября" */
 export function formatShortDate(date: ISODate, month: 'short' | 'long' = 'short'): string {
   const value = toDate(date);
-  const monthName = MONTHS_GENITIVE[value.getMonth()];
+  const monthName = MONTHS_GENITIVE[value.getMonth()]!;
   return `${value.getDate()} ${month === 'short' ? monthName.slice(0, 3) : monthName}`;
 }
 
@@ -164,7 +164,7 @@ export function formatDayLabel(date: ISODate, today: ISODate, month: 'short' | '
 /** Сколько минут от одного времени до другого: ("09:18", "10:00") → 42 */
 export function minutesBetween(from: string, to: string): number {
   const toMinutes = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
+    const [hours = 0, minutes = 0] = time.split(':').map(Number);
     return hours * 60 + minutes;
   };
   return toMinutes(to) - toMinutes(from);

@@ -36,7 +36,7 @@ function timeToOffset(time: string): number {
 }
 
 function addMinutesToTime(time: string, minutes: number): string {
-  const [hours, mins] = time.split(':').map(Number);
+  const [hours = 0, mins = 0] = time.split(':').map(Number);
   const total = hours * 60 + mins + minutes;
   return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
