@@ -147,12 +147,15 @@ label.row > :first-child {
   background: var(--color-bg-hover);
 }
 
+/* Название — до двух строк: «Тест — Асимптот…» в одну строку ничего не говорит */
 .note strong {
+  display: -webkit-box;
   overflow: hidden;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .note small {
