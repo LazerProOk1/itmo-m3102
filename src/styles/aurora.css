@@ -145,29 +145,127 @@
 }
 
 /* ---------- свечение карточек ---------- */
+/* :where — нулевая специфичность: карточка, у которой своя position, её сохраняет */
+:where(:root[data-glow='on'] [data-spot]) {
+  position: relative;
+}
+
 :root[data-glow='on'] [data-spot] {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
     0 1px 2px rgb(0 0 0 / 0.06),
     0 10px 30px -18px rgb(0 0 0 / 0.35);
+  /* Отпускание медленнее нажатия (Josh Comeau, «3D button»): вниз щелчком, обратно — мягко */
   transition:
-    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 320ms var(--ease-luxury-out),
+    box-shadow 220ms var(--ease-luxury-out),
+    border-color 220ms var(--ease-luxury-out),
     background-color 220ms ease;
 }
 
-/* Пятно света следует за курсором (координаты пишет appearance.ts), граница наливается акцентом */
-:root[data-glow='on'] [data-spot]:hover {
-  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
-  background-image: radial-gradient(
-    320px circle at var(--mx, 50%) var(--my, 50%),
-    color-mix(in srgb, var(--color-accent) 11%, transparent),
-    transparent 65%
+/* Рамка, которая загорается там, где курсор: градиент в слое ::after, маской оставлена только полоска
+   толщиной в границу (mask-composite: exclude). Появляется через opacity — без перерисовки тени.
+   data-spot="own" — у карточки свои ::after и свет (блок «Следующая пара») */
+:root[data-glow='on'] [data-spot]:not([data-spot='own'])::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    220px circle at var(--mx, 50%) var(--my, 50%),
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent) 30%, transparent) 45%,
+    transparent 75%
   );
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--color-accent) 22%, transparent),
-    0 14px 40px -16px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 260ms var(--ease-luxury-out);
+  pointer-events: none;
+}
+
+/* Наведение — только там, где есть настоящий курсор: на телефоне :hover «залипает» после тапа */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-glow='on'] [data-spot]:hover::after {
+    opacity: 1;
+  }
+
+  /* Пятно света следует за курсором (координаты пишет appearance.ts), граница наливается акцентом */
+  :root[data-glow='on'] [data-spot]:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+    background-image: radial-gradient(
+      320px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--color-accent) 11%, transparent),
+      transparent 65%
+    );
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent),
+      0 14px 40px -16px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+}
+
+/* Фокус с клавиатуры — та же рамка целиком и мягкое свечение вокруг */
+:root[data-glow='on'] [data-spot]:focus-visible::after {
+  --mx: 50%;
+  --my: 50%;
+  opacity: 1;
+}
+
+:root[data-glow='on'] [data-spot]:focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+/* ---------- волна от клика (lib/ripple.ts) ---------- */
+/* Слой волны позиционируется от хозяина; :where не перебивает position из модулей */
+:where(:root[data-glow='on'] :is(button, a[data-spot], [role='button'], nav a[href])) {
+  position: relative;
+}
+
+.ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 360ms var(--ease);
+}
+
+/* Цвет волны — цвет содержимого (state layer в Material), непрозрачность нажатия ~0.12 */
+.ripple > i {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.14;
+  transform: scale(0);
+  animation: ripple-grow 520ms var(--ease-luxury-out) forwards;
+}
+
+/* На карточках волна в цвет акцента — продолжает подсветку под курсором */
+[data-spot] > .ripple > i {
+  background: var(--color-accent);
+  opacity: 0.16;
+}
+
+.ripple-out {
+  opacity: 0;
+}
+
+@keyframes ripple-grow {
+  from {
+    transform: scale(0.1);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 /* ---------- всё зацикленное стоит, если просили меньше движения ---------- */

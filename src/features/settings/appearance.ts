@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { installRipple } from '../../lib/ripple';
 import { useSettingsStore } from './settingsStore';
 
 /** Готовые акценты: насыщенные, но не «кислотные» — читаются и на светлом, и на тёмном фоне */
@@ -66,4 +67,7 @@ export function useApplyAppearance() {
       cancelAnimationFrame(frame);
     };
   }, [glow]);
+
+  // Волна от точки клика — часть «Свечения»: выключили эффекты — кнопки снова тихие
+  useEffect(() => (glow ? installRipple() : undefined), [glow]);
 }
