@@ -84,3 +84,20 @@
 .danger:hover:not(:disabled) {
   background: var(--color-danger-soft);
 }
+
+/* Свечение: главная кнопка — объёмный градиент, блик сверху и мягкое свечение акцентом */
+:global(:root[data-glow='on']) .primary {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 85%, white), var(--color-accent));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.25),
+    0 1px 2px rgb(0 0 0 / 0.15),
+    0 6px 18px -8px color-mix(in srgb, var(--color-accent) 80%, transparent);
+}
+
+:global(:root[data-glow='on']) .primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 75%, white), var(--color-accent));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    0 1px 2px rgb(0 0 0 / 0.15),
+    0 10px 28px -8px color-mix(in srgb, var(--color-accent) 90%, transparent);
+}

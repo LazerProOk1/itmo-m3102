@@ -23,11 +23,11 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
   const runaway = greeting === RUNAWAY_GREETING;
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} hero`}>
       <div className={styles.copy}>
         <motion.h1
           key={greeting}
-          className={styles.title}
+          className={`${styles.title} hero-title`}
           initial={reduceMotion ? false : { opacity: 0, y: 12, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transition: SPRING_SMOOTH }}
         >

@@ -49,3 +49,8 @@
     display: none;
   }
 }
+
+/* Под сиянием шапка полупрозрачная — без backdrop-filter, он дорог на прокрутке */
+:global(:root[data-aurora='on']) .bar {
+  background: color-mix(in srgb, var(--color-bg) 86%, transparent);
+}

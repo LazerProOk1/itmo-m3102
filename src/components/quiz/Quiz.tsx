@@ -83,7 +83,7 @@ function QuizRunner({ data, full }: { data: QuizData; full: boolean }) {
   }
 
   return (
-    <div ref={rootRef} className={cn(styles.quiz, full && styles.full)}>
+    <div ref={rootRef} className={cn(styles.quiz, full && styles.full)} data-spot>
       <div className={styles.head}>
         <div className={styles.title}>
           <ListChecks size={18} strokeWidth={1.75} aria-hidden />

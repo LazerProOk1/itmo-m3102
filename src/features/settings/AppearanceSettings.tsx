@@ -1,21 +1,83 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Check, Pipette } from 'lucide-react';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
 import { buttonClass } from '../../components/ui/Button';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
-import { useSettingsStore } from './settingsStore';
+import { ACCENTS, accentColor } from './appearance';
+import { useSettingsStore, type RadiusPreference } from './settingsStore';
+import styles from './settings.module.css';
 import { SettingsRow } from './SettingsRow';
 import { THEME_OPTIONS } from './themeOptions';
 
-/** Оформление. Тема сохраняется в localStorage. */
+const ON_OFF: { value: 'on' | 'off'; label: string }[] = [
+  { value: 'on', label: 'Вкл' },
+  { value: 'off', label: 'Выкл' },
+];
+
+const RADIUS_OPTIONS: { value: RadiusPreference; label: string }[] = [
+  { value: 'sharp', label: 'Строгие' },
+  { value: 'normal', label: 'Обычные' },
+  { value: 'round', label: 'Мягкие' },
+];
+
+/** Оформление: тема, акцент, эффекты. Хранится в браузере (settingsStore). */
 export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
+  const { accent, aurora, glow, radius, setAppearance } = useSettingsStore();
+  const custom = !ACCENTS.some((item) => item.id === accent);
 
   return (
     <>
       <SettingsRow label="Тема" description="«Системная» повторяет оформление вашего устройства.">
         <SegmentedControl label="Тема" options={THEME_OPTIONS} value={theme} onChange={setTheme} />
+      </SettingsRow>
+
+      <SettingsRow label="Акцент" description="Цвет кнопок, выделений и свечения. Можно выбрать свой.">
+        <div className={styles.swatches} role="radiogroup" aria-label="Цвет акцента">
+          {ACCENTS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="radio"
+              aria-checked={accent === item.id}
+              aria-label={item.name}
+              title={item.name}
+              className={styles.swatch}
+              style={{ '--swatch': item.color } as React.CSSProperties}
+              onClick={() => setAppearance({ accent: item.id })}
+            >
+              {accent === item.id && <Check size={14} strokeWidth={3} aria-hidden />}
+            </button>
+          ))}
+          <label
+            className={styles.swatch}
+            style={{ '--swatch': custom ? accentColor(accent) : 'var(--color-bg-hover)' } as React.CSSProperties}
+            title="Свой цвет"
+            aria-checked={custom}
+          >
+            {custom ? <Check size={14} strokeWidth={3} aria-hidden /> : <Pipette size={14} strokeWidth={2} aria-hidden className={styles.pipette} />}
+            <input
+              type="color"
+              className={styles.colorInput}
+              value={accentColor(accent)}
+              onChange={(event) => setAppearance({ accent: event.target.value })}
+              aria-label="Свой цвет акцента"
+            />
+          </label>
+        </div>
+      </SettingsRow>
+
+      <SettingsRow label="Фон-сияние" description="Мягкие пятна света в цвете акцента за страницей.">
+        <SegmentedControl label="Фон-сияние" options={ON_OFF} value={aurora ? 'on' : 'off'} onChange={(value) => setAppearance({ aurora: value === 'on' })} />
+      </SettingsRow>
+
+      <SettingsRow label="Свечение" description="Подсветка карточек под курсором и светящиеся кнопки.">
+        <SegmentedControl label="Свечение" options={ON_OFF} value={glow ? 'on' : 'off'} onChange={(value) => setAppearance({ glow: value === 'on' })} />
+      </SettingsRow>
+
+      <SettingsRow label="Скругления" description="Углы карточек, кнопок и полей.">
+        <SegmentedControl label="Скругления" options={RADIUS_OPTIONS} value={radius} onChange={(value) => setAppearance({ radius: value })} />
       </SettingsRow>
 
       <SettingsRow label="Дизайн-система" description="Все компоненты интерфейса на одной странице.">

@@ -23,7 +23,7 @@ export function NextClassBlock({ status }: NextClassBlockProps) {
 
   if (status.kind === 'finished') {
     return (
-      <section className={styles.block} style={typeColor(status.next?.occurrence.details.type)} {...glow}>
+      <section className={styles.block} style={typeColor(status.next?.occurrence.details.type)} {...glow} data-spot>
         <div>
           <p className={styles.eyebrow}>Пар сегодня больше нет</p>
           {status.next ? (
@@ -48,7 +48,7 @@ export function NextClassBlock({ status }: NextClassBlockProps) {
   const { details } = status.occurrence;
 
   return (
-    <section className={cn(styles.block, isNow && styles.now)} style={typeColor(details.type)} {...glow}>
+    <section className={cn(styles.block, isNow && styles.now)} style={typeColor(details.type)} {...glow} data-spot>
       <div>
         <p className={styles.eyebrow}>
           {isNow && <span className={styles.liveDot} aria-hidden />}
