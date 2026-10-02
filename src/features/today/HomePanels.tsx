@@ -190,8 +190,8 @@ export function RecentNotesPanel() {
       ) : (
         <div className={styles.notes}>
           {recent.map((note) => (
-            <Link key={note.id} to={`/materials/notes/${note.id}`} className={styles.note} data-spot>
-              <strong>{note.title}</strong>
+            <Link key={note.id} to={`/materials/notes/${note.id}`} className={styles.note} data-spot data-morph>
+              <strong data-morph-title>{note.title}</strong>
               <small>
                 {subjects.find((subject) => subject.id === note.subjectId)?.name ?? 'Прочее'} · {note.lectureNumber} ·{' '}
                 {new Date(note.createdAt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })}

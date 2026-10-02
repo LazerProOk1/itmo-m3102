@@ -6,6 +6,7 @@ import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
 import { useApplyAppearance } from '../../features/settings/appearance';
 import { useApplyTheme } from '../../features/settings/theme';
+import { useMorphLinks } from '../../lib/morph';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
 import { RadioCapsule } from '../radio/RadioCapsule';
@@ -29,6 +30,7 @@ export function AppShell() {
   useApplyAppearance();
   useScrollMemory();
   useSearchShortcut(openSearch);
+  useMorphLinks();
 
   return (
     <div className={styles.shell}>

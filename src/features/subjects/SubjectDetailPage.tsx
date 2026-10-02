@@ -122,7 +122,6 @@ export function SubjectDetailPage() {
         title={subject.name}
         subtitle={subtitle}
         reveal={shouldRevealTitle}
-        titleViewTransitionName={`subject-title-${subject.id}`}
         actions={
           isEditMode && (
             <Button variant="secondary" icon={Pencil} onClick={() => subjectDialog.openEdit(subject)}>

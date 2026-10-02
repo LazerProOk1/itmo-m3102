@@ -4,7 +4,6 @@ import { formatShortDate } from '../../lib/dates';
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
 import { useCursorGlow } from '../../lib/useCursorGlow';
-import { usePrefersReducedMotion } from '../../lib/motion';
 import type { Subject } from '../../types/models';
 import { useGroupStore } from '../group/groupStore';
 import { useLectureNotesStore } from '../materials/lectureNotesStore';
@@ -26,7 +25,6 @@ export function SubjectRow({ subject }: SubjectRowProps) {
   const deadlines = useGroupStore((state) => state.deadlines);
   const done = useGroupStore((state) => state.deadlinesDone);
   const glow = useCursorGlow();
-  const reduceMotion = usePrefersReducedMotion();
 
   const openTaskCount = getOpenTasks(tasks, subject.id).length;
   // Как вкладка «Материалы» предмета: файлы без ссылок + конспекты
@@ -45,12 +43,7 @@ export function SubjectRow({ subject }: SubjectRowProps) {
         </span>
       }
       title={
-        <Link
-          to={`/subjects/${subject.id}`}
-          viewTransition={!reduceMotion}
-          className={styles.titleLink}
-          style={{ viewTransitionName: `subject-title-${subject.id}` }}
-        >
+        <Link to={`/subjects/${subject.id}`} className={styles.titleLink} data-morph>
           {subject.name}
         </Link>
       }

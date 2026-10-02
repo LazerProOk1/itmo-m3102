@@ -41,7 +41,7 @@ export function LectureNoteRow({ note, today, onEdit, showSubject = false }: Lec
           </span>
         }
         title={
-          <Link to={`/materials/notes/${note.id}`} className={styles.titleButton}>
+          <Link to={`/materials/notes/${note.id}`} className={styles.titleButton} data-morph>
             {title}
             {note.source === 'github' && <GithubSourceBadge />}
           </Link>
