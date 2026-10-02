@@ -2,6 +2,7 @@ import { MotionConfig } from 'framer-motion';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/inter';
+import '@fontsource-variable/unbounded';
 import './styles/tokens.css';
 import './styles/global.css';
 import './styles/aurora.css';

@@ -2,6 +2,7 @@ import { Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
+import { AnimatedNumber } from '../../components/ui/AnimatedNumber';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { IconButton } from '../../components/ui/IconButton';
@@ -10,6 +11,7 @@ import { Section } from '../../components/ui/Section';
 import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
 import { daysBetween, formatShortDate } from '../../lib/dates';
+import { pluralize } from '../../lib/pluralize';
 import type { ISODate } from '../../types/models';
 import { filePath, useGroupStore, type GroupDeadline } from '../group/groupStore';
 import { deadlineInfo, orderDeadlines } from '../deadlines/deadlineInfo';
@@ -97,22 +99,41 @@ export function HomeworkPanel({ today }: { today: ISODate }) {
   );
 }
 
-const TILES = [
-  { name: 'Конспекты', desc: 'Лекции и практики по предметам', to: SECTIONS.materials.path },
-  { name: 'Записи лекций', desc: 'Аудио прошедших занятий', to: filePath('Записи лекций') },
-  { name: 'Лабораторные', desc: 'Задания и отчёты', to: filePath('Лабораторные') },
-  { name: 'Материалы', desc: 'Учебники и полезные файлы', to: filePath('Материалы') },
+const FOLDERS = [
+  { name: 'Записи лекций', desc: 'Аудио прошедших занятий' },
+  { name: 'Лабораторные', desc: 'Задания и отчёты' },
+  { name: 'Материалы', desc: 'Учебники и полезные файлы' },
 ];
 
+/**
+ * Бенто, а не четыре одинаковые плитки: конспекты — главное, крупно и с числом; папки — компактно.
+ * Ровная сетка равных карточек — примета шаблонного сайта, асимметрия читается как решение (21st.dev)
+ */
 export function MaterialsPanel() {
+  const notes = useLectureNotesStore((state) => state.lectureNotes.filter((note) => !note.archived).length);
+  const files = useGroupStore((state) => state.files);
+  const count = (folder: string) => files.filter((file) => file.path.startsWith(`${folder}/`)).length;
+
   return (
     <Section title="Материалы" action={<SectionLink to="/files">Все материалы</SectionLink>}>
       <div className={styles.tiles}>
-        {TILES.map((tile, index) => (
-          <Link key={tile.name} to={tile.to} className={styles.tile} data-spot>
-            <span className={styles.tileIndex}>{String(index + 1).padStart(2, '0')}</span>
-            <strong>{tile.name}</strong>
-            <small>{tile.desc}</small>
+        <Link to={SECTIONS.materials.path} className={cn(styles.tile, styles.tileMain)} data-spot>
+          <span className={styles.tileIndex}>01</span>
+          <strong>Конспекты</strong>
+          <small>Лекции и практики по предметам</small>
+          <span className={styles.tileCount}>
+            <AnimatedNumber value={notes} />
+            <small>{pluralize(notes, ['конспект', 'конспекта', 'конспектов']).split(' ')[1]}</small>
+          </span>
+        </Link>
+        {FOLDERS.map((folder, index) => (
+          <Link key={folder.name} to={filePath(folder.name)} className={styles.tile} data-spot>
+            <span className={styles.tileIndex}>{String(index + 2).padStart(2, '0')}</span>
+            <strong>{folder.name}</strong>
+            <small>
+              {folder.desc}
+              {count(folder.name) > 0 && ` · ${count(folder.name)}`}
+            </small>
           </Link>
         ))}
       </div>

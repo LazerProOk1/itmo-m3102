@@ -71,8 +71,34 @@ label.row > :first-child {
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: var(--space-3);
+}
+
+/* Главная плитка — на всю высоту колонки, с крупным числом внизу */
+.tileMain {
+  grid-row: span 3;
+  justify-content: flex-start;
+  padding: var(--space-4);
+}
+
+.tileCount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-4);
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 1.5rem + 2vw, 3rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-accent-text);
+}
+
+.tileCount small {
+  font-family: var(--font-sans);
+  letter-spacing: 0;
 }
 
 .tile {
@@ -167,6 +193,10 @@ label.row > :first-child {
   .tiles,
   .notes {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tileMain {
+    grid-row: auto;
   }
 
   .planForm {
