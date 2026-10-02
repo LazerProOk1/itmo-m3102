@@ -1,5 +1,5 @@
 import { ArrowLeft, Download, ExternalLink, Pencil, Printer, Trash } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
 import { ConfirmDeleteModal, useConfirmDelete } from '../../components/ui/ConfirmDeleteModal';
@@ -7,7 +7,7 @@ import { GithubSourceBadge } from '../../components/ui/GithubSourceBadge';
 import { buttonClass } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
 import { downloadUrl, saveBlob } from '../../lib/download';
-import { noteAssetBase, noteSourceUrl, rawUrl } from '../../services/githubContent';
+import { findMovedPath, noteAssetBase, noteSourceUrl, rawUrl } from '../../services/githubContent';
 import type { LectureNote } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
@@ -36,8 +36,32 @@ export function LectureNoteViewPage() {
     if (noteId) touchLectureNote(noteId);
   }, [noteId, touchLectureNote]);
 
-  if (!note) return <Navigate to={SECTIONS.materials.path} replace />;
+  if (!note) return <MissingNote noteId={noteId} />;
   return <NoteView note={note} />;
+}
+
+/** Конспекта нет: возможно, файл переименовали в репозитории группы — ищем новый адрес, иначе в «Материалы» */
+function MissingNote({ noteId }: { noteId: string }) {
+  const [target, setTarget] = useState<string | null>(null);
+  const notes = useLectureNotesStore((state) => state.lectureNotes);
+
+  useEffect(() => {
+    if (!noteId.startsWith('gh:')) {
+      setTarget(SECTIONS.materials.path);
+      return;
+    }
+    let active = true;
+    void findMovedPath(noteId.slice(3)).then((moved) => {
+      if (!active) return;
+      const found = moved && notes.find((item) => item.id === `gh:${moved}`);
+      setTarget(found ? `/materials/notes/${found.id}` : SECTIONS.materials.path);
+    });
+    return () => {
+      active = false;
+    };
+  }, [noteId, notes]);
+
+  return target ? <Navigate to={target} replace /> : null;
 }
 
 /** Читалка: текст конспекта, справа «Лекции» предмета и «Содержание», сверху — прогресс чтения */

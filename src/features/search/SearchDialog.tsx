@@ -1,11 +1,11 @@
 import { Search, SearchX } from 'lucide-react';
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useReducer, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Kbd } from '../../components/ui/Kbd';
 import { Modal } from '../../components/ui/Modal';
 import { cn } from '../../lib/cn';
-import { search, type SearchGroup } from './searchIndex';
+import { loadPdfIndex, search, type SearchGroup } from './searchIndex';
 import styles from './SearchDialog.module.css';
 
 interface SearchDialogProps {
@@ -30,6 +30,11 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const navigate = useNavigate();
   const activeResultRef = useRef<HTMLButtonElement>(null);
 
+  // Текст PDF подгружается при первом открытии — когда пришёл, повторяем поиск
+  const [, rerender] = useReducer((value: number) => value + 1, 0);
+  useEffect(() => {
+    if (open) void loadPdfIndex().then(rerender);
+  }, [open]);
   const groups = search(query);
   const groupsWithIndex = withStartIndex(groups);
   const flatResults = groupsWithIndex.flatMap(({ group }) => group.results);

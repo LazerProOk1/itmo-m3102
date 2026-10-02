@@ -59,6 +59,22 @@ export function rawUrl(repo: keyof typeof REPOS, path: string): string {
   return `https://raw.githubusercontent.com/${REPOS[repo].name}/${REPOS[repo].branch}/${encodePath(path)}`;
 }
 
+/**
+ * Куда переехал файл группы: робот репозитория переименовывает файлы (пробелы → «_») и пишет
+ * data/old-paths.json { "старый путь": "новый путь" }. Нужен, чтобы старые ссылки на конспекты не ломались.
+ */
+let movedPaths: Promise<Record<string, string>> | null = null;
+export async function findMovedPath(path: string): Promise<string | undefined> {
+  movedPaths ??= fetch(rawUrl('group', 'data/old-paths.json'))
+    .then((response) => (response.ok ? response.json() : {}))
+    .catch(() => ({}));
+  const map = await movedPaths;
+  // Цепочка переименований: a → b → c (с защитой от петли)
+  let current = path.normalize('NFC');
+  for (let step = 0; step < 10 && map[current]; step++) current = map[current]!.normalize('NFC');
+  return current === path.normalize('NFC') ? undefined : current;
+}
+
 const MATERIAL_SECTIONS: Record<string, { category: MaterialCategory; label: string }> = {
   Материалы: { category: 'literature', label: '' },
   Лабораторные: { category: 'assignments', label: '' },

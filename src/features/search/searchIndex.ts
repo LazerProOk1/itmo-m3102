@@ -2,7 +2,7 @@ import { FileText, NotebookText } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { SECTIONS, type Section } from '../../app/navigation';
 import { M3102_STUDENTS } from '../../data/m3102';
-import { COLLECTION_LABELS } from '../../services/githubContent';
+import { COLLECTION_LABELS, rawUrl } from '../../services/githubContent';
 import { useGroupStore } from '../group/groupStore';
 import { useHomeworkStore } from '../homework/homeworkStore';
 import { MATERIAL_TYPES } from '../materials/labels';
@@ -91,6 +91,31 @@ const PAGES: Section[] = [
   SECTIONS.settings,
 ];
 
+/**
+ * Текст PDF-конспектов группы: его вытаскивает робот репозитория группы (pdftotext) в
+ * data/search-index.json — { files: [путь], sections: [[номер файла, заголовок, текст]] }.
+ * Файл большой (~1.6 МБ), поэтому грузится при первом открытии поиска и живёт только в памяти.
+ */
+const pdfText = new Map<string, string>();
+let pdfIndexLoad: Promise<void> | null = null;
+
+export function loadPdfIndex(): Promise<void> {
+  pdfIndexLoad ??= fetch(rawUrl('group', 'data/search-index.json'))
+    .then((response) => (response.ok ? response.json() : null))
+    .then((raw: { files?: string[]; sections?: [number, string, string][] } | null) => {
+      if (!raw?.files || !Array.isArray(raw.sections)) return;
+      for (const [file, heading, text] of raw.sections) {
+        const path = raw.files[file];
+        if (!path?.toLowerCase().endsWith('.pdf')) continue;
+        pdfText.set(path, `${pdfText.get(path) ?? ''} ${heading} ${text}`);
+      }
+    })
+    .catch(() => {
+      pdfIndexLoad = null; // попробуем снова при следующем открытии
+    });
+  return pdfIndexLoad;
+}
+
 /** Собирает группы заново при каждом поиске — видит всё, что синхронизировано и добавлено. */
 function buildGroups(): SearchGroup[] {
   const subjects = useSubjectsStore.getState().subjects;
@@ -117,7 +142,12 @@ function buildGroups(): SearchGroup[] {
           meta: [subjectName(note.subjectId), COLLECTION_LABELS[note.collection ?? 'group']].filter(Boolean).join(' · '),
           icon: note.contentType === 'markdown' ? NotebookText : FileText,
           path: `/materials/notes/${note.id}`,
-          body: note.contentType === 'markdown' ? plainText(note.content) : undefined,
+          body:
+            note.contentType === 'markdown'
+              ? plainText(note.content)
+              : note.sourceRef && (note.collection ?? 'group') === 'group'
+                ? pdfText.get(note.sourceRef)
+                : undefined,
         })),
     },
     {
