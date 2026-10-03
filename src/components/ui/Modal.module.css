@@ -14,7 +14,7 @@
 }
 
 .dialog[open] {
-  animation: dialog-in 320ms cubic-bezier(0.2, 1.1, 0.3, 1);
+  animation: dialog-in 220ms var(--ease-luxury-out);
 }
 
 .dialog.closing {
@@ -102,24 +102,19 @@
   right: var(--space-3);
 }
 
+/* Появление без пружины и перехлёста (scale 0.9 → 1.015 → 1 выглядел «сгенерированно»): чуть снизу и почти
+   в полный размер — origin от кнопки-триггера остаётся, но едва заметен */
 @keyframes dialog-in {
-  0% {
+  from {
     opacity: 0;
-    transform: scale(0.9);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.015);
-  }
-  100% {
-    transform: scale(1);
+    transform: translateY(6px) scale(0.985);
   }
 }
 
 @keyframes dialog-out {
   to {
     opacity: 0;
-    transform: scale(0.97);
+    transform: translateY(4px) scale(0.99);
   }
 }
 

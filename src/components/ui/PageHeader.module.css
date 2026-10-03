@@ -1,5 +1,7 @@
 .header {
   display: flex;
+  /* Узкий телефон: длинный заголовок не сжимается кнопками — они переносятся под него */
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
@@ -8,6 +10,7 @@
 
 .text {
   display: flex;
+  flex: 1 1 16rem;
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;

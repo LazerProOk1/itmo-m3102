@@ -1,12 +1,11 @@
 import { MapPin } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRef, useState, type CSSProperties } from 'react';
-import { Badge } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import { SPRING_SNAPPY } from '../../lib/motion';
 import { useSubjectName } from '../subjects/subjectsStore';
 import { ClassDetailsPopover } from './ClassDetailsPopover';
-import { classTypeColorVar, CLASS_TYPE_LABELS, CLASS_TYPE_SHORT, CLASS_TYPE_TONES, describeMove } from './labels';
+import { classTypeColorVar, CLASS_TYPE_LABELS, CLASS_TYPE_SHORT, describeMove } from './labels';
 import { OccurrenceBadge } from './OccurrenceBadge';
 import { OccurrenceMenuButton } from './OccurrenceMenuButton';
 import { isHappeningNow, takesPlace, type ClassOccurrence } from './occurrences';
@@ -24,7 +23,11 @@ interface WeekOccurrenceCardProps {
   past?: boolean;
 }
 
-/** Компактная карточка занятия в колонке недельного вида. Клик открывает popover с деталями занятия. */
+/**
+ * Компактная карточка занятия в колонке недельного вида. Клик открывает popover с деталями занятия.
+ * Нажимается невидимая кнопка на всю карточку, а меню «⋯» лежит поверх неё: кнопка внутри role="button"
+ * — две вложенные интерактивные области, и Пробел у div-кнопки не работал.
+ */
 export function WeekOccurrenceCard({ occurrence, today, time, onAction, filled = false, past = false }: WeekOccurrenceCardProps) {
   const subjectName = useSubjectName(occurrence.details.subjectId);
   const isNow = isHappeningNow(occurrence, today, time);
@@ -45,27 +48,30 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction, filled =
       ref={cardRef}
       className={cn(styles.card, filled && styles.filled, past && styles.past, isNow && styles.now, isCancelled && styles.cancelled)}
       style={{ '--type-color': classTypeColorVar(occurrence.details.type) } as CSSProperties}
-      onClick={() => setPopoverOpen(true)}
       data-spot
-      role="button"
-      tabIndex={0}
-      onKeyDown={(event) => event.key === 'Enter' && setPopoverOpen(true)}
       whileHover={interactive ? { y: -2 } : undefined}
       whileTap={interactive ? { y: 0, scale: 0.985 } : undefined}
       transition={SPRING_SNAPPY}
     >
-      <div className={styles.top} onClick={(event) => event.stopPropagation()}>
+      <button
+        type="button"
+        className={styles.open}
+        aria-label={`${subjectName}, ${CLASS_TYPE_LABELS[occurrence.details.type]}, ${occurrence.details.startTime}–${occurrence.details.endTime}`}
+        onClick={() => setPopoverOpen(true)}
+      />
+      <div className={styles.top}>
         <span className={styles.time}>
           {occurrence.details.startTime}–{occurrence.details.endTime}
         </span>
-        <OccurrenceMenuButton occurrence={occurrence} onAction={onAction} />
+        <span className={styles.menu}>
+          <OccurrenceMenuButton occurrence={occurrence} onAction={onAction} />
+        </span>
       </div>
 
       <p className={styles.subject}>{subjectName}</p>
       <p className={styles.meta}>
-        <span title={CLASS_TYPE_LABELS[occurrence.details.type]}>
-          <Badge tone={CLASS_TYPE_TONES[occurrence.details.type]}>{CLASS_TYPE_SHORT[occurrence.details.type]}</Badge>
-        </span>
+        {/* Тип — словом: цвет типа уже несёт полоска слева, цветная плашка была третьим сигналом */}
+        <span title={CLASS_TYPE_LABELS[occurrence.details.type]}>{CLASS_TYPE_SHORT[occurrence.details.type]}</span>
         {occurrence.details.room && (
           <span className={styles.room}>
             <MapPin size={11} strokeWidth={1.75} aria-hidden />
