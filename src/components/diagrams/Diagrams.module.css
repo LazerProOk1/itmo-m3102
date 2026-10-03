@@ -325,3 +325,14 @@
     display: none;
   }
 }
+
+/* Статичный кадр массива с кодом: на экране — проигрыватель, в печати — кадр */
+.printFrame {
+  display: none;
+}
+
+@media print {
+  .printFrame {
+    display: block;
+  }
+}

@@ -53,9 +53,19 @@ B -> D : Нет`,
   {
     value: 'array',
     label: 'Массив',
-    hint: 'Массив в квадратных скобках; highlight: — выделить индексы, sorted: — отсортированная часть.',
-    template: `title: Массив
-[8, 3, 7, 1, 9] highlight: 1,3`,
+    hint: 'Массив в квадратных скобках; highlight:, sorted: — подсветка. После code: — программа, она выполняется по шагам: let/for/while/if, функции, swap(a, i, j), done(i), say("текст"). pointers: i, j — стрелки над ячейками, buffers: buf — доп. массив, print: last — кадр для печати, hidecode — скрыть код.',
+    template: `title: Сортировка пузырьком
+[5, 2, 9, 1, 7]
+pointers: i, j
+code:
+for (let i = 0; i < a.length - 1; i++) {
+  for (let j = 0; j < a.length - 1 - i; j++) {
+    if (a[j] > a[j + 1]) {
+      swap(a, j, j + 1);
+    }
+  }
+  done(a.length - 1 - i);
+}`,
   },
   {
     value: 'chart',

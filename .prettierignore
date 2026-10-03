@@ -2,3 +2,5 @@
 src/features/game/hedgehogGame.js
 src/features/game/hedgehogGame.css
 src/data/siteQuizzes
+# Интерпретатор кода массива RedstoneLord — тоже как в оригинале
+src/components/diagrams/arrayCode.js

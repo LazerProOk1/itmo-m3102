@@ -10,7 +10,8 @@ import { CanvasView, parseCanvas } from './Canvas';
 import { GraphView, parseGraph } from './Graph';
 import { parsePlot, PlotView } from './Plot';
 import { splitLines, type DiagramHeader } from './parse';
-import { ArrayView, ChartView, parseArray, parseChart, parseTree, TreeView } from './TreeArrayChart';
+import { ArrayPlayer } from './ArrayPlayer';
+import { ArrayView, ChartView, frameOf, parseArray, parseChart, parseTree, TreeView } from './TreeArrayChart';
 import { copySvg, downloadPng, downloadSvg, fileName } from './exportDiagram';
 import styles from './Diagrams.module.css';
 
@@ -31,8 +32,22 @@ function render(lang: DiagramLanguage, source: string): Rendered {
         return { header, view: <GraphView model={parseGraph(lines, lang)} /> };
       case 'tree':
         return { header, view: <TreeView tree={parseTree(lines)} /> };
-      case 'array':
-        return { header, view: <ArrayView model={parseArray(lines, source)} /> };
+      case 'array': {
+        const model = parseArray(lines, source);
+        if (!model.steps || model.steps.length < 2) return { header, view: <ArrayView model={model} /> };
+        // Код по шагам: живой проигрыватель; рядом скрытый кадр — для «SVG/PNG» и печати
+        return {
+          header,
+          view: (
+            <>
+              <ArrayPlayer model={model} />
+              <div className={styles.printFrame} data-export-frame>
+                <ArrayView model={frameOf(model)} />
+              </div>
+            </>
+          ),
+        };
+      }
       case 'chart':
         return { header, view: <ChartView model={parseChart(lines)} /> };
       case 'canvas':
@@ -114,7 +129,11 @@ interface DiagramToolsProps {
 /** Под диаграммой, как на сайте группы: копировать SVG, скачать SVG/PNG, открыть в конструкторе */
 export function DiagramTools({ figureRef, name, lang, source, editable }: DiagramToolsProps) {
   const [copied, setCopied] = useState(false);
-  const svg = () => figureRef.current?.querySelector<SVGSVGElement>(`.${styles.canvas} svg`) ?? null;
+  // Кадр массива с кодом лежит отдельно: в проигрывателе свои svg — иконки кнопок
+  const svg = () =>
+    figureRef.current?.querySelector<SVGSVGElement>('[data-export-frame] svg') ??
+    figureRef.current?.querySelector<SVGSVGElement>(`.${styles.canvas} svg`) ??
+    null;
   const background = () => (figureRef.current ? getComputedStyle(figureRef.current).backgroundColor : '#ffffff');
 
   return (
