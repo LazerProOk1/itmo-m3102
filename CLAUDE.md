@@ -165,7 +165,10 @@ ESLint пока не подключён: `typescript-eslint` поддержив�
   Рамка за курсором — `::after` у `[data-spot]`; карточке со своим `::after` ставить `data-spot="own"`.
 - Награда за «сделано» (`lib/celebrate.ts`): `<Checkbox celebrate>` — искры у галочки; `useConfettiWhenCleared(open)` —
   конфетти, когда человек закрыл последний пункт списка. Конфетти только за вехи, не за каждую отметку.
-- Переход «карточка → страница» (`lib/morph.ts`): ссылка `data-morph`, внутри `[data-morph-title]`; цель — h1 с
+- Скорость: конспект рисуется по разделам `## ` (`lib/splitSections.ts`, `ProgressiveMarkdown`), сначала шапка и скелет;
+  хранилище конспектов (~1 МБ) пишется в localStorage в простое (`idleStorage` в `lib/storage.ts`); тесты в
+  конспектах ищутся с кешем по версии конспекта. Поле даты — `components/ui/DateInput.tsx`, не `<input type="date">`.
+- Переход «карточка → страница» (`lib/morph.ts`, только мышь — на телефоне переход мгновенный): ссылка `data-morph`, внутри `[data-morph-title]`; цель — h1 с
   `data-morph-target` (уже в PageHeader и читалке). `viewTransition` у `<Link>` с HashRouter не работает.
 - Загрузка: страницы — отдельные куски (`page()` в App.tsx) с докачкой в простое. На главной Markdown только
   через `LazyMarkdown`; не импортировать из страниц в главную (так `filePath` тянул за собой весь Markdown).
