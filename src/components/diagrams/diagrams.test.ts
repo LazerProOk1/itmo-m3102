@@ -24,6 +24,19 @@ describe('диаграммы DSL группы', () => {
     expect(model.items.map((item) => item.kind)).toEqual(['function', 'parametric', 'point', 'area', 'vline']);
   });
 
+  it('graph: цвета и пунктир {…}, петля, force — как на сайте группы', () => {
+    const model = parseGraph(
+      splitLines('graph directed\nlayout: force\nA "Старт" {color: red}\nA -> B : 5 {color: blue, dashed}\nB -> B\nB -- C', 'graph'),
+      'graph',
+    );
+    expect(model.nodes.find((node) => node.id === 'A')).toMatchObject({ label: 'Старт', color: 'var(--d-red)' });
+    expect(model.edges[0]).toMatchObject({ from: 'A', to: 'B', label: '5', color: 'var(--d-blue)', dashed: true });
+    expect(model.edges[1]).toMatchObject({ from: 'B', to: 'B' });
+    // force разводит вершины, а не оставляет их в одной точке
+    const [a, b] = [model.nodes[0]!, model.nodes[1]!];
+    expect(Math.hypot(a.x! - b.x!, a.y! - b.y!)).toBeGreaterThan(40);
+  });
+
   it('шаг делений «красивый»', () => {
     expect(niceStep(800)).toBe(100);
     expect(niceStep(600000)).toBe(100000);
