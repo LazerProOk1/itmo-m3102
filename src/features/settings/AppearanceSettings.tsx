@@ -25,7 +25,7 @@ const RADIUS_OPTIONS: { value: RadiusPreference; label: string }[] = [
 export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
-  const { accent, aurora, glow, radius, setAppearance } = useSettingsStore();
+  const { accent, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
 
   return (
     <>
@@ -60,6 +60,15 @@ export function AppearanceSettings() {
           options={ON_OFF}
           value={aurora ? 'on' : 'off'}
           onChange={(value) => setAppearance({ aurora: value === 'on' })}
+        />
+      </SettingsRow>
+
+      <SettingsRow label="Живой фон" description="Пятна сияния плавно смещаются за курсором и при прокрутке. Работает вместе с фоном-сиянием.">
+        <SegmentedControl
+          label="Живой фон"
+          options={ON_OFF}
+          value={liveBg ? 'on' : 'off'}
+          onChange={(value) => setAppearance({ liveBg: value === 'on' })}
         />
       </SettingsRow>
 

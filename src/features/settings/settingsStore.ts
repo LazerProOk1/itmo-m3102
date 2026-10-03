@@ -17,6 +17,8 @@ interface LocalSettings {
   aurora: boolean;
   /** Свечение карточек: подсветка под курсором и светящиеся кнопки */
   glow: boolean;
+  /** Живой фон: пятна сияния плавно следуют за курсором и прокруткой */
+  liveBg: boolean;
   radius: RadiusPreference;
 }
 
@@ -25,7 +27,7 @@ export type RadiusPreference = 'sharp' | 'normal' | 'round';
 interface SettingsStore extends LocalSettings {
   setTheme: (theme: ThemePreference) => void;
   setEditMode: (editMode: boolean) => void;
-  setAppearance: (patch: Partial<Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'radius'>>) => void;
+  setAppearance: (patch: Partial<Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'liveBg' | 'radius'>>) => void;
 }
 
 const DEFAULT_SETTINGS: LocalSettings = {
@@ -35,6 +37,7 @@ const DEFAULT_SETTINGS: LocalSettings = {
   accent: 'indigo',
   aurora: true,
   glow: true,
+  liveBg: true,
   radius: 'normal',
 };
 

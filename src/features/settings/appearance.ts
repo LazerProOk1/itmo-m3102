@@ -32,7 +32,7 @@ export const accentColor = (accent: string) =>
  * data-aurora / data-glow / data-radius — по ним включаются слои из styles/aurora.css.
  */
 export function useApplyAppearance() {
-  const { accent, aurora, glow, radius } = useSettingsStore();
+  const { accent, aurora, glow, liveBg, radius } = useSettingsStore();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -70,4 +70,47 @@ export function useApplyAppearance() {
 
   // Волна от точки клика — часть «Свечения»: выключили эффекты — кнопки снова тихие
   useEffect(() => (glow ? installRipple() : undefined), [glow]);
+
+  // Живой фон: пятна сияния догоняют курсор и уезжают при прокрутке (параллакс). Значения плавно
+  // «доезжают» до цели в цикле кадров, который сам останавливается, когда догнал, — без работы в покое
+  useEffect(() => {
+    const layer = document.querySelector<HTMLElement>('.aurora');
+    if (!liveBg || !aurora || !layer || matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const target = { x: 0, y: 0, s: 0 };
+    const now = { x: 0, y: 0, s: 0 };
+    let frame = 0;
+    const tick = () => {
+      let moving = false;
+      for (const key of ['x', 'y', 's'] as const) {
+        now[key] += (target[key] - now[key]) * 0.06;
+        if (Math.abs(target[key] - now[key]) > 0.001) moving = true;
+      }
+      layer.style.setProperty('--bg-x', now.x.toFixed(3));
+      layer.style.setProperty('--bg-y', now.y.toFixed(3));
+      layer.style.setProperty('--bg-s', now.s.toFixed(3));
+      frame = moving ? requestAnimationFrame(tick) : 0;
+    };
+    const kick = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+      target.x = (event.clientX / innerWidth - 0.5) * 2;
+      target.y = (event.clientY / innerHeight - 0.5) * 2;
+      kick();
+    };
+    const onScroll = () => {
+      target.s = Math.min(scrollY / 1600, 1);
+      kick();
+    };
+    addEventListener('pointermove', onMove, { passive: true });
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      removeEventListener('pointermove', onMove);
+      removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(frame);
+      for (const name of ['--bg-x', '--bg-y', '--bg-s']) layer.style.removeProperty(name);
+    };
+  }, [liveBg, aurora]);
 }
