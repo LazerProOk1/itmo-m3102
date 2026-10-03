@@ -46,12 +46,13 @@
   color: var(--color-warning);
 }
 
+/* Дорожка — светлее карточки (в тёмной теме bg-subtle темнее карточки и читалась чёрной полосой) */
 .bar {
-  height: 4px;
+  height: 3px;
   margin-bottom: var(--space-5);
   overflow: hidden;
   border-radius: 999px;
-  background: var(--color-bg-subtle);
+  background: var(--color-bg-active);
 }
 
 .bar span {

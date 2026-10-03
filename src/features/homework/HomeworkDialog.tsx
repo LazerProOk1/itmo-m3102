@@ -5,6 +5,7 @@ import { Field } from '../../components/ui/Field';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Textarea } from '../../components/ui/Textarea';
+import { DateInput } from '../../components/ui/DateInput';
 import { addDays } from '../../lib/dates';
 import { useClock } from '../../lib/useClock';
 import type { ISODate } from '../../types/models';
@@ -139,7 +140,7 @@ export function HomeworkDialog() {
           <Textarea id="hw-text" rows={5} required maxLength={5000} value={text} onChange={(event) => setText(event.target.value)} />
         </Field>
         <Field label="Срок сдачи" htmlFor="hw-due" optional>
-          <Input id="hw-due" type="date" value={due} onChange={(event) => setDue(event.target.value)} />
+          <DateInput id="hw-due" value={due} onChange={(value) => setDue(value)} />
         </Field>
         <div className={styles.presets}>
           <Button size="sm" variant="secondary" onClick={() => setDue(nextLesson(subject))}>

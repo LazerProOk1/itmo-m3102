@@ -54,13 +54,6 @@ export function useToc(containerRef: RefObject<HTMLElement | null>, contentKey: 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const headings = [...container.querySelectorAll<HTMLHeadingElement>('h2, h3')];
-    headings.forEach((heading, index) => {
-      if (!heading.id) heading.id = `toc-${index}`;
-    });
-    setItems(headings.map((heading) => ({ id: heading.id, text: heading.textContent?.trim() ?? '', level: heading.tagName === 'H2' ? 2 : 3 })));
-    setActiveId(headings[0]?.id ?? '');
-
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -68,8 +61,31 @@ export function useToc(containerRef: RefObject<HTMLElement | null>, contentKey: 
       },
       { rootMargin: '-72px 0px -65% 0px' },
     );
-    headings.forEach((heading) => observer.observe(heading));
-    return () => observer.disconnect();
+    let count = -1;
+    const collect = () => {
+      const headings = [...container.querySelectorAll<HTMLHeadingElement>('h2, h3')];
+      if (headings.length === count) return;
+      count = headings.length;
+      headings.forEach((heading, index) => {
+        if (!heading.id) heading.id = `toc-${index}`;
+        observer.observe(heading);
+      });
+      setItems(headings.map((heading) => ({ id: heading.id, text: heading.textContent?.trim() ?? '', level: heading.tagName === 'H2' ? 2 : 3 })));
+      setActiveId((current) => current || (headings[0]?.id ?? ''));
+    };
+    collect();
+    // Конспект рисуется по разделам — оглавление дополняется, когда появляются новые заголовки
+    let timer = 0;
+    const mutations = new MutationObserver(() => {
+      clearTimeout(timer);
+      timer = window.setTimeout(collect, 150);
+    });
+    mutations.observe(container, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+      clearTimeout(timer);
+    };
   }, [containerRef, contentKey]);
 
   return { items, activeId };
@@ -111,7 +127,7 @@ export function ReadingProgress({ targetRef }: { targetRef: RefObject<HTMLElemen
 
 type SidebarTab = 'lectures' | 'toc' | 'marks';
 
-const SIDEBAR_TABS: Record<SidebarTab, string> = { lectures: 'Лекции', toc: 'Содержание', marks: 'Пометки' };
+const SIDEBAR_TABS: Record<SidebarTab, string> = { lectures: 'Лекции', toc: 'Разделы', marks: 'Пометки' };
 
 interface NoteSidebarProps {
   note: LectureNote;

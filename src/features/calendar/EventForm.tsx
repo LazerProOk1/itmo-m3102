@@ -3,6 +3,7 @@ import { Field } from '../../components/ui/Field';
 import { Form, FormRow } from '../../components/ui/Form';
 import { Input } from '../../components/ui/Input';
 import { Textarea } from '../../components/ui/Textarea';
+import { DateInput } from '../../components/ui/DateInput';
 
 export interface EventFormValues {
   title: string;
@@ -64,13 +65,7 @@ export function EventForm({ id, initialValues, onSubmit, disabled }: EventFormPr
       </Field>
 
       <Field label="Дата" htmlFor="event-date" error={errors.date}>
-        <Input
-          id="event-date"
-          type="date"
-          value={values.date}
-          invalid={Boolean(errors.date)}
-          onChange={(event) => update('date', event.target.value)}
-        />
+        <DateInput id="event-date" value={values.date} invalid={Boolean(errors.date)} onChange={(value) => update('date', value)} />
       </Field>
 
       <FormRow>

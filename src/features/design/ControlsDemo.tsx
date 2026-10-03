@@ -10,6 +10,7 @@ import { Section } from '../../components/ui/Section';
 import { SegmentedControl, type SegmentedOption } from '../../components/ui/SegmentedControl';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
 import { Textarea } from '../../components/ui/Textarea';
+import { DateInput } from '../../components/ui/DateInput';
 import { Demo } from './Demo';
 import styles from './DesignSystemPage.module.css';
 
@@ -38,6 +39,7 @@ const SUBJECT_OPTIONS: DropdownOption[] = [
 /** Кнопки, поля ввода и элементы выбора. */
 export function ControlsDemo() {
   const [isRepeating, setRepeating] = useState(true);
+  const [demoDate, setDemoDate] = useState('');
   const [view, setView] = useState<CalendarView>('week');
   const [subjectTab, setSubjectTab] = useState<SubjectTab>('overview');
   const [demoSubject, setDemoSubject] = useState('');
@@ -84,7 +86,7 @@ export function ControlsDemo() {
             <Dropdown id="demo-subject" options={SUBJECT_OPTIONS} placeholder="Без предмета" value={demoSubject} onChange={setDemoSubject} />
           </Field>
           <Field label="Срок" htmlFor="demo-date" optional className={styles.field}>
-            <Input id="demo-date" type="date" />
+            <DateInput id="demo-date" value={demoDate} onChange={setDemoDate} />
           </Field>
         </Demo>
         <Demo label="Подсказка и ошибка">

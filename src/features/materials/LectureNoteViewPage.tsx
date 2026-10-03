@@ -40,7 +40,8 @@ export function LectureNoteViewPage() {
   }, [noteId, touchLectureNote]);
 
   if (!note) return <MissingNote noteId={noteId} />;
-  return <NoteView note={note} />;
+  // key: у каждого конспекта своё состояние — новый открывается со скелета, а не с текста предыдущего
+  return <NoteView key={note.id} note={note} />;
 }
 
 /** Конспекта нет: возможно, файл переименовали в репозитории группы — ищем новый адрес, иначе в «Материалы» */
@@ -69,6 +70,20 @@ function MissingNote({ noteId }: { noteId: string }) {
 
 /** Читалка: текст конспекта, справа «Лекции» предмета и «Содержание», сверху — прогресс чтения */
 function NoteView({ note }: { note: LectureNote }) {
+  // Большой конспект (100 КБ, сотни формул) разбирается сотни миллисекунд, на телефоне — секунды. Сначала
+  // кадр с шапкой и скелетом, затем текст одним проходом. Не useDeferredValue: фоновую отрисовку прерывает
+  // любое обновление (оглавление, «последний раз открыт»), и разбор начинается заново — выходило дольше
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const show = () => setReady(true);
+    const frame = requestAnimationFrame(() => setTimeout(show));
+    const fallback = setTimeout(show, 120); // вкладка в фоне: кадров нет
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(fallback);
+    };
+  }, []);
+  const content = ready ? note.content : '';
   const navigate = useNavigate();
   const { isEditMode } = useEditMode();
   const deleteLectureNote = useLectureNotesStore((state) => state.deleteLectureNote);
@@ -78,7 +93,8 @@ function NoteView({ note }: { note: LectureNote }) {
   const articleRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const siblings = useSiblingNotes(note);
-  const toc = useToc(contentRef, note.id + note.updatedAt);
+  // Оглавление — когда текст уже отрисован (см. content ниже)
+  const toc = useToc(contentRef, note.id + note.updatedAt + (content ? ':ready' : ''));
   const bookmarked = useMarksStore((state) => Boolean(state.bookmarks[note.id]));
   const toggleBookmark = useMarksStore((state) => state.toggleBookmark);
   useMarkHighlights(contentRef, note.id);
@@ -137,7 +153,11 @@ function NoteView({ note }: { note: LectureNote }) {
         </header>
 
         <div ref={contentRef} className={styles.content}>
-          <LectureNoteContentView contentType={note.contentType} content={note.content} sourceRef={note.sourceRef} baseUrl={noteAssetBase(note)} />
+          {content || !note.content ? (
+            <LectureNoteContentView contentType={note.contentType} content={content} sourceRef={note.sourceRef} baseUrl={noteAssetBase(note)} />
+          ) : (
+            <NoteBodySkeleton />
+          )}
           {/* Свой тест — только к конспектам группы и только если в конспекте нет теста от самой группы */}
           {note.source === 'github' && (note.collection ?? 'group') === 'group' && !note.content.includes('```quiz') && (
             <SiteQuiz sourceRef={note.sourceRef} />
@@ -184,4 +204,15 @@ function safeDecodeURIComponent(value: string): string {
   } catch {
     return value;
   }
+}
+
+/** Строки-заглушки на месте текста, пока он отрисовывается */
+function NoteBodySkeleton() {
+  return (
+    <div className={styles.skeleton} aria-busy="true" aria-label="Конспект загружается">
+      {[92, 100, 78, 96, 64, 88, 100, 70].map((width, index) => (
+        <span key={index} style={{ width: `${width}%` }} />
+      ))}
+    </div>
+  );
 }

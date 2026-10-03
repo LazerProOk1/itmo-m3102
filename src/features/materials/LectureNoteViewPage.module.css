@@ -92,3 +92,30 @@
     margin-left: -6px;
   }
 }
+
+.skeleton {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.skeleton span {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-active);
+  animation: note-skeleton 1.2s ease-in-out infinite alternate;
+}
+
+.skeleton span:nth-child(4n) {
+  margin-bottom: var(--space-3);
+}
+
+@keyframes note-skeleton {
+  from {
+    opacity: 0.5;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

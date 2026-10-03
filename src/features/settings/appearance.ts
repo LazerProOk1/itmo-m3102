@@ -100,15 +100,24 @@ export function useApplyAppearance() {
       kick();
     };
     const onScroll = () => {
-      target.s = Math.min(scrollY / 1600, 1);
+      target.s = Math.min(scrollY / 1200, 1);
+      kick();
+    };
+    // Телефон: курсора нет — пятна откликаются на наклон (gamma — влево-вправо, beta — к себе; держат обычно под ~45°)
+    const onTilt = (event: DeviceOrientationEvent) => {
+      if (event.gamma === null || event.beta === null) return;
+      target.x = Math.max(-1, Math.min(1, event.gamma / 30));
+      target.y = Math.max(-1, Math.min(1, (event.beta - 45) / 30));
       kick();
     };
     addEventListener('pointermove', onMove, { passive: true });
     addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('deviceorientation', onTilt);
     onScroll();
     return () => {
       removeEventListener('pointermove', onMove);
       removeEventListener('scroll', onScroll);
+      removeEventListener('deviceorientation', onTilt);
       cancelAnimationFrame(frame);
       for (const name of ['--bg-x', '--bg-y', '--bg-s']) layer.style.removeProperty(name);
     };

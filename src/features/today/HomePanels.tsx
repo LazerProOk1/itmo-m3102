@@ -8,6 +8,7 @@ import { Checkbox } from '../../components/ui/Checkbox';
 import { IconButton } from '../../components/ui/IconButton';
 import { Input } from '../../components/ui/Input';
 import { Section } from '../../components/ui/Section';
+import { DateInput } from '../../components/ui/DateInput';
 import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
 import { daysBetween, formatShortDate } from '../../lib/dates';
@@ -177,7 +178,7 @@ export function StudyPlanPanel({ today }: { today: ISODate }) {
           aria-label="Новая задача"
           onChange={(event) => setTitle(event.target.value)}
         />
-        <Input type="date" value={date} aria-label="Срок задачи" onChange={(event) => setDate(event.target.value)} />
+        <DateInput value={date} aria-label="Срок задачи" onChange={(value) => setDate(value)} />
         <Button type="submit" variant="secondary" disabled={!title.trim()}>
           Добавить
         </Button>

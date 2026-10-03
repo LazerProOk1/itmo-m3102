@@ -225,8 +225,15 @@ html {
   view-transition-name: morph-title;
 }
 
+/* Переход по ссылке должен ощущаться мгновенным: заголовок перетекает быстро, страница меняется ещё быстрее
+   (420 мс у смены темы здесь давали «залипание» на телефоне) */
+:root.morphing::view-transition-old(root),
+:root.morphing::view-transition-new(root) {
+  animation-duration: 160ms;
+}
+
 ::view-transition-group(morph-title) {
-  animation-duration: 420ms;
+  animation-duration: 280ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
