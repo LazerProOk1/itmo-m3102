@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { idleStorage, storageKey } from '../../lib/storage';
 import type { ID, LectureNote, LectureNoteCollection, LectureNoteContentType } from '../../types/models';
 
 export interface LectureNoteDraft {
@@ -49,6 +49,6 @@ export const useLectureNotesStore = create<LectureNotesStore>()(
           lectureNotes: state.lectureNotes.map((note) => (note.id === id ? { ...note, lastOpenedAt: new Date().toISOString() } : note)),
         })),
     }),
-    { name: storageKey('lecture-notes') },
+    { name: storageKey('lecture-notes'), storage: idleStorage() },
   ),
 );

@@ -15,7 +15,19 @@ const isGroupNote = (note: LectureNote) =>
   note.source === 'github' && (note.collection ?? 'group') === 'group' && !note.archived && note.contentType === 'markdown';
 
 /** Тесты конспекта: тесты группы внутри него, а если их нет — наш (как и показывает читалка) */
+// Поиск тестов прогоняет регулярку по всему тексту конспекта (до 100 КБ) — запоминаем по версии конспекта
+const cache = new Map<string, QuizSource[]>();
+
 export function quizzesOfNote(note: LectureNote): QuizSource[] {
+  const key = `${note.id}|${note.updatedAt}|${note.archived}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+  const found = findQuizzes(note);
+  cache.set(key, found);
+  return found;
+}
+
+function findQuizzes(note: LectureNote): QuizSource[] {
   if (!isGroupNote(note) || !note.sourceRef) return [];
   const blocks = quizBlocks(note.content);
   if (blocks.length)

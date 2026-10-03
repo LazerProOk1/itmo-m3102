@@ -63,8 +63,9 @@ export function AppShell() {
            */}
           <motion.div
             key={location.pathname}
-            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
+            // Страница видна сразу (с 0.5, а не из полной прозрачности): переход ощущается мгновенным
+            initial={reduceMotion ? false : { opacity: 0.5, y: 4 }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] } }}
           >
             <Suspense fallback={<PageSkeleton />}>
               <Outlet />
