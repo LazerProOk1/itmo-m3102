@@ -51,7 +51,7 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
         } as CSSProperties
       }
       leading={
-        <span className={cn(styles.time, isNow && styles.timeNow)}>
+        <span className={styles.time}>
           {details.startTime}
           <span className={styles.endTime}>{details.endTime}</span>
         </span>

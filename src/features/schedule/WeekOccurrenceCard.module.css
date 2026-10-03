@@ -41,7 +41,7 @@
 .filled {
   height: 100%;
   overflow: hidden;
-  border-color: color-mix(in srgb, var(--type-color, var(--color-border)) 28%, transparent);
+  border-color: var(--color-border);
   background: color-mix(in srgb, var(--type-color, transparent) 13%, var(--color-bg-elevated));
 }
 
@@ -70,6 +70,28 @@
 .filled .subject {
   -webkit-line-clamp: 3;
   line-clamp: 3;
+}
+
+/* Кнопка на всю карточку: под текстом, над фоном; фокус — рамка вокруг карточки */
+.open {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+.open:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Меню «⋯» — поверх кнопки карточки, своё нажатие */
+.menu {
+  position: relative;
+  z-index: 1;
 }
 
 .top {
@@ -118,7 +140,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1-5);
+  gap: var(--space-1) var(--space-2);
   margin-top: var(--space-0-5);
   font-size: var(--text-2xs);
   color: var(--color-text-muted);

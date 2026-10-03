@@ -32,10 +32,6 @@
   color: var(--color-text-muted);
 }
 
-.timeNow {
-  color: var(--color-accent-text);
-}
-
 .cancelledTitle {
   text-decoration: line-through;
   text-decoration-color: var(--color-border-hover);
