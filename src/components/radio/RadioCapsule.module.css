@@ -21,6 +21,17 @@
   box-shadow: var(--shadow-popover);
 }
 
+/* В покое радио почти не заметно: без тени поповера и свечения — это не главное на учебном сайте */
+.capsule:not(.on) {
+  box-shadow: var(--shadow-xs);
+  opacity: 0.85;
+}
+
+.capsule:not(.on):hover,
+.capsule:not(.on):focus-within {
+  opacity: 1;
+}
+
 .on {
   border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
   box-shadow:
@@ -283,6 +294,11 @@
     left: var(--space-3);
     bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + var(--space-4));
     align-items: flex-start;
+  }
+
+  /* Телефон, радио молчит: только кнопка воспроизведения — капсула не закрывает строки списка */
+  .capsule:not(.on) .label {
+    display: none;
   }
 
   .panel {
