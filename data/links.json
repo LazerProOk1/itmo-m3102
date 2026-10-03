@@ -44,12 +44,19 @@
       "group": "Материалы по предметам",
       "subject": "Основы программирования"
     },
-        {
+      {
       "title": "Диск с материалами по Линалу Екатерины Бровкиной",
       "description": "Отсюда можно брать задания для ДЗ и подготовки",
       "url": "https://drive.google.com/drive/folders/1OvnvIk0wODNIywGHOKVHQGLKGA1ZSxfk",
       "group": "Материалы по предметам",
       "subject": "Линейная алгебра"
+    },
+       {
+      "title": "Лист с баллами по ОП",
+      "description": "Баллы за сдачи лаб Владу Сергею.",
+      "url": "https://docs.google.com/spreadsheets/d/1RPnkkIYz1yWKvegiurVcmc-UIvRXBZZ7OqjRtw_gI9E/",
+      "group": "Таблицы с баллами",
+      "subject": "Основы программирования"
     }
   ]
 }
