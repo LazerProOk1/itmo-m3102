@@ -136,6 +136,12 @@ const PAGES: Section[] = [
 const pdfText = new Map<string, string>();
 let pdfIndexLoad: Promise<void> | null = null;
 
+/** Тексты PDF-конспектов группы по пути файла — для выгрузки предмета «Для ИИ» */
+export async function loadPdfTexts(): Promise<ReadonlyMap<string, string>> {
+  await loadPdfIndex();
+  return pdfText;
+}
+
 export function loadPdfIndex(): Promise<void> {
   pdfIndexLoad ??= fetch(rawUrl('group', 'data/search-index.json'))
     .then((response) => (response.ok ? response.json() : null))

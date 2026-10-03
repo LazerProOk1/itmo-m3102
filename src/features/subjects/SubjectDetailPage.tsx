@@ -24,6 +24,7 @@ import { isOpenTask } from '../tasks/taskFilters';
 import { TaskDialog } from '../tasks/TaskDialog';
 import { useTaskDialog } from '../tasks/useTaskDialog';
 import { useTasksStore } from '../tasks/tasksStore';
+import { AiDigestButton } from './AiDigestButton';
 import { resolveSubjectContacts } from './contacts';
 import { SubjectContactsSection } from './SubjectContactsSection';
 import { SubjectCover } from './SubjectCover';
@@ -124,11 +125,22 @@ export function SubjectDetailPage() {
         subtitle={subtitle}
         reveal={shouldRevealTitle}
         actions={
-          isEditMode && (
-            <Button variant="secondary" icon={Pencil} onClick={() => subjectDialog.openEdit(subject)}>
-              Изменить
-            </Button>
-          )
+          <>
+            <AiDigestButton
+              subjectName={subject.name}
+              info={subjectInfoItems}
+              notes={subjectLectureNotes}
+              materials={[...subjectMaterials, ...subjectLinks]}
+              links={subjectGroupLinks}
+              personalNotes={subjectNotes}
+              today={today}
+            />
+            {isEditMode && (
+              <Button variant="secondary" icon={Pencil} onClick={() => subjectDialog.openEdit(subject)}>
+                Изменить
+              </Button>
+            )}
+          </>
         }
       />
 
