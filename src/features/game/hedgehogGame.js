@@ -1217,7 +1217,7 @@ function mount(container,opts){
       '<canvas class="hh-canvas"></canvas>'+
       '<div class="hh-ov hh-start"></div><div class="hh-ov hh-pause"></div><div class="hh-ov hh-over"></div><div class="hh-ov hh-hats"></div>'+
     '</div>'+
-    '<div class="hh-foot">Зажми — катиться, отпусти — прыжок · в воздухе: слева / ← / A — бэкфлип, справа / → / D — фронтфлип · P — пауза</div>'+
+    '<div class="hh-foot">Зажми — катиться, отпусти — прыжок · в воздухе: '+key('left')+key('A')+' бэкфлип · '+key('right')+key('D')+' фронтфлип · '+key('P')+' пауза</div>'+
   '</div>';
   const $=s=>container.querySelector(s);
   const root=$('.hh-root'),stage=$('.hh-stage'),cv=$('.hh-canvas');
