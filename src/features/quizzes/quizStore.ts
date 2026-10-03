@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { addDays } from '../../lib/dates';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ISODate } from '../../types/models';
 
 /**
@@ -77,7 +77,7 @@ export const useQuizStore = create<QuizStore>()(
           };
         }),
     }),
-    { name: storageKey('quizzes') },
+    { name: storageKey('quizzes'), storage: localStore },
   ),
 );
 

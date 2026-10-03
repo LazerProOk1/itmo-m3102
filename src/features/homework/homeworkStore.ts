@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 
 /**
  * Домашнее задание группы — формат data/homework.json репозитория M3102 (общий с их сайтом):
@@ -70,7 +70,7 @@ export const useHomeworkStore = create<HomeworkStore>()(
       markPublished: (result) => set({ base: result, items: result, hasDraft: false }),
       discardDraft: () => set((state) => ({ items: state.base, hasDraft: false })),
     }),
-    { name: storageKey('homework') },
+    { name: storageKey('homework'), storage: localStore },
   ),
 );
 

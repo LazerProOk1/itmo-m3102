@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 
 /** Дедлайн из Дедлайны/deadlines.json репозитория группы */
 export interface GroupDeadline {
@@ -47,7 +47,7 @@ export const useGroupStore = create<GroupStore>()(
       files: [],
       toggleDeadlineDone: (id, done) => set((state) => ({ deadlinesDone: { ...state.deadlinesDone, [id]: done } })),
     }),
-    { name: storageKey('group') },
+    { name: storageKey('group'), storage: localStore },
   ),
 );
 

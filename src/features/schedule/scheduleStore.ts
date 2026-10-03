@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { M3102_CLASSES } from '../../data/m3102';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import { useSemesterSettingsStore } from '../settings/semesterSettingsStore';
 import type { ClassDetails, ClassSession, ID, ScheduleException, WeekRepeat, Weekday } from '../../types/models';
 import type { ScheduleData } from './occurrences';
@@ -81,6 +81,7 @@ export const useScheduleStore = create<ScheduleStore>()(
     }),
     {
       name: storageKey('schedule'),
+      storage: localStore,
       // v2: запасное расписание с чётностью сайта группы; при синхронизации заменяется data/schedule.json
       version: 2,
       migrate: (persisted) => ({ ...(persisted as object), classes: M3102_CLASSES }) as ScheduleStore,

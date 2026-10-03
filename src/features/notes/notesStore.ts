@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ID, Note } from '../../types/models';
 
 export interface NoteDraft {
@@ -25,6 +25,6 @@ export const useNotesStore = create<NotesStore>()(
       updateNote: (id, draft) => set((state) => ({ notes: state.notes.map((note) => (note.id === id ? replaceEntity(note, draft) : note)) })),
       deleteNote: (id) => set((state) => ({ notes: state.notes.filter((note) => note.id !== id) })),
     }),
-    { name: storageKey('notes') },
+    { name: storageKey('notes'), storage: localStore },
   ),
 );

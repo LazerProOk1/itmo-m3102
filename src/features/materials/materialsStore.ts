@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ID, Material, MaterialCategory, MaterialType } from '../../types/models';
 
 export interface MaterialDraft {
@@ -33,6 +33,6 @@ export const useMaterialsStore = create<MaterialsStore>()(
         set((state) => ({ materials: state.materials.map((material) => (material.id === id ? replaceEntity(material, draft) : material)) })),
       deleteMaterial: (id) => set((state) => ({ materials: state.materials.filter((material) => material.id !== id) })),
     }),
-    { name: storageKey('materials') },
+    { name: storageKey('materials'), storage: localStore },
   ),
 );

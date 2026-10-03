@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { M3102_SEMESTER } from '../../data/m3102';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ISODate, TimeFormat } from '../../types/models';
 
 export interface SemesterSettings {
@@ -24,6 +24,7 @@ export const useSemesterSettingsStore = create<SemesterSettingsStore>()(
     }),
     {
       name: storageKey('semester'),
+      storage: localStore,
       // v2: чётность как на сайте группы (21.09.2026 — чётная), дальше её задаёт синхронизация
       version: 2,
       migrate: (persisted) => ({ ...(persisted as object), ...M3102_SEMESTER }) as SemesterSettingsStore,

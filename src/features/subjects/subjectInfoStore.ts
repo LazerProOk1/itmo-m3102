@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ID, SubjectInfo, SubjectInfoCategory } from '../../types/models';
 
 export interface SubjectInfoDraft {
@@ -31,6 +31,6 @@ export const useSubjectInfoStore = create<SubjectInfoStore>()(
         })),
       deleteSubjectInfo: (id) => set((state) => ({ items: state.items.filter((item) => item.id !== id) })),
     }),
-    { name: storageKey('subject-info') },
+    { name: storageKey('subject-info'), storage: localStore },
   ),
 );
