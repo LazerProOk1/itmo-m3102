@@ -218,7 +218,9 @@ ESLint пока не подключён: `typescript-eslint` поддержив�
   «Перед контрольной») — `CombinedQuiz.tsx`. Прогресс предмета — `QuizProgress.tsx` (засчитан от 80%).
 - Закладки и пометки — `features/materials/marksStore.ts`; подсветка — CSS Custom Highlight API (`NoteMarks.tsx`,
   поиск места — `lib/textRange.ts`), DOM конспекта не трогаем.
-- Офлайн и установка: `public/sw.js` + `public/manifest.webmanifest`, иконки — из `public/icon.svg` (ёжик).
+- Офлайн и установка: `public/sw.js` + `public/manifest.webmanifest`, иконки — из логотипа группы `scripts/icon/source.jpg`:
+  `node scripts/icon/make-icons.mjs` пишет `public/favicon.png` (вкладка, только ёжик), `icon-192/512.png`,
+  `apple-touch-icon.png` и `icon-maskable-512.png` (логотип в безопасной зоне 80%). Сменил иконки — подними `CACHE` в sw.js.
   SW регистрируется только в сборке; при установке кладёт в кеш оболочку и все страницы по `asset-manifest.json`
   (vite.config.ts), без pdf.js и mermaid. Проверять — конфигурацией `m3102-preview` (vite preview), не dev-сервером.
 - Живой фон (`liveBg` в настройках): appearance.ts пишет `--bg-x/--bg-y/--bg-s` на `.aurora`, пятна сдвигаются `translate`.
