@@ -68,7 +68,15 @@ npm test           # vitest, юнит-тесты *.test.ts рядом с код�
 npm run typecheck  # tsc --noEmit
 npm run build      # typecheck + сборка в dist/
 npm run test:e2e   # Playwright: собирает сайт и гоняет сценарии в браузере (e2e/)
+npm run size       # бюджет размера сборки (после build): scripts/check-size.mjs
+npm run lighthouse # Lighthouse по dist/ (lighthouserc.json); на Windows: CHROME_PATH=путь к msedge.exe
 ```
+
+**Бюджеты в CI.** `npm run size` падает, если JS первой загрузки (сейчас ~194 КБ gzip), CSS или одна страница
+(конспект ~198 КБ) тяжелее порога в `scripts/check-size.mjs` — так тяжёлая библиотека не попадёт в общий код
+незаметно. Lighthouse (3 прогона, медиана): доступность и практики ≥ 0,9, сдвиг вёрстки CLS ≤ 0,1 — ошибка;
+производительность ≥ 0,5 — предупреждение (эмуляция слабого телефона с 4× замедлением шумит; сейчас ~0,55).
+Отчёты — артефакт `lighthouse` у запуска Actions.
 
 Перед каждым коммитом: `npm test` и `npm run build` должны проходить.
 
@@ -193,6 +201,10 @@ ESLint пока не подключён: `typescript-eslint` поддержив�
   через `LazyMarkdown`; не импортировать из страниц в главную (так `filePath` тянул за собой весь Markdown).
 - Шрифт заголовков — `--font-display` (Unbounded), текст — Inter. Серые подкрашены акцентом, свечение — оттенки
   одного акцента: радужные градиенты и градиентный текст выглядят «сгенерированно».
+- За каждым шрифтом в стеке — `Inter Fallback` / `Unbounded Fallback` (`tokens.css`): Arial с подогнанными
+  `size-adjust` и `ascent/descent-override`, чтобы подмена шрифта при загрузке не сдвигала вёрстку. Меняешь шрифт —
+  перемерь метрики (ширина текста и `fontBoundingBoxAscent/Descent` против Arial в canvas).
+- Логотип в шапке — `src/assets/logo-mask.webp` (600px, 6 КБ), уменьшенная копия `img/logo-t.png` (папка группы).
 - Тесты «Проверь себя» к конспектам M3102 — наши, не из репозитория группы: `src/data/siteQuizzes/<путь как в
   Конспекты/>.md` (формат parseQuiz), подключение — `features/materials/siteQuizzes.ts`. Показываются, только если в
   конспекте нет своего ```quiz. Вопросы только по предмету — без организационных (баллы, экзамены, правила). Новый конспект у группы — добавить тест сюда же; `siteQuizzes.test.ts` проверяет разбор.

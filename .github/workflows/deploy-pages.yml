@@ -27,6 +27,8 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      # Бюджет размера сборки (scripts/check-size.mjs)
+      - run: npm run size
       # Автотесты в браузере по собранному сайту (e2e/); упали — трассы в артефакте e2e-traces
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
@@ -35,6 +37,14 @@ jobs:
         with:
           name: e2e-traces
           path: test-results
+      # Lighthouse по собранному сайту (lighthouserc.json): доступность, практики и сдвиг вёрстки — порог,
+      # производительность — только предупреждение (эмуляция слабого телефона шумит). Отчёт — в артефакте
+      - run: npm run lighthouse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: lighthouse-report
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

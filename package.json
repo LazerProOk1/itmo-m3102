@@ -14,6 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "size": "node scripts/check-size.mjs",
+    "lighthouse": "npx -y @lhci/cli@0.15.1 autorun",
     "format": "prettier --write src",
     "format:check": "prettier --check src"
   },
