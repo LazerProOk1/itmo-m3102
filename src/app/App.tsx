@@ -66,8 +66,12 @@ export function App() {
     const prefetch = () => loaders.forEach((load) => void load());
     const idle = window.requestIdleCallback ?? ((callback: () => void) => setTimeout(callback, 1500));
     idle(prefetch);
-    addEventListener('pointerover', prefetch, { once: true });
-    addEventListener('touchstart', prefetch, { once: true, passive: true });
+    // В юнит-тестах (jsdom) не докачиваем: первый же клик грузил бы все страницы с KaTeX — тест не успевал
+    // и падал на загрузке после своего конца (как и requestIdleCallback в src/test/setup.ts)
+    if (import.meta.env.MODE !== 'test') {
+      addEventListener('pointerover', prefetch, { once: true });
+      addEventListener('touchstart', prefetch, { once: true, passive: true });
+    }
     // Вернулась сеть — догоняем
     addEventListener('online', sync);
     return () => removeEventListener('online', sync);

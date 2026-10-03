@@ -89,6 +89,14 @@
   color: var(--color-text);
 }
 
+/* Что человек сам написал в заголовке записи (или @логин, если его нет в списке группы) */
+.queueNote {
+  margin-left: var(--space-1-5);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
 .queueEmpty {
   list-style: none;
   margin-left: calc(-1 * var(--space-5));

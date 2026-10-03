@@ -12,13 +12,17 @@ import { GROUP_REPO, githubError, githubFetch, repoEditUrl } from '../../service
 import { useGroupStore, type GroupDeadline } from '../group/groupStore';
 import { deadlineInfo, orderDeadlines } from './deadlineInfo';
 import { useEditMode } from '../settings/EditModeContext';
+import { queuePerson } from './queueNames';
 import styles from './DeadlinesPage.module.css';
 
 /** Очередь сдачи — открытые issues с меткой queue-signup и заголовком "[id дедлайна] Имя" */
 const QUEUE_LABEL = 'queue-signup';
 
 interface QueueEntry {
+  /** «Имя Фамилия» студента по GitHub-автору записи; не из группы — что он написал в заголовке */
   name: string;
+  /** Что написано в заголовке сверх имени («(10.10.26)») или @логин автора не из группы */
+  note?: string;
   url: string;
 }
 
@@ -32,12 +36,14 @@ async function loadQueues(): Promise<Record<string, QueueEntry[]>> {
     `https://api.github.com/repos/${owner}/${repo}/issues?labels=${QUEUE_LABEL}&state=open&sort=created&direction=asc&per_page=100`,
   );
   if (!response.ok) throw new Error(githubError(response.status, false, response));
-  const issues = (await response.json()) as { title?: string; html_url: string; pull_request?: unknown }[];
+  const issues = (await response.json()) as { title?: string; html_url: string; pull_request?: unknown; user?: { login?: string } }[];
   const queues: Record<string, QueueEntry[]> = {};
   for (const issue of issues) {
     const match = !issue.pull_request && /^\[([^\]]+)\]\s*(.*)$/.exec(issue.title ?? '');
     if (!match) continue;
-    (queues[match[1]!.trim()] ??= []).push({ name: match[2]!.trim() || '(без имени)', url: issue.html_url });
+    // Кто стоит — по GitHub-аккаунту автора и базе студентов: в заголовке пишут что угодно («Ладно Федя, я начну»)
+    const entry: QueueEntry = { ...queuePerson(match[2]!.trim(), issue.user?.login), url: issue.html_url };
+    (queues[match[1]!.trim()] ??= []).push(entry);
   }
   return queues;
 }
@@ -184,6 +190,7 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
               <a href={entry.url} target="_blank" rel="noopener noreferrer">
                 {entry.name}
               </a>
+              {entry.note && <span className={styles.queueNote}>{entry.note}</span>}
             </li>
           ))
         )}
