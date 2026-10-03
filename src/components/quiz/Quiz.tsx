@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, Flame, ListChecks, X } from 'lucide-react';
+import { ArrowRight, Check, Flame, ListChecks, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
@@ -355,7 +355,13 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
       <div className={styles.actions}>
         {locked ? (
           <Button ref={nextRef} variant="primary" onClick={onNext}>
-            {last ? 'Результат' : 'Далее →'}
+            {last ? (
+              'Результат'
+            ) : (
+              <>
+                Далее <ArrowRight size={14} strokeWidth={2} aria-hidden />
+              </>
+            )}
           </Button>
         ) : (
           <Button variant="primary" onClick={check} disabled={!canCheck}>

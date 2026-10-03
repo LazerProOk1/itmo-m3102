@@ -327,3 +327,15 @@
   width: 12px;
   height: 12px;
 }
+
+/* Правка поверх оригинала: клавиши в подписи под игрой — в строку с текстом */
+.hh-foot {
+  line-height: 2;
+}
+
+.hh-foot .hh-key {
+  min-width: 20px;
+  height: 20px;
+  margin: 0 1px;
+  vertical-align: middle;
+}

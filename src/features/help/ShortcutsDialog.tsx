@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useEffect, type ReactNode } from 'react';
 import { create } from 'zustand';
 import { Kbd } from '../../components/ui/Kbd';
 import { Modal } from '../../components/ui/Modal';
@@ -9,6 +10,12 @@ export const useShortcutsDialog = create<{ open: boolean; setOpen: (open: boolea
   open: false,
   setOpen: (open) => set({ open }),
 }));
+
+// Стрелки — иконками: символы ← и → в шрифтах телефонов разного размера и стоят на разной высоте
+const KEY_ICONS: Record<string, ReactNode> = {
+  '←': <ArrowLeft size={12} strokeWidth={2.25} aria-label="Стрелка влево" />,
+  '→': <ArrowRight size={12} strokeWidth={2.25} aria-label="Стрелка вправо" />,
+};
 
 const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 
@@ -73,7 +80,7 @@ export function ShortcutsDialog() {
             <dl className={styles.rows}>
               {group.rows.map(([keys, what]) => (
                 <div key={what} className={styles.row}>
-                  <dt>{keys.map((key, index) => (key === '–' ? <span key={index}>–</span> : <Kbd key={index}>{key}</Kbd>))}</dt>
+                  <dt>{keys.map((key, index) => (key === '–' ? <span key={index}>–</span> : <Kbd key={index}>{KEY_ICONS[key] ?? key}</Kbd>))}</dt>
                   <dd>{what}</dd>
                 </div>
               ))}
