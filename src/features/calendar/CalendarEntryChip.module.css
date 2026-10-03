@@ -38,6 +38,12 @@
   color: var(--color-warning);
 }
 
+/* ДЗ группы — цветом акцента, дедлайны — предупреждением */
+.homeworkIcon {
+  flex-shrink: 0;
+  color: var(--color-accent-text);
+}
+
 .time {
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
@@ -78,5 +84,14 @@
   .monthChip.deadline {
     border-radius: 999px;
     background: var(--color-warning);
+  }
+
+  .monthChip .homeworkIcon {
+    display: none;
+  }
+
+  .monthChip.homework {
+    border-radius: 999px;
+    background: var(--color-accent);
   }
 }

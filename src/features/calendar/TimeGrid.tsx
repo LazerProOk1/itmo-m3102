@@ -1,5 +1,7 @@
 import { Plus } from 'lucide-react';
 import type { CSSProperties } from 'react';
+import { useNavigate } from 'react-router';
+import { SECTIONS } from '../../app/navigation';
 import { cn } from '../../lib/cn';
 import { getDayOfMonth, getShortWeekdayName, minutesBetween } from '../../lib/dates';
 import { useEditMode } from '../settings/EditModeContext';
@@ -61,6 +63,7 @@ interface TimeGridProps {
  */
 export function TimeGrid({ days, today, time, data, onClassAction, onEditTask, onEditEvent, onAddEvent }: TimeGridProps) {
   const { isEditMode } = useEditMode();
+  const navigate = useNavigate();
   const columns = days.map((date) => ({ date, entries: getCalendarEntriesForDate(date, data) }));
   const nowOffset = timeToOffset(time);
   const showNowLine = nowOffset >= 0 && nowOffset <= TOTAL_HEIGHT;
@@ -68,6 +71,8 @@ export function TimeGrid({ days, today, time, data, onClassAction, onEditTask, o
   function selectEntry(entry: CalendarEntry) {
     if (entry.kind === 'deadline') onEditTask(entry.task);
     if (entry.kind === 'event') onEditEvent(entry.event);
+    if (entry.kind === 'groupDeadline') navigate(SECTIONS.deadlines.path);
+    if (entry.kind === 'homework') navigate(SECTIONS.homework.path);
     // У class-записей в строке «весь день» взяться неоткуда — у занятий всегда есть время
   }
 
