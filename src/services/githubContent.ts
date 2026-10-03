@@ -151,18 +151,54 @@ function materialType(name: string): MaterialType {
   return 'other';
 }
 
-async function fetchText(url: string): Promise<string> {
-  const response = await fetch(url, { cache: 'no-store' });
+/** Зависшее соединение не должно держать «Синхронизация…» вечно */
+const timeout = () => AbortSignal.timeout(20_000);
+
+async function fetchResponse(url: string): Promise<Response> {
+  const response = await fetch(url, { cache: 'no-store', signal: timeout() });
   if (!response.ok) throw new Error(`Не удалось загрузить ${decodeURI(url)} (${response.status})`);
-  return response.text();
+  return response;
 }
 
-async function fetchTree(repo: keyof typeof REPOS): Promise<RepoFile[]> {
+const fetchText = (url: string) => fetchResponse(url).then((response) => response.text());
+
+interface TreeFile extends RepoFile {
+  sha: string;
+}
+
+/** Поменялся разбор файлов (stripFrontMatter, splitTitle…) — увеличить: все конспекты скачаются и разберутся заново */
+const PARSER_VERSION = 1;
+const fileVersion = (file: TreeFile) => `${PARSER_VERSION}:${file.sha}`;
+
+/** git blob sha — им GitHub подписывает файл в дереве репозитория: sha1("blob <размер>\0" + байты) */
+export async function blobSha(bytes: Uint8Array): Promise<string> {
+  const header = new TextEncoder().encode(`blob ${bytes.length}\0`);
+  const data = new Uint8Array(header.length + bytes.length);
+  data.set(header);
+  data.set(bytes, header.length);
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-1', data));
+  return [...hash].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Текст файла и его версия для кеша. Версию ставим, только если sha скачанного совпал с деревом: raw-сервер
+ * кеширует файлы ~5 минут и сразу после правки может отдать старый текст — тогда без версии, скачаем в следующий раз
+ */
+async function fetchFile(repo: keyof typeof REPOS, file: TreeFile): Promise<{ text: string; version?: string }> {
+  const bytes = new Uint8Array(await (await fetchResponse(rawUrl(repo, file.path))).arrayBuffer());
+  // crypto.subtle есть только на https и localhost — по адресу из локальной сети просто без кеша
+  const verified = crypto.subtle !== undefined && (await blobSha(bytes)) === file.sha;
+  return { text: new TextDecoder().decode(bytes), version: verified ? fileVersion(file) : undefined };
+}
+
+async function fetchTree(repo: keyof typeof REPOS): Promise<TreeFile[]> {
   const { name, branch } = REPOS[repo];
-  const response = await githubFetch(`https://api.github.com/repos/${name}/git/trees/${branch}?recursive=1`);
+  const response = await githubFetch(`https://api.github.com/repos/${name}/git/trees/${branch}?recursive=1`, { signal: timeout() });
   if (!response.ok) throw new Error(`${name}: ${githubError(response.status, false, response)}`);
-  const tree = (await response.json()) as { tree: { path: string; type: string; size?: number }[] };
-  return tree.tree.filter((entry) => entry.type === 'blob').map((entry) => ({ path: entry.path, size: entry.size ?? 0 }));
+  const tree = (await response.json()) as { truncated?: boolean; tree: { path: string; type: string; size?: number; sha: string }[] };
+  // Неполный список нельзя принимать за полный: пропавшие из него конспекты ушли бы в архив
+  if (tree.truncated) throw new Error(`${name}: GitHub отдал неполный список файлов — синхронизация отменена.`);
+  return tree.tree.filter((entry) => entry.type === 'blob').map((entry) => ({ path: entry.path, size: entry.size ?? 0, sha: entry.sha }));
 }
 
 const BLACKBOARD: Record<string, string> = { C: 'ℂ', N: 'ℕ', Q: 'ℚ', R: 'ℝ', Z: 'ℤ' };
@@ -182,7 +218,7 @@ function splitTitle(markdown: string): { title?: string; content: string } {
   return match ? { title: cleanTitle(match[1]!), content: markdown.slice(match[0].length).trimStart() } : { content: markdown };
 }
 
-type NoteFields = Pick<LectureNote, 'subjectId' | 'lectureNumber' | 'title' | 'contentType' | 'content' | 'collection'>;
+type NoteFields = Pick<LectureNote, 'subjectId' | 'lectureNumber' | 'title' | 'contentType' | 'content' | 'collection' | 'sourceVersion'>;
 
 function toNote(path: string, fields: NoteFields, previous: LectureNote[], now: string, createdAt = now): LectureNote {
   const id = `gh:${path}`;
@@ -200,21 +236,27 @@ function toNote(path: string, fields: NoteFields, previous: LectureNote[], now: 
   };
 }
 
-async function buildGroupNotes(paths: string[], previous: LectureNote[], now: string): Promise<LectureNote[]> {
-  const files = paths
-    .map((path) => ({ path, parts: path.split('/') }))
+async function buildGroupNotes(tree: TreeFile[], previous: LectureNote[], now: string): Promise<LectureNote[]> {
+  const files = tree
+    .map((file) => ({ file, path: file.path, parts: file.path.split('/') }))
     .filter(({ parts }) => parts[0] === 'Конспекты' && parts.length === 4 && parts[2]!.toLowerCase() !== 'img' && resolveSubjectFolder(parts[1]!));
 
   return Promise.all(
-    files.map(async ({ path, parts }) => {
+    files.map(async ({ file, path, parts }) => {
       const [, subjectFolder, lessonFolder, name] = parts as [string, string, string, string];
       const ext = extension(name);
       let title = `${prettify(name)} (${ext.toUpperCase()})`;
       let content = fileUrl(path);
+      let sourceVersion: string | undefined;
       if (ext === 'md') {
+        // Файл не менялся с прошлой синхронизации — не качаем
+        const old = previous.find((note) => note.id === `gh:${path}`);
+        if (old?.sourceVersion === fileVersion(file)) return { ...old, archived: false };
         // Название — по имени файла, как на сайте группы; первый заголовок убираем, только если он его повторяет
         // Файл-тест (mode: quiz) — один блок ```quiz, обычный конспект — без служебной шапки
-        const text = stripFrontMatter(quizPageToMarkdown(await fetchText(rawUrl('group', path))));
+        const fetched = await fetchFile('group', file);
+        sourceVersion = fetched.version;
+        const text = stripFrontMatter(quizPageToMarkdown(fetched.text));
         const split = splitTitle(text);
         title = prettify(name);
         content = split.title?.toLowerCase() === title.toLowerCase() ? split.content : text;
@@ -228,6 +270,7 @@ async function buildGroupNotes(paths: string[], previous: LectureNote[], now: st
           contentType: ext === 'md' ? 'markdown' : ext === 'pdf' ? 'pdf' : 'link',
           content,
           collection: 'group',
+          sourceVersion,
         },
         previous,
         now,
@@ -241,18 +284,25 @@ interface StreamContent {
   info: SubjectInfo[];
 }
 
-async function buildStreamContent(paths: string[], notes: LectureNote[], info: SubjectInfo[], now: string): Promise<StreamContent> {
-  const files = paths
-    .filter((path) => path.startsWith(STREAM_FOLDER) && path.endsWith('.md'))
-    .map((path) => ({ path, parts: path.slice(STREAM_FOLDER.length).split('/') }))
+async function buildStreamContent(tree: TreeFile[], notes: LectureNote[], info: SubjectInfo[], now: string): Promise<StreamContent> {
+  const files = tree
+    .filter(({ path }) => path.startsWith(STREAM_FOLDER) && path.endsWith('.md'))
+    .map((file) => ({ file, path: file.path, parts: file.path.slice(STREAM_FOLDER.length).split('/') }))
     .filter(({ parts }) => parts.length === 2 && STREAM_SUBJECT_FOLDERS[parts[0]!]);
 
   const result: StreamContent = { notes: [], info: [] };
   await Promise.all(
-    files.map(async ({ path, parts }) => {
+    files.map(async ({ file, path, parts }) => {
       const [subjectFolder, name] = parts as [string, string];
       const subjectId = STREAM_SUBJECT_FOLDERS[subjectFolder]!;
-      const { content } = splitTitle(stripFrontMatter(await fetchText(rawUrl('stream', path))));
+      const id = `gh:${path}`;
+      const oldNote = notes.find((item) => item.id === id);
+      const old = info.find((item) => item.id === id);
+      // Файл не менялся с прошлой синхронизации — не качаем
+      if (oldNote?.sourceVersion === fileVersion(file)) return void result.notes.push({ ...oldNote, archived: false });
+      if (old?.sourceVersion === fileVersion(file)) return void result.info.push({ ...old, archived: false });
+      const fetched = await fetchFile('stream', file);
+      const { content } = splitTitle(stripFrontMatter(fetched.text));
       const lesson = parseStreamFilename(name);
 
       if (lesson) {
@@ -263,13 +313,12 @@ async function buildStreamContent(paths: string[], notes: LectureNote[], info: S
           contentType: 'markdown',
           content,
           collection: 'stream',
+          sourceVersion: fetched.version,
         };
         result.notes.push(toNote(path, fields, notes, now, `${lesson.date}T00:00:00.000Z`));
         return;
       }
 
-      const id = `gh:${path}`;
-      const old = info.find((item) => item.id === id);
       const isDescription = stem(name) === subjectFolder;
       const infoContent = isDescription ? stripVaultSections(content) : content;
       result.info.push({
@@ -282,6 +331,7 @@ async function buildStreamContent(paths: string[], notes: LectureNote[], info: S
         category: isDescription ? 'description' : 'other',
         source: 'github',
         sourceRef: path,
+        sourceVersion: fetched.version,
         archived: false,
       });
     }),
@@ -350,10 +400,11 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   const materialsBefore = useMaterialsStore.getState().materials;
 
   const [group, stream] = await Promise.allSettled([
-    fetchTree('group').then(async (files) => {
-      const paths = files.map((file) => file.path);
+    fetchTree('group').then(async (tree) => {
+      const paths = tree.map((file) => file.path);
+      const files: RepoFile[] = tree.map(({ path, size }) => ({ path, size }));
       const [notes, deadlines, homework, links, schedule] = await Promise.all([
-        buildGroupNotes(paths, notesBefore, now),
+        buildGroupNotes(tree, notesBefore, now),
         fetchText(rawUrl('group', 'Дедлайны/deadlines.json')).then((text) => parseDeadlines(JSON.parse(text))),
         fetchText(rawUrl('group', 'data/homework.json')).then((text) => parseHomework(JSON.parse(text))),
         fetchText(rawUrl('group', 'data/links.json')).then((text) => parseLinks(JSON.parse(text))),
@@ -364,14 +415,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       ]);
       return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
     }),
-    fetchTree('stream').then((files) =>
-      buildStreamContent(
-        files.map((file) => file.path),
-        notesBefore,
-        infoBefore,
-        now,
-      ),
-    ),
+    fetchTree('stream').then((tree) => buildStreamContent(tree, notesBefore, infoBefore, now)),
   ]);
 
   const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };
@@ -418,9 +462,10 @@ export async function syncGithubContent(): Promise<SyncSummary> {
     summary.subjectInfo = stream.value.info.length;
   }
 
+  // Хоть один репозиторий обновился — следующая автосинхронизация через 10 минут: иначе недоступный второй
+  // заставлял бы синхронизироваться заново при каждом открытии сайта и тратить лимит GitHub API
+  if (group.status === 'fulfilled' || stream.status === 'fulfilled') localStorage.setItem(LAST_SYNC_KEY, String(Date.now()));
   const failed = [group, stream].find((result) => result.status === 'rejected');
   if (failed) throw failed.reason instanceof Error ? failed.reason : new Error('Не удалось синхронизироваться с GitHub.');
-
-  localStorage.setItem(LAST_SYNC_KEY, String(Date.now()));
   return summary;
 }

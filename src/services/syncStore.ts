@@ -34,9 +34,11 @@ export const useSyncStore = create<SyncStore>()((set, get) => {
       const message =
         error instanceof TypeError || !navigator.onLine
           ? OFFLINE
-          : error instanceof Error
-            ? error.message
-            : 'Не удалось синхронизироваться с GitHub.';
+          : error instanceof DOMException && error.name === 'TimeoutError'
+            ? 'GitHub не отвечает — показаны сохранённые данные. Попробуйте позже.'
+            : error instanceof Error
+              ? error.message
+              : 'Не удалось синхронизироваться с GitHub.';
       set({ status: 'error', error: message });
     }
   }

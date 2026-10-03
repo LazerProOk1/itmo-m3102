@@ -8,6 +8,10 @@ describe('поиск по тексту', () => {
     );
   });
 
+  it('код ищется, схемы — нет', () => {
+    expect(plainText('```cpp\nstd::vector v;\n```\n```mermaid\ngraph TD\n```')).toBe('std::vector v;');
+  });
+
   it('формулы читаемые', () => {
     expect(plainText('Рефлексивность: $\\forall a: a \\le a$ на $\\mathbb{R}$')).toBe('Рефлексивность: ∀ a: a ≤ a на R');
   });

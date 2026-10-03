@@ -25,7 +25,14 @@ export function idleStorage<S>(): PersistStorage<S> {
   let scheduled = false;
   const flush = () => {
     scheduled = false;
-    for (const [name, value] of pending) localStorage.setItem(name, JSON.stringify(value));
+    for (const [name, value] of pending) {
+      try {
+        localStorage.setItem(name, JSON.stringify(value));
+      } catch (error) {
+        // Место кончилось (квота ~5 МБ) — в этой вкладке данные есть, при следующем открытии скачаются заново
+        console.warn(`Не удалось сохранить ${name}`, error);
+      }
+    }
     pending.clear();
   };
   // Вне браузера (юнит-тесты в Node) хранить негде
@@ -37,7 +44,13 @@ export function idleStorage<S>(): PersistStorage<S> {
   return {
     getItem: (name) => {
       const raw = available ? localStorage.getItem(name) : null;
-      return raw ? (JSON.parse(raw) as StorageValue<S>) : null;
+      try {
+        return raw ? (JSON.parse(raw) as StorageValue<S>) : null;
+      } catch {
+        // Запись оборвалась на середине — начинаем с пустого, синхронизация всё вернёт
+        localStorage.removeItem(name);
+        return null;
+      }
     },
     setItem: (name, value) => {
       if (!available) return;

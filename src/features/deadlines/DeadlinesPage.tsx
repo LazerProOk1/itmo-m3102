@@ -22,6 +22,10 @@ interface QueueEntry {
   url: string;
 }
 
+const QUEUE_TTL = 2 * 60_000;
+/** Последняя загруженная очередь — живёт, пока открыт сайт: вернулись на страницу — показываем сразу */
+let loadedQueues: { at: number; queues: Record<string, QueueEntry[]> } | null = null;
+
 async function loadQueues(): Promise<Record<string, QueueEntry[]>> {
   const { owner, repo } = GROUP_REPO;
   const response = await githubFetch(
@@ -56,14 +60,15 @@ export function DeadlinesPage() {
   const deadlines = useGroupStore((state) => state.deadlines);
   const doneMap = useGroupStore((state) => state.deadlinesDone);
   useConfettiWhenCleared(deadlines.filter((item) => !doneMap[item.id]).length);
-  const [queues, setQueues] = useState<Record<string, QueueEntry[]>>({});
+  const [queues, setQueues] = useState<Record<string, QueueEntry[]>>(() => loadedQueues?.queues ?? {});
   const [queueError, setQueueError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      setQueues(await loadQueues());
+      loadedQueues = { at: Date.now(), queues: await loadQueues() };
+      setQueues(loadedQueues.queues);
       setQueueError('');
     } catch (error) {
       setQueueError(error instanceof Error ? error.message : 'Не удалось загрузить очередь.');
@@ -73,10 +78,14 @@ export function DeadlinesPage() {
   }, []);
 
   useEffect(() => {
-    void refresh();
-    const onVisible = () => !document.hidden && void refresh();
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    // Открыли страницу или вернулись во вкладку — сами обновляем не чаще раза в 2 минуты: каждый запрос
+    // тратит лимит GitHub API (60 в час). Кнопка «Обновить» — всегда
+    const refreshIfStale = () => {
+      if (!document.hidden && Date.now() - (loadedQueues?.at ?? 0) > QUEUE_TTL) void refresh();
+    };
+    refreshIfStale();
+    document.addEventListener('visibilitychange', refreshIfStale);
+    return () => document.removeEventListener('visibilitychange', refreshIfStale);
   }, [refresh]);
 
   const remaining = deadlines.filter((item) => !doneMap[item.id]).length;
