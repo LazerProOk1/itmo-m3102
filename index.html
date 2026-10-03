@@ -10,6 +10,9 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Синхронизация с GitHub стартует сразу при открытии — соединение готовим заранее -->
+    <link rel="preconnect" href="https://api.github.com" crossorigin />
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin />
     <meta name="theme-color" content="#131315" />
     <script>
       // Применяем сохранённую тему ДО загрузки React,
