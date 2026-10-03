@@ -7,7 +7,8 @@
  * - Тексты конспектов, расписание, ДЗ и так лежат в localStorage — их SW не трогает.
  * ponytail: старые файлы сборки копятся в кеше; если разрастётся — сменить CACHE на новую версию.
  */
-const CACHE = 'm3102-v4';
+// Сменили файлы с постоянными именами (иконки) — поднять версию: старый кеш удалится при активации
+const CACHE = 'm3102-v5';
 // Vary: Origin у сервера: скрипт с crossorigin и тот же файл из addAll иначе считаются разными записями
 const MATCH = { ignoreVary: true };
 const PDF_HOSTS = ['raw.githubusercontent.com', 'redstonelord.github.io'];
@@ -15,7 +16,7 @@ const PDF_HOSTS = ['raw.githubusercontent.com', 'redstonelord.github.io'];
 /** Файлы оболочки и всех страниц по манифесту сборки (vite.config.ts); pdf.js и mermaid — при первом использовании */
 async function shellFiles() {
   const manifest = await fetch('./asset-manifest.json').then((response) => response.json());
-  const files = new Set(['./', './manifest.webmanifest', './icon.svg', './icon-192.png']);
+  const files = new Set(['./', './manifest.webmanifest', './favicon.png', './icon-192.png']);
   const seen = new Set();
   const visit = (key) => {
     const chunk = manifest[key];
