@@ -506,6 +506,112 @@ function flowSize(node) {
   const w = Math.round(baseW * 2.5), h = Math.round(baseH * 2.5), [iw, ih] = flowInner(node.shape, w, h);
   return { w, h, fit: fitText(node.label, iw, ih, { size: 12, min: 8 }) };
 }
+/* ---------- стрелки блок-схемы ----------
+   Прямая линия между центрами пересекает чужие блоки и прячет подписи, поэтому маршрут строится так:
+   1) если плавная S-кривая между нижним и верхним портами никого не задевает — рисуем её;
+   2) иначе стрелка выходит сбоку, идёт по «дорожке» за пределами всех блоков на пути и входит в цель сверху
+      (обратные и горизонтальные стрелки входят в боковой порт); дорожки разных стрелок разнесены на 14 px;
+   3) точки входа в широкий блок разводятся по его верхней грани, чтобы стрелки не сливались;
+   4) подпись ставится рядом с линией, в месте без пересечений с блоками, линиями и другими подписями. */
+function routeFlow(model, positions, boxes, bounds, marker) {
+  const N = new Map([...model.nodes.values()].map(node => { const p = positions.get(node.id), { w, h } = boxes.get(node.id); return [node.id, { id: node.id, shape: node.shape, x: p.x, y: p.y, w, h, l: p.x - w / 2, r: p.x + w / 2, t: p.y - h / 2, b: p.y + h / 2 }]; }));
+  const others = skip => [...N.values()].filter(n => !skip.includes(n.id));
+  const inside = (n, x, y, m) => n.shape === 'diamond' ? Math.abs(x - n.x) / (n.w / 2 + m) + Math.abs(y - n.y) / (n.h / 2 + m) < 1
+    : n.shape === 'circle' ? Math.hypot(x - n.x, y - n.y) < n.w / 2 + m : x > n.l - m && x < n.r + m && y > n.t - m && y < n.b + m;
+  const dense = (pts, step = 6) => { const out = [pts[0]]; for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], k = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / step)); for (let j = 1; j <= k; j++) out.push([x0 + (x1 - x0) * j / k, y0 + (y1 - y0) * j / k]); } return out; };
+  const bezier = (p0, p1, p2, p3, n = 32) => Array.from({ length: n + 1 }, (_, i) => { const t = i / n, u = 1 - t; return [0, 1].map(k => u * u * u * p0[k] + 3 * u * u * t * p1[k] + 3 * u * t * t * p2[k] + t * t * t * p3[k]); });
+  const hits = (pts, skip, m = 8) => others(skip).some(n => pts.some(([x, y]) => inside(n, x, y, m)));
+  // Ломаная со скруглёнными углами: углы — квадратичные кривые, последний отрезок остаётся прямым под наконечник
+  const rounded = (raw, r = 14) => {
+    const q = raw.filter((p, i) => !i || Math.hypot(p[0] - raw[i - 1][0], p[1] - raw[i - 1][1]) > .5).filter((p, i, all) => !i || i === all.length - 1 || Math.abs((p[0] - all[i - 1][0]) * (all[i + 1][1] - p[1]) - (p[1] - all[i - 1][1]) * (all[i + 1][0] - p[0])) > .5);
+    let d = `M${format(q[0][0])} ${format(q[0][1])}`;
+    for (let i = 1; i < q.length - 1; i++) {
+      const [px, py] = q[i - 1], [x, y] = q[i], [nx, ny] = q[i + 1], l1 = Math.hypot(x - px, y - py), l2 = Math.hypot(nx - x, ny - y), k = Math.min(r, l1 / 2, l2 / 2);
+      d += `L${format(x + (px - x) / l1 * k)} ${format(y + (py - y) / l1 * k)}Q${format(x)} ${format(y)} ${format(x + (nx - x) / l2 * k)} ${format(y + (ny - y) / l2 * k)}`;
+    }
+    return { d: `${d}L${format(q.at(-1)[0])} ${format(q.at(-1)[1])}`, pts: dense(q, 4) };
+  };
+  const E = model.edges.map((edge, index) => ({ edge, index, a: N.get(edge.from), b: N.get(edge.to) })), lanes = [], TIP = 4, LEAD = 30, MARGIN = 26;
+  const vcurve = (a, b, dir, x1 = b.x) => { const y0 = dir > 0 ? a.b : a.t, y1 = dir > 0 ? b.t : b.b, my = (y0 + y1) / 2; return [[a.x, y0], [a.x, my], [x1, my], [x1, y1]]; };
+  const hcurve = (a, b) => { const right = b.x > a.x, x0 = right ? a.r : a.l, x1 = right ? b.l : b.r, mx = (x0 + x1) / 2; return [[x0, a.y], [mx, a.y], [mx, b.y], [x1, b.y]]; };
+  const allocLane = (side, base, y0, y1) => { const sign = side === 'r' ? 1 : -1; let x = base; while (lanes.some(L => L.side === side && Math.abs(L.x - x) < 13 && L.y0 < y1 && L.y1 > y0)) x += sign * 14; lanes.push({ side, x, y0, y1 }); return x; };
+  const laneBase = (side, from, obs) => side === 'r' ? Math.max(from, ...obs.map(n => n.r)) + MARGIN : Math.min(from, ...obs.map(n => n.l)) - MARGIN;
+  // 1. Тип маршрута
+  for (const e of E) {
+    const { a, b } = e, skip = [a.id, b.id];
+    if (a === b) e.kind = 'loop';
+    else if (b.t >= a.b + 12) { e.dir = 1; e.kind = hits(bezier(...vcurve(a, b, 1)), skip) ? 'lane' : 'direct'; }
+    else if (b.b <= a.t - 12) { e.dir = -1; e.kind = hits(bezier(...vcurve(a, b, -1)), skip) ? 'side' : 'direct'; }
+    else if (a.r + 24 <= b.l || b.r + 24 <= a.l) e.kind = hits(bezier(...hcurve(a, b)), skip) ? 'side' : 'row';
+    else e.kind = 'side';
+  }
+  // 2. Дорожки: сначала стрелки из нижних блоков — они занимают внутренние дорожки, верхние идут снаружи и не пересекаются с ними
+  for (const e of [...E].sort((p, q) => q.a.y - p.a.y)) {
+    const { a, b } = e, skip = [a.id, b.id];
+    if (e.kind === 'lane') {
+      const yb = Math.max(a.y + 14, b.t - LEAD), pick = list => list.sort((p, q) => p.cost - q.cost)[0];
+      const side = ['r', 'l'].map(s => { const px = s === 'r' ? a.r : a.l, base = laneBase(s, px, others(skip).filter(n => n.t < yb && n.b > a.y)); return { s, px, base, cost: Math.abs(base - px) + Math.abs(base - b.x), ok: !hits(dense([[px, a.y], [base, a.y]]), skip, 4) }; }).filter(o => o.ok);
+      if (side.length) { const o = pick(side); Object.assign(e, { s: o.s, px: o.px, yb, y0: a.y, lane: allocLane(o.s, o.base, a.y, yb) }); }
+      else {
+        const ya = a.b + Math.min(18, (b.t - a.b) / 3), o = pick(['r', 'l'].map(s => { const base = laneBase(s, a.x, others(skip).filter(n => n.t < yb && n.b > ya)); return { s, base, cost: Math.abs(base - a.x) + Math.abs(base - b.x) }; }));
+        Object.assign(e, { s: o.s, ya, yb, y0: ya, lane: allocLane(o.s, o.base, ya, yb) });
+      }
+    } else if (e.kind === 'side') {
+      const y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y), obs = others(skip).filter(n => n.t < y1 && n.b > y0);
+      const options = ['r', 'l'].map(s => { const base = laneBase(s, s === 'r' ? Math.max(a.r, b.r) : Math.min(a.l, b.l), obs), pa = s === 'r' ? a.r : a.l, pb = s === 'r' ? b.r : b.l;
+        return { s, base, pa, pb, cost: Math.abs(base - pa) + Math.abs(base - pb), ok: !hits(dense([[pa, a.y], [base, a.y]]), skip, 4) && !hits(dense([[base, b.y], [pb, b.y]]), skip, 4) }; });
+      const o = (options.filter(v => v.ok).length ? options.filter(v => v.ok) : options).sort((p, q) => p.cost - q.cost)[0];
+      Object.assign(e, { s: o.s, pa: o.pa, pb: o.pb, lane: allocLane(o.s, o.base, y0, y1) });
+    }
+  }
+  // 3. Точки входа сверху/снизу: у ромба и круга — единственная вершина, у прямоугольных блоков входы разводятся по грани
+  const groups = new Map();
+  for (const e of E) if (['direct', 'lane'].includes(e.kind)) { const key = `${e.b.id}:${e.dir > 0 ? 't' : 'b'}`; (groups.get(key) || groups.set(key, []).get(key)).push({ e, ax: e.kind === 'lane' ? e.lane : e.a.x }); }
+  for (const list of groups.values()) {
+    const b = list[0].e.b, lo = b.l + 14, hi = b.r - 14, step = 14;
+    if (b.shape === 'diamond' || b.shape === 'circle' || hi <= lo) { list.forEach(it => { it.e.arr = b.x; }); continue; }
+    list.sort((p, q) => p.ax - q.ax);
+    let xs = list.map(it => Math.max(lo, Math.min(hi, it.ax)));
+    for (let i = 1; i < xs.length; i++) xs[i] = Math.max(xs[i], xs[i - 1] + step);
+    for (let i = xs.length - 1; i >= 0; i--) xs[i] = Math.min(xs[i], hi - (xs.length - 1 - i) * step);
+    if (xs[0] < lo) xs = xs.map((_, i) => xs.length === 1 ? b.x : lo + (hi - lo) * i / (xs.length - 1));
+    list.forEach((it, i) => { it.e.arr = xs[i]; });
+  }
+  // 4. Геометрия
+  for (const e of E) {
+    const { a, b } = e;
+    if (e.kind === 'loop') e.route = rounded([[a.r, a.y], [a.r + 30, a.y], [a.r + 30, a.t - 18], [a.x, a.t - 18], [a.x, a.t - TIP]]);
+    else if (e.kind === 'direct') { const [p0, p1, p2, p3] = vcurve(a, b, e.dir, e.arr); p3[1] -= e.dir * TIP; e.route = { d: `M${format(p0[0])} ${format(p0[1])}C${p1.map(format).join(' ')} ${p2.map(format).join(' ')} ${p3.map(format).join(' ')}`, pts: dense(bezier(p0, p1, p2, p3), 4) }; }
+    else if (e.kind === 'row') { const [p0, p1, p2, p3] = hcurve(a, b); p3[0] += b.x > a.x ? -TIP : TIP; e.route = { d: `M${format(p0[0])} ${format(p0[1])}C${p1.map(format).join(' ')} ${p2.map(format).join(' ')} ${p3.map(format).join(' ')}`, pts: dense(bezier(p0, p1, p2, p3), 4) }; }
+    else if (e.kind === 'lane') e.route = rounded(e.ya === undefined ? [[e.px, a.y], [e.lane, a.y], [e.lane, e.yb], [e.arr, e.yb], [e.arr, b.t - TIP]] : [[a.x, a.b], [a.x, e.ya], [e.lane, e.ya], [e.lane, e.yb], [e.arr, e.yb], [e.arr, b.t - TIP]]);
+    else e.route = rounded([[e.pa, a.y], [e.lane, a.y], [e.lane, b.y], [e.pb + (e.s === 'r' ? TIP : -TIP), b.y]]);
+    const xs = e.route.pts.map(p => p[0]), ys = e.route.pts.map(p => p[1]); extend(bounds, Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys));
+  }
+  // 5. Подписи: ищем у начала линии место рядом с ней, где нет блоков, других линий и подписей
+  const placed = [], FS = 11, LH = 14;
+  const labels = E.map(e => {
+    const text = String(e.edge.label ?? '').trim(); if (!text) return '';
+    const lw = Math.min(116, lineWidth(symbols(text), FS) + 4), pts = e.route.pts, cum = [0];
+    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    const total = cum.at(-1), wanted = []; for (let s = 16; s <= Math.min(total * .85, 140); s += 8) wanted.push(s); if (!wanted.length) wanted.push(total / 2);
+    let best = null;
+    for (const s of wanted) {
+      const i = Math.max(1, Math.min(pts.length - 2, cum.findIndex(c => c >= s))), [px, py] = pts[i], tx = pts[i + 1][0] - pts[i - 1][0], ty = pts[i + 1][1] - pts[i - 1][1], len = Math.hypot(tx, ty) || 1;
+      for (const side of [1, -1]) {
+        const nx = -ty / len * side, ny = tx / len * side, off = Math.abs(nx) * lw / 2 + Math.abs(ny) * LH / 2 + 5, cx = px + nx * off, cy = py + ny * off;
+        const rect = { x0: cx - lw / 2, y0: cy - LH / 2, x1: cx + lw / 2, y1: cy + LH / 2 };
+        let score = s * .4 + (side < 0 ? .2 : 0);
+        for (let gx = 0; gx <= 4; gx++) for (let gy = 0; gy <= 2; gy++) { const x = rect.x0 + (rect.x1 - rect.x0) * gx / 4, y = rect.y0 + (rect.y1 - rect.y0) * gy / 2; if ([...N.values()].some(n => inside(n, x, y, 2))) score += 1000; }
+        for (const other of E) score += Math.min(60, 8 * other.route.pts.filter(([x, y]) => x > rect.x0 - 2 && x < rect.x1 + 2 && y > rect.y0 - 2 && y < rect.y1 + 2).length);
+        for (const q of placed) if (rect.x0 < q.x1 + 2 && rect.x1 > q.x0 - 2 && rect.y0 < q.y1 + 2 && rect.y1 > q.y0 - 2) score += 500;
+        if (!best || score < best.score) best = { score, rect, cx, cy };
+      }
+    }
+    placed.push(best.rect); extend(bounds, best.rect.x0, best.rect.y0, best.rect.x1, best.rect.y1);
+    return labelSvg(best.cx, best.cy, text, lw + 8, LH, { size: FS, min: 8, fill: 'var(--muted)' });
+  });
+  return E.map(e => `<path d="${e.route.d}" fill="none" stroke="var(--accent)" stroke-width="2" marker-end="url(#${marker})"/>`).join('') + labels.join('');
+}
 function drawFlow(model) {
   const width = size(model.width, 640), nodes = [...model.nodes.values()], positions = new Map(), marker = `dgm-flow-arrow-${hash(model.source)}`, gapMin = 28;
   const boxes = new Map(nodes.map(node => [node.id, flowSize(node)]));
@@ -528,7 +634,7 @@ function drawFlow(model) {
   });
   nodes.forEach(node => { const p = positions.get(node.id), { w, h } = boxes.get(node.id); extend(bounds, p.x - w / 2, p.y - h / 2, p.x + w / 2, p.y + h / 2); });
   const defs = `<marker id="${marker}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="var(--accent)"/></marker>`;
-  const arrows = model.edges.map(edge => { const a = positions.get(edge.from), b = positions.get(edge.to), ha = boxes.get(edge.from).h, hb = boxes.get(edge.to).h; return `<line x1="${format(a.x)}" y1="${format(a.y + ha / 2)}" x2="${format(b.x)}" y2="${format(b.y - hb / 2 - 4)}" stroke="var(--accent)" stroke-width="2" marker-end="url(#${marker})"/>${edge.label ? labelSvg((a.x + b.x) / 2, (a.y + b.y) / 2 - 12, edge.label, 110, 14, { size: 11, min: 8, fill: 'var(--muted)' }) : ''}`; }).join('');
+  const arrows = routeFlow(model, positions, boxes, bounds, marker);
   const shapes = nodes.map(node => {
     const p = positions.get(node.id), { w, h, fit } = boxes.get(node.id), x = format(p.x), y = format(p.y), left = format(p.x - w / 2), right = format(p.x + w / 2); let shape, textY = p.y;
     if (node.shape === 'diamond') shape = `<path d="M${x} ${format(p.y - h / 2)} L${right} ${y} L${x} ${format(p.y + h / 2)} L${left} ${y} Z"/>`;
