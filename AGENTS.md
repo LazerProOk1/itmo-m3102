@@ -67,9 +67,19 @@ npm run dev        # http://localhost:5173 (Vite; .env подхватывает�
 npm test           # vitest, юнит-тесты *.test.ts рядом с кодом
 npm run typecheck  # tsc --noEmit
 npm run build      # typecheck + сборка в dist/
+npm run test:e2e   # Playwright: собирает сайт и гоняет сценарии в браузере (e2e/)
 ```
 
 Перед каждым коммитом: `npm test` и `npm run build` должны проходить.
+
+**Автотесты в браузере** (`e2e/`, `playwright.config.ts`) — по собранному сайту через `vite preview`, как на
+GitHub Pages (сервис-воркер, чанки, View Transitions). GitHub подменён заглушками `e2e/github.ts`: два конспекта
+(md и PDF, PDF генерируется в коде), остальной интернет обрывается — тесты не зависят от сети. Часы зафиксированы
+на 1 октября 2026, 12:00 МСК. Сценарии: переход с главной на предмет (замер внутри страницы, < 1 с), поиск по
+тексту конспекта, неделя расписания, PDF (тёмные страницы, «Продолжить»), офлайн, телефон (свайп дней и нет
+горизонтальной прокрутки; проект `phone`, тег `@phone`). Локально — установленный Edge (`channel: 'msedge'`),
+в CI — Chromium (`npx playwright install chromium`). Тест упал — `npx playwright show-trace test-results/…/trace.zip`.
+Ждать синхронизацию — `openSynced()`, иначе тест начнёт раньше, чем появятся конспекты.
 Форматирование — `npm run format` (Prettier, `.prettierrc.json`: одинарные кавычки, строка до 150);
 `npm run format:check` — проверка. Код игры (`features/game/hedgehogGame.*`) Prettier не трогает (`.prettierignore`).
 ESLint пока не подключён: `typescript-eslint` поддерживает TypeScript только до 6.0, а у нас 7 — добавить,
