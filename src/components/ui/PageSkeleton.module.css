@@ -1,0 +1,54 @@
+.skeleton {
+  animation: skeleton-in 200ms var(--ease) 150ms both;
+}
+
+.skeleton span {
+  display: block;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-active);
+  animation: skeleton-pulse 1.4s ease-in-out infinite alternate;
+}
+
+.title {
+  width: min(320px, 70%);
+  height: 30px;
+}
+
+.subtitle {
+  width: min(220px, 50%);
+  height: 14px;
+  margin: var(--space-2) 0 var(--space-8);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.block {
+  height: 120px;
+}
+
+.wide {
+  grid-column: 1 / -1;
+  height: 180px;
+  animation-delay: 200ms !important;
+}
+
+@keyframes skeleton-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Только opacity — без бегущего блика по всей странице */
+@keyframes skeleton-pulse {
+  from {
+    opacity: 0.55;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

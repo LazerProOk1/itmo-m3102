@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Suspense, useCallback, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
+import { ShortcutsDialog, useShortcutsKey } from '../../features/help/ShortcutsDialog';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
 import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
@@ -10,6 +11,7 @@ import { useMorphLinks } from '../../lib/morph';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
 import { RadioCapsule } from '../radio/RadioCapsule';
+import { PageSkeleton } from '../ui/PageSkeleton';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -31,6 +33,7 @@ export function AppShell() {
   useScrollMemory();
   useSearchShortcut(openSearch);
   useMorphLinks();
+  useShortcutsKey();
 
   return (
     <div className={styles.shell}>
@@ -63,7 +66,7 @@ export function AppShell() {
             initial={reduceMotion ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
           >
-            <Suspense fallback={null}>
+            <Suspense fallback={<PageSkeleton />}>
               <Outlet />
             </Suspense>
           </motion.div>
@@ -74,6 +77,7 @@ export function AppShell() {
       <RadioCapsule />
       <SearchDialog open={isSearchOpen} onClose={() => setSearchOpen(false)} />
       <HomeworkDialog />
+      <ShortcutsDialog />
     </div>
   );
 }
