@@ -35,10 +35,15 @@
   background: var(--color-bg-subtle);
 }
 
+/* Три вкладки в узкой колонке: равные доли, текст не распирает соседей */
 .tab {
   position: relative;
   flex: 1;
-  padding: var(--space-1-5) var(--space-2);
+  min-width: 0;
+  padding: var(--space-1-5) var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   border: 0;
   border-radius: calc(var(--radius-md) - 2px);
   background: transparent;

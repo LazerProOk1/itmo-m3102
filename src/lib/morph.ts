@@ -33,12 +33,14 @@ export function useMorphLinks() {
       source.style.viewTransitionName = 'morph-title';
       // Пока снимается старое состояние, у заголовка текущей страницы имени нет — иначе два одинаковых имени
       root.classList.add('morph-from');
-      document.startViewTransition(async () => {
+      root.classList.add('morphing');
+      const transition = document.startViewTransition(async () => {
         source.style.viewTransitionName = '';
         root.classList.remove('morph-from');
         flushSync(() => navigate(href.slice(1)));
-        await waitFor(() => document.querySelector('main [data-morph-target]'), 300);
+        await waitFor(() => document.querySelector('main [data-morph-target]'), 200);
       });
+      void transition.finished.finally(() => root.classList.remove('morphing'));
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);

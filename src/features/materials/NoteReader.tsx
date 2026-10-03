@@ -127,7 +127,7 @@ export function ReadingProgress({ targetRef }: { targetRef: RefObject<HTMLElemen
 
 type SidebarTab = 'lectures' | 'toc' | 'marks';
 
-const SIDEBAR_TABS: Record<SidebarTab, string> = { lectures: 'Лекции', toc: 'Содержание', marks: 'Пометки' };
+const SIDEBAR_TABS: Record<SidebarTab, string> = { lectures: 'Лекции', toc: 'Разделы', marks: 'Пометки' };
 
 interface NoteSidebarProps {
   note: LectureNote;
