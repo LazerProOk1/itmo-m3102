@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { Input } from '../../components/ui/Input';
 import { cn } from '../../lib/cn';
 import { SPRING_SNAPPY } from '../../lib/motion';
+import { onRovingKeyDown } from '../../lib/rovingKeys';
 import type { LectureNote } from '../../types/models';
 import { useLectureNotesStore } from './lectureNotesStore';
 import { MarksList } from './NoteMarks';
@@ -165,9 +166,21 @@ export function NoteSidebar({ note, siblings, toc, contentRef }: NoteSidebarProp
       {open && <div className={styles.backdrop} onClick={() => setOpen(false)} />}
 
       <aside className={cn(styles.side, open && styles.open)} aria-label="Навигация по конспекту">
-        <div className={styles.tabs} role="tablist">
+        <div
+          className={styles.tabs}
+          role="tablist"
+          onKeyDown={(event) => onRovingKeyDown(event, Object.keys(SIDEBAR_TABS) as SidebarTab[], tab, setTab)}
+        >
           {(Object.keys(SIDEBAR_TABS) as SidebarTab[]).map((value) => (
-            <button key={value} type="button" role="tab" aria-selected={tab === value} className={styles.tab} onClick={() => setTab(value)}>
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={tab === value}
+              tabIndex={tab === value ? 0 : -1}
+              className={styles.tab}
+              onClick={() => setTab(value)}
+            >
               {tab === value && <motion.span layoutId="note-side-tab" className={styles.tabInk} transition={SPRING_SNAPPY} />}
               <span>{SIDEBAR_TABS[value]}</span>
             </button>

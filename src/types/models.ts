@@ -201,6 +201,8 @@ export interface LectureNote extends BaseEntity {
   archived: boolean;
   /** Не указано — 'group' */
   collection?: LectureNoteCollection;
+  /** Версия файла в GitHub (sha) — не менялся, и при синхронизации его не качаем заново */
+  sourceVersion?: string;
 }
 
 /**
@@ -216,6 +218,7 @@ export interface SubjectInfo extends BaseEntity {
   category: SubjectInfoCategory;
   source: ContentSource;
   sourceRef?: string;
+  sourceVersion?: string;
   archived: boolean;
 }
 

@@ -77,7 +77,10 @@ self.addEventListener('fetch', (event) => {
   if (PDF_HOSTS.includes(url.hostname) && url.pathname.toLowerCase().endsWith('.pdf')) {
     event.respondWith(
       caches.match(request, MATCH).then((hit) => {
-        const fresh = fetch(request).then((response) => put(request, response));
+        // Без сети фоновое обновление просто не удаётся — отдаём сохранённый файл
+        const fresh = fetch(request)
+          .then((response) => put(request, response))
+          .catch(() => hit || Response.error());
         return hit || fresh;
       }),
     );

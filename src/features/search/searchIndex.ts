@@ -85,21 +85,26 @@ function texToText(tex: string): string {
 
 /** Markdown/LaTeX → читаемый текст для поиска и сниппетов */
 export function plainText(markdown: string): string {
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/\$\$?([^$]*)\$\$?/g, (_, tex: string) => texToText(tex))
-    .replace(/^:::.*$/gm, ' ')
-    .replace(/!?\[\[([^\]|]+)(?:\\?\|([^\]]+))?\]\]/g, (_, target: string, label?: string) => label ?? target)
-    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/^>\s*\[![^\]]+\][+-]?/gm, '')
-    .replace(/[#>*_`|~\\]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    markdown
+      // Код ищется, а схемы и тесты — нет: там служебный синтаксис (языки — как в Markdown.tsx и DiagramBlock)
+      .replace(/```(\w*)[^\n]*\n?([\s\S]*?)```/g, (_, lang: string, code: string) =>
+        /^(mermaid|quiz|graph|plot|chart|tree|array|diagram)$/.test(lang) ? ' ' : ` ${code} `,
+      )
+      .replace(/\$\$?([^$]*)\$\$?/g, (_, tex: string) => texToText(tex))
+      .replace(/^:::.*$/gm, ' ')
+      .replace(/!?\[\[([^\]|]+)(?:\\?\|([^\]]+))?\]\]/g, (_, target: string, label?: string) => label ?? target)
+      .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/^>\s*\[![^\]]+\][+-]?/gm, '')
+      .replace(/[#>*_`|~\\]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
-/** Кусок текста вокруг первого совпадения: «…предикат P(x) истинен…» */
-export function snippet(text: string, query: string): string | undefined {
-  const index = normalize(text).indexOf(query);
+/** Кусок текста вокруг первого совпадения: «…предикат P(x) истинен…». normalized — normalize(text), если уже посчитан */
+export function snippet(text: string, query: string, normalized = normalize(text)): string | undefined {
+  const index = normalized.indexOf(query);
   if (index === -1) return undefined;
   const start = Math.max(0, index - SNIPPET_RADIUS);
   const end = Math.min(text.length, index + query.length + SNIPPET_RADIUS);
@@ -148,7 +153,43 @@ export function loadPdfIndex(): Promise<void> {
   return pdfIndexLoad;
 }
 
-/** Собирает группы заново при каждом поиске — видит всё, что синхронизировано и добавлено. */
+interface IndexedResult extends SearchResult {
+  /** Заранее приведённые к поиску строки — чтобы не считать их на каждую букву запроса */
+  key: string;
+  bodyKey?: string;
+}
+
+let index: { inputs: unknown[]; groups: { label: string; results: IndexedResult[] }[] } | null = null;
+
+/**
+ * Индекс поиска: тексты конспектов (≈1 МБ) переводятся в простой текст один раз и пересобираются, только когда
+ * поменялись данные (новый массив в store) или пришёл текст PDF.
+ */
+function indexedGroups() {
+  const inputs = [
+    useSubjectsStore.getState().subjects,
+    useTasksStore.getState().tasks,
+    useMaterialsStore.getState().materials,
+    useLectureNotesStore.getState().lectureNotes,
+    useNotesStore.getState().notes,
+    useGroupStore.getState().deadlines,
+    useGroupStore.getState().links,
+    useHomeworkStore.getState().items,
+    pdfText.size,
+  ];
+  if (index?.inputs.every((value, i) => value === inputs[i])) return index.groups;
+  const groups = buildGroups().map((group) => ({
+    label: group.label,
+    results: group.results.map((result) => ({
+      ...result,
+      key: normalize(`${result.title}\n${result.meta ?? ''}`),
+      bodyKey: result.body && normalize(result.body),
+    })),
+  }));
+  index = { inputs, groups };
+  return groups;
+}
+
 function buildGroups(): SearchGroup[] {
   const subjects = useSubjectsStore.getState().subjects;
   const tasks = useTasksStore.getState().tasks;
@@ -275,15 +316,15 @@ export function search(query: string): SearchGroup[] {
   const q = normalize(query.trim());
   if (!q) return [];
 
-  return buildGroups()
+  return indexedGroups()
     .map((group) => {
       const byTitle: SearchResult[] = [];
       const byBody: SearchResult[] = [];
-      for (const result of group.results) {
-        if (normalize(result.title).includes(q) || (result.meta && normalize(result.meta).includes(q))) {
+      for (const { key, bodyKey, ...result } of group.results) {
+        if (key.includes(q)) {
           byTitle.push(result);
-        } else if (result.body) {
-          const found = snippet(result.body, q);
+        } else if (result.body && bodyKey) {
+          const found = snippet(result.body, q, bodyKey);
           if (found) byBody.push({ ...result, meta: found });
         }
       }
