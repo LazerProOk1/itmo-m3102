@@ -106,6 +106,18 @@
 @media (max-width: 767px) {
   .cell {
     min-height: 76px;
+    cursor: pointer;
+  }
+
+  .entries {
+    gap: 3px;
+    margin-top: var(--space-1);
+    padding-inline: 2px;
+  }
+
+  .more {
+    padding: 0 2px;
+    font-size: 10px;
   }
 }
 

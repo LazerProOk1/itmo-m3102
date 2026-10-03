@@ -1,6 +1,6 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(var(--day-count, 7), minmax(108px, 1fr));
+  grid-template-columns: repeat(var(--day-count, 7), minmax(128px, 1fr));
   overflow-x: auto;
   border-top: 1px solid var(--color-border);
   border-left: 1px solid var(--color-border);

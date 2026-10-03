@@ -6,7 +6,7 @@ import { cn } from '../../lib/cn';
 import { SPRING_SNAPPY } from '../../lib/motion';
 import { useSubjectName } from '../subjects/subjectsStore';
 import { ClassDetailsPopover } from './ClassDetailsPopover';
-import { classTypeColorVar, CLASS_TYPE_LABELS, CLASS_TYPE_TONES, describeMove } from './labels';
+import { classTypeColorVar, CLASS_TYPE_LABELS, CLASS_TYPE_SHORT, CLASS_TYPE_TONES, describeMove } from './labels';
 import { OccurrenceBadge } from './OccurrenceBadge';
 import { OccurrenceMenuButton } from './OccurrenceMenuButton';
 import { isHappeningNow, takesPlace, type ClassOccurrence } from './occurrences';
@@ -52,14 +52,16 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction }: WeekOc
     >
       <div className={styles.top} onClick={(event) => event.stopPropagation()}>
         <span className={styles.time}>
-          {occurrence.details.startTime} – {occurrence.details.endTime}
+          {occurrence.details.startTime}–{occurrence.details.endTime}
         </span>
         <OccurrenceMenuButton occurrence={occurrence} onAction={onAction} />
       </div>
 
       <p className={styles.subject}>{subjectName}</p>
       <p className={styles.meta}>
-        <Badge tone={CLASS_TYPE_TONES[occurrence.details.type]}>{CLASS_TYPE_LABELS[occurrence.details.type]}</Badge>
+        <span title={CLASS_TYPE_LABELS[occurrence.details.type]}>
+          <Badge tone={CLASS_TYPE_TONES[occurrence.details.type]}>{CLASS_TYPE_SHORT[occurrence.details.type]}</Badge>
+        </span>
         {occurrence.details.room && (
           <span className={styles.room}>
             <MapPin size={11} strokeWidth={1.75} aria-hidden />

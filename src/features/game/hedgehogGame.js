@@ -489,6 +489,18 @@ const ICONS={
   target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
 };
 const ic=n=>'<svg class="hh-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[n]+'</svg>';
+/* Правка поверх оригинала: значки предметов в меню — SVG-копии того, что игра рисует на холсте (drawPickup/drawGlyph),
+   чтобы в подсказках была та же ягода, тот же щит и магнит, что и в забеге */
+const GLYPHS={
+  berry:['-12 -13 24 24','<circle r="8.5" fill="#e8467c"/><circle cx="-2.5" cy="-3" r="2.6" fill="#ff9cc0"/><path d="M0-7-5-11 0-9 5-11Z" fill="#4caf50"/>'],
+  apple:['-16 -18 32 32','<circle cx="-3.5" r="11" fill="#e0393a"/><circle cx="3.5" r="11" fill="#e0393a"/><circle cx="-6" cy="-4" r="3" fill="#ff8a8a"/><path d="M0-9 1-15" stroke="#6b4a2b" stroke-width="2"/><ellipse cx="6" cy="-13" rx="6" ry="3" transform="rotate(-28.6 6 -13)" fill="#4caf50"/>'],
+  shield:['-12 -12 24 24','<path d="M0-10 8.5-6.5Q8.5 4.5 0 10-8.5 4.5-8.5-6.5Z" fill="#6bb8ff"/><path d="M-3.5 0-.5 3 4-2.5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'],
+  magnet:['-12 -12 24 24','<g transform="translate(0 3)"><path d="M-5.5-7.5V-.5A5.5 5.5 0 0 0 5.5-.5V-7.5" fill="none" stroke="#ff6b81" stroke-width="5" stroke-linecap="round"/><path d="M-5.5-6.2V-9.5M5.5-6.2V-9.5" stroke="#cfd6e6" stroke-width="5"/></g>'],
+  feather:['-12 -12 24 24','<g transform="rotate(-34.4)"><path d="M0-10Q7-2 0 7.5-7-2 0-10Z" fill="#ffd84a"/><path d="M0-8V10" stroke="rgba(90,70,30,.6)" stroke-width="1"/></g>']
+};
+const gl=n=>'<svg class="hh-gl" viewBox="'+GLYPHS[n][0]+'" aria-hidden="true">'+GLYPHS[n][1]+'</svg>';
+const ARROW={up:'<path d="m18 15-6-6-6 6"/>',left:'<path d="m15 18-6-6 6-6"/>',right:'<path d="m9 18 6-6-6-6"/>',down:'<path d="m6 9 6 6 6-6"/>'};
+const key=k=>'<kbd class="hh-key">'+(ARROW[k]?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ARROW[k]+'</svg>':k)+'</kbd>';
 
 
 class Game{
@@ -1229,7 +1241,7 @@ function mount(container,opts){
     return save.daily.goals.map(g=>{
       const d=goalDef(g.id),pc=Math.round(100*clamp(g.prog/g.target,0,1));
       const prog=g.id==='time'?fmtTime(g.prog)+' / '+fmtTime(g.target):fmt(g.prog)+' / '+fmt(g.target);
-      return '<li class="hh-goal'+(g.done?' hh-done':'')+'"><div class="hh-gbar" style="width:'+pc+'%"></div><span class="hh-gt">'+ic(g.done?'check':'target')+' '+d.text(g.target)+'</span><span class="hh-gp">'+(g.done?'+'+GOAL_REWARD+' '+ic('berry'):prog)+'</span></li>';
+      return '<li class="hh-goal'+(g.done?' hh-done':'')+'"><div class="hh-gbar" style="width:'+pc+'%"></div><span class="hh-gt">'+ic(g.done?'check':'target')+' '+d.text(g.target)+'</span><span class="hh-gp">'+(g.done?'+'+GOAL_REWARD+' '+gl('berry'):prog)+'</span></li>';
     }).join('');
   }
   function renderStart(){
@@ -1240,12 +1252,14 @@ function mount(container,opts){
       '<h2 class="hh-h">Ёжик-кувырок</h2>'+
       '<p class="hh-sub">Катись с холмов, взлетай и крути кувырки.<br>Главное — не дать ёжику уснуть.</p>'+
       '<div class="hh-row"><button class="btn2 btn-primary hh-big" data-act="play" type="button">'+ic('play')+' Играть</button><button class="btn2 hh-big" data-act="hats" type="button">Шляпы</button></div>'+
-      '<div class="hh-chips"><span class="hh-chip" title="Ягоды">'+ic('berry')+fmt(save.berries)+'</span><span class="hh-chip" title="Рекорд дистанции">'+ic('flag')+fmt(b.dist)+' м</span><span class="hh-chip" title="Рекорд очков">'+ic('star')+fmt(b.score)+'</span><span class="hh-chip" title="Лучшее комбо">'+ic('flame')+'×'+fmt(b.combo)+'</span></div>'+
+      '<div class="hh-chips"><span class="hh-chip" title="Ягоды">'+gl('berry')+fmt(save.berries)+'</span><span class="hh-chip" title="Рекорд дистанции">'+ic('flag')+fmt(b.dist)+' м</span><span class="hh-chip" title="Рекорд очков">'+ic('star')+fmt(b.score)+'</span><span class="hh-chip" title="Лучшее комбо">'+ic('flame')+'×'+fmt(b.combo)+'</span></div>'+
       '<div class="hh-sec">Цели дня</div><ul class="hh-goals">'+goalsHtml()+'</ul>'+
       '<ul class="hh-help">'+
-        '<li><b>Зажми</b> экран или Пробел — свернуться в шар: на спусках разгоняешься сильнее.</li>'+
-        '<li><b>Отпусти</b> в любой момент — прыжок с облачком дыма: чем быстрее катишься и дольше держишь, тем он выше. В воздухе <b>зажми</b> слева (← / A) — бэкфлип, справа (→ / D) — фронтфлип. ↓ / S — резко вниз.</li>'+
-        '<li>Приземляйся вдоль склона — «Идеально!» и ускорение. Камни и брёвна утомляют, яблоки бодрят. Лови магнит, щит и пёрышко в воздухе!</li>'+
+        '<li><span class="hh-hl">'+key('Пробел')+'</span><span><b>Зажми</b> экран или пробел — свернуться в шар: на спусках разгоняешься сильнее.</span></li>'+
+        '<li><span class="hh-hl">'+key('up')+'</span><span><b>Отпусти</b> — прыжок с облачком дыма: чем быстрее катишься и дольше держишь, тем выше.</span></li>'+
+        '<li class="hh-keys"><span>'+key('left')+key('A')+' бэкфлип</span><span>'+key('right')+key('D')+' фронтфлип</span><span>'+key('down')+key('S')+' резко вниз</span></li>'+
+        '<li><span class="hh-hl">'+gl('apple')+'</span><span>Яблоки бодрят, камни и брёвна утомляют. Приземляйся вдоль склона — «Идеально!» и ускорение.</span></li>'+
+        '<li class="hh-keys"><span>'+gl('magnet')+' магнит</span><span>'+gl('shield')+' щит</span><span>'+gl('feather')+' пёрышко</span><span>'+gl('berry')+' ягоды на шляпы</span></li>'+
       '</ul>'+
     '</div>';
     drawPreview($('.hh-prev'),save.hat,36,[140,110]);
@@ -1276,7 +1290,7 @@ function mount(container,opts){
       '<h2 class="hh-h">Шляпы</h2><p class="hh-sub">У тебя <b>'+fmt(save.berries)+'</b> ягод. Ягоды собираются в забегах и за цели дня.</p>'+
       '<div class="hh-hatgrid">'+HATS.map(h=>{
         const own=save.owned.includes(h.id),sel=save.hat===h.id;
-        return '<button type="button" class="hh-hat'+(sel?' hh-sel':'')+(own?'':' hh-lock')+'" data-hat="'+h.id+'"><canvas></canvas><b>'+h.name+'</b><span>'+(sel?'Надето':own?'Надеть':ic('berry')+' '+h.cost)+'</span></button>';
+        return '<button type="button" class="hh-hat'+(sel?' hh-sel':'')+(own?'':' hh-lock')+'" data-hat="'+h.id+'"><canvas></canvas><b>'+h.name+'</b><span>'+(sel?'Надето':own?'Надеть':gl('berry')+' '+h.cost)+'</span></button>';
       }).join('')+'</div>'+
       '<div class="hh-row"><button class="btn2 btn-primary hh-big" data-act="back" type="button">'+ic('back')+' Назад</button></div>'+
     '</div>';

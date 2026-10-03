@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Flame, ListChecks } from 'lucide-react';
+import { Check, Flame, ListChecks, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
@@ -271,7 +271,8 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
                   : option.ok
                     ? styles.missed
                     : styles.dim;
-            const mark = !locked ? (isSelected && !single ? '✓' : '') : state === styles.wrong ? '✕' : state === styles.dim ? '' : '✓';
+            // Иконки, а не символы ✓/✕: шрифтовые глифы на телефонах рисуются как эмодзи и прыгают по высоте
+            const Mark = !locked ? (isSelected && !single ? Check : null) : state === styles.wrong ? X : state === styles.dim ? null : Check;
             return (
               <button
                 key={index}
@@ -284,7 +285,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
                 className={cn(styles.option, state)}
                 onClick={() => toggle(index)}
               >
-                <span className={cn(styles.mark, single && styles.round)}>{mark}</span>
+                <span className={cn(styles.mark, single && styles.round)}>{Mark && <Mark size={13} strokeWidth={3} aria-hidden />}</span>
                 <span className={styles.optionBody}>
                   <Markdown content={option.text} className={styles.inline} />
                   {locked && option.note && (isSelected || option.ok) && <Markdown content={option.note} className={styles.note} />}
@@ -303,7 +304,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
           animate={{ opacity: 1, y: 0 }}
         >
           <p className={styles.feedbackTitle}>
-            {verdict.ok ? '✓' : '✕'} {verdict.message}
+            {verdict.ok ? <Check size={16} strokeWidth={2.5} aria-hidden /> : <X size={16} strokeWidth={2.5} aria-hidden />} {verdict.message}
           </p>
           {!verdict.ok && (
             <p className={styles.answer}>

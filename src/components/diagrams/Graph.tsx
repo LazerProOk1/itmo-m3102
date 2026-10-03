@@ -240,7 +240,12 @@ export function GraphView({ model }: { model: GraphModel }) {
   const pairs = new Set(model.edges.map((edge) => `${edge.from}>${edge.to}`));
 
   return (
-    <svg viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`} className={styles.svg} style={{ maxWidth: maxX - minX }} role="img">
+    <svg
+      viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
+      className={styles.svg}
+      style={{ maxWidth: maxX - minX, minWidth: (maxX - minX) * 0.7 }}
+      role="img"
+    >
       <defs>
         <marker id={markerId} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0,0 L10,5 L0,10 z" className={styles.arrowHead} />

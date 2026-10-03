@@ -53,3 +53,30 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Телефон: в клетке ~48px ни время, ни название не помещаются — вместо строки цветная полоска по типу пары
+   (как в мобильных календарях), подробности — по нажатию на день (MonthCell) */
+@media (max-width: 767px) {
+  .monthChip {
+    height: 5px;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  .monthChip .dot {
+    width: 100%;
+    height: 5px;
+    border-radius: 999px;
+  }
+
+  .monthChip .time,
+  .monthChip .title,
+  .monthChip .deadlineIcon {
+    display: none;
+  }
+
+  .monthChip.deadline {
+    border-radius: 999px;
+    background: var(--color-warning);
+  }
+}

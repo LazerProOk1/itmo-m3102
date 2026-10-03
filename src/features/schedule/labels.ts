@@ -11,6 +11,9 @@ export const CLASS_TYPE_LABELS: Record<ClassType, string> = {
   practice: 'Практика',
 };
 
+/** Для узких карточек недели: «Лабораторная» не помещается в колонку на телефоне */
+export const CLASS_TYPE_SHORT: Record<ClassType, string> = { ...CLASS_TYPE_LABELS, lab: 'Лаба' };
+
 export const CLASS_TYPE_OPTIONS: DropdownOption[] = Object.entries(CLASS_TYPE_LABELS).map(([value, label]) => ({
   value,
   label,
