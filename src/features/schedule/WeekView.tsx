@@ -7,6 +7,8 @@ import { useEditMode } from '../settings/EditModeContext';
 import type { ISODate } from '../../types/models';
 import type { OccurrenceAction } from './OccurrenceMenuItems';
 import type { ClassOccurrence, DaySchedule } from './occurrences';
+import { useMediaQuery } from '../../lib/useMediaQuery';
+import { WeekAgenda } from './WeekAgenda';
 import { gridHours, layoutDay } from './weekGrid';
 import { WeekOccurrenceCard } from './WeekOccurrenceCard';
 import styles from './WeekView.module.css';
@@ -26,6 +28,7 @@ interface WeekViewProps {
  */
 export function WeekView({ days, today, time, onAddDate, onAction }: WeekViewProps) {
   const { isEditMode } = useEditMode();
+  const narrow = useMediaQuery('(max-width: 767px)');
   const shown = days.filter((day, index) => index < 6 || day.occurrences.length > 0);
   const { from, to } = gridHours(shown);
   const hours = Array.from({ length: (to - from) / 60 + 1 }, (_, index) => from / 60 + index);
@@ -34,6 +37,9 @@ export function WeekView({ days, today, time, onAddDate, onAction }: WeekViewPro
   if (!isEditMode && shown.every((day) => day.occurrences.length === 0)) {
     return <EmptyState icon={CalendarDays} title="На этой неделе пар нет" description="Каникулы или неделя вне семестра." />;
   }
+
+  // Телефон — неделя списком по дням: сетку в 6–7 колонок на узком экране приходилось листать вбок
+  if (narrow) return <WeekAgenda days={days} today={today} time={time} onAddDate={onAddDate} onAction={onAction} />;
 
   return (
     <div className={styles.scroller}>

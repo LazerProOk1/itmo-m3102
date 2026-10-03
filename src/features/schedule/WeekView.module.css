@@ -3,7 +3,8 @@
   --ppm: 1.2px;
   --gutter: 44px;
   overflow-x: auto;
-  /* Телефон: листается по дням, первый видимый день встаёт сразу за колонкой часов */
+  /* Узкое окно (планшет): листается по дням, первый видимый день встаёт сразу за колонкой часов.
+     На телефоне вместо сетки — список по дням (WeekAgenda) */
   scroll-snap-type: x mandatory;
   scroll-padding-left: var(--gutter);
   overscroll-behavior-x: contain;
@@ -135,22 +136,4 @@
   height: 8px;
   border-radius: 50%;
   background: var(--color-accent);
-}
-
-@media (max-width: 767px) {
-  .scroller {
-    --gutter: 36px;
-    /* Колонка уже — название в три строки, пара чуть выше */
-    --ppm: 1.3px;
-  }
-
-  /* Колонка часов стоит на месте, дни уезжают под неё */
-  .corner,
-  .gutter {
-    background: var(--color-bg);
-  }
-
-  .grid {
-    grid-template-columns: var(--gutter) repeat(var(--day-count, 6), minmax(calc((100vw - 32px - var(--gutter)) / 2.3), 1fr));
-  }
 }
