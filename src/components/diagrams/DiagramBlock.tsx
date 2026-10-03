@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { usePrefersReducedMotion } from '../../lib/motion';
+import { CanvasView, parseCanvas } from './Canvas';
 import { GraphView, parseGraph } from './Graph';
 import { parsePlot, PlotView } from './Plot';
 import { splitLines, type DiagramHeader } from './parse';
@@ -34,6 +35,8 @@ function render(lang: DiagramLanguage, source: string): Rendered {
         return { header, view: <ArrayView model={parseArray(lines, source)} /> };
       case 'chart':
         return { header, view: <ChartView model={parseChart(lines)} /> };
+      case 'canvas':
+        return { header, view: <CanvasView model={parseCanvas(lines)} /> };
     }
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) };
@@ -56,7 +59,7 @@ interface DiagramBlockProps {
   editable?: boolean;
 }
 
-/** Диаграмма из fenced-блока конспекта: ```plot, ```graph, ```diagram, ```tree, ```array, ```chart */
+/** Диаграмма из fenced-блока конспекта: ```plot, ```graph, ```diagram, ```tree, ```array, ```chart, ```canvas */
 export function DiagramBlock({ lang, source, editable = true }: DiagramBlockProps) {
   const rendered = useMemo(() => render(lang, source), [lang, source]);
   const reduceMotion = usePrefersReducedMotion();

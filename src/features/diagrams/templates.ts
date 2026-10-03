@@ -68,4 +68,16 @@ series: Тест | Экзамен
 Линал | 72 | 88
 Матан | 64 | 80`,
   },
+  {
+    value: 'canvas',
+    label: 'Холст',
+    hint: 'canvas ШxВ. Фигуры по координатам: rect x y w h "текст", circle x y r=30, ellipse x y rx ry, line/arrow x1 y1 -> x2 y2, text x y "…", path M…; fill=цвет; group dx dy … endgroup.',
+    template: `canvas 420x200
+title: Конечный автомат
+circle 80 100 r=32 "q0"
+arrow 112 100 -> 228 100
+circle 260 100 r=32 "q1" fill=green
+text 150 88 "a"
+rect 320 70 80 60 "Выход" fill=orange`,
+  },
 ];

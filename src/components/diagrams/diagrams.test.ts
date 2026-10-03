@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseCanvas } from './Canvas';
 import { parseGraph } from './Graph';
 import { niceStep, parsePlot } from './Plot';
 import { splitLines, takeOptions } from './parse';
@@ -80,5 +81,22 @@ describe('диаграммы DSL группы', () => {
       { label: 'n=1', values: [2] },
       { label: 'n=2', values: [4] },
     ]);
+  });
+});
+
+describe('canvas — холст с фигурами', () => {
+  it('фигуры, цвет, группы со сдвигом, ошибки', () => {
+    const model = parseCanvas(
+      splitLines(
+        'canvas 400x200\nrect 20 20 120 60 "Вход" fill=#eef\ngroup 10 5\ncircle 260 50 r=30 "q0"\nendgroup\narrow 140 50 -> 220 50',
+        'canvas',
+      ),
+    );
+    expect([model.width, model.height]).toEqual([400, 200]);
+    expect(model.shapes.map((shape) => shape.type)).toEqual(['rect', 'circle', 'arrow']);
+    expect(model.shapes[0]).toMatchObject({ label: 'Вход', color: '#eef' });
+    expect(model.shapes[1]).toMatchObject({ dx: 10, dy: 5 });
+    expect(() => parseCanvas(splitLines('canvas\nstar 1 2', 'canvas'))).toThrow('неизвестная фигура');
+    expect(() => parseCanvas(splitLines('canvas\ngroup 1 1\nrect 0 0 1 1', 'canvas'))).toThrow('Не закрыта группа');
   });
 });
