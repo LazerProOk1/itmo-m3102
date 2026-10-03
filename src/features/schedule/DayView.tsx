@@ -110,7 +110,7 @@ function useSwipe(onSwipe: (step: 1 | -1) => void) {
 }
 
 /** Между парами — «Перемена 10 мин» или «Окно 1 ч 30 мин»: сразу видно, где свободное время */
-function BreakRow({ previous, next }: { previous?: ClassOccurrence; next: ClassOccurrence }) {
+export function BreakRow({ previous, next }: { previous?: ClassOccurrence; next: ClassOccurrence }) {
   if (!previous || !takesPlace(previous) || !takesPlace(next)) return null;
   const minutes = minutesBetween(previous.details.endTime, next.details.startTime);
   if (minutes <= 0) return null;
