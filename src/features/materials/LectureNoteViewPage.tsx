@@ -8,6 +8,7 @@ import { buttonClass } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
 import { downloadUrl, saveBlob } from '../../lib/download';
 import { findMovedPath, noteAssetBase, noteSourceUrl, rawUrl } from '../../services/githubContent';
+import { useSyncStore } from '../../services/syncStore';
 import type { LectureNote } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
@@ -48,8 +49,11 @@ export function LectureNoteViewPage() {
 function MissingNote({ noteId }: { noteId: string }) {
   const [target, setTarget] = useState<string | null>(null);
   const notes = useLectureNotesStore((state) => state.lectureNotes);
+  // Первый заход на сайт по ссылке на конспект: конспекты ещё качаются — ждём, а не уводим в «Материалы»
+  const syncing = useSyncStore((state) => state.status === 'syncing' || state.status === 'idle');
 
   useEffect(() => {
+    if (syncing) return;
     if (!noteId.startsWith('gh:')) {
       setTarget(SECTIONS.materials.path);
       return;
@@ -63,7 +67,7 @@ function MissingNote({ noteId }: { noteId: string }) {
     return () => {
       active = false;
     };
-  }, [noteId, notes]);
+  }, [noteId, notes, syncing]);
 
   return target ? <Navigate to={target} replace /> : null;
 }
