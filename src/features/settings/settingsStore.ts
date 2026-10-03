@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ThemePreference } from '../../types/models';
 
 /**
@@ -54,6 +54,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: storageKey('settings'),
+      storage: localStore,
       version: 2,
     },
   ),

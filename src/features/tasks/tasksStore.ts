@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ID, Task, TaskPriority, TaskStatus, TaskType } from '../../types/models';
 
 export interface TaskDraft {
@@ -39,6 +39,6 @@ export const useTasksStore = create<TasksStore>()(
       toggleDone: (id) => set((state) => ({ tasks: patch(state.tasks, id, (task) => ({ status: task.status === 'done' ? 'todo' : 'done' })) })),
       setStatus: (id, status) => set((state) => ({ tasks: patch(state.tasks, id, () => ({ status })) })),
     }),
-    { name: storageKey('tasks') },
+    { name: storageKey('tasks'), storage: localStore },
   ),
 );

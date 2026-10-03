@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { M3102_SUBJECTS } from '../../data/m3102';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { ID, Subject, SubjectContact } from '../../types/models';
 
 export interface SubjectDraft {
@@ -36,6 +36,7 @@ export const useSubjectsStore = create<SubjectsStore>()(
     }),
     {
       name: storageKey('subjects'),
+      storage: localStore,
       // v1: обновлённые преподаватели М3102 — предметы, добавленные вручную, сохраняются
       version: 1,
       migrate: (persisted) => {

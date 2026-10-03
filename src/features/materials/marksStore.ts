@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 
 /** Пометка — сохранённый кусок текста конспекта; в тексте подсвечивается, в панели читалки — списком */
 export interface NoteMark {
@@ -40,6 +40,6 @@ export const useMarksStore = create<MarksStore>()(
         ),
       removeMark: (id) => set((state) => ({ marks: state.marks.filter((mark) => mark.id !== id) })),
     }),
-    { name: storageKey('marks') },
+    { name: storageKey('marks'), storage: localStore },
   ),
 );

@@ -1,4 +1,4 @@
-import type { PersistStorage, StorageValue } from 'zustand/middleware';
+import { createJSONStorage, type PersistStorage, type StorageValue } from 'zustand/middleware';
 
 /**
  * Все данные приложения хранятся в localStorage браузера.
@@ -14,6 +14,39 @@ export const STORAGE_PREFIX = 'm3102';
 export function storageKey(name: string): string {
   return `${STORAGE_PREFIX}:${name}`;
 }
+
+/** Кеш контента из GitHub: при нехватке места его можно выбросить — следующая синхронизация скачает заново */
+const DISPOSABLE = ['lecture-notes', 'subject-info'].map(storageKey);
+let warned = false;
+
+/**
+ * localStorage для persist личных данных. Место кончилось (квота ~5 МБ) — сначала освобождаем кеш конспектов
+ * и пишем ещё раз: иначе отметка «сделано» или заметка молча не сохранится и пропадёт после перезагрузки.
+ * Не помогло — говорим человеку, а не теряем данные тихо.
+ */
+function saveWithRoom(name: string, value: string) {
+  try {
+    localStorage.setItem(name, value);
+    return;
+  } catch {
+    for (const key of DISPOSABLE) if (key !== name) localStorage.removeItem(key);
+  }
+  try {
+    localStorage.setItem(name, value);
+  } catch (error) {
+    console.error(`Не удалось сохранить ${name}`, error);
+    if (!warned) {
+      warned = true;
+      alert('Браузеру не хватает места: последние изменения не сохранятся после перезагрузки. Освободите место для сайта в настройках браузера.');
+    }
+  }
+}
+
+export const localStore = createJSONStorage(() => {
+  // Вне браузера (юнит-тесты в Node) — как у persist по умолчанию: без хранилища
+  if (typeof localStorage === 'undefined') throw new Error('no localStorage');
+  return { getItem: (name) => localStorage.getItem(name), setItem: saveWithRoom, removeItem: (name) => localStorage.removeItem(name) };
+});
 
 /**
  * Отложенная запись для больших хранилищ (конспекты — ~1 МБ текста): JSON.stringify и localStorage.setItem

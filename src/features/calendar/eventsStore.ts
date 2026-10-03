@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createEntity, replaceEntity } from '../../lib/entity';
-import { storageKey } from '../../lib/storage';
+import { localStore, storageKey } from '../../lib/storage';
 import type { Event, ID } from '../../types/models';
 
 export interface EventDraft {
@@ -28,6 +28,6 @@ export const useEventsStore = create<EventsStore>()(
       updateEvent: (id, draft) => set((state) => ({ events: state.events.map((event) => (event.id === id ? replaceEntity(event, draft) : event)) })),
       deleteEvent: (id) => set((state) => ({ events: state.events.filter((event) => event.id !== id) })),
     }),
-    { name: storageKey('events') },
+    { name: storageKey('events'), storage: localStore },
   ),
 );
