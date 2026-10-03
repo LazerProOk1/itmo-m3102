@@ -19,6 +19,9 @@ export function siteQuizKey(path: string): string {
 
 const BY_KEY = new Map(Object.entries(FILES).map(([file, load]) => [siteQuizKey(file), load]));
 
+/** Загрузчик нашего теста по его ключу (siteQuizKey) */
+export const siteQuizByKey = (key: string) => BY_KEY.get(key);
+
 /** Загрузчик теста к конспекту с путём sourceRef (`Конспекты/…`), если тест есть */
 export function siteQuizFor(sourceRef: string | undefined): (() => Promise<string>) | undefined {
   return sourceRef ? BY_KEY.get(siteQuizKey(sourceRef)) : undefined;

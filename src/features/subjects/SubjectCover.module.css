@@ -1,0 +1,68 @@
+/* Три карточки разной ширины: тесты — главное действие, им больше места */
+.cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.muted {
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0;
+  color: var(--color-text-muted);
+}
+
+.sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.bar {
+  margin: var(--space-1) 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 767px) {
+  .cover {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .card:last-child {
+    grid-column: 1 / -1;
+  }
+}

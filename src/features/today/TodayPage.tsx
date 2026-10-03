@@ -10,6 +10,7 @@ import { useScheduleDialogs } from '../schedule/useScheduleDialogs';
 import { getClassStatus } from './classStatus';
 import { DeadlinesPanel, HomeworkPanel, MaterialsPanel, RecentNotesPanel, StudyPlanPanel } from './HomePanels';
 import { NextClassBlock } from './NextClassBlock';
+import { ReviewBanner, SubjectsPanel } from './SubjectsPanel';
 import { TodayHeader } from './TodayHeader';
 import { TodaySchedule } from './TodaySchedule';
 import styles from './TodayPage.module.css';
@@ -28,6 +29,7 @@ export function TodayPage() {
     <>
       <TodayHeader date={today} week={week} />
       <NextClassBlock status={classStatus} />
+      <ReviewBanner today={today} />
 
       <div className={styles.grid}>
         {[
@@ -37,6 +39,7 @@ export function TodayPage() {
           <MaterialsPanel key="materials" />,
           <StudyPlanPanel key="plan" today={today} />,
           <RecentNotesPanel key="notes" />,
+          <SubjectsPanel key="subjects" today={today} time={time} />,
         ].map((panel, index) => (
           <Reveal key={panel.key} index={index + 1}>
             {panel}

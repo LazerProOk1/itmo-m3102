@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Quiz } from '../../components/quiz/Quiz';
-import { siteQuizFor } from './siteQuizzes';
+import { siteQuizFor, siteQuizKey } from './siteQuizzes';
 import styles from './SiteQuiz.module.css';
 
 /** «Проверь себя» под конспектом M3102 — тест с этого сайта (см. siteQuizzes.ts), если он есть */
@@ -27,7 +27,7 @@ export function SiteQuiz({ sourceRef }: { sourceRef: string | undefined }) {
         <span className={styles.origin}>Тест сделан на этом сайте</span>
       </header>
       <p className={styles.note}>Его нет в репозитории группы: вопросы составлены по этому конспекту и хранятся только здесь.</p>
-      <Quiz source={source} />
+      <Quiz source={source} quizKey={`site:${siteQuizKey(sourceRef!)}`} />
     </section>
   );
 }

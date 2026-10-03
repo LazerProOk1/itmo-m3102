@@ -12,7 +12,7 @@ import { convertWikiLinks } from '../../lib/wikiLinks';
 import { WikiLinkAnchor } from '../../features/materials/WikiLink';
 import { DIAGRAM_LANGUAGES, DiagramBlock, isDiagramLanguage } from '../diagrams/DiagramBlock';
 import { Quiz } from '../quiz/Quiz';
-import { quizPageToMarkdown } from '../quiz/parseQuiz';
+import { noteQuizKey, quizPageToMarkdown } from '../quiz/parseQuiz';
 import { MermaidBlock } from './MermaidBlock';
 import styles from './Markdown.module.css';
 
@@ -62,7 +62,7 @@ export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, cl
               .map((child) => (child.type === 'text' ? child.value : ''))
               .join('')
               .trimEnd();
-            if (lang === 'quiz') return <Quiz source={source} />;
+            if (lang === 'quiz') return <Quiz source={source} quizKey={sourceRef ? noteQuizKey(sourceRef, source) : undefined} />;
             return lang === 'mermaid' ? <MermaidBlock source={source} /> : <DiagramBlock lang={lang} source={source} />;
           },
         }}

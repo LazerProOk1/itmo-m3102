@@ -22,7 +22,7 @@ import { useSubjectsStore } from '../subjects/subjectsStore';
 import { useTasksStore } from '../tasks/tasksStore';
 import styles from './HomePanels.module.css';
 
-function SectionLink({ to, children }: { to: string; children: string }) {
+export function SectionLink({ to, children }: { to: string; children: string }) {
   return (
     <Link to={to} className={buttonClass('ghost', 'sm')}>
       {children} ↗

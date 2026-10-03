@@ -7,6 +7,8 @@ import { Markdown } from '../markdown/Markdown';
 import { Button } from '../ui/Button';
 import { Swap } from '../ui/Swap';
 import { burst, rain } from './confetti';
+import { toISODate } from '../../lib/dates';
+import { useQuizStore } from '../../features/quizzes/quizStore';
 import { isQuizPage, matchesAnswer, parseQuiz, type QuizData, type QuizQuestion } from './parseQuiz';
 import styles from './Quiz.module.css';
 
@@ -16,7 +18,8 @@ const pick = (items: string[]) => items[Math.floor(Math.random() * items.length)
 const RING = 2 * Math.PI * 52;
 
 /** Блок ```quiz в конспекте или целый файл-тест (mode: quiz) — формат сайта группы, см. parseQuiz.ts */
-export function Quiz({ source }: { source: string }) {
+export function Quiz({ source, quizKey }: { source: string; /** Ключ для результатов и повторения ошибок (quizStore) */ quizKey?: string }) {
+  const { recordAnswer, recordResult } = useQuizStore();
   const parsed = useMemo(() => {
     try {
       return { data: parseQuiz(source) };
@@ -26,12 +29,29 @@ export function Quiz({ source }: { source: string }) {
   }, [source]);
 
   if ('error' in parsed) return <div className={styles.error}>Ошибка в тесте — {parsed.error}</div>;
-  return <QuizRunner data={parsed.data} full={isQuizPage(source)} />;
+  return (
+    <QuizRunner
+      data={parsed.data}
+      full={isQuizPage(source)}
+      onAnswer={quizKey ? (index, ok) => recordAnswer(quizKey, index, ok, toISODate(new Date())) : undefined}
+      onFinish={quizKey ? (correct, total) => recordResult(quizKey, correct, total) : undefined}
+    />
+  );
 }
 
 type Phase = 'intro' | 'question' | 'result';
 
-function QuizRunner({ data, full }: { data: QuizData; full: boolean }) {
+interface QuizRunnerProps {
+  data: QuizData;
+  full: boolean;
+  /** Ответ на вопрос с номером index в data.questions */
+  onAnswer?: (index: number, ok: boolean) => void;
+  /** Пройден весь тест (не «повтор ошибок») */
+  onFinish?: (correct: number, total: number) => void;
+}
+
+/** Прохождение готового набора вопросов — его же используют повторение и тест перед контрольной */
+export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) {
   const all = data.questions.map((_, index) => index);
   const [phase, setPhase] = useState<Phase>(full ? 'intro' : 'question');
   const [order, setOrder] = useState(all);
@@ -67,6 +87,7 @@ function QuizRunner({ data, full }: { data: QuizData; full: boolean }) {
 
   function answered(ok: boolean, anchor: DOMRect | undefined) {
     setResults((value) => ({ ...value, [order[pos]!]: ok }));
+    onAnswer?.(order[pos]!, ok);
     const nextStreak = ok ? streak + 1 : 0;
     setStreak(nextStreak);
     setBest((value) => Math.max(value, nextStreak));
@@ -77,8 +98,10 @@ function QuizRunner({ data, full }: { data: QuizData; full: boolean }) {
   }
 
   function next() {
-    if (pos + 1 >= total) setPhase('result');
-    else setPos(pos + 1);
+    if (pos + 1 >= total) {
+      setPhase('result');
+      if (!retry) onFinish?.(order.filter((index) => results[index]).length, total);
+    } else setPos(pos + 1);
     keepInView();
   }
 

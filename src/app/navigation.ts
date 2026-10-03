@@ -13,6 +13,7 @@ import {
   Image,
   NotebookPen,
   Palette,
+  Repeat2,
   Settings,
   SquareCheck,
   Users,
@@ -34,6 +35,7 @@ export const SECTIONS = {
   homework: { label: 'Домашнее задание', path: '/homework', icon: ClipboardList },
   deadlines: { label: 'Дедлайны', path: '/deadlines', icon: Clock },
   subjects: { label: 'Предметы', path: '/subjects', icon: BookOpen },
+  review: { label: 'Повторение', path: '/review', icon: Repeat2 },
   materials: { label: 'Материалы', path: '/materials', icon: FolderOpen },
   notes: { label: 'Заметки', path: '/notes', icon: NotebookPen },
   students: { label: 'Студенты', path: '/students', icon: Users },
@@ -56,6 +58,7 @@ export const SIDEBAR_PRIMARY: Section[] = [
   SECTIONS.deadlines,
   SECTIONS.tasks,
   SECTIONS.subjects,
+  SECTIONS.review,
   SECTIONS.notes,
 ];
 
@@ -72,6 +75,7 @@ export const MORE_PAGE_SECTIONS: Section[] = [
   SECTIONS.deadlines,
   SECTIONS.tasks,
   SECTIONS.subjects,
+  SECTIONS.review,
   SECTIONS.notes,
   SECTIONS.students,
   SECTIONS.diagrams,

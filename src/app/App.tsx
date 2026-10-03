@@ -34,6 +34,8 @@ const SettingsPage = page(() => import('../features/settings/SettingsPage'), 'Se
 const SubjectDetailPage = page(() => import('../features/subjects/SubjectDetailPage'), 'SubjectDetailPage');
 const SubjectsPage = page(() => import('../features/subjects/SubjectsPage'), 'SubjectsPage');
 const TasksPage = page(() => import('../features/tasks/TasksPage'), 'TasksPage');
+const ReviewPage = page(() => import('../features/quizzes/ReviewPage'), 'ReviewPage');
+const ExamPage = page(() => import('../features/quizzes/ExamPage'), 'ExamPage');
 // Игра тяжёлая (~60 КБ) — грузится, только когда её открыли
 const GamePage = lazy(() => import('../features/game/GamePage'));
 
@@ -71,6 +73,8 @@ export function App() {
             <Route path="deadlines" element={<DeadlinesPage />} />
             <Route path="subjects" element={<SubjectsPage />} />
             <Route path="subjects/:subjectId" element={<SubjectDetailPage />} />
+            <Route path="subjects/:subjectId/exam" element={<ExamPage />} />
+            <Route path="review" element={<ReviewPage />} />
             <Route path="materials" element={<MaterialsPage />} />
             <Route path="materials/notes/*" element={<LectureNoteViewPage />} />
             <Route path="notes" element={<NotesPage />} />

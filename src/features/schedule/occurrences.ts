@@ -171,3 +171,15 @@ function toDetails(session: ClassSession): ClassDetails {
     notes: session.notes,
   };
 }
+
+/** Ближайшее занятие предмета: сегодня (ещё не закончилось) или в следующие limit дней */
+export function nextOccurrence(subjectId: string, today: ISODate, time: string, data: ScheduleData, limit = 21): ClassOccurrence | undefined {
+  for (let offset = 0; offset <= limit; offset++) {
+    const day = addDays(today, offset);
+    const found = getOccurrencesForDate(day, data).find(
+      (item) => takesPlace(item) && item.details.subjectId === subjectId && (offset > 0 || item.details.endTime > time),
+    );
+    if (found) return found;
+  }
+  return undefined;
+}

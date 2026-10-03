@@ -59,3 +59,15 @@ describe('parseQuiz', () => {
     expect(isQuizPage('mode: quiz\n? a')).toBe(true);
   });
 });
+
+describe('тесты внутри конспекта', () => {
+  it('находит блоки ```quiz и строит ключ по названию', async () => {
+    const { quizBlocks, noteQuizKey } = await import('./parseQuiz');
+    const content = 'Текст\n\n```quiz\ntitle: Первый\n? Вопрос\n= 1\n```\n\n```quiz\n? Без названия\n= 2\n```\n';
+    const blocks = quizBlocks(content);
+    expect(blocks).toHaveLength(2);
+    expect(noteQuizKey('Конспекты/a.md', blocks[0]!)).toBe('note:Конспекты/a.md#Первый');
+    expect(noteQuizKey('Конспекты/a.md', blocks[1]!)).toBe('note:Конспекты/a.md#Тест');
+    expect(quizBlocks('mode: quiz\ntitle: Страница\n? В\n= 1')).toHaveLength(1);
+  });
+});

@@ -26,6 +26,7 @@ import { useTaskDialog } from '../tasks/useTaskDialog';
 import { useTasksStore } from '../tasks/tasksStore';
 import { resolveSubjectContacts } from './contacts';
 import { SubjectContactsSection } from './SubjectContactsSection';
+import { SubjectCover } from './SubjectCover';
 import { SubjectDialog } from './SubjectDialog';
 import { SubjectInfoDialog } from './SubjectInfoDialog';
 import { SubjectInfoSection } from './SubjectInfoSection';
@@ -62,7 +63,7 @@ export function SubjectDetailPage() {
   const { isEditMode } = useEditMode();
   const { subjectId } = useParams<{ subjectId: string }>();
   const navigate = useNavigate();
-  const { today } = useClock();
+  const { today, time } = useClock();
 
   const subject = useSubjectsStore((state) => state.subjects.find((item) => item.id === subjectId));
   const tasks = useTasksStore((state) => state.tasks);
@@ -130,6 +131,8 @@ export function SubjectDetailPage() {
           )
         }
       />
+
+      <SubjectCover subjectId={subject.id} today={today} time={time} nextDeadline={nextDeadline} />
 
       <SubjectContactsSection contacts={resolvedContacts} telegramChatUrl={subject.telegramChatUrl} />
 
