@@ -1,7 +1,7 @@
 import { Hedgehog, HedgehogSvg } from '../../components/hedgehog/Hedgehog';
 import { Section } from '../../components/ui/Section';
 import { GREETINGS, splitAccentPeriod } from '../../data/greetings';
-import logoUrl from '../../../img/logo-t.png';
+import logoUrl from '../../assets/logo-mask.webp';
 import { Demo } from './Demo';
 import styles from './DesignSystemPage.module.css';
 

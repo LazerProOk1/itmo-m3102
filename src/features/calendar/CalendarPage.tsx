@@ -13,6 +13,8 @@ import { ExceptionDialog } from '../schedule/ExceptionDialog';
 import { useEditMode } from '../settings/EditModeContext';
 import { useScheduleData } from '../schedule/scheduleStore';
 import { useScheduleDialogs } from '../schedule/useScheduleDialogs';
+import { useGroupStore } from '../group/groupStore';
+import { useHomeworkStore } from '../homework/homeworkStore';
 import { TaskDialog } from '../tasks/TaskDialog';
 import { useTaskDialog } from '../tasks/useTaskDialog';
 import { useTasksStore } from '../tasks/tasksStore';
@@ -40,6 +42,10 @@ export function CalendarPage() {
   const scheduleData = useScheduleData();
   const tasks = useTasksStore((state) => state.tasks);
   const events = useEventsStore((state) => state.events);
+  const groupDeadlines = useGroupStore((state) => state.deadlines);
+  const deadlinesDone = useGroupStore((state) => state.deadlinesDone);
+  const homework = useHomeworkStore((state) => state.items);
+  const homeworkDone = useHomeworkStore((state) => state.done);
 
   const scheduleDialogs = useScheduleDialogs();
   const taskDialog = useTaskDialog();
@@ -48,7 +54,7 @@ export function CalendarPage() {
   const [mode, setMode] = useState<CalendarMode>(getDefaultMode);
   const [anchor, setAnchor] = useState<ISODate>(today);
 
-  const data: CalendarData = { schedule: scheduleData, tasks, events };
+  const data: CalendarData = { schedule: scheduleData, tasks, events, groupDeadlines, deadlinesDone, homework, homeworkDone };
 
   function moveBy(monthDelta: number, dayDelta: number) {
     setAnchor((current) => (mode === 'month' ? addMonths(current, monthDelta) : addDays(current, dayDelta)));

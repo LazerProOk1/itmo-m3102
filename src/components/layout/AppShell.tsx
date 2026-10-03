@@ -11,6 +11,7 @@ import { useMorphLinks } from '../../lib/morph';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
 import { RadioCapsule } from '../radio/RadioCapsule';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { PageSkeleton } from '../ui/PageSkeleton';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
@@ -67,9 +68,12 @@ export function AppShell() {
             initial={reduceMotion ? false : { opacity: 0.5, y: 4 }}
             animate={{ opacity: 1, y: 0, transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] } }}
           >
-            <Suspense fallback={<PageSkeleton />}>
-              <Outlet />
-            </Suspense>
+            {/* Сломалась страница — только она: меню и шапка работают, переход на другую — с чистого листа (key) */}
+            <ErrorBoundary>
+              <Suspense fallback={<PageSkeleton />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
           </motion.div>
         </main>
       </div>

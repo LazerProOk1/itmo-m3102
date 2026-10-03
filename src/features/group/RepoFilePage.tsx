@@ -1,7 +1,7 @@
 import { ArrowLeft, Download, Printer } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { Markdown } from '../../components/markdown/Markdown';
+import { LazyMarkdown } from '../../components/markdown/LazyMarkdown';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -227,7 +227,7 @@ function FileView({ file }: { file: RepoFile }) {
         ) : text === null ? (
           <p className={styles.state}>Загрузка…</p>
         ) : (
-          <Markdown content={text} sourceRef={file.path} className={styles.prose} />
+          <LazyMarkdown content={text} sourceRef={file.path} className={styles.prose} />
         )
       ) : (
         <p className={styles.state}>Этот файл нельзя открыть в браузере — скачайте его.</p>

@@ -135,13 +135,15 @@ export function formatDayLabel(date: ISODate, today: ISODate, month: 'short' | '
   return formatShortDate(date, month);
 }
 
+/** "09:50" → 590 — минуты от начала суток */
+export function timeToMinutes(time: string): number {
+  const [hours = 0, minutes = 0] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
 /** Сколько минут от одного времени до другого: ("09:18", "10:00") → 42 */
 export function minutesBetween(from: string, to: string): number {
-  const toMinutes = (time: string) => {
-    const [hours = 0, minutes = 0] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-  return toMinutes(to) - toMinutes(from);
+  return timeToMinutes(to) - timeToMinutes(from);
 }
 
 /** 42 → "42 мин", 130 → "2 ч 10 мин" */

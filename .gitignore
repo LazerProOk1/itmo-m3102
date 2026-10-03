@@ -7,3 +7,7 @@ dist/
 Thumbs.db
 .claude/
 *.tsbuildinfo
+test-results/
+playwright-report/
+lighthouse-report/
+.lighthouseci/

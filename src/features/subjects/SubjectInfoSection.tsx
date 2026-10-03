@@ -1,13 +1,17 @@
 import { Pencil } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { GithubSourceBadge } from '../../components/ui/GithubSourceBadge';
 import { IconButton } from '../../components/ui/IconButton';
 import { Section } from '../../components/ui/Section';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
-import { LectureNoteContentView } from '../materials/LectureNoteContentView';
 import { useEditMode } from '../settings/EditModeContext';
 import type { SubjectInfo, SubjectInfoCategory } from '../../types/models';
 import styles from './SubjectInfoSection.module.css';
+
+// Markdown с формулами (KaTeX) — ~600 КБ: страница предмета открывается сразу, описание курса дорисовывается следом
+const LectureNoteContentView = lazy(() =>
+  import('../materials/LectureNoteContentView').then((module) => ({ default: module.LectureNoteContentView })),
+);
 
 const CATEGORY_LABELS: Record<SubjectInfoCategory, string> = {
   description: 'Описание',
@@ -57,7 +61,9 @@ export function SubjectInfoSection({ items, onEdit }: SubjectInfoSectionProps) {
             </h3>
             {isEditMode && <IconButton icon={Pencil} label="Изменить" size="sm" onClick={() => onEdit(item)} />}
           </header>
-          <LectureNoteContentView contentType="markdown" content={item.content} sourceRef={item.sourceRef} />
+          <Suspense fallback={<p className={styles.loading}>Загружаем описание…</p>}>
+            <LectureNoteContentView contentType="markdown" content={item.content} sourceRef={item.sourceRef} />
+          </Suspense>
         </div>
       ))}
     </Section>

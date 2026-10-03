@@ -1,7 +1,10 @@
-import { ChevronDown, ChevronUp, ExternalLink, Maximize2, Minus, Plus } from 'lucide-react';
+import { BookmarkCheck, ChevronDown, ChevronUp, ExternalLink, Maximize2, Minus, Moon, Plus, Sun } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import { IconButton } from '../../components/ui/IconButton';
+import { cn } from '../../lib/cn';
+import { storageKey } from '../../lib/storage';
+import { useSettingsStore } from '../settings/settingsStore';
 import styles from './PdfViewer.module.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
@@ -24,6 +27,34 @@ const MAX_PIXEL_RATIO = 2;
 // страниц съест память и браузер перезагрузит вкладку. Обычный конспект (< N страниц) не стирается никогда.
 const MAX_DRAWN_PAGES = 40;
 
+/** Где остановился в каждом PDF: { файл: страница }, последние 100 файлов */
+const PAGES_KEY = storageKey('pdf-pages');
+const MAX_REMEMBERED = 100;
+
+function readPages(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(PAGES_KEY) ?? '{}') as Record<string, number>;
+  } catch {
+    return {};
+  }
+}
+
+export function savedPage(file: string): number {
+  return readPages()[file] ?? 0;
+}
+
+export function savePage(file: string, page: number) {
+  const pages = readPages();
+  delete pages[file]; // свежий — в конец, старые вытесняются первыми
+  if (page > 1) pages[file] = page;
+  const entries = Object.entries(pages).slice(-MAX_REMEMBERED);
+  try {
+    localStorage.setItem(PAGES_KEY, JSON.stringify(Object.fromEntries(entries)));
+  } catch {
+    // Приватный режим или нет места — просто не запомним
+  }
+}
+
 /**
  * PDF целиком, сплошной лентой — как на сайте группы: каждая страница — свой <canvas>, который
  * создаётся один раз и рисуется при приближении к экрану. Холсты живут вне React, поэтому
@@ -38,6 +69,17 @@ export function PdfViewer({ file }: PdfViewerProps) {
   const [zoomIndex, setZoomIndex] = useState(ZOOM_STEPS.indexOf(1));
   const [current, setCurrent] = useState(1);
   const [failed, setFailed] = useState(false);
+  const dark = useSettingsStore((state) => state.pdfDark);
+  const setAppearance = useSettingsStore((state) => state.setAppearance);
+  // Страница, на которой остановился в прошлый раз: кнопка «Продолжить» в панели, пока туда не дошёл
+  const [resume, setResume] = useState(() => savedPage(file));
+
+  useEffect(() => {
+    // Пока не дошёл до прошлого места (или не нажал «Продолжить»), прошлое место не перезаписываем
+    if (!pdf || (resume && current < resume - 1)) return;
+    setResume(0);
+    savePage(file, current);
+  }, [pdf, file, current, resume]);
 
   // Ширина меряется один раз; мелкие изменения (появилась полоса прокрутки) не перерисовывают PDF
   useLayoutEffect(() => {
@@ -156,9 +198,19 @@ export function PdfViewer({ file }: PdfViewerProps) {
     };
   }, [pdf, width, baseWidth]);
 
-  const scrollToPage = useCallback((page: number) => {
-    pagesRef.current?.children[page - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToPage = useCallback((page: number, behavior: ScrollBehavior = 'smooth') => {
+    pagesRef.current?.children[page - 1]?.scrollIntoView({ behavior, block: 'start' });
   }, []);
+
+  // К далёкой странице — сразу, без плавной прокрутки через сотню страниц. Высоты страниц выше
+  // уточняются асинхронно, поэтому ждём их, иначе остановимся на соседней
+  async function resumeReading() {
+    if (!pdf) return;
+    const target = resume;
+    setResume(0);
+    await Promise.all(Array.from({ length: target }, (_, index) => pdf.getPage(index + 1)));
+    requestAnimationFrame(() => scrollToPage(target, 'instant'));
+  }
 
   if (failed) {
     return (
@@ -186,6 +238,12 @@ export function PdfViewer({ file }: PdfViewerProps) {
             disabled={current >= numPages}
             onClick={() => scrollToPage(current + 1)}
           />
+          {pdf && resume > 1 && resume <= numPages && (
+            <button type="button" className={styles.resume} onClick={() => void resumeReading()}>
+              <BookmarkCheck size={14} strokeWidth={1.75} aria-hidden />
+              <span className={styles.resumeText}>Продолжить с</span> {resume} стр.
+            </button>
+          )}
         </div>
         <div className={styles.group}>
           <IconButton icon={Minus} label="Уменьшить" size="sm" disabled={zoomIndex === 0} onClick={() => setZoomIndex((index) => index - 1)} />
@@ -198,6 +256,13 @@ export function PdfViewer({ file }: PdfViewerProps) {
             onClick={() => setZoomIndex((index) => index + 1)}
           />
           <IconButton icon={Maximize2} label="По ширине" size="sm" disabled={zoom === 1} onClick={() => setZoomIndex(ZOOM_STEPS.indexOf(1))} />
+          <IconButton
+            icon={dark ? Sun : Moon}
+            label={dark ? 'Светлые страницы' : 'Тёмные страницы'}
+            size="sm"
+            aria-pressed={dark}
+            onClick={() => setAppearance({ pdfDark: !dark })}
+          />
           <a className={styles.open} href={file} target="_blank" rel="noopener noreferrer" title="Открыть файл в новой вкладке">
             <ExternalLink size={14} strokeWidth={1.75} aria-hidden />
           </a>
@@ -207,7 +272,7 @@ export function PdfViewer({ file }: PdfViewerProps) {
       <div className={styles.scroller}>
         {!pdf && <p className={styles.loading}>Загрузка PDF…</p>}
         {/* Холсты страниц добавляются сюда вручную — у React здесь нет детей, и он их не трогает */}
-        <div ref={pagesRef} className={styles.document} />
+        <div ref={pagesRef} className={cn(styles.document, dark && styles.dark)} />
       </div>
     </div>
   );

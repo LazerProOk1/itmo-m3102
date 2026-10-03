@@ -83,6 +83,38 @@
     0 8px 24px -16px rgb(0 0 0 / 0.35);
 }
 
+/* Тёмные страницы: инверсия с поворотом оттенка — чёрный текст становится светлым, а цвета схем
+   остаются примерно своими (красный не превращается в бирюзовый) */
+.dark > .page {
+  background: #000;
+  filter: invert(0.88) hue-rotate(180deg);
+}
+
+.resume {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 28px;
+  margin-left: var(--space-1);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent-text);
+  white-space: nowrap;
+}
+
+.resume:hover {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+@media (max-width: 480px) {
+  .resumeText {
+    display: none;
+  }
+}
+
 .loading {
   padding: var(--space-8);
   font-size: var(--text-sm);
@@ -114,5 +146,9 @@
 @media print {
   .toolbar {
     display: none;
+  }
+
+  .dark > .page {
+    filter: none;
   }
 }

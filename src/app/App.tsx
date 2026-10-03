@@ -60,8 +60,13 @@ export function App() {
     // Повторный вызов (StrictMode) безопасен: syncStore не запускает вторую синхронизацию поверх идущей
     const sync = () => void useSyncStore.getState().runAuto();
     sync();
+    // Страницы докачиваются в простое — или раньше, при первом движении мыши/касании: на загруженном
+    // процессоре простоя может не быть секундами, и первый клик ждал загрузку страницы 1–2 с
+    const prefetch = () => loaders.forEach((load) => void load());
     const idle = window.requestIdleCallback ?? ((callback: () => void) => setTimeout(callback, 1500));
-    idle(() => loaders.forEach((load) => void load()));
+    idle(prefetch);
+    addEventListener('pointerover', prefetch, { once: true });
+    addEventListener('touchstart', prefetch, { once: true, passive: true });
     // Вернулась сеть — догоняем
     addEventListener('online', sync);
     return () => removeEventListener('online', sync);

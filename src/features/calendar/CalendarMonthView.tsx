@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+import { SECTIONS } from '../../app/navigation';
 import type { Event, ISODate, Task } from '../../types/models';
 import { getCalendarEntriesForDate, type CalendarData, type CalendarEntry } from './calendarEntries';
 import { MonthCell } from './MonthCell';
@@ -25,10 +27,13 @@ interface CalendarMonthViewProps {
 export function CalendarMonthView({ anchor, today, data, onOpenDay, onEditTask, onEditEvent, onAddEvent }: CalendarMonthViewProps) {
   const currentMonth = anchor.slice(0, 7);
   const dates = getMonthGridDates(anchor);
+  const navigate = useNavigate();
 
   function selectEntry(entry: CalendarEntry) {
     if (entry.kind === 'class') onOpenDay(entry.date);
     else if (entry.kind === 'deadline') onEditTask(entry.task);
+    else if (entry.kind === 'groupDeadline') navigate(SECTIONS.deadlines.path);
+    else if (entry.kind === 'homework') navigate(SECTIONS.homework.path);
     else onEditEvent(entry.event);
   }
 

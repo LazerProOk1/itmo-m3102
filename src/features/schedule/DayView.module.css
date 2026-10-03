@@ -101,3 +101,9 @@
 .window::after {
   border-top-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
+
+/* Свайп по дням — в пустом дне тоже: место под пальцем не схлопывается */
+.swipe {
+  min-height: 240px;
+  touch-action: pan-y;
+}
