@@ -60,4 +60,4 @@ npm run build
 React 19, TypeScript, Vite, Zustand, Framer Motion. Пуш в `react-app` — CI проверяет форматирование, тесты
 и сборку и публикует на GitHub Pages.
 
-Подробная инструкция для разработки — в [CLAUDE.md](CLAUDE.md).
+Подробная инструкция для разработчиков и ИИ-агентов — в [AGENTS.md](AGENTS.md).
