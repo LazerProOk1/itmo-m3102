@@ -112,25 +112,6 @@
   left: calc((100% - 6px) * var(--lane) / var(--lanes) + 3px);
   width: calc((100% - 6px) / var(--lanes) - 2px);
   height: calc(var(--len) * var(--ppm) - 2px);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
-}
-
-/* Карточка заполняет свой отрезок времени; что не влезло в короткую пару — обрезается. Непрозрачная
-   подложка — чтобы сквозь полупрозрачную карточку не просвечивали линии часов */
-.slot > * {
-  height: 100%;
-  overflow: hidden;
-}
-
-.past {
-  opacity: 0.55;
-  transition: opacity var(--duration-fast) var(--ease);
-}
-
-.past:hover,
-.past:focus-within {
-  opacity: 1;
 }
 
 /* Линия «сейчас» */
