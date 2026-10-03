@@ -18,10 +18,14 @@ interface WeekOccurrenceCardProps {
   today: string;
   time: string;
   onAction: (action: OccurrenceAction, occurrence: ClassOccurrence) => void;
+  /** В сетке по часам: заполняет свой отрезок времени непрозрачной цветной плашкой */
+  filled?: boolean;
+  /** Пара уже прошла — содержимое тише */
+  past?: boolean;
 }
 
 /** Компактная карточка занятия в колонке недельного вида. Клик открывает popover с деталями занятия. */
-export function WeekOccurrenceCard({ occurrence, today, time, onAction }: WeekOccurrenceCardProps) {
+export function WeekOccurrenceCard({ occurrence, today, time, onAction, filled = false, past = false }: WeekOccurrenceCardProps) {
   const subjectName = useSubjectName(occurrence.details.subjectId);
   const isNow = isHappeningNow(occurrence, today, time);
   const isCancelled = !takesPlace(occurrence);
@@ -39,7 +43,7 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction }: WeekOc
   return (
     <motion.div
       ref={cardRef}
-      className={cn(styles.card, isNow && styles.now, isCancelled && styles.cancelled)}
+      className={cn(styles.card, filled && styles.filled, past && styles.past, isNow && styles.now, isCancelled && styles.cancelled)}
       style={{ '--type-color': classTypeColorVar(occurrence.details.type) } as CSSProperties}
       onClick={() => setPopoverOpen(true)}
       data-spot

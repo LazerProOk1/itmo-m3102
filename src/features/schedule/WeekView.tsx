@@ -66,10 +66,17 @@ export function WeekView({ days, today, time, onAddDate, onAction }: WeekViewPro
               {layoutDay(day.occurrences).map(({ occurrence, start, end, lane, lanes }) => (
                 <div
                   key={occurrence.key}
-                  className={cn(styles.slot, (day.date < today || (isToday && end <= now)) && styles.past)}
+                  className={styles.slot}
                   style={{ '--top': start - from, '--len': end - start, '--lane': lane, '--lanes': lanes } as CSSProperties}
                 >
-                  <WeekOccurrenceCard occurrence={occurrence} today={today} time={time} onAction={onAction} />
+                  <WeekOccurrenceCard
+                    occurrence={occurrence}
+                    today={today}
+                    time={time}
+                    onAction={onAction}
+                    filled
+                    past={day.date < today || (isToday && end <= now)}
+                  />
                 </div>
               ))}
               {isToday && now >= from && now <= to && <div className={styles.now} style={{ '--top': now - from } as CSSProperties} />}

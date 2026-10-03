@@ -36,6 +36,42 @@
   margin-top: var(--space-2);
 }
 
+/* В сетке по часам (WeekView): карточка занимает свой отрезок времени и непрозрачна — цветная плашка поверх
+   линий часов: оттенок типа пары, замешанный в цвет поверхности, и тонкая рамка того же цвета */
+.filled {
+  height: 100%;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--type-color, var(--color-border)) 28%, transparent);
+  background: color-mix(in srgb, var(--type-color, transparent) 13%, var(--color-bg-elevated));
+}
+
+.filled:not(.now):not(.cancelled):hover {
+  background: color-mix(in srgb, var(--type-color, transparent) 20%, var(--color-bg-elevated));
+}
+
+/* Прошедшая пара: плашка остаётся, тише только её содержимое и цвет — неделя не превращается в серые плиты */
+.past {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--type-color, transparent) 5%, var(--color-bg-elevated));
+}
+
+.past > *,
+.past::before {
+  opacity: 0.55;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.past:hover > *,
+.past:hover::before,
+.past:focus-visible > * {
+  opacity: 1;
+}
+
+.filled .subject {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
 .top {
   display: flex;
   align-items: flex-start;
@@ -62,15 +98,17 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  /* Длинное слово в узкой колонке переносится с дефисом, а не обрезается («Дискретна») */
-  hyphens: auto;
-  overflow-wrap: anywhere;
+  /* Переносим по словам; слово, которое целиком не влезает, — рвём, а не обрезаем */
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 /* Узкая колонка (телефон, 7 дней): шрифт мельче и до трёх строк — длинные названия целиком, без «Дискретн…» */
 @container (max-width: 140px) {
   .subject {
     font-size: var(--text-xs);
+    /* Только здесь — с дефисом: в широкой колонке «математи-ка» при свободном месте выглядит ошибкой */
+    hyphens: auto;
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
