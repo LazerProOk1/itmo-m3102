@@ -11,12 +11,13 @@ import { SECTIONS } from './navigation';
  * по маршрутам). Остальные докачиваются в простое браузера — переход по меню всё равно мгновенный.
  */
 const loaders: (() => Promise<unknown>)[] = [];
-function page<M>(load: () => Promise<M>, name: keyof M) {
+/** prefetch: false — страница редкая и тяжёлая (дизайн-система, редактор схем): не качаем заранее, только по переходу */
+function page<M>(load: () => Promise<M>, name: keyof M, prefetch = true) {
   // Уже загруженную страницу рисуем напрямую: React.lazy даже с готовым модулем один раз «приостанавливается»
   // при первом показе — и первый переход на каждую страницу мигал скелетом
   let loaded: ComponentType | null = null;
   const get = () => load().then((module) => (loaded = module[name] as ComponentType));
-  loaders.push(get);
+  if (prefetch) loaders.push(get);
   const Lazy = lazy(() => get().then((component) => ({ default: component })));
   return function Page() {
     const Loaded = loaded;
@@ -26,8 +27,8 @@ function page<M>(load: () => Promise<M>, name: keyof M) {
 
 const CalendarPage = page(() => import('../features/calendar/CalendarPage'), 'CalendarPage');
 const DeadlinesPage = page(() => import('../features/deadlines/DeadlinesPage'), 'DeadlinesPage');
-const DesignSystemPage = page(() => import('../features/design/DesignSystemPage'), 'DesignSystemPage');
-const DiagramEditorPage = page(() => import('../features/diagrams/DiagramEditorPage'), 'DiagramEditorPage');
+const DesignSystemPage = page(() => import('../features/design/DesignSystemPage'), 'DesignSystemPage', false);
+const DiagramEditorPage = page(() => import('../features/diagrams/DiagramEditorPage'), 'DiagramEditorPage', false);
 const LinksPage = page(() => import('../features/group/LinksPage'), 'LinksPage');
 const MemesPage = page(() => import('../features/group/MemesPage'), 'MemesPage');
 const RepoFilePage = page(() => import('../features/group/RepoFilePage'), 'RepoFilePage');
