@@ -28,12 +28,14 @@
   background: var(--color-accent-soft);
   color: var(--color-accent-text);
   box-shadow: 0 6px 18px -10px var(--color-accent);
-  animation: empty-float 4s ease-in-out infinite;
+  /* Один раз проявляется — и стоит: бесконечное покачивание на пустом экране отвлекает */
+  animation: empty-in 360ms var(--ease-luxury-out);
 }
 
-@keyframes empty-float {
-  50% {
-    transform: translateY(-3px);
+@keyframes empty-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
 
