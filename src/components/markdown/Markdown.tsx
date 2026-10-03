@@ -1,5 +1,5 @@
 import { Check, Copy } from 'lucide-react';
-import { memo, useMemo, useState, type ComponentProps } from 'react';
+import { lazy, memo, Suspense, useMemo, useState, type ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -11,11 +11,14 @@ import { normalizeMath } from '../../lib/mathCompat';
 import { convertContainerCallouts, remarkCallouts } from '../../lib/remarkCallouts';
 import { convertWikiLinks } from '../../lib/wikiLinks';
 import { WikiLinkAnchor } from '../../features/materials/WikiLink';
-import { DIAGRAM_LANGUAGES, DiagramBlock, isDiagramLanguage } from '../diagrams/DiagramBlock';
+import { DIAGRAM_LANGUAGES, isDiagramLanguage } from '../diagrams/languages';
 import { Quiz } from '../quiz/Quiz';
 import { noteQuizKey, quizPageToMarkdown } from '../quiz/parseQuiz';
 import { MermaidBlock } from './MermaidBlock';
 import styles from './Markdown.module.css';
+
+// Схемы — в немногих конспектах, а рисовальщик тяжёлый: грузится при первой схеме
+const DiagramBlock = lazy(() => import('../diagrams/DiagramBlock').then((module) => ({ default: module.DiagramBlock })));
 
 interface MarkdownProps {
   content: string;
@@ -64,7 +67,13 @@ export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, cl
               .join('')
               .trimEnd();
             if (lang === 'quiz') return <Quiz source={source} quizKey={sourceRef ? noteQuizKey(sourceRef, source) : undefined} />;
-            return lang === 'mermaid' ? <MermaidBlock source={source} /> : <DiagramBlock lang={lang} source={source} />;
+            return lang === 'mermaid' ? (
+              <MermaidBlock source={source} />
+            ) : (
+              <Suspense fallback={<div className={styles.blockLoading}>Рисуем схему…</div>}>
+                <DiagramBlock lang={lang} source={source} />
+              </Suspense>
+            );
           },
         }}
       >

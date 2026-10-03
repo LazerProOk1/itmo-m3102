@@ -13,11 +13,8 @@ import { ArrayView, ChartView, parseArray, parseChart, parseTree, TreeView } fro
 import { copySvg, downloadPng, downloadSvg, fileName } from './exportDiagram';
 import styles from './Diagrams.module.css';
 
-/** Языки fenced-блоков, которые сайт группы рисует картинкой (README их репозитория) */
-export const DIAGRAM_LANGUAGES = ['graph', 'plot', 'chart', 'tree', 'array', 'diagram'] as const;
-export type DiagramLanguage = (typeof DIAGRAM_LANGUAGES)[number];
-
-export const isDiagramLanguage = (lang: string): lang is DiagramLanguage => (DIAGRAM_LANGUAGES as readonly string[]).includes(lang);
+import type { DiagramLanguage } from './languages';
+export { DIAGRAM_LANGUAGES, isDiagramLanguage, type DiagramLanguage } from './languages';
 
 type Rendered = { header: DiagramHeader; view: ReactNode } | { error: string };
 

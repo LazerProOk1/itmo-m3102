@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { Dropdown, type DropdownOption } from '../../components/ui/Dropdown';
 import { Field } from '../../components/ui/Field';
 import { Form, FormRow } from '../../components/ui/Form';
@@ -6,7 +6,9 @@ import { Input } from '../../components/ui/Input';
 import type { LectureNoteContentType } from '../../types/models';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { LectureNoteContentEditor } from './LectureNoteContentEditor';
-import { LectureNoteContentView } from './LectureNoteContentView';
+
+// Просмотр с Markdown и KaTeX тяжёлый — грузится, только когда форму открыли (иначе тянется в страницу предмета)
+const LectureNoteContentView = lazy(() => import('./LectureNoteContentView').then((module) => ({ default: module.LectureNoteContentView })));
 
 export interface LectureNoteFormValues {
   subjectId: string;
@@ -89,7 +91,9 @@ export function LectureNoteForm({ id, initialValues, onSubmit, disabled, sourceR
       </Field>
 
       {disabled ? (
-        <LectureNoteContentView contentType={values.contentType} content={values.content} sourceRef={sourceRef} />
+        <Suspense fallback={null}>
+          <LectureNoteContentView contentType={values.contentType} content={values.content} sourceRef={sourceRef} />
+        </Suspense>
       ) : (
         <LectureNoteContentEditor
           contentType={values.contentType}
