@@ -47,3 +47,12 @@
   position: relative;
   display: grid;
 }
+
+/* Название текущего раздела на месте «Ещё» бывает длинным («Домашнее задание») — в одну строку */
+.text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
