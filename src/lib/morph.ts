@@ -2,10 +2,13 @@ import { useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router';
 
-/** Ждём, пока ленивая страница отрисует заголовок, — иначе браузер снимет «новое» состояние пустым */
+/**
+ * Ждём новую страницу перед снимком «после». Только таймерами: пока идёт переход, браузер не рисует кадры, и
+ * requestAnimationFrame не срабатывает — раньше ожидание висело до таймаута браузера (на ПК ~2 с на каждый клик)
+ */
 async function waitFor(found: () => unknown, timeout: number) {
   const start = performance.now();
-  while (!found() && performance.now() - start < timeout) await new Promise(requestAnimationFrame);
+  while (!found() && performance.now() - start < timeout) await new Promise((resolve) => setTimeout(resolve, 8));
 }
 
 /**
@@ -38,8 +41,11 @@ export function useMorphLinks() {
       const transition = document.startViewTransition(async () => {
         source.style.viewTransitionName = '';
         root.classList.remove('morph-from');
+        // Роутер применяет переход как отложенное обновление — flushSync его не дорисует. Признак готовности:
+        // AppShell сменил обёртку страницы (у неё key = путь) и на новой странице есть заголовок
+        const before = document.querySelector('main > *');
         flushSync(() => navigate(href.slice(1)));
-        await waitFor(() => document.querySelector('main [data-morph-target]'), 200);
+        await waitFor(() => document.querySelector('main > *') !== before && document.querySelector('main [data-morph-target]'), 250);
       });
       void transition.finished.finally(() => root.classList.remove('morphing'));
     };

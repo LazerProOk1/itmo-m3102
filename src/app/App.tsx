@@ -12,8 +12,16 @@ import { SECTIONS } from './navigation';
  */
 const loaders: (() => Promise<unknown>)[] = [];
 function page<M>(load: () => Promise<M>, name: keyof M) {
-  loaders.push(load);
-  return lazy(() => load().then((module) => ({ default: module[name] as ComponentType })));
+  // Уже загруженную страницу рисуем напрямую: React.lazy даже с готовым модулем один раз «приостанавливается»
+  // при первом показе — и первый переход на каждую страницу мигал скелетом
+  let loaded: ComponentType | null = null;
+  const get = () => load().then((module) => (loaded = module[name] as ComponentType));
+  loaders.push(get);
+  const Lazy = lazy(() => get().then((component) => ({ default: component })));
+  return function Page() {
+    const Loaded = loaded;
+    return Loaded ? <Loaded /> : <Lazy />;
+  };
 }
 
 const CalendarPage = page(() => import('../features/calendar/CalendarPage'), 'CalendarPage');
@@ -61,7 +69,9 @@ export function App() {
 
   return (
     <EditModeProvider>
-      <HashRouter>
+      {/* Без startTransition: переход по ссылке — сразу, а не «отложенно»; иначе flushSync в lib/morph.ts не дорисовывал
+          новую страницу до снимка View Transition. Пока ленивая страница грузится, виден PageSkeleton */}
+      <HashRouter useTransitions={false}>
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<Navigate to={SECTIONS.today.path} replace />} />
