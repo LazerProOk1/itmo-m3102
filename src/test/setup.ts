@@ -34,6 +34,8 @@ if (typeof window !== 'undefined') {
   window.ResizeObserver ??= Observer as unknown as typeof ResizeObserver;
   window.IntersectionObserver ??= Observer as unknown as typeof IntersectionObserver;
   window.scrollTo = () => {};
+  // Докачка страниц в простое (App.tsx) в тестах не нужна: импорты переживали тест и падали после teardown
+  window.requestIdleCallback = () => 0;
   // Тесты не ходят в сеть: синхронизация видит «нет интернета» и остаётся на сохранённых данных
   window.fetch = () => Promise.reject(new TypeError('Сеть в тестах отключена'));
   // <dialog> в jsdom без showModal/close
