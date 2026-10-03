@@ -1,0 +1,83 @@
+.markButton {
+  position: fixed;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1-5) var(--space-3);
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+  transform: translateX(-50%);
+  animation: mark-in 160ms var(--ease-luxury-out);
+}
+
+@keyframes mark-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+}
+
+.list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+/* Пометка в списке — тем же цветом, что и подсветка в тексте */
+.text {
+  flex: 1;
+  display: -webkit-box;
+  overflow: hidden;
+  padding: var(--space-1-5) var(--space-2);
+  border: 0;
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+  text-align: left;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.text:hover {
+  color: var(--color-text);
+}
+
+.remove {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.remove:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-danger);
+}
+
+.empty {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}

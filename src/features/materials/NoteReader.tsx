@@ -7,6 +7,7 @@ import { cn } from '../../lib/cn';
 import { SPRING_SNAPPY } from '../../lib/motion';
 import type { LectureNote } from '../../types/models';
 import { useLectureNotesStore } from './lectureNotesStore';
+import { MarksList } from './NoteMarks';
 import styles from './NoteReader.module.css';
 
 export interface TocItem {
@@ -108,16 +109,20 @@ export function ReadingProgress({ targetRef }: { targetRef: RefObject<HTMLElemen
   );
 }
 
-type SidebarTab = 'lectures' | 'toc';
+type SidebarTab = 'lectures' | 'toc' | 'marks';
+
+const SIDEBAR_TABS: Record<SidebarTab, string> = { lectures: 'Лекции', toc: 'Содержание', marks: 'Пометки' };
 
 interface NoteSidebarProps {
   note: LectureNote;
   siblings: LectureNote[];
   toc: { items: TocItem[]; activeId: string };
+  /** Текст конспекта — по нему пометки находят своё место */
+  contentRef: RefObject<HTMLElement | null>;
 }
 
 /** Боковая панель читалки, как на сайте группы: «Лекции» предмета и «Содержание» с текущим разделом */
-export function NoteSidebar({ note, siblings, toc }: NoteSidebarProps) {
+export function NoteSidebar({ note, siblings, toc, contentRef }: NoteSidebarProps) {
   const [chosenTab, setTab] = useState<SidebarTab | null>(null);
   // Пока пользователь сам не выбрал вкладку: есть разделы — «Содержание», нет — «Лекции»
   const tab = chosenTab ?? (toc.items.length > 1 ? 'toc' : 'lectures');
@@ -145,10 +150,10 @@ export function NoteSidebar({ note, siblings, toc }: NoteSidebarProps) {
 
       <aside className={cn(styles.side, open && styles.open)} aria-label="Навигация по конспекту">
         <div className={styles.tabs} role="tablist">
-          {(['lectures', 'toc'] as const).map((value) => (
+          {(Object.keys(SIDEBAR_TABS) as SidebarTab[]).map((value) => (
             <button key={value} type="button" role="tab" aria-selected={tab === value} className={styles.tab} onClick={() => setTab(value)}>
               {tab === value && <motion.span layoutId="note-side-tab" className={styles.tabInk} transition={SPRING_SNAPPY} />}
-              <span>{value === 'lectures' ? 'Лекции' : 'Содержание'}</span>
+              <span>{SIDEBAR_TABS[value]}</span>
             </button>
           ))}
           <button type="button" className={styles.close} aria-label="Закрыть" onClick={() => setOpen(false)}>
@@ -156,7 +161,11 @@ export function NoteSidebar({ note, siblings, toc }: NoteSidebarProps) {
           </button>
         </div>
 
-        {tab === 'lectures' ? (
+        {tab === 'marks' ? (
+          <div className={styles.section}>
+            <MarksList noteId={note.id} contentRef={contentRef} onJump={() => setOpen(false)} />
+          </div>
+        ) : tab === 'lectures' ? (
           <div className={styles.section}>
             <Input
               icon={Search}

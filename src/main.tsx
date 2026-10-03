@@ -16,3 +16,8 @@ createRoot(document.getElementById('root')!).render(
     </MotionConfig>
   </StrictMode>,
 );
+
+// Офлайн-режим и установка на телефон (public/sw.js). Только в сборке: в разработке кеш мешал бы HMR
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  addEventListener('load', () => void navigator.serviceWorker.register('./sw.js'));
+}

@@ -73,7 +73,7 @@ export function TreeView({ tree }: { tree: TreeNode }) {
   const y = (depth: number) => depth * rowHeight + rowHeight / 2;
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className={styles.svg} style={{ maxWidth: Math.max(width, 240) }} role="img">
+    <svg viewBox={`0 0 ${width} ${height}`} className={styles.svg} style={{ maxWidth: Math.max(width, 240), minWidth: width * 0.7 }} role="img">
       {visible.map((item, index) =>
         item.parent && item.parent.node.label !== '' ? (
           <path

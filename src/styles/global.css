@@ -244,3 +244,8 @@ html {
   border-radius: 1px;
   pointer-events: none;
 }
+
+/* Пометки в конспекте (features/materials/NoteMarks.tsx) — как маркер по бумаге */
+::highlight(note-marks) {
+  background-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
+}

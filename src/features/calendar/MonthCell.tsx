@@ -9,6 +9,7 @@ import { CalendarEntryChip } from './CalendarEntryChip';
 import styles from './MonthCell.module.css';
 
 const MAX_VISIBLE = 3;
+const NARROW = matchMedia('(max-width: 767px)');
 
 interface MonthCellProps {
   date: ISODate;
@@ -28,11 +29,17 @@ interface MonthCellProps {
  */
 export function MonthCell({ date, index, isCurrentMonth, isToday, entries, onOpenDay, onSelectEntry, onAddEvent }: MonthCellProps) {
   const { isEditMode } = useEditMode();
-  const visible = entries.slice(0, MAX_VISIBLE);
+  // Полоски на телефоне тоньше строк — помещается на одну больше
+  const visible = entries.slice(0, NARROW.matches ? MAX_VISIBLE + 1 : MAX_VISIBLE);
   const hiddenCount = entries.length - visible.length;
 
   return (
-    <div className={cn(styles.cell, !isCurrentMonth && styles.outside)} style={{ '--i': index } as CSSProperties}>
+    <div
+      className={cn(styles.cell, !isCurrentMonth && styles.outside)}
+      style={{ '--i': index } as CSSProperties}
+      // На телефоне записи — полоски без своих кликов: нажатие в любом месте клетки открывает день
+      onClick={(event) => NARROW.matches && !(event.target as Element).closest('button') && onOpenDay(date)}
+    >
       <div className={styles.header}>
         <button type="button" className={cn(styles.dayNumber, isToday && styles.today)} onClick={() => onOpenDay(date)}>
           {getDayOfMonth(date)}
@@ -46,7 +53,7 @@ export function MonthCell({ date, index, isCurrentMonth, isToday, entries, onOpe
 
       <div className={styles.entries}>
         {visible.map((entry) => (
-          <CalendarEntryChip key={entry.key} entry={entry} onSelect={onSelectEntry} />
+          <CalendarEntryChip key={entry.key} entry={entry} onSelect={onSelectEntry} month />
         ))}
         {hiddenCount > 0 && (
           <button type="button" className={styles.more} onClick={() => onOpenDay(date)}>

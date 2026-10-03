@@ -42,10 +42,15 @@
   text-align: center;
 }
 
+/* Широкое дерево или граф не ужимается мельче 70% (иначе подписи не прочитать на телефоне) — а прокручивается.
+   Центрирование через margin, а не justify-content: у переполненного flex-центра не видно левый край */
 .canvas {
   display: flex;
-  justify-content: center;
   overflow-x: auto;
+}
+
+.canvas > * {
+  margin-inline: auto;
 }
 
 .svg {

@@ -1,0 +1,38 @@
+.groups {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.title {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rows {
+  display: grid;
+  gap: var(--space-1-5);
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.row dt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.row dd {
+  margin: 0;
+  color: var(--color-text-secondary);
+}

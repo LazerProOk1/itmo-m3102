@@ -56,6 +56,20 @@
   animation-delay: -30s;
 }
 
+/* Живой фон: appearance.ts пишет --bg-x/--bg-y (курсор, −1…1) и --bg-s (прокрутка, 0…1). У пятен разная «глубина»:
+   дальнее едва двигается, ближнее — заметнее. translate — отдельное свойство и не спорит с дрейфом transform */
+.aurora i:nth-child(1) {
+  translate: calc(var(--bg-x, 0) * 2.5vmax) calc(var(--bg-y, 0) * 2vmax - var(--bg-s, 0) * 8vmax);
+}
+
+.aurora i:nth-child(2) {
+  translate: calc(var(--bg-x, 0) * -4vmax) calc(var(--bg-y, 0) * -3vmax - var(--bg-s, 0) * 16vmax);
+}
+
+.aurora i:nth-child(3) {
+  translate: calc(var(--bg-x, 0) * 3vmax) calc(var(--bg-y, 0) * 4vmax - var(--bg-s, 0) * 26vmax);
+}
+
 @keyframes aurora-drift {
   from {
     transform: translate3d(0, 0, 0) scale(1);

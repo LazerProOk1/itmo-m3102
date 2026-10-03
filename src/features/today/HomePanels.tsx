@@ -18,11 +18,12 @@ import { deadlineInfo, orderDeadlines } from '../deadlines/deadlineInfo';
 import { HomeworkCard } from '../homework/HomeworkCard';
 import { useHomeworkStore } from '../homework/homeworkStore';
 import { useLectureNotesStore } from '../materials/lectureNotesStore';
+import { useMarksStore } from '../materials/marksStore';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { useTasksStore } from '../tasks/tasksStore';
 import styles from './HomePanels.module.css';
 
-function SectionLink({ to, children }: { to: string; children: string }) {
+export function SectionLink({ to, children }: { to: string; children: string }) {
   return (
     <Link to={to} className={buttonClass('ghost', 'sm')}>
       {children} ↗
@@ -227,6 +228,36 @@ export function RecentNotesPanel() {
           ))}
         </div>
       )}
+    </Section>
+  );
+}
+
+/** Закладки и пометки в конспектах — быстро вернуться к нужному месту; без них панели нет */
+export function BookmarksPanel() {
+  const notes = useLectureNotesStore((state) => state.lectureNotes);
+  const bookmarks = useMarksStore((state) => state.bookmarks);
+  const marks = useMarksStore((state) => state.marks);
+  const marked = notes
+    .filter((note) => bookmarks[note.id] || marks.some((mark) => mark.noteId === note.id))
+    .sort((a, b) => (bookmarks[b.id] ?? '').localeCompare(bookmarks[a.id] ?? ''));
+  if (!marked.length) return null;
+
+  return (
+    <Section title="Закладки и пометки">
+      <div className={styles.notes}>
+        {marked.map((note) => {
+          const count = marks.filter((mark) => mark.noteId === note.id).length;
+          return (
+            <Link key={note.id} to={`/materials/notes/${note.id}`} className={styles.note} data-spot data-morph>
+              <strong data-morph-title>{note.title}</strong>
+              <small>
+                {bookmarks[note.id] ? 'В закладках' : 'Пометки'}
+                {count > 0 && ` · ${pluralize(count, ['пометка', 'пометки', 'пометок'])}`}
+              </small>
+            </Link>
+          );
+        })}
+      </div>
     </Section>
   );
 }

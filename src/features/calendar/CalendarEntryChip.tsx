@@ -8,19 +8,25 @@ import styles from './CalendarEntryChip.module.css';
 interface CalendarEntryChipProps {
   entry: CalendarEntry;
   onSelect: (entry: CalendarEntry) => void;
+  /** В клетке месяца: на телефоне сворачивается в цветную полоску */
+  month?: boolean;
 }
 
 /**
  * Компактная строка одной записи — для месячного вида и строки «весь день»
  * в недельном/дневном. Дедлайн отличается иконкой часов и цветом, а не карточкой.
  */
-export function CalendarEntryChip({ entry, onSelect }: CalendarEntryChipProps) {
+export function CalendarEntryChip({ entry, onSelect, month = false }: CalendarEntryChipProps) {
   const subjectName = useOptionalSubjectName(entry.kind === 'class' ? entry.occurrence.details.subjectId : undefined);
 
   const title = entry.kind === 'class' ? (subjectName ?? 'Пара') : entry.kind === 'deadline' ? entry.task.title : entry.event.title;
 
   return (
-    <button type="button" className={cn(styles.chip, entry.kind === 'deadline' && styles.deadline)} onClick={() => onSelect(entry)}>
+    <button
+      type="button"
+      className={cn(styles.chip, entry.kind === 'deadline' && styles.deadline, month && styles.monthChip)}
+      onClick={() => onSelect(entry)}
+    >
       {entry.kind === 'deadline' ? (
         <Clock size={11} strokeWidth={2} className={styles.deadlineIcon} aria-hidden />
       ) : (

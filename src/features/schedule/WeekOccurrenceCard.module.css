@@ -1,4 +1,5 @@
 .card {
+  container-type: inline-size;
   position: relative;
   padding: var(--space-2) var(--space-2-5) var(--space-2) 14px;
   border: 1px solid transparent;
@@ -43,6 +44,7 @@
 }
 
 .time {
+  white-space: nowrap;
   font-size: var(--text-2xs);
   font-weight: var(--weight-medium);
   color: var(--color-text-muted);
@@ -60,6 +62,18 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+  /* Длинное слово в узкой колонке переносится с дефисом, а не обрезается («Дискретна») */
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+/* Узкая колонка (телефон, 7 дней): шрифт мельче и до трёх строк — длинные названия целиком, без «Дискретн…» */
+@container (max-width: 140px) {
+  .subject {
+    font-size: var(--text-xs);
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
 }
 
 .meta {

@@ -253,3 +253,77 @@
 .hh-foot {
   color: var(--color-text-muted);
 }
+
+/* Правка поверх оригинала: заголовки — шрифтом заголовков сайта; подсказки со значками предметов из игры */
+.hh-title,
+.hh-h {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Как заголовки остальных страниц (PageHeader) */
+.hh-title {
+  font-size: clamp(1.375rem, 1rem + 1.2vw, 1.75rem);
+}
+
+.hh-gl {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+}
+
+.hh-chip .hh-gl {
+  margin-right: 5px;
+}
+
+.hh-help li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.hh-hl {
+  display: inline-flex;
+  flex-shrink: 0;
+  justify-content: center;
+  min-width: 56px;
+}
+
+.hh-hl .hh-gl {
+  width: 22px;
+  height: 22px;
+}
+
+.hh-help .hh-keys {
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.hh-keys > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hh-key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--color-bg-elevated);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.hh-key svg {
+  width: 12px;
+  height: 12px;
+}

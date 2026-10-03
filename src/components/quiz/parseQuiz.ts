@@ -246,3 +246,14 @@ const asNumber = (value: string) => {
 export function matchesAnswer(answers: string[], value: string): boolean {
   return answers.some((answer) => normalize(answer) === normalize(value) || (asNumber(value) !== null && asNumber(answer) === asNumber(value)));
 }
+
+/** Название теста без полного разбора — для ключа результатов */
+export const quizTitle = (source: string) => /^\s*(?:title|название|заголовок)\s*:\s*(.+)$/im.exec(source)?.[1]!.trim() || 'Тест';
+
+/** Ключ результатов теста группы внутри конспекта: путь файла + название теста */
+export const noteQuizKey = (sourceRef: string, source: string) => `note:${sourceRef}#${quizTitle(source)}`;
+
+/** Все блоки ```quiz конспекта (файл-тест тоже превращается в один блок) */
+export function quizBlocks(content: string): string[] {
+  return [...quizPageToMarkdown(content).matchAll(/^```quiz[ \t]*\n([\s\S]*?)\n```/gm)].map((match) => match[1]!);
+}

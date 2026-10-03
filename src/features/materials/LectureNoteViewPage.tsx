@@ -1,4 +1,4 @@
-import { ArrowLeft, Download, ExternalLink, Pencil, Printer, Trash } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookmarkCheck, Download, ExternalLink, Pencil, Printer, Trash } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
@@ -13,6 +13,8 @@ import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
 import { LectureNoteContentView } from './LectureNoteContentView';
 import { SiteQuiz } from './SiteQuiz';
+import { useMarksStore } from './marksStore';
+import { MarkButton, useMarkHighlights } from './NoteMarks';
 import { LectureNoteDialog } from './LectureNoteDialog';
 import { useLectureNoteDialog } from './useLectureNoteDialog';
 import { useLectureNotesStore } from './lectureNotesStore';
@@ -77,6 +79,9 @@ function NoteView({ note }: { note: LectureNote }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const siblings = useSiblingNotes(note);
   const toc = useToc(contentRef, note.id + note.updatedAt);
+  const bookmarked = useMarksStore((state) => Boolean(state.bookmarks[note.id]));
+  const toggleBookmark = useMarksStore((state) => state.toggleBookmark);
+  useMarkHighlights(contentRef, note.id);
 
   const title = noteTitle(note);
   const sourceUrl = noteSourceUrl(note);
@@ -101,6 +106,12 @@ function NoteView({ note }: { note: LectureNote }) {
             </div>
 
             <div className={styles.actions}>
+              <IconButton
+                icon={bookmarked ? BookmarkCheck : Bookmark}
+                label={bookmarked ? 'Убрать из закладок' : 'В закладки'}
+                aria-pressed={bookmarked}
+                onClick={() => toggleBookmark(note.id)}
+              />
               {note.contentType !== 'link' && (
                 <IconButton
                   icon={Download}
@@ -135,7 +146,8 @@ function NoteView({ note }: { note: LectureNote }) {
         <NotePager note={note} siblings={siblings} />
       </article>
 
-      <NoteSidebar note={note} siblings={siblings} toc={toc} />
+      <NoteSidebar note={note} siblings={siblings} toc={toc} contentRef={contentRef} />
+      {note.contentType === 'markdown' && <MarkButton contentRef={contentRef} noteId={note.id} />}
 
       <LectureNoteDialog target={dialog.target} onClose={dialog.close} />
       <ConfirmDeleteModal

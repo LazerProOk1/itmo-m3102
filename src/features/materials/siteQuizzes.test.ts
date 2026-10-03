@@ -17,5 +17,7 @@ describe('тесты сайта к конспектам', () => {
     const quiz = parseQuiz(source);
     expect(quiz.title).not.toBe('');
     expect(quiz.questions.length).toBeGreaterThanOrEqual(6);
+    // Только по предмету: вопросы про баллы, экзамены и правила курса устаревают и к теме не относятся
+    for (const question of quiz.questions) expect(question.question).not.toMatch(/балл|гаджет|допс|рейтинг/i);
   });
 });

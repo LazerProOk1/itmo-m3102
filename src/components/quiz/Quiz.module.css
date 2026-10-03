@@ -307,6 +307,9 @@
 }
 
 .feedbackTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
   font-weight: var(--weight-semibold);
 }
 
