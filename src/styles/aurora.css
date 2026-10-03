@@ -29,7 +29,7 @@
   border-radius: 50%;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 60%, transparent), transparent 72%);
   opacity: var(--aurora-strength);
-  animation: aurora-drift 40s ease-in-out infinite alternate;
+  animation: aurora-drift 18s ease-in-out infinite alternate;
   will-change: transform;
 }
 
@@ -43,8 +43,8 @@
   --glow: var(--glow-b);
   top: -36vmax;
   right: -22vmax;
-  animation-duration: 52s;
-  animation-delay: -14s;
+  animation-duration: 23s;
+  animation-delay: -7s;
 }
 
 .aurora i:nth-child(3) {
@@ -52,22 +52,22 @@
   bottom: -52vmax;
   left: 18vmax;
   opacity: calc(var(--aurora-strength) * 0.7);
-  animation-duration: 60s;
-  animation-delay: -30s;
+  animation-duration: 29s;
+  animation-delay: -15s;
 }
 
 /* Живой фон: appearance.ts пишет --bg-x/--bg-y (курсор, −1…1) и --bg-s (прокрутка, 0…1). У пятен разная «глубина»:
    дальнее едва двигается, ближнее — заметнее. translate — отдельное свойство и не спорит с дрейфом transform */
 .aurora i:nth-child(1) {
-  translate: calc(var(--bg-x, 0) * 2.5vmax) calc(var(--bg-y, 0) * 2vmax - var(--bg-s, 0) * 8vmax);
+  translate: calc(var(--bg-x, 0) * 6vmax) calc(var(--bg-y, 0) * 5vmax - var(--bg-s, 0) * 14vmax);
 }
 
 .aurora i:nth-child(2) {
-  translate: calc(var(--bg-x, 0) * -4vmax) calc(var(--bg-y, 0) * -3vmax - var(--bg-s, 0) * 16vmax);
+  translate: calc(var(--bg-x, 0) * -9vmax) calc(var(--bg-y, 0) * -7vmax - var(--bg-s, 0) * 28vmax);
 }
 
 .aurora i:nth-child(3) {
-  translate: calc(var(--bg-x, 0) * 3vmax) calc(var(--bg-y, 0) * 4vmax - var(--bg-s, 0) * 26vmax);
+  translate: calc(var(--bg-x, 0) * 7vmax) calc(var(--bg-y, 0) * 9vmax - var(--bg-s, 0) * 42vmax);
 }
 
 @keyframes aurora-drift {
@@ -76,7 +76,7 @@
   }
 
   to {
-    transform: translate3d(9vmax, 7vmax, 0) scale(1.18);
+    transform: translate3d(16vmax, 11vmax, 0) scale(1.3);
   }
 }
 

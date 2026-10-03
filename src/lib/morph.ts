@@ -37,7 +37,7 @@ export function useMorphLinks() {
         source.style.viewTransitionName = '';
         root.classList.remove('morph-from');
         flushSync(() => navigate(href.slice(1)));
-        await waitFor(() => document.querySelector('main [data-morph-target]'), 600);
+        await waitFor(() => document.querySelector('main [data-morph-target]'), 300);
       });
     };
     document.addEventListener('click', onClick, true);

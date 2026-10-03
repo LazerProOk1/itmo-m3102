@@ -17,6 +17,11 @@
   margin-bottom: 0;
 }
 
+/* Конспект по разделам (LectureNoteContentView): у заголовка следующего раздела — обычный отступ сверху */
+.markdown + .markdown > :first-child {
+  margin-top: var(--space-5);
+}
+
 .markdown h1,
 .markdown h2,
 .markdown h3 {
@@ -89,11 +94,16 @@
   position: relative;
 }
 
+/* Иконка вместо слова: на телефоне «Копировать» закрывала начало длинной строки кода */
 .copy {
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
-  padding: 3px 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-bg-elevated);

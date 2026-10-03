@@ -5,6 +5,7 @@ import { Form, FormRow } from '../../components/ui/Form';
 import { Input } from '../../components/ui/Input';
 import { SegmentedControl, type SegmentedOption } from '../../components/ui/SegmentedControl';
 import { Textarea } from '../../components/ui/Textarea';
+import { DateInput } from '../../components/ui/DateInput';
 import { checkUrl } from '../../lib/url';
 import type { ClassType, ISODate, Weekday } from '../../types/models';
 import { useSubjectsStore } from '../subjects/subjectsStore';
@@ -96,13 +97,7 @@ export function ClassForm({ id, initialValues, repeatOptions, onSubmit, disabled
       <FormRow>
         {values.repeat === 'once' ? (
           <Field label="Дата" htmlFor="class-date" error={errors.date}>
-            <Input
-              id="class-date"
-              type="date"
-              value={values.date}
-              invalid={Boolean(errors.date)}
-              onChange={(event) => update('date', event.target.value)}
-            />
+            <DateInput id="class-date" value={values.date} invalid={Boolean(errors.date)} onChange={(value) => update('date', value)} />
           </Field>
         ) : (
           <Field label="День" htmlFor="class-day">

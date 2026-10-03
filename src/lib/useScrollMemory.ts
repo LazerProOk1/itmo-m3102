@@ -28,13 +28,13 @@ export function useScrollMemory() {
     }
     const target = positions.get(location.key) ?? 0;
     // instant: в global.css scroll-behavior: smooth, а смена страницы — прыжок, не анимация.
-    // Страница дорисовывается не сразу (списки, конспект) — ждём, пока высоты хватит, но не дольше секунды
+    // Страница дорисовывается не сразу (списки, конспект по разделам) — ждём, пока высоты хватит, но не дольше 3 с
     let frame = 0;
     const started = performance.now();
     const restore = () => {
       const reachable = document.documentElement.scrollHeight - innerHeight >= target;
       scrollTo({ top: target, behavior: 'instant' });
-      if (!reachable && performance.now() - started < 1000) frame = requestAnimationFrame(restore);
+      if (!reachable && performance.now() - started < 3000) frame = requestAnimationFrame(restore);
     };
     restore();
     return () => cancelAnimationFrame(frame);

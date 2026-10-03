@@ -3,6 +3,7 @@ import { Dropdown } from '../../components/ui/Dropdown';
 import { Field } from '../../components/ui/Field';
 import { Form, FormRow } from '../../components/ui/Form';
 import { Input } from '../../components/ui/Input';
+import { DateInput } from '../../components/ui/DateInput';
 import type { ClassType, ISODate } from '../../types/models';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { CLASS_TYPE_OPTIONS } from './labels';
@@ -61,13 +62,7 @@ export function ExceptionForm({ id, kind, initialValues, onSubmit, disabled }: E
     <Form id={id} onSubmit={handleSubmit} disabled={disabled}>
       {kind === 'moved' ? (
         <Field label="Новая дата" htmlFor="exception-date" error={errors.newDate}>
-          <Input
-            id="exception-date"
-            type="date"
-            value={values.newDate}
-            invalid={Boolean(errors.newDate)}
-            onChange={(event) => update('newDate', event.target.value)}
-          />
+          <DateInput id="exception-date" value={values.newDate} invalid={Boolean(errors.newDate)} onChange={(value) => update('newDate', value)} />
         </Field>
       ) : (
         <FormRow>

@@ -1,3 +1,4 @@
+import { Check, Copy } from 'lucide-react';
 import { memo, useMemo, useState, type ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -82,6 +83,8 @@ function CodeBlock(props: ComponentProps<'pre'>) {
       <button
         type="button"
         className={cn(styles.copy, copied && styles.copied)}
+        aria-label={copied ? 'Скопировано' : 'Копировать код'}
+        title={copied ? 'Скопировано' : 'Копировать код'}
         onClick={(event) => {
           const code = event.currentTarget.parentElement?.querySelector('code')?.textContent ?? '';
           void navigator.clipboard.writeText(code).then(() => {
@@ -90,7 +93,7 @@ function CodeBlock(props: ComponentProps<'pre'>) {
           });
         }}
       >
-        {copied ? 'Скопировано' : 'Копировать'}
+        {copied ? <Check size={14} strokeWidth={2.25} aria-hidden /> : <Copy size={14} strokeWidth={1.75} aria-hidden />}
       </button>
     </div>
   );

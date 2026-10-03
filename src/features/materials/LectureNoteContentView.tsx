@@ -1,7 +1,8 @@
 import { ExternalLink } from 'lucide-react';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Markdown } from '../../components/markdown/Markdown';
 import { buttonClass } from '../../components/ui/Button';
+import { splitSections } from '../../lib/splitSections';
 import type { LectureNoteContentType } from '../../types/models';
 import styles from './LectureNoteContentView.module.css';
 
@@ -43,7 +44,29 @@ export function LectureNoteContentView({ contentType, content, sourceRef, baseUr
     );
   }
 
-  return <Markdown content={content} sourceRef={sourceRef} baseUrl={baseUrl} />;
+  return <ProgressiveMarkdown content={content} sourceRef={sourceRef} baseUrl={baseUrl} />;
+}
+
+/**
+ * Большой конспект — по разделам (## …): первый сразу, каждый следующий отдельной задачей. Разбор с KaTeX
+ * всего конспекта целиком — секунда и больше; так текст на экране почти сразу, а страница не замирает.
+ */
+function ProgressiveMarkdown({ content, sourceRef, baseUrl }: { content: string; sourceRef?: string; baseUrl?: string }) {
+  const sections = useMemo(() => splitSections(content), [content]);
+  const [shown, setShown] = useState(1);
+  useEffect(() => {
+    if (shown >= sections.length) return undefined;
+    const timer = setTimeout(() => setShown((count) => count + 1));
+    return () => clearTimeout(timer);
+  }, [shown, sections.length]);
+
+  return (
+    <>
+      {sections.slice(0, shown).map((section, index) => (
+        <Markdown key={index} content={section} sourceRef={sourceRef} baseUrl={baseUrl} />
+      ))}
+    </>
+  );
 }
 
 /** Ссылки на файлы репозитория хранятся с %D0%9A… — показываем читаемый путь */

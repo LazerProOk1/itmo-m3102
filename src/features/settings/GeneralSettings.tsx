@@ -1,4 +1,4 @@
-import { Input } from '../../components/ui/Input';
+import { DateInput } from '../../components/ui/DateInput';
 import { EDITING_ENABLED } from './EditModeContext';
 import { useSemesterSettingsStore } from './semesterSettingsStore';
 import { SettingsRow } from './SettingsRow';
@@ -16,14 +16,13 @@ export function GeneralSettings() {
       {EDITING_ENABLED && (
         <>
           <SettingsRow label="Начало семестра" description="От этой даты считаются номера недель в расписании." htmlFor="semester-start">
-            <Input
+            <DateInput
               id="semester-start"
-              type="date"
               className={styles.dateInput}
               value={semesterStart}
-              onChange={(event) => {
+              onChange={(value) => {
                 // Пустую дату не сохраняем — поле вернётся к прежнему значению
-                if (event.target.value) updateSemesterSettings({ semesterStart: event.target.value });
+                if (value) updateSemesterSettings({ semesterStart: value });
               }}
             />
           </SettingsRow>
@@ -33,13 +32,12 @@ export function GeneralSettings() {
             description="Любой день нечётной недели — от него считается чётность всех остальных."
             htmlFor="week-one-start"
           >
-            <Input
+            <DateInput
               id="week-one-start"
-              type="date"
               className={styles.dateInput}
               value={weekOneStart}
-              onChange={(event) => {
-                if (event.target.value) updateSemesterSettings({ weekOneStart: event.target.value });
+              onChange={(value) => {
+                if (value) updateSemesterSettings({ weekOneStart: value });
               }}
             />
           </SettingsRow>

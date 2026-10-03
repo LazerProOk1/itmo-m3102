@@ -4,6 +4,7 @@ import { Field } from '../../components/ui/Field';
 import { Form, FormRow } from '../../components/ui/Form';
 import { Input } from '../../components/ui/Input';
 import { Textarea } from '../../components/ui/Textarea';
+import { DateInput } from '../../components/ui/DateInput';
 import type { TaskPriority, TaskStatus, TaskType } from '../../types/models';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { LinksField } from './LinksField';
@@ -94,7 +95,7 @@ export function TaskForm({ id, initialValues, onSubmit, disabled }: TaskFormProp
 
       <FormRow>
         <Field label="Срок" htmlFor="task-deadline" optional>
-          <Input id="task-deadline" type="date" value={values.deadline} onChange={(event) => update('deadline', event.target.value)} />
+          <DateInput id="task-deadline" value={values.deadline} onChange={(value) => update('deadline', value)} />
         </Field>
         <Field label="Приоритет" htmlFor="task-priority">
           <Dropdown
