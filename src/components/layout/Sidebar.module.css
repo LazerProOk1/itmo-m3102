@@ -1,15 +1,35 @@
 .sidebar {
   position: sticky;
   top: 0;
+  height: 100dvh;
+  min-width: 0;
+}
+
+.inner {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  width: var(--sidebar-width);
+  height: 100%;
   padding: var(--space-2-5) var(--space-3) var(--space-3);
+  /* Сворачивание: колонка сужается до 0 (AppShell), а меню той же длительности уезжает влево — край меню идёт
+     ровно по краю колонки, ничего не мнётся и не наезжает на страницу. Не overflow: hidden — обрезал бы подсказки */
+  transition:
+    transform var(--sidebar-duration) var(--ease-luxury-out),
+    visibility 0s;
+}
+
+.sidebar[data-collapsed] .inner {
+  visibility: hidden;
+  transform: translateX(-100%);
+  transition:
+    transform var(--sidebar-duration) var(--ease-luxury-out),
+    visibility 0s var(--sidebar-duration);
 }
 
 .brand {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: calc(var(--topbar-height) - var(--space-2-5));
   margin-bottom: var(--space-3);
 }

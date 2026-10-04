@@ -1,4 +1,4 @@
-import { Archive, ArrowDownUp, Ellipsis, Pencil } from 'lucide-react';
+import { Archive, ArrowDownUp, Ellipsis, PanelLeftClose, Pencil } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
@@ -10,6 +10,7 @@ import { IconButton } from '../../components/ui/IconButton';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Section } from '../../components/ui/Section';
+import { Tooltip } from '../../components/ui/Tooltip';
 import { Demo } from './Demo';
 
 type Sort = 'deadline' | 'priority' | 'title';
@@ -68,6 +69,12 @@ export function OverlaysDemo() {
             В архив
           </DropdownItem>
         </DropdownMenu>
+      </Demo>
+
+      <Demo label="Подсказка · наведение (0,4 с) или фокус с клавиатуры">
+        <Tooltip text="Закрыть боковую панель" keys={['Ctrl', 'B']}>
+          <IconButton icon={PanelLeftClose} label="Закрыть боковую панель" title={undefined} />
+        </Tooltip>
       </Demo>
 
       <Demo label="Модальное окно">

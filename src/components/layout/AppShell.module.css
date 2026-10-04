@@ -1,8 +1,17 @@
 .shell {
+  /* Сколько места слева занято меню — для fixed-элементов (CelebrateHedgehog) */
+  --sidebar-offset: var(--sidebar-width);
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--color-bg-subtle);
+  transition: grid-template-columns var(--sidebar-duration) var(--ease-luxury-out);
+}
+
+/* Меню свёрнуто (Sidebar.tsx): колонка — в 0, страница занимает всю ширину */
+.collapsed {
+  --sidebar-offset: 0px;
+  grid-template-columns: 0 minmax(0, 1fr);
 }
 
 .column {
@@ -21,7 +30,9 @@
 }
 
 @media (max-width: 767px) {
-  .shell {
+  .shell,
+  .collapsed {
+    --sidebar-offset: 0px;
     grid-template-columns: minmax(0, 1fr);
   }
 

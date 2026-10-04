@@ -21,6 +21,12 @@
   margin-left: calc(-1 * var(--space-2));
 }
 
+/* «Открыть боковую панель»: иконка по левому краю содержимого, как текст под ней */
+.sidebarToggle {
+  display: inline-flex;
+  margin-left: calc(-1 * var(--space-2));
+}
+
 .section {
   display: flex;
   align-items: center;
@@ -45,7 +51,8 @@
     display: block;
   }
 
-  .section {
+  .section,
+  .sidebarToggle {
     display: none;
   }
 }

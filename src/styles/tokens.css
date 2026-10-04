@@ -80,6 +80,8 @@
 
   /* Размеры каркаса */
   --sidebar-width: 224px;
+  /* Сворачивание бокового меню: колонка и само меню двигаются одинаково */
+  --sidebar-duration: 260ms;
   --content-max-width: 1280px;
   --topbar-height: 52px;
   --mobile-nav-height: 56px;

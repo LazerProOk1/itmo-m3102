@@ -29,6 +29,8 @@ interface LocalSettings {
   startPage: string;
   /** Плотность интерфейса: compact — меньше отступов везде */
   density: Density;
+  /** Боковое меню свёрнуто (кнопка в меню и шапке, Ctrl+B) */
+  sidebarCollapsed: boolean;
 }
 
 export type Density = 'comfortable' | 'compact';
@@ -38,6 +40,7 @@ export type RadiusPreference = 'sharp' | 'normal' | 'round';
 interface SettingsStore extends LocalSettings {
   setTheme: (theme: ThemePreference) => void;
   setEditMode: (editMode: boolean) => void;
+  toggleSidebar: () => void;
   setAppearance: (
     patch: Partial<
       Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'liveBg' | 'radius' | 'pdfDark' | 'homeOrder' | 'homeHidden' | 'startPage' | 'density'>
@@ -59,6 +62,7 @@ const DEFAULT_SETTINGS: LocalSettings = {
   homeHidden: [],
   startPage: '/today',
   density: 'comfortable',
+  sidebarCollapsed: false,
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -67,6 +71,7 @@ export const useSettingsStore = create<SettingsStore>()(
       ...DEFAULT_SETTINGS,
       setTheme: (theme) => set({ theme }),
       setEditMode: (editMode) => set({ editMode }),
+      toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       setAppearance: (patch) => set(patch),
     }),
     {

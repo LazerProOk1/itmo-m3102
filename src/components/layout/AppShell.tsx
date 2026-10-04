@@ -14,8 +14,10 @@ import { CelebrateHedgehog } from '../hedgehog/CelebrateHedgehog';
 import { RadioCapsule } from '../radio/RadioCapsule';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { PageSkeleton } from '../ui/PageSkeleton';
+import { cn } from '../../lib/cn';
+import { useSettingsStore } from '../../features/settings/settingsStore';
 import { MobileNav } from './MobileNav';
-import { Sidebar } from './Sidebar';
+import { Sidebar, useSidebarShortcut } from './Sidebar';
 import { TopBar } from './TopBar';
 import styles from './AppShell.module.css';
 
@@ -29,6 +31,7 @@ export function AppShell() {
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const location = useLocation();
   const reduceMotion = usePrefersReducedMotion();
+  const sidebarCollapsed = useSettingsStore((state) => state.sidebarCollapsed);
 
   useApplyTheme();
   useApplyAppearance();
@@ -36,9 +39,10 @@ export function AppShell() {
   useSearchShortcut(openSearch);
   useMorphLinks();
   useShortcutsKey();
+  useSidebarShortcut();
 
   return (
-    <div className={styles.shell}>
+    <div className={cn(styles.shell, sidebarCollapsed && styles.collapsed)}>
       {/* Кнопка, а не ссылка #main: адрес после # занят роутером */}
       <button type="button" className="skip-link" onClick={() => document.getElementById('main')?.focus()}>
         Перейти к содержимому
