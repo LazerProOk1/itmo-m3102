@@ -40,26 +40,24 @@
 
 /* ---------- Рисунок ---------- */
 .svg {
-  --hog-spikes: #5a3b35;
-  --hog-spikes-inner: #69463e;
-  --hog-spike-glint: #795047;
-  --hog-face: #f5c995;
-  --hog-muzzle: #ffd9a9;
-  --hog-ear: #d98b78;
-  --hog-leg: #b87550;
-  --hog-paw: #8e573c;
-  --hog-dark: #211b1a;
+  --hog-spikes: #8a6a50;
+  --hog-spike-lines: #6d5240;
+  --hog-face: #ecd3ae;
+  --hog-belly: #e2c49b;
+  --hog-dark: #2b2421;
+  --hog-cheek: #f2a7a0;
   display: block;
   overflow: visible;
   /* Разворот — «поворот» через scaleX 0 за 0,3 с, а не мгновенное отражение */
   transition: transform 300ms var(--ease-luxury-out);
 }
 
-/* На тёмном фоне тёмно-коричневые иголки пропадают — светлее */
 :global([data-theme='dark']) .svg {
-  --hog-spikes: #8a6256;
-  --hog-spikes-inner: #9a7064;
-  --hog-spike-glint: #ad8275;
+  --hog-spikes: #a5836a;
+  --hog-spike-lines: #7d604d;
+  --hog-face: #e6cca6;
+  --hog-belly: #d9b98f;
+  --hog-dark: #17120f;
 }
 
 .left {
@@ -73,38 +71,29 @@
 
 .spikes {
   fill: var(--hog-spikes);
-  transform-box: fill-box;
-  transform-origin: 50% 90%;
+  stroke: var(--hog-spikes);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transform-origin: 56px 60px;
   transition: transform var(--duration-base) var(--ease-luxury-spring);
 }
 
-.spikesInner {
-  fill: var(--hog-spikes-inner);
-}
-
-.spikeGlint {
-  fill: var(--hog-spike-glint);
-  opacity: 0.8;
+.spikeLines {
+  fill: none;
+  stroke: var(--hog-spike-lines);
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .face {
   fill: var(--hog-face);
 }
 
-.muzzle {
-  fill: var(--hog-muzzle);
+.belly {
+  fill: var(--hog-belly);
 }
 
-.earInner {
-  fill: var(--hog-ear);
-  opacity: 0.65;
-}
-
-.cheek {
-  fill: #f29a8a;
-  opacity: 0.7;
-}
-
+.nose,
 .dark {
   fill: var(--hog-dark);
 }
@@ -113,28 +102,26 @@
   fill: #fff;
 }
 
-.noseGlint {
-  fill: #fff;
-  opacity: 0.45;
+.cheek {
+  fill: var(--hog-cheek);
+  opacity: 0.55;
+}
+
+.ear {
+  fill: var(--hog-belly);
+  stroke: var(--hog-spike-lines);
+  stroke-width: 1;
+}
+
+.leg {
+  fill: var(--hog-spike-lines);
 }
 
 .smile {
   fill: none;
   stroke: var(--hog-dark);
-  stroke-width: 2;
+  stroke-width: 1.4;
   stroke-linecap: round;
-}
-
-.legTop {
-  fill: var(--hog-leg);
-}
-
-.legFront .legTop {
-  fill: #c48159;
-}
-
-.paw {
-  fill: var(--hog-paw);
 }
 
 /* Сезонные детали (season.ts) */
@@ -181,72 +168,51 @@
 /* ---------- Движение: всё — плавные качания туда-обратно (alternate + ease-in-out), без рывков ---------- */
 /* Покой: дышит и моргает */
 .body {
-  transform-box: fill-box;
-  transform-origin: 50% 90%;
+  transform-origin: 60px 80px;
   animation: hog-breathe 3.2s ease-in-out infinite;
 }
 
 .eye {
-  transform-box: fill-box;
-  transform-origin: center;
+  transform-origin: 99px 51px;
   animation: hog-blink 4.6s infinite;
-}
-
-.eye + .eye {
-  animation-delay: 30ms;
-}
-
-.leg {
-  transform-box: fill-box;
-  transform-origin: 50% 15%;
-}
-
-.ear {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
 }
 
 /* Наведение — иголки топорщатся */
 .button:hover .spikes {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
-/* Бег: лапки качаются поочерёдно, на каждый шаг — мягкий подскок и чуть сплющивается, ушки покачиваются */
+/* Бег: лапки ходят вперёд-назад поочерёдно, на каждый шаг — мягкий подскок, тело чуть сплющивается */
 .running .hog {
-  animation: hog-bob 0.29s ease-in-out infinite alternate;
+  animation: hog-bob 0.27s ease-in-out infinite alternate;
 }
 
 .running .body {
-  animation: hog-squash 0.29s ease-in-out infinite alternate;
-}
-
-.running .legBack {
-  animation: hog-leg 0.29s ease-in-out infinite alternate;
+  animation: hog-squash 0.27s ease-in-out infinite alternate;
 }
 
 .running .legFront {
-  animation: hog-leg 0.29s ease-in-out infinite alternate-reverse;
+  animation: hog-step 0.27s ease-in-out infinite alternate;
 }
 
-.running .ear {
-  animation: hog-ear 0.58s ease-in-out infinite alternate;
+.running .legBack {
+  animation: hog-step 0.27s ease-in-out infinite alternate-reverse;
 }
 
 @keyframes hog-breathe {
   50% {
-    transform: scale(1.012, 1.025);
+    transform: scale(1.015, 1.03);
   }
 }
 
 @keyframes hog-blink {
   0%,
-  91%,
+  92%,
   100% {
     transform: scaleY(1);
   }
-  93%,
-  96% {
-    transform: scaleY(0.08);
+  95% {
+    transform: scaleY(0.1);
   }
 }
 
@@ -255,7 +221,7 @@
     transform: translateY(0);
   }
   to {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
   }
 }
 
@@ -268,21 +234,12 @@
   }
 }
 
-@keyframes hog-leg {
+@keyframes hog-step {
   from {
-    transform: rotate(-14deg);
+    transform: translate(-3px, 0);
   }
   to {
-    transform: rotate(18deg);
-  }
-}
-
-@keyframes hog-ear {
-  from {
-    transform: rotate(-2deg);
-  }
-  to {
-    transform: rotate(5deg);
+    transform: translate(3px, -1.5px);
   }
 }
 
@@ -295,9 +252,8 @@
   .eye,
   .running .hog,
   .running .body,
-  .running .legBack,
   .running .legFront,
-  .running .ear {
+  .running .legBack {
     animation: none;
   }
 }
