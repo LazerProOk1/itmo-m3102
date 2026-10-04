@@ -151,7 +151,8 @@
   padding: var(--space-2-5) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-bg);
+  /* Как строки списков сайта: прозрачные, при наведении — фон наведения */
+  background: transparent;
   color: var(--color-text);
   font: inherit;
   text-align: left;
@@ -162,19 +163,21 @@
     opacity var(--duration-fast) var(--ease);
 }
 
-.option:hover:not(.correct, .wrong, .missed, .dim, .static) {
+.option:hover:not(.correct, .wrong, .missed, .dim, .static, .selected) {
   border-color: var(--color-border-hover);
+  background: var(--color-bg-hover);
 }
 
 .mark {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  margin-top: 1px;
-  border: 1.5px solid var(--color-border-strong);
-  border-radius: 6px;
+  /* Как Checkbox сайта, чуть крупнее — по варианту попадают пальцем */
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: var(--weight-semibold);
   line-height: 1;
@@ -221,8 +224,9 @@
   box-shadow: inset 0 0 0 4px var(--color-bg);
 }
 
+/* Итог по варианту — мягкая заливка и полупрозрачная рамка, без кислотных цветов */
 .correct {
-  border-color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 55%, transparent);
   background: var(--color-success-soft);
 }
 
@@ -233,7 +237,7 @@
 }
 
 .wrong {
-  border-color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
   background: var(--color-danger-soft);
 }
 
@@ -246,7 +250,7 @@
 /* Верный вариант, который не выбрали */
 .missed {
   border-style: dashed;
-  border-color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 55%, transparent);
 }
 
 .missed .mark {
@@ -290,28 +294,48 @@
 }
 
 /* ---------- ответ ---------- */
+/* Итог ответа — плашка с тонкой рамкой и круглым значком (толстая полоса слева на скруглении гнулась скобкой) */
 .feedback {
   margin-top: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  border-left: 3px solid;
+  border: 1px solid;
   border-radius: var(--radius-md);
 }
 
 .ok {
-  border-color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
   background: var(--color-success-soft);
 }
 
 .bad {
-  border-color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, transparent);
   background: var(--color-danger-soft);
 }
 
 .feedbackTitle {
   display: flex;
   align-items: center;
-  gap: var(--space-1-5);
+  gap: var(--space-2);
+  margin: 0;
   font-weight: var(--weight-semibold);
+}
+
+.feedbackTitle svg {
+  box-sizing: content-box;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  padding: 3px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.ok .feedbackTitle svg {
+  background: var(--color-success);
+}
+
+.bad .feedbackTitle svg {
+  background: var(--color-danger);
 }
 
 .ok .feedbackTitle {
@@ -483,19 +507,11 @@
   list-style: none;
 }
 
+/* Верно / неверно — значком у номера; рамка обычная, как у карточек сайта */
 .reviewItem {
   padding: var(--space-4);
   border: 1px solid var(--color-border);
-  border-left-width: 3px;
   border-radius: var(--radius-md);
-}
-
-.reviewOk {
-  border-left-color: var(--color-success);
-}
-
-.reviewBad {
-  border-left-color: var(--color-danger);
 }
 
 .reviewQuestion {

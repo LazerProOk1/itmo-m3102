@@ -177,13 +177,25 @@
 }
 
 /* ---------- Выноски [!тип] — цвета как на сайте группы M3102 ---------- */
+/* Выноска: полоса цвета — ровная капсула внутри. Не border-left: на скруглённом углу она гнулась скобкой */
 .markdown :global(.callout) {
   --callout-color: var(--color-warning);
+  position: relative;
   margin: var(--space-4) 0;
-  padding: var(--space-3) var(--space-4);
-  border-left: 3px solid var(--callout-color);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--callout-color) 8%, transparent);
+}
+
+.markdown :global(.callout)::before {
+  content: '';
+  position: absolute;
+  top: var(--space-2-5);
+  bottom: var(--space-2-5);
+  left: var(--space-2-5);
+  width: 3px;
+  border-radius: 999px;
+  background: var(--callout-color);
 }
 
 .markdown :global(.callout) > :first-child {
