@@ -32,3 +32,31 @@ it('тест: ошибка попадает в повторение, итог п
 
   await waitFor(() => expect(useQuizStore.getState().results['site:мини']).toMatchObject({ best: 0.5, total: 2, attempts: 1 }));
 });
+
+it('правильный ответ — только по кнопке; после теста — разбор своих ответов', async () => {
+  render(
+    <MotionConfig reducedMotion="always">
+      <Quiz source={SOURCE} />
+    </MotionConfig>,
+  );
+  const user = userEvent.setup();
+
+  await user.click(screen.getByRole('radio', { name: '3' }));
+  await user.click(screen.getByRole('button', { name: 'Проверить' }));
+  expect(screen.queryByText(/Правильный ответ:/)).toBeNull();
+  await user.click(screen.getByRole('button', { name: 'Показать правильный ответ' }));
+  expect(screen.getByText(/Правильный ответ:/)).toBeTruthy();
+
+  await user.click(screen.getByRole('button', { name: /Далее/ }));
+  await user.type(await screen.findByRole('textbox', { name: 'Ваш ответ' }), 'Лион');
+  await user.click(screen.getByRole('button', { name: 'Проверить' }));
+  expect(screen.queryByText('Париж')).toBeNull();
+  await user.click(await screen.findByRole('button', { name: 'Результат' }));
+
+  await user.click(await screen.findByRole('button', { name: 'Мои ответы' }));
+  const review = screen.getByRole('region', { name: 'Ваши ответы' });
+  expect(review.textContent).toContain('Лион');
+  expect(review.textContent).not.toContain('Париж');
+  await user.click(screen.getByRole('button', { name: 'Показать все правильные' }));
+  expect(review.textContent).toContain('Париж');
+});
