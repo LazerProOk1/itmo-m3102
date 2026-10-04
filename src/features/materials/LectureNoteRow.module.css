@@ -25,7 +25,14 @@
   cursor: pointer;
 }
 
-/* Нажимается вся строка, а не только текст: с тачпада по узкой ссылке не попасть (отзыв группы) */
+/*
+ * Нажимается вся строка, а не только текст: с тачпада по узкой ссылке не попасть (отзыв группы).
+ * Кнопка static — иначе ::after растянут только на неё (см. .subjectButton в MaterialsPage.module.css).
+ */
+.titleButton {
+  position: static;
+}
+
 .titleButton::after {
   content: '';
   position: absolute;
