@@ -22,14 +22,27 @@ interface LocalSettings {
   radius: RadiusPreference;
   /** PDF в тёмных тонах: страницы инвертируются (кнопка в панели PDF) */
   pdfDark: boolean;
+  /** Главная: порядок блоков и скрытые (features/today/homeLayout.ts) */
+  homeOrder: string[];
+  homeHidden: string[];
+  /** Что открывается при заходе на сайт */
+  startPage: string;
+  /** Плотность интерфейса: compact — меньше отступов везде */
+  density: Density;
 }
+
+export type Density = 'comfortable' | 'compact';
 
 export type RadiusPreference = 'sharp' | 'normal' | 'round';
 
 interface SettingsStore extends LocalSettings {
   setTheme: (theme: ThemePreference) => void;
   setEditMode: (editMode: boolean) => void;
-  setAppearance: (patch: Partial<Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'liveBg' | 'radius' | 'pdfDark'>>) => void;
+  setAppearance: (
+    patch: Partial<
+      Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'liveBg' | 'radius' | 'pdfDark' | 'homeOrder' | 'homeHidden' | 'startPage' | 'density'>
+    >,
+  ) => void;
 }
 
 const DEFAULT_SETTINGS: LocalSettings = {
@@ -42,6 +55,10 @@ const DEFAULT_SETTINGS: LocalSettings = {
   liveBg: true,
   radius: 'normal',
   pdfDark: false,
+  homeOrder: [],
+  homeHidden: [],
+  startPage: '/today',
+  density: 'comfortable',
 };
 
 export const useSettingsStore = create<SettingsStore>()(

@@ -1,5 +1,6 @@
 import { lazy, useEffect, type ComponentType } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router';
+import { useSettingsStore } from '../features/settings/settingsStore';
 import { AppShell } from '../components/layout/AppShell';
 import { EditModeProvider } from '../features/settings/EditModeContext';
 import { TodayPage } from '../features/today/TodayPage';
@@ -55,6 +56,12 @@ const GamePage = lazy(() => import('../features/game/GamePage'));
  * HashRouter хранит адрес страницы после «#» (например, /#/tasks): у GitHub Pages нет
  * серверной маршрутизации, поэтому только так перезагрузка и прямые ссылки работают без 404.
  */
+/** Стартовая страница: что выбрано в «Настроить главную» (по умолчанию — главная) */
+function StartPage() {
+  const startPage = useSettingsStore((state) => state.startPage);
+  return <Navigate to={startPage.startsWith('/') ? startPage : SECTIONS.today.path} replace />;
+}
+
 export function App() {
   useEffect(() => {
     // Нет сети или исчерпан лимит GitHub — остаются данные прошлой синхронизации.
@@ -84,7 +91,8 @@ export function App() {
       <HashRouter useTransitions={false}>
         <Routes>
           <Route element={<AppShell />}>
-            <Route index element={<Navigate to={SECTIONS.today.path} replace />} />
+            {/* Зашли на сайт без раздела — открываем стартовую страницу из настроек главной */}
+            <Route index element={<StartPage />} />
 
             <Route path="today" element={<TodayPage />} />
             <Route path="schedule" element={<SchedulePage />} />
