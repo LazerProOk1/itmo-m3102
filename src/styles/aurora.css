@@ -22,6 +22,15 @@
   --aurora-strength: 0.7;
 }
 
+/* Чтение конспекта: сияние гаснет — не отвлекает от текста (отзыв группы). Ставит LectureNoteViewPage */
+.aurora {
+  transition: opacity 400ms var(--ease);
+}
+
+:root[data-reading] .aurora {
+  opacity: 0;
+}
+
 .aurora i {
   position: absolute;
   width: 70vmax;

@@ -38,6 +38,15 @@
 
 /* «Скачать PDF» у конспекта — печать в PDF средствами браузера: только сама страница, без меню */
 @media print {
+  /* Сетка «меню | страница»: без меню страница иначе встаёт в его узкую колонку (224px) */
+  .shell {
+    display: block !important;
+  }
+
+  .column {
+    border-left: 0;
+  }
+
   .shell > :not(.column),
   .column > :not(main) {
     display: none !important;
