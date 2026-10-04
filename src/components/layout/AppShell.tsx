@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Suspense, useCallback, useState } from 'react';
+import { Suspense, useCallback, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { ShortcutsDialog, useShortcutsKey } from '../../features/help/ShortcutsDialog';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
@@ -14,10 +14,8 @@ import { CelebrateHedgehog } from '../hedgehog/CelebrateHedgehog';
 import { RadioCapsule } from '../radio/RadioCapsule';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { PageSkeleton } from '../ui/PageSkeleton';
-import { cn } from '../../lib/cn';
-import { useSettingsStore } from '../../features/settings/settingsStore';
 import { MobileNav } from './MobileNav';
-import { Sidebar, useSidebarShortcut } from './Sidebar';
+import { Sidebar, useSidebarShortcut, useSidebarSlide } from './Sidebar';
 import { TopBar } from './TopBar';
 import styles from './AppShell.module.css';
 
@@ -31,7 +29,7 @@ export function AppShell() {
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const location = useLocation();
   const reduceMotion = usePrefersReducedMotion();
-  const sidebarCollapsed = useSettingsStore((state) => state.sidebarCollapsed);
+  const column = useRef<HTMLDivElement>(null);
 
   useApplyTheme();
   useApplyAppearance();
@@ -40,9 +38,10 @@ export function AppShell() {
   useMorphLinks();
   useShortcutsKey();
   useSidebarShortcut();
+  useSidebarSlide(column);
 
   return (
-    <div className={cn(styles.shell, sidebarCollapsed && styles.collapsed)}>
+    <div className={styles.shell}>
       {/* Кнопка, а не ссылка #main: адрес после # занят роутером */}
       <button type="button" className="skip-link" onClick={() => document.getElementById('main')?.focus()}>
         Перейти к содержимому
@@ -55,7 +54,7 @@ export function AppShell() {
       </div>
       <Sidebar />
 
-      <div className={styles.column}>
+      <div ref={column} className={styles.column}>
         <TopBar onOpenSearch={openSearch} />
         <main id="main" tabIndex={-1} className={styles.content}>
           {/*

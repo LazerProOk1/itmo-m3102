@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { installRipple } from '../../lib/ripple';
 import { useSettingsStore } from './settingsStore';
 
@@ -32,7 +33,11 @@ export const accentColor = (accent: string) =>
  * data-aurora / data-glow / data-radius — по ним включаются слои из styles/aurora.css.
  */
 export function useApplyAppearance() {
-  const { accent, aurora, glow, liveBg, radius, density } = useSettingsStore();
+  // Только нужные поля (useShallow): хук живёт в AppShell — родителе страницы, и подписка на весь стор
+  // перерисовывала бы страницу при любой настройке (например, при сворачивании меню — лаги на конспекте)
+  const { accent, aurora, glow, liveBg, radius, density } = useSettingsStore(
+    useShallow(({ accent, aurora, glow, liveBg, radius, density }) => ({ accent, aurora, glow, liveBg, radius, density })),
+  );
 
   useEffect(() => {
     const root = document.documentElement;
