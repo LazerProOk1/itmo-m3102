@@ -45,7 +45,8 @@
   padding: var(--space-1-5) var(--space-2);
   border: 0;
   border-left: 3px solid var(--color-warning);
-  border-radius: var(--radius-sm);
+  /* полоса слева ровная: скругление только справа, иначе на углах она гнётся */
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   background: color-mix(in srgb, var(--color-warning) 10%, transparent);
   font-size: var(--text-xs);
   line-height: var(--leading-normal);
