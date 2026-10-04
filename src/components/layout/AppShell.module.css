@@ -3,11 +3,11 @@
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--color-bg-subtle);
-  /* Страница во время сворачивания меню на миг сдвинута вправо (useSidebarSlide) — без горизонтальной прокрутки */
-  overflow-x: clip;
+  /* Сворачивание меню — плавно меняется ширина колонки (как раскладка не тормозит на конспекте — Sidebar.tsx) */
+  transition: grid-template-columns var(--sidebar-duration) var(--ease-luxury-out);
 }
 
-/* Меню свёрнуто (атрибут ставит useSidebarSlide в Sidebar.tsx): колонка — в 0, страница на всю ширину */
+/* Меню свёрнуто (атрибут ставит useSidebarAttribute в Sidebar.tsx): колонка — в 0, страница на всю ширину */
 /* Без CSS-переменных здесь: наследуемая переменная заставила бы пересчитать стили всей страницы (лаг на конспекте) */
 :global(:root[data-sidebar='collapsed']) .shell {
   grid-template-columns: 0 minmax(0, 1fr);

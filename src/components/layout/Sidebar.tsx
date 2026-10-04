@@ -1,5 +1,5 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { useEffect, useLayoutEffect, type RefObject } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { SECTIONS, SIDEBAR_PRIMARY, SIDEBAR_SECONDARY, type Section } from '../../app/navigation';
 import { useSettingsStore } from '../../features/settings/settingsStore';
 import { IconButton } from '../ui/IconButton';
@@ -13,16 +13,16 @@ const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 
 /**
  * Боковое меню (только на компьютере и планшете). Сворачивается целиком — кнопкой в нём, кнопкой в шапке
- * или Ctrl+B; меню фиксированной ширины уезжает влево, страница доезжает за ним (useSidebarSlide).
+ * или Ctrl+B; колонка плавно сужается до 0, а меню фиксированной ширины уезжает влево вместе с ней.
  */
 export function Sidebar() {
-  const collapsed = useSettingsStore((state) => state.sidebarCollapsed);
+  // inert и видимость кнопок ставит useSidebarAttribute без React — см. там же
   return (
-    <aside className={styles.sidebar} inert={collapsed}>
+    <aside id="sidebar" className={styles.sidebar}>
       <div className={styles.inner}>
         <div className={styles.brand}>
           <Brand />
-          <SidebarToggle />
+          <SidebarToggle action="close" />
         </div>
 
         <nav className={styles.nav} aria-label="Основное меню">
@@ -42,46 +42,105 @@ export function Sidebar() {
   );
 }
 
-/** «Закрыть / Открыть боковую панель» — в самом меню и в шапке, когда меню свёрнуто */
-export function SidebarToggle({ className, side }: { className?: string; side?: 'bottom' | 'bottom-start' }) {
-  const collapsed = useSettingsStore((state) => state.sidebarCollapsed);
+/**
+ * «Закрыть боковую панель» — в самом меню, «Открыть» — в шапке. Обе всегда в разметке, лишнюю прячет CSS по
+ * <html data-sidebar> (TopBar.module.css): переключение меню не перерисовывает React.
+ */
+export function SidebarToggle({ action, className, side }: { action: 'open' | 'close'; className?: string; side?: 'bottom' | 'bottom-start' }) {
   const toggle = useSettingsStore((state) => state.toggleSidebar);
-  const label = collapsed ? 'Открыть боковую панель' : 'Закрыть боковую панель';
+  const label = action === 'open' ? 'Открыть боковую панель' : 'Закрыть боковую панель';
   return (
     <span className={className}>
       <Tooltip text={label} keys={[MOD, 'B']} side={side}>
-        <IconButton icon={collapsed ? PanelLeftOpen : PanelLeftClose} label={label} title={undefined} onClick={toggle} />
+        <IconButton icon={action === 'open' ? PanelLeftOpen : PanelLeftClose} label={label} title={undefined} onClick={toggle} />
       </Tooltip>
     </span>
   );
 }
 
 /**
- * Страница при сворачивании меню — по принципу FLIP: ширина колонки меняется сразу (одна раскладка), а страница
- * доезжает на место сдвигом transform. Анимировать саму ширину нельзя: каждый кадр раскладывал бы всю страницу
- * заново — на конспекте с формулами это лаги. Сдвиг рисует видеокарта, он одинаково плавный везде.
- * Состояние — атрибутом <html data-sidebar>, через подписку на стор, а не через React: AppShell — родитель страницы,
- * и его перерисовка перерисовывала бы весь конспект (~2 с на слабом ноутбуке).
+ * Сворачивание меню: колонка плавно меняет ширину (переход grid-template-columns в AppShell.module.css), текст
+ * перетекает, как в ChatGPT. Чтобы это не тормозило на длинном конспекте:
+ * - состояние — атрибутом <html data-sidebar> (и inert у меню) через подписку на стор, без React: перерисовка
+ *   каркаса перерисовала бы весь конспект, а даже перерисовка меню заставляет framer-motion перемерить все
+ *   анимируемые элементы страницы;
+ * - на время анимации разделы конспекта ([data-lazy-layout] > *) получают content-visibility: auto с их нынешней
+ *   высотой — каждый кадр браузер раскладывает только видимые, а невидимые стоят и не сдвигают прокрутку.
+ *   После анимации — обычная раскладка один раз, когда уже ничего не движется;
+ * - место чтения не уезжает: строка под шапкой держится на своей высоте каждый кадр (текст выше неё становится
+ *   шире и короче — без этого всё под ним подтягивалось бы вверх).
  */
-export function useSidebarSlide(column: RefObject<HTMLElement | null>) {
+export function useSidebarAttribute() {
   useLayoutEffect(() => {
+    let frame = 0;
+    let finish = () => {};
     const apply = (collapsed: boolean, animate: boolean) => {
-      if (collapsed) document.documentElement.dataset.sidebar = 'collapsed';
-      else delete document.documentElement.dataset.sidebar;
-      const element = column.current;
-      if (!animate || !element || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const style = getComputedStyle(element);
-      const width = parseFloat(style.getPropertyValue('--sidebar-width')) || 224;
-      element.animate([{ transform: `translateX(${collapsed ? width : -width}px)` }, { transform: 'none' }], {
-        duration: parseFloat(style.getPropertyValue('--sidebar-duration')) || 260,
-        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      finish();
+      const root = document.documentElement;
+      const sections = animate ? [...document.querySelectorAll<HTMLElement>('[data-lazy-layout] > *')] : [];
+      // Сначала все замеры (одна раскладка), потом все записи
+      const heights = sections.map((section) => {
+        const first = section.firstElementChild;
+        // С content-visibility поле первого ребёнка уже не «выпадает» из раздела, а входит в его высоту
+        return section.offsetHeight + (first ? parseFloat(getComputedStyle(first).marginTop) || 0 : 0);
       });
+      // Что держать на месте: первый блок текста, который виден под шапкой
+      const barBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+      let anchor: Element | null = null;
+      if (animate) {
+        for (const block of document.querySelectorAll('#main :is(h1, h2, h3, h4, p, li, pre, table, blockquote, .katex-display)')) {
+          if (block.getBoundingClientRect().bottom > barBottom) {
+            anchor = block;
+            break;
+          }
+        }
+      }
+      const anchorTop = anchor?.getBoundingClientRect().top ?? 0;
+      const holdAnchor = () => {
+        if (!anchor?.isConnected) return;
+        const drift = anchor.getBoundingClientRect().top - anchorTop;
+        if (Math.abs(drift) >= 1) scrollBy(0, drift);
+      };
+
+      sections.forEach((section, index) => {
+        section.style.containIntrinsicSize = `auto ${heights[index]}px`;
+        section.style.contentVisibility = 'auto';
+      });
+      if (collapsed) root.dataset.sidebar = 'collapsed';
+      else delete root.dataset.sidebar;
+      document.getElementById('sidebar')?.toggleAttribute('inert', collapsed);
+      if (!animate) return;
+
+      // Своё удержание места вместо встроенного overflow-anchor: тот выбирает строку под шапкой, а не на виду
+      root.style.overflowAnchor = 'none';
+      finish = () => {
+        cancelAnimationFrame(frame);
+        for (const section of sections) {
+          section.style.contentVisibility = '';
+          section.style.containIntrinsicSize = '';
+        }
+        // Обычная раскладка вернулась (высоты выше могли измениться) — место держим и здесь
+        holdAnchor();
+        root.style.overflowAnchor = '';
+        finish = () => {};
+      };
+      const end = performance.now() + (parseFloat(getComputedStyle(root).getPropertyValue('--sidebar-duration')) || 260) + 60;
+      const hold = (now: number) => {
+        holdAnchor();
+        if (now < end) frame = requestAnimationFrame(hold);
+        else finish();
+      };
+      frame = requestAnimationFrame(hold);
     };
     apply(useSettingsStore.getState().sidebarCollapsed, false);
-    return useSettingsStore.subscribe((state, previous) => {
+    const unsubscribe = useSettingsStore.subscribe((state, previous) => {
       if (state.sidebarCollapsed !== previous.sidebarCollapsed) apply(state.sidebarCollapsed, true);
     });
-  }, [column]);
+    return () => {
+      unsubscribe();
+      finish();
+    };
+  }, []);
 }
 
 /** Ctrl+B (⌘B) — свернуть или открыть меню; в полях ввода не перехватываем: там это жирный шрифт */

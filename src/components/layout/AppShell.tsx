@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Suspense, useCallback, useRef, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { ShortcutsDialog, useShortcutsKey } from '../../features/help/ShortcutsDialog';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
@@ -15,7 +15,7 @@ import { RadioCapsule } from '../radio/RadioCapsule';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { PageSkeleton } from '../ui/PageSkeleton';
 import { MobileNav } from './MobileNav';
-import { Sidebar, useSidebarShortcut, useSidebarSlide } from './Sidebar';
+import { Sidebar, useSidebarAttribute, useSidebarShortcut } from './Sidebar';
 import { TopBar } from './TopBar';
 import styles from './AppShell.module.css';
 
@@ -29,7 +29,6 @@ export function AppShell() {
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const location = useLocation();
   const reduceMotion = usePrefersReducedMotion();
-  const column = useRef<HTMLDivElement>(null);
 
   useApplyTheme();
   useApplyAppearance();
@@ -38,7 +37,7 @@ export function AppShell() {
   useMorphLinks();
   useShortcutsKey();
   useSidebarShortcut();
-  useSidebarSlide(column);
+  useSidebarAttribute();
 
   return (
     <div className={styles.shell}>
@@ -54,7 +53,7 @@ export function AppShell() {
       </div>
       <Sidebar />
 
-      <div ref={column} className={styles.column}>
+      <div className={styles.column}>
         <TopBar onOpenSearch={openSearch} />
         <main id="main" tabIndex={-1} className={styles.content}>
           {/*
