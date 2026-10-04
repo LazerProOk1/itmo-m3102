@@ -1,8 +1,7 @@
 .header {
-  --hog: 56px;
   position: relative;
-  /* место под дорожку ёжика: рост ёжика + прыжок */
-  padding-bottom: calc(var(--hog) * 0.72 + var(--space-6));
+  /* место под дорожку ёжика (HedgehogLane): его рост + подскок */
+  padding-bottom: calc(60px * 0.92 + var(--space-6));
   margin-bottom: var(--space-6);
 }
 
@@ -52,111 +51,4 @@
   color: var(--color-accent-text);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-}
-
-/* ---------- Дорожка ёжика (как .hero-hedgehog на сайте группы) ---------- */
-.lane {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: calc(var(--hog) * 0.72);
-  container-type: inline-size;
-  pointer-events: none;
-}
-
-/* Цикл 20 с: бег направо (0–44%), сальто и разворот, бег налево (50–94%), сальто и разворот */
-.runner {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  pointer-events: auto;
-  animation: hog-travel 20s linear infinite;
-}
-
-/* Прыжки и развороты — на самом рисунке: пузырь с репликой не отражается, сальто по клику не перебивается */
-.runner svg {
-  transform-origin: 50% 85%;
-  animation: hog-hops 20s linear infinite;
-}
-
-.runner:hover,
-.runner:hover svg,
-.runner:focus-within,
-.runner:focus-within svg {
-  animation-play-state: paused;
-}
-
-@keyframes hog-travel {
-  0% {
-    transform: translateX(0);
-  }
-  44%,
-  50% {
-    transform: translateX(calc(100cqw - var(--hog)));
-  }
-  94%,
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes hog-hops {
-  0%,
-  8%,
-  16%,
-  24%,
-  32%,
-  40%,
-  44% {
-    transform: translateY(0) rotate(0deg) scaleX(1);
-    animation-timing-function: ease-out;
-  }
-  4%,
-  12%,
-  20%,
-  28%,
-  36% {
-    transform: translateY(-14px) rotate(-12deg) scaleX(1);
-    animation-timing-function: ease-in;
-  }
-  47% {
-    transform: translateY(-48px) rotate(-180deg) scaleX(1);
-  }
-  50% {
-    transform: translateY(0) rotate(-360deg) scaleX(1);
-    animation-timing-function: step-end;
-  }
-  50.1%,
-  58%,
-  66%,
-  74%,
-  82%,
-  90%,
-  94% {
-    transform: translateY(0) rotate(0deg) scaleX(-1);
-    animation-timing-function: ease-out;
-  }
-  54%,
-  62%,
-  70%,
-  78%,
-  86% {
-    transform: translateY(-14px) rotate(12deg) scaleX(-1);
-    animation-timing-function: ease-in;
-  }
-  97% {
-    transform: translateY(-48px) rotate(180deg) scaleX(-1);
-  }
-  100% {
-    transform: translateY(0) rotate(360deg) scaleX(-1);
-  }
-}
-
-/* «Уменьшить движение»: стоит в начале дорожки (общее правило сократило бы бесконечный цикл до мигания) */
-@media (prefers-reduced-motion: reduce) {
-  .runner,
-  .runner svg {
-    animation: none;
-  }
 }
