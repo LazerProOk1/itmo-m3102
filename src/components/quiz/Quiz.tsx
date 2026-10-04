@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, Flame, ListChecks, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, Check, Eye, EyeOff, Flame, ListChecks, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
 import { Markdown } from '../markdown/Markdown';
@@ -41,6 +41,13 @@ export function Quiz({ source, quizKey }: { source: string; /** Ключ для 
 
 type Phase = 'intro' | 'question' | 'result';
 
+/** Что ответил человек — для разбора после теста */
+interface Given {
+  ok: boolean;
+  selected: number[];
+  text: string;
+}
+
 interface QuizRunnerProps {
   data: QuizData;
   full: boolean;
@@ -56,7 +63,7 @@ export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) 
   const [phase, setPhase] = useState<Phase>(full ? 'intro' : 'question');
   const [order, setOrder] = useState(all);
   const [pos, setPos] = useState(0);
-  const [results, setResults] = useState<Record<number, boolean>>({});
+  const [answers, setAnswers] = useState<Record<number, Given>>({});
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
   const [retry, setRetry] = useState(false);
@@ -74,10 +81,10 @@ export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) 
   }
 
   function restart(onlyWrong: boolean) {
-    setOrder(onlyWrong ? order.filter((index) => !results[index]) : all);
+    setOrder(onlyWrong ? order.filter((index) => !answers[index]?.ok) : all);
     setRetry(onlyWrong);
     setPos(0);
-    setResults({});
+    setAnswers({});
     setStreak(0);
     setBest(0);
     setRound((value) => value + 1);
@@ -85,8 +92,9 @@ export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) 
     keepInView();
   }
 
-  function answered(ok: boolean, anchor: DOMRect | undefined) {
-    setResults((value) => ({ ...value, [order[pos]!]: ok }));
+  function answered(given: Given, anchor: DOMRect | undefined) {
+    const { ok } = given;
+    setAnswers((value) => ({ ...value, [order[pos]!]: given }));
     onAnswer?.(order[pos]!, ok);
     const nextStreak = ok ? streak + 1 : 0;
     setStreak(nextStreak);
@@ -100,7 +108,7 @@ export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) 
   function next() {
     if (pos + 1 >= total) {
       setPhase('result');
-      if (!retry) onFinish?.(order.filter((index) => results[index]).length, total);
+      if (!retry) onFinish?.(order.filter((index) => answers[index]?.ok).length, total);
     } else setPos(pos + 1);
     keepInView();
   }
@@ -142,7 +150,11 @@ export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) 
             onNext={next}
           />
         )}
-        {phase === 'result' && <Result results={order.map((index) => Boolean(results[index]))} best={best} onRestart={restart} />}
+        {phase === 'result' && (
+          <Result results={order.map((index) => Boolean(answers[index]?.ok))} best={best} onRestart={restart}>
+            <Review data={data} order={order} answers={answers} />
+          </Result>
+        )}
       </Swap>
     </div>
   );
@@ -187,7 +199,7 @@ interface QuestionCardProps {
   question: QuizQuestion;
   last: boolean;
   full: boolean;
-  onAnswer: (ok: boolean, anchor: DOMRect | undefined) => void;
+  onAnswer: (given: Given, anchor: DOMRect | undefined) => void;
   onNext: () => void;
 }
 
@@ -195,11 +207,14 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
   const [selected, setSelected] = useState<number[]>([]);
   const [text, setText] = useState('');
   const [verdict, setVerdict] = useState<{ ok: boolean; message: string } | null>(null);
-  const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  // Правильный ответ после ошибки — только по кнопке: сначала можно подумать самому
+  const [revealed, setRevealed] = useState(false);
+  const optionRefs = useRef<(HTMLElement | null)[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const single = question.type === 'single';
   const locked = verdict !== null;
+  const showAnswer = verdict !== null && (verdict.ok || revealed);
   const canCheck = question.type === 'text' ? text.trim() !== '' : selected.length > 0;
 
   function toggle(index: number) {
@@ -209,19 +224,13 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
 
   function check() {
     if (locked || !canCheck) return;
-    let ok: boolean;
-    if (question.type === 'text') {
-      ok = matchesAnswer(question.answers, text);
-    } else {
-      const want = question.options.flatMap((option, index) => (option.ok ? [index] : []));
-      ok = selected.length === want.length && want.every((index) => selected.includes(index));
-    }
+    const ok = isRight(question, selected, text);
     setVerdict({ ok, message: pick(ok ? OK_MESSAGES : BAD_MESSAGES) });
     const anchor =
       question.type === 'text'
         ? inputRef.current
         : optionRefs.current[question.options.findIndex((option, index) => option.ok && selected.includes(index))];
-    onAnswer(ok, anchor?.getBoundingClientRect());
+    onAnswer({ ok, selected, text }, anchor?.getBoundingClientRect());
   }
 
   useEffect(() => {
@@ -250,8 +259,6 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   });
-
-  const why = verdict ? (verdict.ok ? question.correct || question.explain : question.wrong || question.explain) : '';
 
   return (
     <motion.div
@@ -282,41 +289,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
           aria-label="Ваш ответ"
         />
       ) : (
-        <div className={styles.options} role={single ? 'radiogroup' : 'group'}>
-          {question.options.map((option, index) => {
-            const isSelected = selected.includes(index);
-            const state = !locked
-              ? isSelected && styles.selected
-              : option.ok && isSelected
-                ? styles.correct
-                : isSelected
-                  ? styles.wrong
-                  : option.ok
-                    ? styles.missed
-                    : styles.dim;
-            // Иконки, а не символы ✓/✕: шрифтовые глифы на телефонах рисуются как эмодзи и прыгают по высоте
-            const Mark = !locked ? (isSelected && !single ? Check : null) : state === styles.wrong ? X : state === styles.dim ? null : Check;
-            return (
-              <button
-                key={index}
-                ref={(element) => {
-                  optionRefs.current[index] = element;
-                }}
-                type="button"
-                role={single ? 'radio' : 'checkbox'}
-                aria-checked={isSelected}
-                className={cn(styles.option, state)}
-                onClick={() => toggle(index)}
-              >
-                <span className={cn(styles.mark, single && styles.round)}>{Mark && <Mark size={13} strokeWidth={3} aria-hidden />}</span>
-                <span className={styles.optionBody}>
-                  <Markdown content={option.text} className={styles.inline} />
-                  {locked && option.note && (isSelected || option.ok) && <Markdown content={option.note} className={styles.note} />}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <AnswerOptions question={question} selected={selected} locked={locked} showAnswer={showAnswer} onToggle={toggle} refs={optionRefs.current} />
       )}
 
       {verdict && (
@@ -329,30 +302,18 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
           <p className={styles.feedbackTitle}>
             {verdict.ok ? <Check size={16} strokeWidth={2.5} aria-hidden /> : <X size={16} strokeWidth={2.5} aria-hidden />} {verdict.message}
           </p>
-          {!verdict.ok && (
-            <p className={styles.answer}>
-              Правильный ответ:{' '}
-              {question.type === 'text' ? (
-                <strong>
-                  {question.answers[0]}
-                  {question.answers.length > 1 && <span> (также: {question.answers.slice(1).join(', ')})</span>}
-                </strong>
-              ) : (
-                question.options
-                  .filter((option) => option.ok)
-                  .map((option, index) => (
-                    <strong key={index} className={styles.answerItem}>
-                      <Markdown content={option.text} className={styles.inline} />
-                    </strong>
-                  ))
-              )}
-            </p>
-          )}
-          {why && <Markdown content={why} className={styles.why} />}
+          {/* Подсказка автора на ошибку — сразу (она наводит, а не отвечает); ответ и объяснение — по кнопке */}
+          {!verdict.ok && question.wrong && <Markdown content={question.wrong} className={styles.why} />}
+          {showAnswer && <AnswerExplanation question={question} ok={verdict.ok} />}
         </motion.div>
       )}
 
       <div className={styles.actions}>
+        {locked && !showAnswer && (
+          <Button variant="ghost" icon={Eye} onClick={() => setRevealed(true)}>
+            Показать правильный ответ
+          </Button>
+        )}
         {locked ? (
           <Button ref={nextRef} variant="primary" onClick={onNext}>
             {last ? (
@@ -373,7 +334,175 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
   );
 }
 
-function Result({ results, best, onRestart }: { results: boolean[]; best: number; onRestart: (onlyWrong: boolean) => void }) {
+function isRight(question: QuizQuestion, selected: number[], text: string): boolean {
+  if (question.type === 'text') return matchesAnswer(question.answers, text);
+  const want = question.options.flatMap((option, index) => (option.ok ? [index] : []));
+  return selected.length === want.length && want.every((index) => selected.includes(index));
+}
+
+interface AnswerOptionsProps {
+  question: QuizQuestion;
+  selected: number[];
+  locked: boolean;
+  /** Подсветить правильные варианты (ответ верный или открыт по кнопке) */
+  showAnswer: boolean;
+  /** Нет — только просмотр (разбор после теста) */
+  onToggle?: (index: number) => void;
+  refs?: (HTMLElement | null)[];
+}
+
+/**
+ * Варианты ответа — в вопросе и в разборе. Пока ответ не открыт, после ошибки не видно, какие варианты верные:
+ * в «одном ответе» выбранный — красный (он точно неверен), в «нескольких» выбранные — просто выбранные
+ * (зелёный на части из них подсказал бы ответ).
+ */
+function AnswerOptions({ question, selected, locked, showAnswer, onToggle, refs }: AnswerOptionsProps) {
+  if (question.type === 'text') return null;
+  const single = question.type === 'single';
+  const Element = onToggle ? 'button' : 'div';
+  return (
+    <div className={styles.options} role={single ? 'radiogroup' : 'group'}>
+      {question.options.map((option, index) => {
+        const isSelected = selected.includes(index);
+        const state = !locked
+          ? isSelected && styles.selected
+          : showAnswer
+            ? option.ok && isSelected
+              ? styles.correct
+              : isSelected
+                ? styles.wrong
+                : option.ok
+                  ? styles.missed
+                  : styles.dim
+            : isSelected
+              ? single
+                ? styles.wrong
+                : styles.selected
+              : styles.dim;
+        // Иконки, а не символы ✓/✕: шрифтовые глифы на телефонах рисуются как эмодзи и прыгают по высоте
+        const Mark = state === styles.wrong ? X : state === styles.dim || !state ? null : state === styles.selected && single ? null : Check;
+        return (
+          <Element
+            key={index}
+            ref={(element: HTMLElement | null) => {
+              if (refs) refs[index] = element;
+            }}
+            {...(onToggle ? { type: 'button' as const, onClick: () => onToggle(index) } : {})}
+            role={single ? 'radio' : 'checkbox'}
+            aria-checked={isSelected}
+            aria-disabled={onToggle ? undefined : true}
+            className={cn(styles.option, !onToggle && styles.static, state)}
+          >
+            <span className={cn(styles.mark, single && styles.round)}>{Mark && <Mark size={13} strokeWidth={3} aria-hidden />}</span>
+            <span className={styles.optionBody}>
+              <Markdown content={option.text} className={styles.inline} />
+              {showAnswer && option.note && (isSelected || option.ok) && <Markdown content={option.note} className={styles.note} />}
+            </span>
+          </Element>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Правильный ответ (если ошибся) и объяснение автора */
+function AnswerExplanation({ question, ok }: { question: QuizQuestion; ok: boolean }) {
+  const why = ok ? question.correct || question.explain : question.explain;
+  return (
+    <>
+      {!ok && (
+        <p className={styles.answer}>
+          Правильный ответ:{' '}
+          {question.type === 'text' ? (
+            <strong>
+              {question.answers[0]}
+              {question.answers.length > 1 && <span> (также: {question.answers.slice(1).join(', ')})</span>}
+            </strong>
+          ) : (
+            question.options
+              .filter((option) => option.ok)
+              .map((option, index) => (
+                <strong key={index} className={styles.answerItem}>
+                  <Markdown content={option.text} className={styles.inline} />
+                </strong>
+              ))
+          )}
+        </p>
+      )}
+      {why && <Markdown content={why} className={styles.why} />}
+    </>
+  );
+}
+
+/** Разбор после теста: все вопросы этого прохода с вашими ответами; правильные — по кнопке */
+function Review({ data, order, answers }: { data: QuizData; order: number[]; answers: Record<number, Given> }) {
+  const [revealAll, setRevealAll] = useState(false);
+  const anyWrong = order.some((index) => !answers[index]?.ok);
+  return (
+    <section className={styles.review} aria-label="Ваши ответы">
+      <div className={styles.reviewHead}>
+        <h4 className={styles.reviewTitle}>Ваши ответы</h4>
+        {anyWrong && (
+          <Button variant="ghost" size="sm" icon={revealAll ? EyeOff : Eye} onClick={() => setRevealAll((value) => !value)}>
+            {revealAll ? 'Скрыть правильные' : 'Показать все правильные'}
+          </Button>
+        )}
+      </div>
+      <ol className={styles.reviewList}>
+        {order.map((index, number) => (
+          <ReviewItem key={index} number={number + 1} question={data.questions[index]!} given={answers[index]} revealAll={revealAll} />
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function ReviewItem({ number, question, given, revealAll }: { number: number; question: QuizQuestion; given?: Given; revealAll: boolean }) {
+  const [revealed, setRevealed] = useState(false);
+  const ok = Boolean(given?.ok);
+  const showAnswer = ok || revealed || revealAll;
+  return (
+    <li className={cn(styles.reviewItem, ok ? styles.reviewOk : styles.reviewBad)}>
+      <div className={styles.reviewQuestion}>
+        <span className={styles.reviewStatus} aria-label={ok ? 'Верно' : 'Неверно'}>
+          {ok ? <Check size={14} strokeWidth={2.5} aria-hidden /> : <X size={14} strokeWidth={2.5} aria-hidden />}
+        </span>
+        <span className={styles.reviewNumber}>{number}.</span>
+        <Markdown content={question.question} className={styles.question} />
+      </div>
+      {question.type === 'text' ? (
+        <p className={styles.yourAnswer}>
+          Ваш ответ: <strong className={ok ? styles.yourOk : styles.yourBad}>{given?.text || '—'}</strong>
+        </p>
+      ) : (
+        <AnswerOptions question={question} selected={given?.selected ?? []} locked showAnswer={showAnswer} />
+      )}
+      {showAnswer ? (
+        <div className={styles.reviewExplain}>
+          <AnswerExplanation question={question} ok={ok} />
+        </div>
+      ) : (
+        <Button variant="ghost" size="sm" icon={Eye} onClick={() => setRevealed(true)}>
+          Показать правильный ответ
+        </Button>
+      )}
+    </li>
+  );
+}
+
+function Result({
+  results,
+  best,
+  onRestart,
+  children,
+}: {
+  results: boolean[];
+  best: number;
+  onRestart: (onlyWrong: boolean) => void;
+  /** Разбор ответов — открывается кнопкой «Мои ответы» */
+  children: ReactNode;
+}) {
+  const [reviewOpen, setReviewOpen] = useState(false);
   const total = results.length;
   const good = results.filter(Boolean).length;
   const wrong = total - good;
@@ -435,7 +564,11 @@ function Result({ results, best, onRestart }: { results: boolean[]; best: number
         <Button variant={wrong > 0 ? 'secondary' : 'primary'} onClick={() => onRestart(false)}>
           Пройти заново
         </Button>
+        <Button variant="ghost" icon={ListChecks} aria-expanded={reviewOpen} onClick={() => setReviewOpen((value) => !value)}>
+          {reviewOpen ? 'Скрыть ответы' : 'Мои ответы'}
+        </Button>
       </div>
+      {reviewOpen && children}
     </div>
   );
 }

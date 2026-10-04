@@ -162,7 +162,7 @@
     opacity var(--duration-fast) var(--ease);
 }
 
-.option:hover:not(.correct, .wrong, .missed, .dim) {
+.option:hover:not(.correct, .wrong, .missed, .dim, .static) {
   border-color: var(--color-border-hover);
 }
 
@@ -445,6 +445,118 @@
 }
 
 /* Тесты на бумаге не нужны — как и в PDF сайта группы */
+/* Вариант в разборе — только просмотр */
+.static {
+  cursor: default;
+}
+
+/* ---------- Разбор ответов после теста ---------- */
+.review {
+  width: 100%;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.reviewHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.reviewTitle {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reviewItem {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+}
+
+.reviewOk {
+  border-left-color: var(--color-success);
+}
+
+.reviewBad {
+  border-left-color: var(--color-danger);
+}
+
+.reviewQuestion {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.reviewQuestion .question {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: var(--space-3);
+}
+
+.reviewStatus {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.reviewOk .reviewStatus {
+  background: var(--color-success);
+}
+
+.reviewBad .reviewStatus {
+  background: var(--color-danger);
+}
+
+.reviewNumber {
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.yourAnswer {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.yourOk {
+  color: var(--color-success);
+}
+
+.yourBad {
+  color: var(--color-danger);
+}
+
+.reviewExplain {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.reviewItem > button {
+  margin-top: var(--space-3);
+}
+
 @media print {
   .quiz,
   .bar,
