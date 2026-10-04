@@ -1,8 +1,10 @@
 import { motion, useAnimationControls } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '../../lib/cn';
+import { toISODate } from '../../lib/dates';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import styles from './Hedgehog.module.css';
+import { seasonOf, type Season } from './season';
 
 const PHRASES = ['Фыр!', 'Сальто!', 'Почитай конспекты.', 'Тестик на пять минут?', 'Мяу.', 'Несложно заметить…', 'Доо, доо.'];
 
@@ -11,18 +13,54 @@ interface HedgehogProps {
   className?: string;
   /** Без реакции на клик — просто дышит и моргает */
   still?: boolean;
+  /** Изредка сам подпрыгивает, пробегается туда-обратно или оглядывается (главная) */
+  lively?: boolean;
 }
 
-/** Ёжик М3102 в профиль. Дышит, моргает, топорщит иголки при наведении, по клику — сальто и реплика. */
-export function Hedgehog({ size = 96, className, still = false }: HedgehogProps) {
+/**
+ * Ёжик М3102 в профиль. Дышит, моргает, топорщит иголки при наведении, по клику — сальто и реплика.
+ * lively — раз в 15–35 с делает что-то сам: подпрыгивает, пробегается или оглядывается. Не чаще: персонаж,
+ * который скачет постоянно, отвлекает от учёбы.
+ */
+export function Hedgehog({ size = 96, className, still = false, lively = false }: HedgehogProps) {
   const controls = useAnimationControls();
   const reduceMotion = usePrefersReducedMotion();
   const [phrase, setPhrase] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [running, setRunning] = useState(false);
+  const busy = useRef(false);
+
+  useEffect(() => {
+    if (!lively || still || reduceMotion) return undefined;
+    let timer = 0;
+    const act = async () => {
+      if (!busy.current && document.visibilityState === 'visible') {
+        busy.current = true;
+        const pick = Math.random();
+        if (pick < 0.4) {
+          await controls.start({ y: [0, -size * 0.2, 0, -size * 0.05, 0], transition: { duration: 0.7, times: [0, 0.4, 0.7, 0.85, 1] } });
+        } else if (pick < 0.75) {
+          // Пробежка: налево и обратно, лапками перебирает
+          setRunning(true);
+          await controls.start({
+            x: [0, -size * 0.45, -size * 0.45, 0],
+            scaleX: [-1, -1, 1, 1],
+            transition: { duration: 2.4, times: [0, 0.45, 0.55, 1], ease: 'easeInOut' },
+          });
+          setRunning(false);
+        } else {
+          await controls.start({ scaleX: [1, -1, -1, 1], transition: { duration: 1.6, times: [0, 0.1, 0.85, 1] } });
+        }
+        busy.current = false;
+      }
+      timer = window.setTimeout(() => void act(), 15000 + Math.random() * 20000);
+    };
+    timer = window.setTimeout(() => void act(), 6000 + Math.random() * 6000);
+    return () => clearTimeout(timer);
+  }, [lively, still, reduceMotion, controls, size]);
 
   async function flip() {
-    if (still || busy) return;
-    setBusy(true);
+    if (still || busy.current) return;
+    busy.current = true;
     setPhrase(PHRASES[Math.floor(Math.random() * PHRASES.length)]!);
     if (!reduceMotion) {
       await controls.start({
@@ -34,7 +72,7 @@ export function Hedgehog({ size = 96, className, still = false }: HedgehogProps)
       controls.set({ rotate: 0 });
     }
     setTimeout(() => setPhrase(''), 1600);
-    setBusy(false);
+    busy.current = false;
   }
 
   return (
@@ -60,39 +98,82 @@ export function Hedgehog({ size = 96, className, still = false }: HedgehogProps)
         aria-hidden={still || undefined}
         tabIndex={still ? -1 : undefined}
       >
-        <HedgehogSvg size={size} />
+        <HedgehogSvg size={size} running={running} />
       </motion.button>
     </div>
   );
 }
 
-/** Сам рисунок — отдельно, чтобы использовать и в бегущем ёжике */
-export function HedgehogSvg({ size = 96, running = false }: { size?: number; running?: boolean }) {
+/**
+ * Сам рисунок — отдельно, чтобы использовать и в бегущем ёжике. Как эмодзи 🦔: сплошное тело под иголками
+ * (раньше между иголками и животиком был просвет — «дырка в животе»), светлые мордочка и животик, четыре лапки.
+ */
+export function HedgehogSvg({
+  size = 96,
+  running = false,
+  season = seasonOf(toISODate(new Date())),
+}: {
+  size?: number;
+  running?: boolean;
+  /** Сезонная деталь; по умолчанию — по сегодняшней дате (обычно её нет) */
+  season?: Season | null;
+}) {
   return (
     <svg className={cn(styles.svg, running && styles.running)} width={size} height={size * 0.72} viewBox="0 0 120 86" aria-hidden>
-      <ellipse className={styles.shadow} cx="60" cy="81" rx="40" ry="4" />
+      <ellipse className={styles.shadow} cx="60" cy="81" rx="42" ry="4" />
+      {/* дальние лапки — за телом */}
+      <g className={styles.legs}>
+        <ellipse className={cn(styles.leg, styles.legBack)} cx="44" cy="76" rx="5.5" ry="3.6" />
+        <ellipse className={cn(styles.leg, styles.legFront)} cx="88" cy="76" rx="5.5" ry="3.6" />
+      </g>
       <g className={styles.body}>
-        {/* иголки: зубчатый купол */}
+        {/* тело — сплошное, под иголками */}
+        <path className={styles.spikes} d="M12 62 C10 44 30 26 58 25 C84 24 102 38 104 56 C105 68 92 75 60 75 C30 75 13 72 12 62 Z" />
+        {/* иголки: зубчатый край по спине */}
         <path
           className={styles.spikes}
-          d="M14 64 L9 52 L19 50 L13 38 L25 38 L22 25 L34 29 L35 15 L46 22 L51 9 L59 19 L67 7 L72 20 L82 11 L84 25 L95 20 L94 34 L104 34 L99 46 L106 52 L96 58 L92 70 Z"
+          d="M12 60 L5 52 L14 47 L7 37 L19 35 L15 23 L28 25 L28 12 L40 18 L44 5 L54 14 L61 3 L68 14 L78 6 L81 19 L92 14 L92 28 L102 27 L98 38 L104 44 L96 48 Z"
         />
-        <path className={styles.spikeLines} d="M30 44 L36 36 M44 38 L50 28 M58 36 L63 24 M72 38 L78 28 M84 44 L90 36" />
-        {/* мордочка */}
-        <path className={styles.face} d="M86 44 C98 42 108 50 113 58 C115 61 113 64 109 64 L92 70 C86 66 82 56 86 44 Z" />
-        <path className={styles.belly} d="M22 64 C34 74 76 76 94 68 L90 72 C72 80 36 79 22 64 Z" />
-        <circle className={styles.nose} cx="112" cy="60" r="3.2" />
+        <path className={styles.spikeLines} d="M24 46 L30 38 M36 40 L42 30 M50 36 L55 26 M64 36 L69 26 M78 40 L84 31" />
+        {/* животик */}
+        <ellipse className={styles.belly} cx="58" cy="69" rx="32" ry="7" />
+        {/* мордочка с носиком */}
+        <path className={styles.face} d="M84 42 C96 39 109 47 115 57 C117 61 115 65 110 66 C100 70 90 70 84 64 C79 58 79 47 84 42 Z" />
+        <circle className={styles.ear} cx="86" cy="42" r="4" />
+        <circle className={styles.nose} cx="114" cy="59" r="3.6" />
         <g className={styles.eye}>
-          <circle cx="98" cy="52" r="2.6" />
-          <circle className={styles.glint} cx="98.9" cy="51.1" r="0.8" />
+          <circle cx="99" cy="51" r="3.6" />
+          <circle className={styles.glint} cx="100.3" cy="49.8" r="1.2" />
         </g>
-        <ellipse className={styles.cheek} cx="101" cy="60" rx="3.2" ry="2" />
-        <circle className={styles.ear} cx="88" cy="44" r="3.4" />
-        {/* лапки */}
-        <g className={styles.legs}>
-          <ellipse className={cn(styles.leg, styles.legFront)} cx="84" cy="77" rx="5" ry="3.2" />
-          <ellipse className={cn(styles.leg, styles.legBack)} cx="34" cy="77" rx="5" ry="3.2" />
+        <ellipse className={styles.cheek} cx="103" cy="60" rx="3.6" ry="2.2" />
+        <path className={styles.smile} d="M105 63 Q108 65 111 63" />
+        {season === 'newyear' && (
+          <g>
+            <path className={styles.hat} d="M84 41 C88 30 100 22 113 19 C107 26 105 34 105 42 Z" />
+            <rect className={styles.fur} x="81" y="37" width="26" height="6.5" rx="3.25" transform="rotate(6 94 40)" />
+            <circle className={styles.fur} cx="113" cy="19" r="3.6" />
+          </g>
+        )}
+        {season === 'knowledge' && (
+          <g>
+            <path className={styles.cap} d="M88 34 L88 40 Q96 43.5 104 40 L104 34 Z" />
+            <path className={styles.cap} d="M80 33 L96 27 L112 33 L96 39 Z" />
+            <path className={styles.tassel} d="M96 33 L109 35 L109 42" />
+            <circle className={styles.tasselEnd} cx="109" cy="43" r="1.8" />
+          </g>
+        )}
+      </g>
+      {season === 'halloween' && (
+        <g>
+          <ellipse className={styles.pumpkin} cx="10" cy="74" rx="9" ry="7.5" />
+          <path className={styles.pumpkinRibs} d="M10 67 C6 70 6 78 10 81.5 M10 67 C14 70 14 78 10 81.5" />
+          <path className={styles.stem} d="M10 67.5 C10 64 11.5 62.5 13.5 62" />
         </g>
+      )}
+      {/* ближние лапки — перед телом */}
+      <g className={styles.legs}>
+        <ellipse className={cn(styles.leg, styles.legFront)} cx="34" cy="78" rx="6" ry="3.8" />
+        <ellipse className={cn(styles.leg, styles.legBack)} cx="78" cy="78" rx="6" ry="3.8" />
       </g>
     </svg>
   );

@@ -19,6 +19,12 @@ export function BrandDemo() {
         <HedgehogSvg size={64} running />
         <span className={styles.caption}>&lt;Hedgehog /&gt; · &lt;HedgehogSvg running /&gt;</span>
       </Demo>
+      <Demo label="Сезонные детали · сами по дате, несколько дней в году">
+        <HedgehogSvg size={64} season="newyear" />
+        <HedgehogSvg size={64} season="halloween" />
+        <HedgehogSvg size={64} season="knowledge" />
+        <span className={styles.caption}>Новый год · Хэллоуин · 1 сентября — season.ts</span>
+      </Demo>
       <Demo label="Приветствие главной · одиночная точка — акцентом">
         <p className={styles.greeting}>
           {text}

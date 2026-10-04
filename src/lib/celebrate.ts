@@ -78,14 +78,20 @@ export function confetti() {
   }
 }
 
+/** Событие «закрыт весь список» — его ловит выглядывающий ёжик (components/hedgehog/CelebrateHedgehog.tsx) */
+export const CLEARED_EVENT = 'm3102:cleared';
+
 /**
- * Конфетти, когда в списке не осталось открытых пунктов — и только если их только что закрыл человек
- * (а не синхронизация убрала последний дедлайн).
+ * Конфетти и ёжик, когда в списке не осталось открытых пунктов — и только если их только что закрыл человек
+ * (а не синхронизация убрала последний дедлайн). Ёжик — и при «уменьшить движение» (появляется без конфетти).
  */
 export function useConfettiWhenCleared(open: number) {
   const previous = useRef(open);
   useEffect(() => {
-    if (previous.current > 0 && open === 0 && performance.now() - lastCheck.at < 1500) confetti();
+    if (previous.current > 0 && open === 0 && performance.now() - lastCheck.at < 1500) {
+      confetti();
+      dispatchEvent(new Event(CLEARED_EVENT));
+    }
     previous.current = open;
   }, [open]);
 }

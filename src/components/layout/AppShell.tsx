@@ -10,6 +10,7 @@ import { useApplyTheme } from '../../features/settings/theme';
 import { useMorphLinks } from '../../lib/morph';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { useScrollMemory } from '../../lib/useScrollMemory';
+import { CelebrateHedgehog } from '../hedgehog/CelebrateHedgehog';
 import { RadioCapsule } from '../radio/RadioCapsule';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { PageSkeleton } from '../ui/PageSkeleton';
@@ -83,6 +84,7 @@ export function AppShell() {
       <SearchDialog open={isSearchOpen} onClose={() => setSearchOpen(false)} />
       <HomeworkDialog />
       <ShortcutsDialog />
+      <CelebrateHedgehog />
     </div>
   );
 }
