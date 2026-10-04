@@ -17,8 +17,9 @@
   margin-bottom: 0;
 }
 
-/* Конспект по разделам (LectureNoteContentView): у заголовка следующего раздела — обычный отступ сверху */
-.markdown + .markdown > :first-child {
+/* Конспект по разделам (LectureNoteContentView): у заголовка следующего раздела — обычный отступ сверху.
+   Только у разделов конспекта: в тесте вариант и пояснение к нему — тоже два Markdown подряд */
+:global([data-lazy-layout]) > .markdown + .markdown > :first-child {
   margin-top: var(--space-5);
 }
 
@@ -47,17 +48,18 @@
   font-size: var(--text-base);
 }
 
-.markdown p {
+/* :not([class]) — только текст конспекта: у встроенных блоков (тест, схемы) свои абзацы и списки с классами */
+.markdown p:not([class]) {
   margin: var(--space-3) 0;
 }
 
-.markdown ul,
-.markdown ol {
+.markdown ul:is(:not([class]), :global(.contains-task-list)),
+.markdown ol:is(:not([class]), :global(.contains-task-list)) {
   margin: var(--space-3) 0;
   padding-left: var(--space-5);
 }
 
-.markdown li {
+.markdown li:is(:not([class]), :global(.task-list-item)) {
   margin: var(--space-1) 0;
 }
 
