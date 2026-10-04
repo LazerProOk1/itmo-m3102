@@ -32,7 +32,7 @@ export const accentColor = (accent: string) =>
  * data-aurora / data-glow / data-radius — по ним включаются слои из styles/aurora.css.
  */
 export function useApplyAppearance() {
-  const { accent, aurora, glow, liveBg, radius } = useSettingsStore();
+  const { accent, aurora, glow, liveBg, radius, density } = useSettingsStore();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -40,7 +40,8 @@ export function useApplyAppearance() {
     root.dataset.aurora = aurora ? 'on' : 'off';
     root.dataset.glow = glow ? 'on' : 'off';
     root.dataset.radius = radius;
-  }, [accent, aurora, glow, radius]);
+    root.dataset.density = density;
+  }, [accent, aurora, glow, radius, density]);
 
   // Подсветка под курсором: один обработчик на всю страницу пишет координаты в ту карточку
   // [data-spot], над которой курсор, — никаких слушателей на каждой карточке

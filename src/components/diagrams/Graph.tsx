@@ -1,5 +1,5 @@
-import { useId } from 'react';
-import { textWidth, unquote, wrapText, type DiagramLines } from './parse';
+import { useId, type CSSProperties } from 'react';
+import { resolveColor, takeOptions, textWidth, unquote, wrapText, type DiagramLines } from './parse';
 import styles from './Diagrams.module.css';
 
 export type NodeShape = 'circle' | 'box' | 'round' | 'diamond' | 'db';
@@ -14,6 +14,8 @@ export interface GraphNode {
   lines: string[];
   w: number;
   h: number;
+  /** `{color: red}` — обводка */
+  color?: string;
 }
 
 export interface GraphEdge {
@@ -21,6 +23,8 @@ export interface GraphEdge {
   to: string;
   label?: string;
   directed: boolean;
+  color?: string;
+  dashed?: boolean;
 }
 
 export interface GraphModel {
@@ -66,7 +70,10 @@ export function parseGraph({ header, body }: DiagramLines, kind: 'graph' | 'diag
     return node;
   };
 
-  for (const { text, line } of body) {
+  for (const { text: raw, line } of body) {
+    // `{color: red, dashed}` в конце строки — цвет и пунктир вершины или ребра (формат сайта группы)
+    const { rest: text, options } = takeOptions(raw);
+    const color = options.color ? resolveColor(options.color) : undefined;
     // diagram: "A: round "Текст" @ 80, 40"
     const flowNode = /^([^\s:"]+)\s*:\s*(box|round|diamond|db|circle)?\s*(".*?")?\s*(@.*)?$/.exec(text);
     if (kind === 'diagram' && flowNode && !EDGE.test(text.split(':')[0]!)) {
@@ -75,19 +82,22 @@ export function parseGraph({ header, body }: DiagramLines, kind: 'graph' | 'diag
       if (flowNode[3]) node.label = unquote(flowNode[3]);
       const at = POSITION.exec(flowNode[4] ?? '');
       if (at) [node.x, node.y] = [Number(at[1]), Number(at[2])];
+      if (color) node.color = color;
       continue;
     }
 
     const edge = EDGE.exec(text);
     if (edge && !text.startsWith('"')) {
-      const [from, arrow, to] = [edge[1]!.trim(), edge[2]!, edge[3]!.replace(/\{.*\}$/, '').trim()];
+      const [from, arrow, to] = [edge[1]!.trim(), edge[2]!, edge[3]!.trim()];
       ensure(from);
       ensure(to);
       edges.push({
         from: arrow === '<-' ? to : from,
         to: arrow === '<-' ? from : to,
-        label: edge[4]?.replace(/\{.*\}$/, '').trim() || undefined,
+        label: edge[4]?.trim() || options.label || undefined,
         directed: arrow !== '--' || directed,
+        color,
+        dashed: options.dashed,
       });
       continue;
     }
@@ -99,6 +109,7 @@ export function parseGraph({ header, body }: DiagramLines, kind: 'graph' | 'diag
       if (graphNode[2]) node.label = unquote(graphNode[2]);
       const at = POSITION.exec(graphNode[3] ?? '');
       if (at) [node.x, node.y] = [Number(at[1]), Number(at[2])];
+      if (color) node.color = color;
       continue;
     }
     throw new Error(`Строка ${line}: непонятная команда`);
@@ -155,6 +166,7 @@ function applyLayout(model: GraphModel) {
       node.x = 320 + radius * Math.cos(angle);
       node.y = 180 + radius * Math.sin(angle);
     });
+    if (model.layout === 'force') relax(model, new Set(free));
     return;
   }
 
@@ -187,6 +199,34 @@ function applyLayout(model: GraphModel) {
   }
 }
 
+/**
+ * layout: force — вершины отталкиваются, рёбра стягивают (как на сайте группы). Старт — круг, двигаются только
+ * вершины без @. ponytail: O(n²) на шаг, у группы до ~120 вершин — хватает
+ */
+function relax(model: GraphModel, movable: Set<GraphNode>) {
+  const byId = new Map(model.nodes.map((node) => [node.id, node]));
+  for (let step = 0; step < 120; step++) {
+    for (const node of movable) {
+      let [dx, dy] = [0, 0];
+      for (const other of model.nodes) {
+        if (other === node) continue;
+        const [ox, oy] = [node.x! - other.x!, node.y! - other.y!];
+        const d2 = Math.max(400, ox * ox + oy * oy);
+        dx += (ox / d2) * 6000;
+        dy += (oy / d2) * 6000;
+      }
+      for (const edge of model.edges) {
+        const other = edge.from === node.id ? byId.get(edge.to) : edge.to === node.id ? byId.get(edge.from) : undefined;
+        if (!other || other === node) continue;
+        dx += (other.x! - node.x!) * 0.04;
+        dy += (other.y! - node.y!) * 0.04;
+      }
+      node.x! += Math.max(-20, Math.min(20, dx));
+      node.y! += Math.max(-20, Math.min(20, dy));
+    }
+  }
+}
+
 /** Точка на границе узла в направлении (dx, dy) от центра — чтобы стрелка упиралась в край */
 function boundary(node: GraphNode, dx: number, dy: number): [number, number] {
   const length = Math.hypot(dx, dy) || 1;
@@ -207,6 +247,15 @@ function boundary(node: GraphNode, dx: number, dy: number): [number, number] {
 
 function NodeShapeView({ node }: { node: GraphNode }) {
   const { x = 0, y = 0, w, h } = node;
+  if (!node.color) return shape(node, x, y, w, h);
+  return (
+    <g className={styles.colored} style={{ '--node-color': node.color } as CSSProperties}>
+      {shape(node, x, y, w, h)}
+    </g>
+  );
+}
+
+function shape(node: GraphNode, x: number, y: number, w: number, h: number) {
   switch (node.shape) {
     case 'circle':
       return <ellipse className={styles.node} cx={x} cy={y} rx={w / 2} ry={h / 2} />;
@@ -229,12 +278,26 @@ function NodeShapeView({ node }: { node: GraphNode }) {
   }
 }
 
+function EdgeLabel({ x, y, label }: { x: number; y: number; label: string }) {
+  const width = textWidth(label, 11) + 10;
+  return (
+    <g>
+      <rect className={styles.edgeLabelBox} x={x - width / 2} y={y - 9} width={width} height={18} rx={5} />
+      <text className={styles.edgeLabel} x={x} y={y + 4} textAnchor="middle">
+        {label}
+      </text>
+    </g>
+  );
+}
+
 export function GraphView({ model }: { model: GraphModel }) {
   const markerId = `arrow-${useId().replace(/[^a-z0-9]/gi, '')}`;
   const byId = new Map(model.nodes.map((node) => [node.id, node]));
   const pad = 24;
   const minX = Math.min(...model.nodes.map((node) => node.x! - node.w / 2)) - pad;
-  const minY = Math.min(...model.nodes.map((node) => node.y! - node.h / 2)) - pad;
+  // Над вершиной с петлёй нужно место под дугу
+  const loops = new Set(model.edges.filter((edge) => edge.from === edge.to).map((edge) => edge.from));
+  const minY = Math.min(...model.nodes.map((node) => node.y! - node.h / 2 - (loops.has(node.id) ? Math.max(16, node.w / 3) * 2.2 : 0))) - pad;
   const maxX = Math.max(...model.nodes.map((node) => node.x! + node.w / 2)) + pad;
   const maxY = Math.max(...model.nodes.map((node) => node.y! + node.h / 2)) + pad;
   const pairs = new Set(model.edges.map((edge) => `${edge.from}>${edge.to}`));
@@ -255,13 +318,28 @@ export function GraphView({ model }: { model: GraphModel }) {
       {model.edges.map((edge, index) => {
         const from = byId.get(edge.from)!;
         const to = byId.get(edge.to)!;
-        if (from === to) return null;
+        const edgeStyle = { stroke: edge.color, strokeDasharray: edge.dashed ? '5 4' : undefined };
+        const marker = edge.directed ? `url(#${markerId})` : undefined;
+        if (from === to) {
+          // Петля — дуга над вершиной
+          const [x, top, r] = [from.x!, from.y! - from.h / 2, Math.max(16, from.w / 3)];
+          const d = `M${x + r * 0.6},${top + 2} C${x + r * 2},${top - r * 2.4} ${x - r * 2},${top - r * 2.4} ${x - r * 0.6},${top + 2}`;
+          return (
+            <g key={index} data-dgm-edge={index}>
+              <path className={styles.edgeHit} d={d} />
+              <path className={styles.edge} style={edgeStyle} d={d} markerEnd={marker} />
+              {edge.label && <EdgeLabel x={x} y={top - r * 1.9} label={edge.label} />}
+            </g>
+          );
+        }
         const dx = to.x! - from.x!;
         const dy = to.y! - from.y!;
+        // Повтор того же ребра (A -> B дважды) — своей дугой, а не поверх первого
+        const repeat = model.edges.slice(0, index).filter((other) => other.from === edge.from && other.to === edge.to).length;
         // Встречное ребро или «назад вверх» в блок-схеме — дугой, чтобы не лечь на соседнее
-        const curved = pairs.has(`${edge.to}>${edge.from}`) || (model.layout === 'layered' && dy < -10);
+        const curved = repeat > 0 || pairs.has(`${edge.to}>${edge.from}`) || (model.layout === 'layered' && dy < -10);
         const length = Math.hypot(dx, dy) || 1;
-        const bend = curved ? Math.min(60, length * 0.25) * (pairs.has(`${edge.to}>${edge.from}`) ? 1 : 1.6) : 0;
+        const bend = curved ? Math.min(60, length * 0.25) * (pairs.has(`${edge.to}>${edge.from}`) || repeat > 0 ? 1 + repeat : 1.6) : 0;
         const [nx, ny] = [-dy / length, dx / length];
         const cx = (from.x! + to.x!) / 2 + nx * bend;
         const cy = (from.y! + to.y!) / 2 + ny * bend;
@@ -269,34 +347,19 @@ export function GraphView({ model }: { model: GraphModel }) {
         const [x2, y2] = boundary(to, cx - to.x!, cy - to.y!);
         const labelX = curved ? (x1 + 2 * cx + x2) / 4 : (x1 + x2) / 2;
         const labelY = curved ? (y1 + 2 * cy + y2) / 4 : (y1 + y2) / 2;
+        const d = curved ? `M${x1},${y1} Q${cx},${cy} ${x2},${y2}` : `M${x1},${y1} L${x2},${y2}`;
         return (
-          <g key={index}>
-            <path
-              className={styles.edge}
-              d={curved ? `M${x1},${y1} Q${cx},${cy} ${x2},${y2}` : `M${x1},${y1} L${x2},${y2}`}
-              markerEnd={edge.directed ? `url(#${markerId})` : undefined}
-            />
-            {edge.label && (
-              <g>
-                <rect
-                  className={styles.edgeLabelBox}
-                  x={labelX - textWidth(edge.label, 11) / 2 - 5}
-                  y={labelY - 9}
-                  width={textWidth(edge.label, 11) + 10}
-                  height={18}
-                  rx={5}
-                />
-                <text className={styles.edgeLabel} x={labelX} y={labelY + 4} textAnchor="middle">
-                  {edge.label}
-                </text>
-              </g>
-            )}
+          // data-dgm-edge / data-dgm-node — по ним конструктор диаграмм узнаёт, что нажали на холсте
+          <g key={index} data-dgm-edge={index}>
+            <path className={styles.edgeHit} d={d} />
+            <path className={styles.edge} style={edgeStyle} d={d} markerEnd={marker} />
+            {edge.label && <EdgeLabel x={labelX} y={labelY} label={edge.label} />}
           </g>
         );
       })}
 
       {model.nodes.map((node) => (
-        <g key={node.id} className={styles.nodeGroup}>
+        <g key={node.id} className={styles.nodeGroup} data-dgm-node={node.id}>
           <NodeShapeView node={node} />
           {node.lines.map((line, index) => (
             <text key={index} className={styles.nodeText} x={node.x} y={node.y! + (index - (node.lines.length - 1) / 2) * 15 + 4} textAnchor="middle">

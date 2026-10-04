@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseCanvas } from './Canvas';
 import { parseGraph } from './Graph';
 import { niceStep, parsePlot } from './Plot';
 import { splitLines, takeOptions } from './parse';
@@ -22,6 +23,19 @@ describe('диаграммы DSL группы', () => {
     expect(model.x).toEqual([-2.6, 2.6]);
     expect(model.grid).toBe(true);
     expect(model.items.map((item) => item.kind)).toEqual(['function', 'parametric', 'point', 'area', 'vline']);
+  });
+
+  it('graph: цвета и пунктир {…}, петля, force — как на сайте группы', () => {
+    const model = parseGraph(
+      splitLines('graph directed\nlayout: force\nA "Старт" {color: red}\nA -> B : 5 {color: blue, dashed}\nB -> B\nB -- C', 'graph'),
+      'graph',
+    );
+    expect(model.nodes.find((node) => node.id === 'A')).toMatchObject({ label: 'Старт', color: 'var(--d-red)' });
+    expect(model.edges[0]).toMatchObject({ from: 'A', to: 'B', label: '5', color: 'var(--d-blue)', dashed: true });
+    expect(model.edges[1]).toMatchObject({ from: 'B', to: 'B' });
+    // force разводит вершины, а не оставляет их в одной точке
+    const [a, b] = [model.nodes[0]!, model.nodes[1]!];
+    expect(Math.hypot(a.x! - b.x!, a.y! - b.y!)).toBeGreaterThan(40);
   });
 
   it('шаг делений «красивый»', () => {
@@ -67,5 +81,22 @@ describe('диаграммы DSL группы', () => {
       { label: 'n=1', values: [2] },
       { label: 'n=2', values: [4] },
     ]);
+  });
+});
+
+describe('canvas — холст с фигурами', () => {
+  it('фигуры, цвет, группы со сдвигом, ошибки', () => {
+    const model = parseCanvas(
+      splitLines(
+        'canvas 400x200\nrect 20 20 120 60 "Вход" fill=#eef\ngroup 10 5\ncircle 260 50 r=30 "q0"\nendgroup\narrow 140 50 -> 220 50',
+        'canvas',
+      ),
+    );
+    expect([model.width, model.height]).toEqual([400, 200]);
+    expect(model.shapes.map((shape) => shape.type)).toEqual(['rect', 'circle', 'arrow']);
+    expect(model.shapes[0]).toMatchObject({ label: 'Вход', color: '#eef' });
+    expect(model.shapes[1]).toMatchObject({ dx: 10, dy: 5 });
+    expect(() => parseCanvas(splitLines('canvas\nstar 1 2', 'canvas'))).toThrow('неизвестная фигура');
+    expect(() => parseCanvas(splitLines('canvas\ngroup 1 1\nrect 0 0 1 1', 'canvas'))).toThrow('Не закрыта группа');
   });
 });

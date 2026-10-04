@@ -111,6 +111,54 @@
   fill: var(--hog-spike-lines);
 }
 
+.smile {
+  fill: none;
+  stroke: var(--hog-dark);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/* Сезонные детали (season.ts) */
+.hat {
+  fill: #d64545;
+}
+
+.fur {
+  fill: #fbf7f2;
+}
+
+.cap {
+  fill: var(--hog-dark);
+}
+
+.tassel {
+  fill: none;
+  stroke: #f2c14e;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.tasselEnd {
+  fill: #f2c14e;
+}
+
+.pumpkin {
+  fill: #e8833a;
+}
+
+.pumpkinRibs {
+  fill: none;
+  stroke: #c4651f;
+  stroke-width: 1.2;
+}
+
+.stem {
+  fill: none;
+  stroke: #5f7a3a;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
 /* Дыхание и моргание — постоянно, но едва заметно */
 .body {
   transform-origin: 60px 80px;
@@ -118,7 +166,7 @@
 }
 
 .eye {
-  transform-origin: 98px 52px;
+  transform-origin: 99px 51px;
   animation: hog-blink 4.6s infinite;
 }
 

@@ -1,5 +1,6 @@
 import { resolveColor, SERIES_COLORS, textWidth, unquote, wrapText, type DiagramLines } from './parse';
 import { niceStep } from './Plot';
+import { runArrayProgram, type ArrayStep } from './arrayCode.js';
 import styles from './Diagrams.module.css';
 
 /* ---------------- tree: иерархия отступами ---------------- */
@@ -119,8 +120,16 @@ export interface ArrayModel {
   values: string[];
   highlight: Set<number>;
   sorted: Set<number>;
-  /** Код пошаговой анимации на сайте группы — здесь показываем текстом, не выполняем */
+  /** Код после `code:` — выполняется по шагам безопасным интерпретатором группы (arrayCode.js, без eval) */
   code?: string;
+  steps?: ArrayStep[];
+  codeLines?: string[];
+  /** Имя основного массива (`watch:`), указатели (`pointers: i, j, k@buf`), скрыть код (`hidecode`) */
+  watch: string;
+  pointerNames: string[];
+  hideCode: boolean;
+  /** Какой шаг попадает в печать и картинку: `print: first | last | N` */
+  printStep: number;
 }
 
 function parseList(text: string): string[] {
@@ -136,17 +145,56 @@ const indices = (text: string) =>
       .filter(Number.isInteger),
   );
 
-export function parseArray({ body }: DiagramLines, source: string): ArrayModel {
-  const model: ArrayModel = { values: [], highlight: new Set(), sorted: new Set() };
-  const codeAt = source.search(/^code:\s*$/m);
-  if (codeAt !== -1)
-    model.code = source
-      .slice(codeAt)
-      .replace(/^code:\s*\r?\n/, '')
-      .trimEnd();
+const IDENT = /^[A-Za-z_]\w*$/;
+const POINTER = /^[A-Za-z_]\w*(?:@[A-Za-z_]\w*)?$/;
+/** «5» → 5, «"x"» → "x": код сравнивает числа как числа */
+const numeric = (value: string) => (/^-?\d+(?:\.\d+)?$/.test(value) ? Number(value) : value);
 
-  for (const { text } of body) {
-    if (text === 'code:') break;
+export function parseArray({ body }: DiagramLines, source: string): ArrayModel {
+  const model: ArrayModel = {
+    values: [],
+    highlight: new Set(),
+    sorted: new Set(),
+    watch: 'a',
+    pointerNames: ['i', 'j', 'k'],
+    hideCode: false,
+    printStep: 0,
+  };
+  // Всё после строки «code:» — программа; до неё — разметка массива и опции
+  const lines = source.split(/\r?\n/);
+  const codeAt = lines.findIndex((line) => /^\s*code\s*:/i.test(line));
+  let pointerSpecs = model.pointerNames;
+  let buffers: string[] = [];
+  let print = 'first';
+
+  for (const { text, line } of body) {
+    if (codeAt !== -1 && line > codeAt) break;
+    const option = /^(pointers|watch|print|buffers)\s*:\s*(.*)$/i.exec(text);
+    if (option) {
+      const [key, value] = [option[1]!.toLowerCase(), option[2]!.trim()];
+      const names = value.split(/[\s,]+/).filter(Boolean);
+      if (key === 'pointers') {
+        if (names.length > 8 || names.some((name) => !POINTER.test(name)))
+          throw new Error(`Строка ${line}: pointers — имена переменных через запятую (не больше 8), на другой массив — k@buf`);
+        pointerSpecs = names;
+        model.pointerNames = names.map((name) => name.split('@')[0]!);
+      } else if (key === 'buffers') {
+        if (names.length > 5 || names.some((name) => !IDENT.test(name)))
+          throw new Error(`Строка ${line}: buffers — имена массивов через запятую (не больше 5)`);
+        buffers = names;
+      } else if (key === 'watch') {
+        if (!IDENT.test(value)) throw new Error(`Строка ${line}: watch — ожидалось имя переменной`);
+        model.watch = value;
+      } else {
+        if (!/^(first|last|\d+)$/i.test(value)) throw new Error(`Строка ${line}: print — first, last или номер шага`);
+        print = value.toLowerCase();
+      }
+      continue;
+    }
+    if (/^hidecode$/i.test(text)) {
+      model.hideCode = true;
+      continue;
+    }
     const list = /^(\[.*\])(.*)$/.exec(text);
     if (list) {
       model.values = parseList(list[1]!);
@@ -159,8 +207,40 @@ export function parseArray({ body }: DiagramLines, source: string): ArrayModel {
     const highlight = /^highlight:\s*([\d,\s]+)$/.exec(text);
     if (highlight) model.highlight = indices(highlight[1]!);
   }
+
+  if (codeAt !== -1) {
+    const rest = lines[codeAt]!.replace(/^\s*code\s*:\s*/i, '');
+    model.code = [...(rest ? [rest] : []), ...lines.slice(codeAt + 1)].join('\n').trimEnd();
+    if (!model.code.trim()) throw new Error(`Строка ${codeAt + 1}: после «code:» нужна программа`);
+    if (buffers.includes(model.watch)) throw new Error(`buffers: «${model.watch}» — основной массив, буфером он быть не может`);
+    const run = runArrayProgram(model.code, {
+      base: rest ? codeAt : codeAt + 1,
+      watch: model.watch,
+      pointers: pointerSpecs,
+      buffers,
+      initial: model.values.map(numeric),
+    });
+    model.steps = run.steps;
+    model.codeLines = run.codeLines;
+    const last = run.steps.length - 1;
+    model.printStep = print === 'last' ? last : /^\d+$/.test(print) ? Math.max(0, Math.min(last, Number(print) - 1)) : 0;
+    // Массив мог появиться только в коде (let a = [...]) — для картинки берём кадр печати
+    model.values = run.steps[model.printStep]?.vals ?? model.values;
+  }
   if (model.values.length === 0) throw new Error('Нет массива: нужна строка вида [5, 2, 9]');
   return model;
+}
+
+/** Кадр печати (print:) как обычный массив: подсветка — что сравнивали и писали на этом шаге, готовые ячейки — зелёным */
+export function frameOf(model: ArrayModel): ArrayModel {
+  const step = model.steps?.[model.printStep];
+  if (!step) return model;
+  return {
+    ...model,
+    values: step.vals,
+    highlight: new Set([...(step.cmp ?? []), ...(step.write ?? []), ...(step.swap ?? []), ...(step.read ?? [])]),
+    sorted: new Set(step.done),
+  };
 }
 
 export function ArrayView({ model }: { model: ArrayModel }) {
@@ -187,14 +267,6 @@ export function ArrayView({ model }: { model: ArrayModel }) {
           </g>
         ))}
       </svg>
-      {model.code && (
-        <details className={styles.code}>
-          <summary>Алгоритм (на сайте группы — пошаговая анимация)</summary>
-          <pre>
-            <code>{model.code}</code>
-          </pre>
-        </details>
-      )}
     </div>
   );
 }

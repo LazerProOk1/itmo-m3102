@@ -35,6 +35,14 @@ export function LectureNoteViewPage() {
   const note = useLectureNotesStore((state) => state.lectureNotes.find((item) => item.id === noteId));
   const touchLectureNote = useLectureNotesStore((state) => state.touchLectureNote);
 
+  // Пока читают — без фона-сияния (aurora.css), он отвлекает от текста
+  useEffect(() => {
+    document.documentElement.dataset.reading = '';
+    return () => {
+      delete document.documentElement.dataset.reading;
+    };
+  }, []);
+
   useEffect(() => {
     // Наверх при открытии и возврат к месту по «Назад» — useScrollMemory в AppShell
     if (noteId) touchLectureNote(noteId);
@@ -140,6 +148,10 @@ function NoteView({ note }: { note: LectureNote }) {
                 />
               )}
               {note.contentType === 'markdown' && <IconButton icon={Printer} label="Печать / сохранить как PDF" onClick={() => window.print()} />}
+              {/* PDF печатает сам браузер из своего просмотрщика — постранично, без обрезки и без интерфейса сайта */}
+              {note.contentType === 'pdf' && !note.content.startsWith('data:') && (
+                <IconButton icon={Printer} label="Открыть PDF для печати" onClick={() => window.open(note.content, '_blank', 'noopener')} />
+              )}
               {sourceUrl && (
                 <a className={buttonClass('ghost', 'sm')} href={sourceUrl} target="_blank" rel="noopener noreferrer" title="Оригинал на GitHub">
                   <ExternalLink size={14} strokeWidth={1.75} aria-hidden />

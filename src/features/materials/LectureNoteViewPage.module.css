@@ -74,10 +74,26 @@
   }
 }
 
+/*
+ * Печать «Сохранить как PDF»: на листе только конспект. Колонка — во всю ширину A4 (сетка с боковой
+ * панелью держала её в 720px и правый край обрезался); колонтитул с адресом и номером страницы — в global.css
+ */
 @media print {
   .back,
   .actions {
     display: none;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .title {
+    font-size: 18pt;
+  }
+
+  .content {
+    --content-font-size: 11.5pt;
   }
 }
 

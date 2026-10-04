@@ -43,7 +43,7 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
         </div>
       </div>
       {/* Когда ёжик «вырвался на свободу», на месте его нет — он бежит по низу экрана */}
-      <div className={styles.mascot}>{!runaway && <Hedgehog size={104} />}</div>
+      <div className={styles.mascot}>{!runaway && <Hedgehog size={104} lively />}</div>
       {runaway && <RunawayHedgehog />}
     </header>
   );

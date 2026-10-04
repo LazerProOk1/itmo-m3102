@@ -11,3 +11,23 @@
     gap: var(--space-10);
   }
 }
+
+/* «Сейчас», «Повторение» — во всю ширину; свой нижний отступ у них не нужен — его даёт сетка */
+.wide {
+  grid-column: 1 / -1;
+}
+
+.wide > * {
+  margin-bottom: 0;
+}
+
+/* Блок сам решил не показываться (пар нет, повторять нечего) — без пустой строки сетки */
+.wide:empty {
+  display: none;
+}
+
+.customize {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-12);
+}

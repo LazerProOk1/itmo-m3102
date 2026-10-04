@@ -48,11 +48,15 @@ export function LectureNotesTab() {
   const [params, setParams] = useSearchParams();
   const collection = COLLECTIONS.find((item) => item === params.get('c')) ?? null;
   const subjectId = collection ? params.get('s') : null;
+  // Папка занятия (Лекция_1, Практика_2, Доп_Материалы) — как в репозитории группы: по ней ищут быстрее, чем по теме
+  const folder = subjectId ? params.get('f') : null;
   const setCollection = (value: LectureNoteCollection | null) => setParams(value ? { c: value } : {});
   const setSubjectId = (value: string | null) => setParams(value ? { c: collection!, s: value } : { c: collection! });
+  const setFolder = (value: string | null) =>
+    setParams(value !== null ? { c: collection!, s: subjectId!, f: value } : { c: collection!, s: subjectId! });
   const [sort, setSort] = useState<LectureNoteSort>('number');
   // Глубже (папка → предмет → конспекты) — листаем вправо, назад — влево
-  const direction = useDirection(collection ? (subjectId ? 2 : 1) : 0);
+  const direction = useDirection(collection ? (subjectId ? (folder !== null ? 3 : 2) : 1) : 0);
 
   const activeNotes = lectureNotes.filter((note) => !note.archived);
   const subject = subjectId ? subjects.find((item) => item.id === subjectId) : undefined;
@@ -84,8 +88,12 @@ export function LectureNotesTab() {
     );
   }
 
-  const sorted = collectionNotes
-    .filter((note) => note.subjectId === subject.id)
+  const subjectNotes = collectionNotes.filter((note) => note.subjectId === subject.id);
+  // По номеру занятия — сначала папки; по дате и названию — все конспекты подряд
+  const byFolders = sort === 'number';
+  const inFolder = folder !== null && byFolders;
+  const sorted = subjectNotes
+    .filter((note) => !inFolder || note.lectureNumber === folder)
     .sort((a, b) =>
       sort === 'number' ? compareLessons(a, b) : sort === 'name' ? a.title.localeCompare(b.title) : b.createdAt.localeCompare(a.createdAt),
     );
@@ -96,12 +104,12 @@ export function LectureNotesTab() {
   }));
 
   return (
-    <Swap id={`${collection ?? ''}|${subjectId ?? ''}`} direction={direction}>
+    <Swap id={`${collection ?? ''}|${subjectId ?? ''}|${inFolder ? folder : ''}`} direction={direction}>
       <div className={styles.subjectToolbar}>
-        <button type="button" className={styles.backButton} onClick={() => setSubjectId(null)}>
+        <button type="button" className={styles.backButton} onClick={() => (inFolder ? setFolder(null) : setSubjectId(null))}>
           <ArrowLeft size={14} strokeWidth={1.75} aria-hidden />
-          {subject.name}
-          <span className={styles.crumb}>· {COLLECTION_LABELS[collection]}</span>
+          {inFolder ? folder || 'Без папки' : subject.name}
+          <span className={styles.crumb}>· {inFolder ? subject.name : COLLECTION_LABELS[collection]}</span>
         </button>
 
         <div className={styles.controls}>
@@ -123,8 +131,10 @@ export function LectureNotesTab() {
 
       {sorted.length === 0 ? (
         <EmptyState icon={NotebookText} title="Пока нет конспектов" description="Нажмите «Синхронизировать» или добавьте конспект вручную." />
+      ) : byFolders && !inFolder ? (
+        <FolderList notes={sorted} onSelect={setFolder} />
       ) : (
-        <List>
+        <List className={styles.bigList}>
           {sorted.map((note) => (
             <LectureNoteRow key={note.id} note={note} today={today} onEdit={dialog.openEdit} />
           ))}
@@ -133,6 +143,35 @@ export function LectureNotesTab() {
 
       {dialogElement}
     </Swap>
+  );
+}
+
+/** Папки занятий предмета по порядку (Лекция 1, Практика 1, Лекция 2…) с числом конспектов в каждой */
+function FolderList({ notes, onSelect }: { notes: LectureNote[]; onSelect: (folder: string) => void }) {
+  const folders = [...new Set(notes.map((note) => note.lectureNumber))];
+  return (
+    <List className={styles.bigList}>
+      {folders.map((folder) => {
+        const inside = notes.filter((note) => note.lectureNumber === folder);
+        return (
+          <ListItem
+            key={folder}
+            leading={
+              <span className={styles.monogram} aria-hidden>
+                <Folder size={16} strokeWidth={1.75} />
+              </span>
+            }
+            title={
+              <button type="button" className={styles.subjectButton} onClick={() => onSelect(folder)}>
+                {folder || 'Без папки'}
+              </button>
+            }
+            meta={inside.map((note) => note.title).join(' · ')}
+            trailing={<span className={styles.count}>{pluralize(inside.length, NOTE_FORMS)}</span>}
+          />
+        );
+      })}
+    </List>
   );
 }
 
@@ -163,7 +202,7 @@ function CollectionPicker({ notes, onSelect }: CollectionPickerProps) {
         </div>
       </div>
 
-      <List>
+      <List className={styles.bigList}>
         {COLLECTIONS.map((collection) => {
           const count = notes.filter((note) => (note.collection ?? 'group') === collection).length;
           return (
@@ -208,7 +247,7 @@ function SubjectPicker({ subjects, notes, onSelect }: SubjectPickerProps) {
   }
 
   return (
-    <List>
+    <List className={styles.bigList}>
       {subjects.map((subject) => {
         const count = notes.filter((note) => note.subjectId === subject.id).length;
         return (

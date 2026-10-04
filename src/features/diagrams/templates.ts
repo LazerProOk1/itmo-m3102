@@ -53,9 +53,19 @@ B -> D : Нет`,
   {
     value: 'array',
     label: 'Массив',
-    hint: 'Массив в квадратных скобках; highlight: — выделить индексы, sorted: — отсортированная часть.',
-    template: `title: Массив
-[8, 3, 7, 1, 9] highlight: 1,3`,
+    hint: 'Массив в квадратных скобках; highlight:, sorted: — подсветка. После code: — программа, она выполняется по шагам: let/for/while/if, функции, swap(a, i, j), done(i), say("текст"). pointers: i, j — стрелки над ячейками, buffers: buf — доп. массив, print: last — кадр для печати, hidecode — скрыть код.',
+    template: `title: Сортировка пузырьком
+[5, 2, 9, 1, 7]
+pointers: i, j
+code:
+for (let i = 0; i < a.length - 1; i++) {
+  for (let j = 0; j < a.length - 1 - i; j++) {
+    if (a[j] > a[j + 1]) {
+      swap(a, j, j + 1);
+    }
+  }
+  done(a.length - 1 - i);
+}`,
   },
   {
     value: 'chart',
@@ -67,5 +77,17 @@ series: Тест | Экзамен
 ДМ | 78 | 91
 Линал | 72 | 88
 Матан | 64 | 80`,
+  },
+  {
+    value: 'canvas',
+    label: 'Холст',
+    hint: 'canvas ШxВ. Фигуры по координатам: rect x y w h "текст", circle x y r=30, ellipse x y rx ry, line/arrow x1 y1 -> x2 y2, text x y "…", path M…; fill=цвет; group dx dy … endgroup.',
+    template: `canvas 420x200
+title: Конечный автомат
+circle 80 100 r=32 "q0"
+arrow 112 100 -> 228 100
+circle 260 100 r=32 "q1" fill=green
+text 150 88 "a"
+rect 320 70 80 60 "Выход" fill=orange`,
   },
 ];

@@ -25,6 +25,20 @@
   cursor: pointer;
 }
 
+/* Нажимается вся строка, а не только текст: с тачпада по узкой ссылке не попасть (отзыв группы) */
+.titleButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+/* Меню «⋯» — поверх растянутой ссылки */
+.menu {
+  position: relative;
+  z-index: 1;
+}
+
 .titleButton:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-border-hover);

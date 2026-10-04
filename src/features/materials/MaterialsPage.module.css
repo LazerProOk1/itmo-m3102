@@ -85,6 +85,13 @@
   cursor: pointer;
 }
 
+.subjectButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
 .subjectButton:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-border-hover);
@@ -94,6 +101,16 @@
 .count {
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* Папки и конспекты — крупные строки: по ним ходят часто, в том числе с тачпада */
+.bigList > li {
+  min-height: 60px;
+  font-size: var(--text-md);
+}
+
+.bigList > li:hover {
+  cursor: pointer;
 }
 
 @media (max-width: 767px) {

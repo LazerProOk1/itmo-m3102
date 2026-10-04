@@ -444,7 +444,9 @@
   }
 }
 
+/* Тесты на бумаге не нужны — как и в PDF сайта группы */
 @media print {
+  .quiz,
   .bar,
   .actions {
     display: none;

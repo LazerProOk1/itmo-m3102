@@ -89,7 +89,7 @@ export function plainText(markdown: string): string {
     markdown
       // Код ищется, а схемы и тесты — нет: там служебный синтаксис (языки — как в Markdown.tsx и DiagramBlock)
       .replace(/```(\w*)[^\n]*\n?([\s\S]*?)```/g, (_, lang: string, code: string) =>
-        /^(mermaid|quiz|graph|plot|chart|tree|array|diagram)$/.test(lang) ? ' ' : ` ${code} `,
+        /^(mermaid|quiz|graph|plot|chart|tree|array|diagram|canvas)$/.test(lang) ? ' ' : ` ${code} `,
       )
       .replace(/\$\$?([^$]*)\$\$?/g, (_, tex: string) => texToText(tex))
       .replace(/^:::.*$/gm, ' ')
