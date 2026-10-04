@@ -1,7 +1,7 @@
 .header {
   position: relative;
   /* место под дорожку ёжика (HedgehogLane): его рост + подскок */
-  padding-bottom: calc(60px * 0.92 + var(--space-6));
+  padding-bottom: calc(60px * 0.72 + var(--space-6));
   margin-bottom: var(--space-6);
 }
 
