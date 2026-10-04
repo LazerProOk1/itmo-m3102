@@ -1,0 +1,22 @@
+/* Дорожка вдоль низа шапки; высоту под неё оставляет родитель (TodayHeader.module.css) */
+.lane {
+  --hog: 60px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(var(--hog) * 0.92);
+  pointer-events: none;
+}
+
+.runner {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  pointer-events: auto;
+}
+
+/* Сальто вокруг середины, приседание — от земли: компромиссная точка чуть ниже центра */
+.jumper {
+  transform-origin: 50% 65%;
+}
