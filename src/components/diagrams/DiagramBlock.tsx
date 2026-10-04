@@ -58,6 +58,12 @@ function render(lang: DiagramLanguage, source: string): Rendered {
   }
 }
 
+/** Текст ошибки диаграммы или undefined — конструктор подсвечивает строку из «Строка N: …» */
+export function diagramError(lang: DiagramLanguage, source: string): string | undefined {
+  const rendered = render(lang, source);
+  return 'error' in rendered ? rendered.error : undefined;
+}
+
 /** Заголовок/подпись могут содержать формулы: «$A \cup B$ — закрашены оба круга» */
 function InlineMath({ text }: { text: string }) {
   return (
