@@ -113,8 +113,23 @@
 
 /* Папки и конспекты — крупные строки: по ним ходят часто, в том числе с тачпада */
 .bigList > li {
-  min-height: 60px;
-  font-size: var(--text-md);
+  --list-title-size: var(--text-md);
+  --list-meta-size: var(--text-sm);
+  --row-icon-size: 40px;
+  min-height: 72px;
+  padding-block: var(--space-3);
+  gap: var(--space-4);
+}
+
+.bigList .monogram {
+  width: 40px;
+  height: 40px;
+  font-size: var(--text-base);
+}
+
+.bigList .monogram svg {
+  width: 18px;
+  height: 18px;
 }
 
 .bigList > li:hover {

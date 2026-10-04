@@ -1,8 +1,9 @@
+/* --row-icon-size — крупные списки (MaterialsPage .bigList) */
 .icon {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: var(--row-icon-size, 28px);
+  height: var(--row-icon-size, 28px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-subtle);
