@@ -10,6 +10,9 @@ import type { ISODate } from '../../types/models';
 import { isVacation } from '../schedule/occurrences';
 import styles from './TodayHeader.module.css';
 
+/** Ширина ёжика на дорожке — та же, что --hog в TodayHeader.module.css */
+const HOG_SIZE = 56;
+
 interface TodayHeaderProps {
   date: ISODate;
   week: StudyWeek;
@@ -42,8 +45,18 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
           <span className={styles.chip}>{isVacation(date) ? 'Каникулы' : WEEK_PARITY_LABELS[week.weekInCycle]}</span>
         </div>
       </div>
-      {/* Когда ёжик «вырвался на свободу», на месте его нет — он бежит по низу экрана */}
-      <div className={styles.mascot}>{!runaway && <Hedgehog size={104} lively />}</div>
+      {/*
+       * Ёжик бегает по низу шапки туда-обратно, как на сайте группы: подпрыгивает на бегу, у края — сальто
+       * и разворот. Наведение — останавливается, клик — сальто с репликой. «Вырвался на свободу» — бежит
+       * по низу экрана, а дорожка пустая.
+       */}
+      <div className={styles.lane}>
+        {!runaway && (
+          <div className={styles.runner}>
+            <Hedgehog size={HOG_SIZE} running={!reduceMotion} />
+          </div>
+        )}
+      </div>
       {runaway && <RunawayHedgehog />}
     </header>
   );

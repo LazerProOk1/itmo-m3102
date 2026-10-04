@@ -1,5 +1,5 @@
 import { motion, useAnimationControls } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from '../../lib/cn';
 import { toISODate } from '../../lib/dates';
 import { usePrefersReducedMotion } from '../../lib/motion';
@@ -13,50 +13,16 @@ interface HedgehogProps {
   className?: string;
   /** Без реакции на клик — просто дышит и моргает */
   still?: boolean;
-  /** Изредка сам подпрыгивает, пробегается туда-обратно или оглядывается (главная) */
-  lively?: boolean;
+  /** Перебирает лапками — когда бежит (шапка главной) */
+  running?: boolean;
 }
 
-/**
- * Ёжик М3102 в профиль. Дышит, моргает, топорщит иголки при наведении, по клику — сальто и реплика.
- * lively — раз в 15–35 с делает что-то сам: подпрыгивает, пробегается или оглядывается. Не чаще: персонаж,
- * который скачет постоянно, отвлекает от учёбы.
- */
-export function Hedgehog({ size = 96, className, still = false, lively = false }: HedgehogProps) {
+/** Ёжик М3102 в профиль. Дышит, моргает, топорщит иголки при наведении, по клику — сальто и реплика. */
+export function Hedgehog({ size = 96, className, still = false, running = false }: HedgehogProps) {
   const controls = useAnimationControls();
   const reduceMotion = usePrefersReducedMotion();
   const [phrase, setPhrase] = useState('');
-  const [running, setRunning] = useState(false);
   const busy = useRef(false);
-
-  useEffect(() => {
-    if (!lively || still || reduceMotion) return undefined;
-    let timer = 0;
-    const act = async () => {
-      if (!busy.current && document.visibilityState === 'visible') {
-        busy.current = true;
-        const pick = Math.random();
-        if (pick < 0.4) {
-          await controls.start({ y: [0, -size * 0.2, 0, -size * 0.05, 0], transition: { duration: 0.7, times: [0, 0.4, 0.7, 0.85, 1] } });
-        } else if (pick < 0.75) {
-          // Пробежка: налево и обратно, лапками перебирает
-          setRunning(true);
-          await controls.start({
-            x: [0, -size * 0.45, -size * 0.45, 0],
-            scaleX: [-1, -1, 1, 1],
-            transition: { duration: 2.4, times: [0, 0.45, 0.55, 1], ease: 'easeInOut' },
-          });
-          setRunning(false);
-        } else {
-          await controls.start({ scaleX: [1, -1, -1, 1], transition: { duration: 1.6, times: [0, 0.1, 0.85, 1] } });
-        }
-        busy.current = false;
-      }
-      timer = window.setTimeout(() => void act(), 15000 + Math.random() * 20000);
-    };
-    timer = window.setTimeout(() => void act(), 6000 + Math.random() * 6000);
-    return () => clearTimeout(timer);
-  }, [lively, still, reduceMotion, controls, size]);
 
   async function flip() {
     if (still || busy.current) return;
