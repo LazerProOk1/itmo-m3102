@@ -300,7 +300,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
           animate={{ opacity: 1, y: 0 }}
         >
           <p className={styles.feedbackTitle}>
-            {verdict.ok ? <Check size={16} strokeWidth={2.5} aria-hidden /> : <X size={16} strokeWidth={2.5} aria-hidden />} {verdict.message}
+            {verdict.ok ? <Check size={14} strokeWidth={2.75} aria-hidden /> : <X size={14} strokeWidth={2.75} aria-hidden />} {verdict.message}
           </p>
           {/* Подсказка автора на ошибку — сразу (она наводит, а не отвечает); ответ и объяснение — по кнопке */}
           {!verdict.ok && question.wrong && <Markdown content={question.wrong} className={styles.why} />}
