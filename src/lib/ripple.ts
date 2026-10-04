@@ -16,18 +16,18 @@ function startRipple(event: PointerEvent) {
   if (event.button !== 0) return;
   const host = (event.target as Element | null)?.closest<HTMLElement>(HOSTS);
   if (!host) return;
-  const rect = host.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  const size = rippleSize(rect.width, rect.height, x, y);
-
   const layer = document.createElement('i');
   layer.className = 'ripple';
   layer.setAttribute('aria-hidden', 'true');
+  host.append(layer);
+  // Меряем слой, а не хозяина: у растянутой ссылки (кнопка static) слой лежит на всей строке
+  const rect = layer.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const size = rippleSize(rect.width, rect.height, x, y);
   const wave = document.createElement('i');
   wave.style.cssText = `left:${x - size / 2}px;top:${y - size / 2}px;width:${size}px;height:${size}px`;
   layer.append(wave);
-  host.append(layer);
 
   const started = performance.now();
   const release = () => {
