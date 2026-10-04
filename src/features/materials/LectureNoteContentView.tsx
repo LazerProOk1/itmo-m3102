@@ -60,12 +60,13 @@ function ProgressiveMarkdown({ content, sourceRef, baseUrl }: { content: string;
     return () => clearTimeout(timer);
   }, [shown, sections.length]);
 
+  // data-lazy-layout — разделы, которые при сворачивании меню раскладываются, только когда видны (Sidebar.tsx)
   return (
-    <>
+    <div data-lazy-layout style={{ display: 'contents' }}>
       {sections.slice(0, shown).map((section, index) => (
         <Markdown key={index} content={section} sourceRef={sourceRef} baseUrl={baseUrl} />
       ))}
-    </>
+    </div>
   );
 }
 

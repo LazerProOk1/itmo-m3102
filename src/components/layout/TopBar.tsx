@@ -1,6 +1,5 @@
 import { useLocation } from 'react-router';
 import { findSection } from '../../app/navigation';
-import { useSettingsStore } from '../../features/settings/settingsStore';
 import { Brand } from './Brand';
 import { EditModeToggle } from './EditModeToggle';
 import { SearchTrigger } from './SearchTrigger';
@@ -21,7 +20,6 @@ export function TopBar({ onOpenSearch }: TopBarProps) {
   const { pathname } = useLocation();
   const section = findSection(pathname);
   const SectionIcon = section?.icon;
-  const sidebarCollapsed = useSettingsStore((state) => state.sidebarCollapsed);
 
   return (
     <header className={styles.bar}>
@@ -31,7 +29,7 @@ export function TopBar({ onOpenSearch }: TopBarProps) {
         </div>
 
         {/* Меню свёрнуто — кнопка «Открыть боковую панель» в начале шапки (на телефоне меню и так нет) */}
-        {sidebarCollapsed && <SidebarToggle className={styles.sidebarToggle} side="bottom-start" />}
+        <SidebarToggle action="open" className={styles.sidebarToggle} side="bottom-start" />
 
         {section && SectionIcon && (
           <p className={styles.section}>
