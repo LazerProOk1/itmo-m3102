@@ -9,6 +9,7 @@ import { addDays, formatWeekRange, getWeekDates, startOfWeek } from '../../lib/d
 import { getStudyWeek, WEEK_PARITY_LABELS } from '../../lib/studyWeek';
 import { useClock } from '../../lib/useClock';
 import type { ISODate } from '../../types/models';
+import { CalendarSyncButton } from './CalendarSyncDialog';
 import { ClassDialog } from './ClassDialog';
 import { DayView } from './DayView';
 import { ExceptionDialog } from './ExceptionDialog';
@@ -62,11 +63,14 @@ export function SchedulePage() {
         title="Расписание"
         subtitle={subtitle}
         actions={
-          isEditMode && (
-            <Button variant="primary" icon={Plus} onClick={() => dialogs.openNewClass(selectedDate)}>
-              Добавить пару
-            </Button>
-          )
+          <>
+            <CalendarSyncButton />
+            {isEditMode && (
+              <Button variant="primary" icon={Plus} onClick={() => dialogs.openNewClass(selectedDate)}>
+                Добавить пару
+              </Button>
+            )}
+          </>
         }
       />
 

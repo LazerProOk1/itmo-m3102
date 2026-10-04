@@ -4,6 +4,10 @@ on:
   push:
     branches: [react-app]
   workflow_dispatch:
+  # Раз в сутки (05:00 МСК) — пересобрать календарь-подписку m3102.ics, даже если в коде ничего не менялось:
+  # у группы меняются расписание, дедлайны и ДЗ
+  schedule:
+    - cron: '0 2 * * *'
 
 permissions:
   contents: read
@@ -27,6 +31,8 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      # Календарь-подписка для Google и Apple Календаря (scripts/build-ics.ts)
+      - run: npm run ics
       # Бюджет размера сборки (scripts/check-size.mjs)
       - run: npm run size
       # Автотесты в браузере по собранному сайту (e2e/); упали — трассы в артефакте e2e-traces

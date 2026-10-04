@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { CalendarSyncButton } from '../schedule/CalendarSyncDialog';
 import { Swap, useDirection } from '../../components/ui/Swap';
 import { addDays, addMonths, formatFullDate, formatMonthLabel, formatWeekRange, getWeekDates, getWeekdayName, startOfWeek } from '../../lib/dates';
 import { getStudyWeek, WEEK_PARITY_LABELS } from '../../lib/studyWeek';
@@ -93,11 +94,14 @@ export function CalendarPage() {
         title="Календарь"
         subtitle={subtitle}
         actions={
-          isEditMode && (
-            <Button variant="primary" icon={Plus} onClick={() => eventDialog.openCreate(anchor)}>
-              Добавить событие
-            </Button>
-          )
+          <>
+            <CalendarSyncButton />
+            {isEditMode && (
+              <Button variant="primary" icon={Plus} onClick={() => eventDialog.openCreate(anchor)}>
+                Добавить событие
+              </Button>
+            )}
+          </>
         }
       />
 
