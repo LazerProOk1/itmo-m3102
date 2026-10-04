@@ -19,11 +19,12 @@
 /* ---------- Боковая панель ---------- */
 .side {
   position: sticky;
-  top: var(--space-6);
+  /* под закреплённой шапкой, а не под ней — иначе вкладки «Лекции / Разделы / Пометки» уезжают под шапку */
+  top: calc(var(--topbar-height) + var(--space-4));
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-height: calc(100dvh - var(--space-12));
+  max-height: calc(100dvh - var(--topbar-height) - var(--space-8));
   overflow: hidden;
 }
 

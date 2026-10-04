@@ -30,6 +30,11 @@
   line-height: var(--leading-tight);
 }
 
+/* Переход к разделу (оглавление, ссылка #раздел) ставит заголовок под закреплённую шапку, а не под неё */
+.markdown :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--topbar-height) + var(--space-4));
+}
+
 .markdown h1 {
   font-size: var(--text-lg);
 }
