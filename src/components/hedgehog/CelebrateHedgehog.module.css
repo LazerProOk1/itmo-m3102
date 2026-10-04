@@ -1,12 +1,19 @@
 .peek {
   position: fixed;
   bottom: env(safe-area-inset-bottom);
-  left: calc(var(--sidebar-offset, 0px) + var(--space-6));
+  left: calc(var(--sidebar-width) + var(--space-6));
   z-index: var(--z-dropdown);
   display: flex;
   align-items: flex-start;
   gap: var(--space-1);
   pointer-events: none;
+}
+
+/* Меню свёрнуто (Sidebar.tsx) — от края экрана; на телефоне меню нет, там своё место справа */
+@media (min-width: 768px) {
+  :global(:root[data-sidebar='collapsed']) .peek {
+    left: var(--space-6);
+  }
 }
 
 .bubble {
