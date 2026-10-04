@@ -1,7 +1,7 @@
 .peek {
   position: fixed;
   bottom: env(safe-area-inset-bottom);
-  left: calc(var(--sidebar-width, 0px) + var(--space-6));
+  left: calc(var(--sidebar-offset, 0px) + var(--space-6));
   z-index: var(--z-dropdown);
   display: flex;
   align-items: flex-start;

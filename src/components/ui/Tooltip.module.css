@@ -1,0 +1,88 @@
+.anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.tip {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-3);
+  border-radius: 999px;
+  background: var(--color-text);
+  box-shadow: var(--shadow-popover);
+  color: var(--color-bg);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.bottom {
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translate(-50%, -2px);
+}
+
+.bottomStart {
+  top: calc(100% + var(--space-2));
+  left: 0;
+  transform: translateY(-2px);
+}
+
+.right {
+  top: 50%;
+  left: calc(100% + var(--space-2));
+  transform: translate(-2px, -50%);
+}
+
+/* Наведение — с задержкой (не мелькает, когда мышь просто проходит мимо); фокус с клавиатуры — сразу */
+.anchor:hover .tip {
+  opacity: 1;
+  transition-delay: 400ms;
+}
+
+.anchor:has(:focus-visible) .tip {
+  opacity: 1;
+}
+
+.anchor:hover .bottom,
+.anchor:has(:focus-visible) .bottom {
+  transform: translate(-50%, 0);
+}
+
+.anchor:hover .bottomStart,
+.anchor:has(:focus-visible) .bottomStart {
+  transform: none;
+}
+
+.anchor:hover .right,
+.anchor:has(:focus-visible) .right {
+  transform: translate(0, -50%);
+}
+
+/* Клавиши на тёмной пилюле — полупрозрачные, в цвет текста подсказки */
+.keys {
+  display: inline-flex;
+  gap: 2px;
+  opacity: 0.6;
+}
+
+.keys kbd {
+  border-color: currentColor;
+  background: transparent;
+  color: inherit;
+}
+
+/* На сенсорном экране наведения нет — подсказка не застревает после касания */
+@media (hover: none) {
+  .anchor:hover .tip {
+    opacity: 0;
+  }
+}
