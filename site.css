@@ -136,3 +136,7 @@ footer{padding:24px 0 0}
 .home-hero:before{animation:hero-glow 12s ease-in-out infinite alternate}
 @keyframes hero-glow{to{transform:scale(1.12) translate(-2%,1%)}}
 .intro,.sched-bar,.sched-day-info,.lessons{animation:rise .5s both}
+@media(prefers-reduced-motion:reduce){
+  .hero-hedgehog{animation:none!important;left:18px;transform:scaleX(-1)}
+  .home-hero:before{animation:none!important}
+}
