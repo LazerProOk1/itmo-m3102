@@ -51,8 +51,13 @@ a {
   outline-offset: 2px;
 }
 
+/* Выделение текста — заметно (accent-soft в 10–16% почти не видно), но текст под ним читается */
 ::selection {
-  background: var(--color-accent-soft);
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+:root[data-theme='dark'] ::selection {
+  background: color-mix(in srgb, var(--color-accent) 45%, transparent);
 }
 
 /* Пока открыто модальное окно, страница под ним не прокручивается */
