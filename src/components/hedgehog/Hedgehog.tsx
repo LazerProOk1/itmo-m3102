@@ -58,6 +58,7 @@ export function Hedgehog({ size = 96, className, still = false, running = false,
       <motion.button
         type="button"
         className={styles.button}
+        data-no-ripple
         animate={controls}
         onClick={flip}
         disabled={still}

@@ -27,7 +27,6 @@
   font-weight: var(--weight-medium);
   color: var(--color-text-muted);
   text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .active {

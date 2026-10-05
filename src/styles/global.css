@@ -8,6 +8,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Без серо-синего прямоугольника браузера при касании (телефон): нажатие — и сразу переключение */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
