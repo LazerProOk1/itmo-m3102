@@ -5,6 +5,11 @@
   margin-bottom: var(--space-6);
 }
 
+/* Ёжик убежал с дорожки — место под неё не нужно */
+.free {
+  padding-bottom: var(--space-4);
+}
+
 .copy {
   min-width: 0;
 }
@@ -53,23 +58,68 @@
   font-weight: var(--weight-medium);
 }
 
+/* Две ссылки на GitHub — карточки-пилюли с логотипом: заметные, но тише главных кнопок */
 .links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-  margin: var(--space-3) 0 0;
-  font-size: var(--text-sm);
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
-.links a {
+.repo {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  min-height: 32px;
-  color: var(--color-text-secondary);
+  gap: var(--space-2-5);
+  min-height: 44px;
+  padding: var(--space-1-5) var(--space-3) var(--space-1-5) var(--space-2-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
   text-decoration: none;
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    background var(--duration-fast) var(--ease);
 }
 
-.links a:hover {
-  color: var(--color-accent-text);
+.repoText {
+  display: grid;
+  line-height: 1.2;
+}
+
+.repoLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.repoName {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.repoArrow {
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .repo:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
+  }
+
+  .repo:hover .repoArrow {
+    color: var(--color-accent-text);
+    transform: translate(1px, -1px);
+  }
+}
+
+@media (max-width: 600px) {
+  .repo {
+    flex: 1 1 100%;
+  }
+
+  .repoArrow {
+    margin-left: auto;
+  }
 }

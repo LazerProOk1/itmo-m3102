@@ -4,7 +4,7 @@ import styles from './Markdown.module.css';
 
 type RenderState = { svg: string } | { error: string } | null;
 
-/** ```mermaid — схемы в конспектах 1 потока и группы. mermaid тяжёлый, грузится только при встрече. */
+/** ```mermaid — схемы в конспектах группы. mermaid тяжёлый, грузится только при встрече. */
 export function MermaidBlock({ source }: { source: string }) {
   const id = `mermaid-${useId().replace(/[^a-z0-9]/gi, '')}`;
   const theme = useSettingsStore((state) => state.theme);

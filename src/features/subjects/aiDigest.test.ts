@@ -22,7 +22,7 @@ describe('файл предмета для ИИ', () => {
         note({ title: 'Графы', lectureNumber: 'Лекция 2', content: '## Определение\nГраф — пара.' }),
         note({ title: 'Множества', lectureNumber: 'Лекция 1', content: 'Множество — набор.' }),
         note({ title: 'Деревья', lectureNumber: 'Лекция 3', contentType: 'pdf', content: 'https://x/d.pdf', sourceRef: 'd.pdf' }),
-        note({ title: 'Логика', lectureNumber: 'Лекция 1', collection: 'stream', content: 'Высказывания.' }),
+
         // PDF того же занятия, что и .md, — дубль: ссылкой, без текста
         note({ title: 'Графы (PDF)', lectureNumber: 'Лекция 2', contentType: 'pdf', content: 'https://x/g.pdf', sourceRef: 'g.pdf' }),
         note({ title: 'Старое', lectureNumber: 'Лекция 9', archived: true, content: 'не попадает' }),
@@ -34,15 +34,7 @@ describe('файл предмета для ИИ', () => {
       pdfText: (item) => (item.sourceRef === 'd.pdf' ? 'Дерево — связный граф без циклов.' : 'ДУБЛЬ PDF'),
       date: '3 октября',
     });
-    const order = [
-      '## Лекция 1. Множества',
-      '## Лекция 2. Графы',
-      '#### Определение',
-      'связный граф без циклов',
-      '# Конспекты 1 потока',
-      '## Лекция 1. Логика',
-      '[Задачник](https://x/book)',
-    ];
+    const order = ['## Лекция 1. Множества', '## Лекция 2. Графы', '#### Определение', 'связный граф без циклов', '[Задачник](https://x/book)'];
     const positions = order.map((part) => text.indexOf(part));
     expect(positions.every((position) => position > 0)).toBe(true);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);

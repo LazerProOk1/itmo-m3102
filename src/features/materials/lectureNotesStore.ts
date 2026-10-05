@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createEntity, replaceEntity } from '../../lib/entity';
 import { idleStorage, storageKey } from '../../lib/storage';
-import type { ID, LectureNote, LectureNoteCollection, LectureNoteContentType } from '../../types/models';
+import type { ID, LectureNote, LectureNoteContentType } from '../../types/models';
 
 export interface LectureNoteDraft {
   subjectId: string;
@@ -10,7 +10,6 @@ export interface LectureNoteDraft {
   title: string;
   contentType: LectureNoteContentType;
   content: string;
-  collection?: LectureNoteCollection;
 }
 
 interface LectureNotesStore {
@@ -38,7 +37,6 @@ export const useLectureNotesStore = create<LectureNotesStore>()(
                   sourceRef: note.sourceRef,
                   archived: note.archived,
                   lastOpenedAt: note.lastOpenedAt,
-                  collection: note.collection,
                 })
               : note,
           ),
@@ -49,6 +47,15 @@ export const useLectureNotesStore = create<LectureNotesStore>()(
           lectureNotes: state.lectureNotes.map((note) => (note.id === id ? { ...note, lastOpenedAt: new Date().toISOString() } : note)),
         })),
     }),
-    { name: storageKey('lecture-notes'), storage: idleStorage() },
+    {
+      name: storageKey('lecture-notes'),
+      storage: idleStorage(),
+      // v1: конспекты 1 потока (collection: 'stream') убраны с сайта — стираем их из сохранённого
+      version: 1,
+      migrate: (persisted) => {
+        const saved = (persisted as { lectureNotes?: (LectureNote & { collection?: string })[] }).lectureNotes ?? [];
+        return { lectureNotes: saved.filter((note) => note.collection !== 'stream') } as LectureNotesStore;
+      },
+    },
   ),
 );

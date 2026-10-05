@@ -5,7 +5,7 @@ import { useSyncStore } from '../../services/syncStore';
 import { HedgehogSvg } from '../hedgehog/Hedgehog';
 import styles from './SyncButton.module.css';
 
-/** Синхронизация с репозиториями группы и 1 потока — из любой страницы. Пока идёт, катится ёжик. */
+/** Синхронизация с репозиторием группы (и описаниями курсов потока) — из любой страницы. Пока идёт, катится ёжик. */
 export function SyncButton() {
   const status = useSyncStore((state) => state.status);
   const error = useSyncStore((state) => state.error);

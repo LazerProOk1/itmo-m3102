@@ -9,9 +9,8 @@ import { List, ListItem } from '../../components/ui/List';
 import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
-import { COLLECTION_LABELS, REPOS } from '../../services/githubContent';
 import { useSyncStore } from '../../services/syncStore';
-import type { LectureNote, LectureNoteCollection, Subject } from '../../types/models';
+import type { LectureNote, Subject } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { LectureNoteDialog } from './LectureNoteDialog';
@@ -29,12 +28,10 @@ const SORT_LABELS: Record<LectureNoteSort, string> = {
   name: 'По названию',
 };
 
-const COLLECTIONS: LectureNoteCollection[] = ['group', 'stream'];
-
 const NOTE_FORMS: [string, string, string] = ['конспект', 'конспекта', 'конспектов'];
 
 /**
- * Конспекты: папка (1 поток / группа) → предмет → конспекты предмета в этой папке.
+ * Конспекты группы: предмет → папка занятия → конспекты. Конспекты 1 потока убраны (05.10.2026).
  * Конспект всегда читают в контексте конкретного предмета, так и находить проще.
  */
 export function LectureNotesTab() {
@@ -44,51 +41,32 @@ export function LectureNotesTab() {
   const subjects = useSubjectsStore((state) => state.subjects);
   const dialog = useLectureNoteDialog();
 
-  // Папка и предмет — в адресе (?c=group&s=aisd): «Назад» и выход из конспекта возвращают сюда же, а не в начало
+  // Предмет и папка — в адресе (?s=aisd&f=Лекция 1): «Назад» и выход из конспекта возвращают сюда же, а не в начало
   const [params, setParams] = useSearchParams();
-  const collection = COLLECTIONS.find((item) => item === params.get('c')) ?? null;
-  const subjectId = collection ? params.get('s') : null;
+  const subjectId = params.get('s');
   // Папка занятия (Лекция_1, Практика_2, Доп_Материалы) — как в репозитории группы: по ней ищут быстрее, чем по теме
   const folder = subjectId ? params.get('f') : null;
-  const setCollection = (value: LectureNoteCollection | null) => setParams(value ? { c: value } : {});
-  const setSubjectId = (value: string | null) => setParams(value ? { c: collection!, s: value } : { c: collection! });
-  const setFolder = (value: string | null) =>
-    setParams(value !== null ? { c: collection!, s: subjectId!, f: value } : { c: collection!, s: subjectId! });
+  const setSubjectId = (value: string | null) => setParams(value ? { s: value } : {});
+  const setFolder = (value: string | null) => setParams(value !== null ? { s: subjectId!, f: value } : { s: subjectId! });
   const [sort, setSort] = useState<LectureNoteSort>('number');
-  // Глубже (папка → предмет → конспекты) — листаем вправо, назад — влево
-  const direction = useDirection(collection ? (subjectId ? (folder !== null ? 3 : 2) : 1) : 0);
+  // Глубже (предмет → папка) — листаем вправо, назад — влево
+  const direction = useDirection(subjectId ? (folder !== null ? 2 : 1) : 0);
 
   const activeNotes = lectureNotes.filter((note) => !note.archived);
   const subject = subjectId ? subjects.find((item) => item.id === subjectId) : undefined;
   const dialogElement = <LectureNoteDialog target={dialog.target} onClose={dialog.close} />;
 
-  if (!collection) {
-    return (
-      <Swap id={`${collection ?? ''}|${subjectId ?? ''}`} direction={direction}>
-        <CollectionPicker notes={activeNotes} onSelect={setCollection} />
-        {dialogElement}
-      </Swap>
-    );
-  }
-
-  const collectionNotes = activeNotes.filter((note) => (note.collection ?? 'group') === collection);
-
   if (!subject) {
     return (
-      <Swap id={`${collection ?? ''}|${subjectId ?? ''}`} direction={direction}>
-        <div className={styles.subjectToolbar}>
-          <button type="button" className={styles.backButton} onClick={() => setCollection(null)}>
-            <ArrowLeft size={14} strokeWidth={1.75} aria-hidden />
-            {COLLECTION_LABELS[collection]}
-          </button>
-        </div>
-        <SubjectPicker subjects={subjects} notes={collectionNotes} onSelect={setSubjectId} />
+      <Swap id="" direction={direction}>
+        <SyncBar />
+        <SubjectPicker subjects={subjects} notes={activeNotes} onSelect={setSubjectId} />
         {dialogElement}
       </Swap>
     );
   }
 
-  const subjectNotes = collectionNotes.filter((note) => note.subjectId === subject.id);
+  const subjectNotes = activeNotes.filter((note) => note.subjectId === subject.id);
   // По номеру занятия — сначала папки; по дате и названию — все конспекты подряд
   const byFolders = sort === 'number';
   const inFolder = folder !== null && byFolders;
@@ -104,12 +82,12 @@ export function LectureNotesTab() {
   }));
 
   return (
-    <Swap id={`${collection ?? ''}|${subjectId ?? ''}|${inFolder ? folder : ''}`} direction={direction}>
+    <Swap id={`${subjectId}|${inFolder ? folder : ''}`} direction={direction}>
       <div className={styles.subjectToolbar}>
         <button type="button" className={styles.backButton} onClick={() => (inFolder ? setFolder(null) : setSubjectId(null))}>
           <ArrowLeft size={14} strokeWidth={1.75} aria-hidden />
           {inFolder ? folder || 'Без папки' : subject.name}
-          <span className={styles.crumb}>· {inFolder ? subject.name : COLLECTION_LABELS[collection]}</span>
+          {inFolder && <span className={styles.crumb}>· {subject.name}</span>}
         </button>
 
         <div className={styles.controls}>
@@ -122,7 +100,7 @@ export function LectureNotesTab() {
             onChange={(value) => setSort(value as LectureNoteSort)}
           />
           {isEditMode && (
-            <Button variant="primary" icon={Plus} onClick={() => dialog.openCreate(subject.id, collection)}>
+            <Button variant="primary" icon={Plus} onClick={() => dialog.openCreate(subject.id)}>
               Добавить конспект
             </Button>
           )}
@@ -175,56 +153,25 @@ function FolderList({ notes, onSelect }: { notes: LectureNote[]; onSelect: (fold
   );
 }
 
-interface CollectionPickerProps {
-  notes: LectureNote[];
-  onSelect: (collection: LectureNoteCollection) => void;
-}
-
-/** Две папки конспектов + синхронизация обоих репозиториев */
-function CollectionPicker({ notes, onSelect }: CollectionPickerProps) {
+/** Синхронизация с репозиторием группы и её итог */
+function SyncBar() {
   const status = useSyncStore((state) => state.status);
   const summary = useSyncStore((state) => state.summary);
   const error = useSyncStore((state) => state.error);
   const run = useSyncStore((state) => state.run);
   const syncing = status === 'syncing';
-  const message =
-    status === 'error' ? error : status === 'done' && summary ? `Синхронизировано: ${pluralize(summary.stream + summary.group, NOTE_FORMS)}` : '';
+  const message = status === 'error' ? error : status === 'done' && summary ? `Синхронизировано: ${pluralize(summary.group, NOTE_FORMS)}` : '';
 
   return (
-    <>
-      <div className={styles.subjectToolbar}>
-        {message ? <p className={styles.syncMessage}>{message}</p> : <span />}
-        <div className={styles.controls}>
-          <Button variant="ghost" onClick={run} disabled={syncing}>
-            <RefreshCw size={14} strokeWidth={2} className={cn(syncing && styles.spinning)} aria-hidden />
-            {syncing ? 'Синхронизация…' : 'Синхронизировать'}
-          </Button>
-        </div>
+    <div className={styles.subjectToolbar}>
+      {message ? <p className={styles.syncMessage}>{message}</p> : <span />}
+      <div className={styles.controls}>
+        <Button variant="ghost" onClick={run} disabled={syncing}>
+          <RefreshCw size={14} strokeWidth={2} className={cn(syncing && styles.spinning)} aria-hidden />
+          {syncing ? 'Синхронизация…' : 'Синхронизировать'}
+        </Button>
       </div>
-
-      <List className={styles.bigList}>
-        {COLLECTIONS.map((collection) => {
-          const count = notes.filter((note) => (note.collection ?? 'group') === collection).length;
-          return (
-            <ListItem
-              key={collection}
-              leading={
-                <span className={styles.monogram} aria-hidden>
-                  <Folder size={16} strokeWidth={1.75} />
-                </span>
-              }
-              title={
-                <button type="button" className={styles.subjectButton} onClick={() => onSelect(collection)}>
-                  {COLLECTION_LABELS[collection]}
-                </button>
-              }
-              meta={REPOS[collection].name}
-              trailing={<span className={styles.count}>{pluralize(count, NOTE_FORMS)}</span>}
-            />
-          );
-        })}
-      </List>
-    </>
+    </div>
   );
 }
 

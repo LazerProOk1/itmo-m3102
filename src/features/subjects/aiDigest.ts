@@ -66,16 +66,12 @@ export function buildSubjectDigest(input: DigestInput): string {
   const all = input.notes.filter((note) => !note.archived).sort(compareLessons);
   // У группы занятие часто лежит дважды — .md и PDF того же текста: PDF при живом .md идёт ссылкой, а не копией
   // (иначе файл почти вдвое больше: у ДМ 337 тыс. символов вместо ~225 тыс.)
-  const sameLesson = (a: LectureNote, b: LectureNote) =>
-    a.lectureNumber === b.lectureNumber && (a.collection ?? 'group') === (b.collection ?? 'group');
+  const sameLesson = (a: LectureNote, b: LectureNote) => a.lectureNumber === b.lectureNumber;
   const isTwin = (note: LectureNote) =>
     note.contentType === 'pdf' && all.some((other) => other.contentType === 'markdown' && sameLesson(other, note));
   const twinsOf = (note: LectureNote) => (note.contentType === 'markdown' ? all.filter((other) => isTwin(other) && sameLesson(other, note)) : []);
   const visible = all.filter((note) => !isTwin(note));
-  const groups = [
-    { title: 'Конспекты группы М3102', notes: visible.filter((note) => (note.collection ?? 'group') === 'group') },
-    { title: 'Конспекты 1 потока', notes: visible.filter((note) => note.collection === 'stream') },
-  ].filter((group) => group.notes.length > 0);
+  const groups = [{ title: 'Конспекты группы М3102', notes: visible }].filter((group) => group.notes.length > 0);
 
   const out: string[] = [
     `# ${input.subjectName} — все материалы`,
