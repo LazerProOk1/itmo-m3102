@@ -1,4 +1,5 @@
-import { Mail, Send } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import { TelegramMark } from '../../components/ui/TelegramMark';
 import { List, ListItem } from '../../components/ui/List';
 import { Section } from '../../components/ui/Section';
 import { CLASS_TYPE_LABELS } from '../schedule/labels';
@@ -39,7 +40,7 @@ export function SubjectContactsSection({ contacts, telegramChatUrl }: SubjectCon
                       rel="noopener noreferrer"
                       aria-label={`Написать в Telegram: ${contact.teacherName}`}
                     >
-                      <Send size={13} strokeWidth={1.75} aria-hidden />
+                      <TelegramMark size={14} />
                       Telegram
                     </a>
                   )}

@@ -20,6 +20,8 @@ import { HomeworkCard } from '../homework/HomeworkCard';
 import { useHomeworkStore } from '../homework/homeworkStore';
 import { useLectureNotesStore } from '../materials/lectureNotesStore';
 import { useMarksStore } from '../materials/marksStore';
+import { resolveSubjectFolder } from '../../data/m3102';
+import { deadlineSubjectId } from '../subjects/subjectStats';
 import { useSubjectsStore } from '../subjects/subjectsStore';
 import { useTasksStore } from '../tasks/tasksStore';
 import styles from './HomePanels.module.css';
@@ -54,9 +56,10 @@ function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
   );
 }
 
-/** Ближайшие 3 дедлайна группы; отмеченные уходят в «Выполненные» */
-export function DeadlinesPanel() {
-  const deadlines = useGroupStore((state) => state.deadlines);
+/** Ближайшие 3 дедлайна группы; отмеченные уходят в «Выполненные». subjectId — только этого предмета (страница предмета) */
+export function DeadlinesPanel({ subjectId }: { subjectId?: string }) {
+  const allDeadlines = useGroupStore((state) => state.deadlines);
+  const deadlines = subjectId ? allDeadlines.filter((item) => deadlineSubjectId(item.name) === subjectId) : allDeadlines;
   const done = useGroupStore((state) => state.deadlinesDone);
   // Ближайшие впереди, просроченные — после них (как на сайте группы)
   const active = orderDeadlines(deadlines, done).filter((item) => !done[item.id]);
@@ -83,10 +86,10 @@ export function DeadlinesPanel() {
 }
 
 /** 5 ближайших невыполненных заданий группы */
-export function HomeworkPanel({ today }: { today: ISODate }) {
+export function HomeworkPanel({ today, subjectId }: { today: ISODate; subjectId?: string }) {
   const items = useHomeworkStore((state) => state.items);
   const done = useHomeworkStore((state) => state.done);
-  const open = items.filter((item) => !done[item.id]);
+  const open = items.filter((item) => !done[item.id] && (!subjectId || resolveSubjectFolder(item.subject) === subjectId));
   useConfettiWhenCleared(open.length);
   const active = open.sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).slice(0, 5);
 

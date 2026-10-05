@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalize, plainText, snippet } from './searchIndex';
+import { hasAllWords, normalize, plainText, queryWords, snippet } from './searchIndex';
 
 describe('поиск по тексту', () => {
   it('markdown → простой текст', () => {
@@ -8,8 +8,16 @@ describe('поиск по тексту', () => {
     );
   });
 
-  it('код ищется, схемы — нет', () => {
+  it('код ищется, mermaid — нет, у схем — подписи и надписи', () => {
     expect(plainText('```cpp\nstd::vector v;\n```\n```mermaid\ngraph TD\n```')).toBe('std::vector v;');
+    expect(plainText('```diagram\ntitle: Сортировка вставками\nA: round "Старт"\nA -> B\n```')).toBe('Сортировка вставками Старт');
+  });
+
+  it('слова запроса — в любом порядке и не рядом', () => {
+    const text = 'Предел последовательности: если он существует, то он единственный.';
+    expect(hasAllWords(normalize(text), queryWords('единственный  предел'))).toBe(true);
+    expect(snippet(text, 'единственный предел')).toContain('единственный');
+    expect(snippet(text, 'предел функции')).toBeUndefined();
   });
 
   it('формулы читаемые', () => {

@@ -25,6 +25,54 @@
   color: var(--color-text-muted);
 }
 
+/* Фильтры — пилюли в одну строку с прокруткой (на телефоне не переносятся на три строки) */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-2) var(--space-4);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border);
+  scrollbar-width: none;
+  /* Справа гаснет — видно, что пилюли листаются дальше */
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+
+.chip {
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 var(--space-2-5);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--color-border-hover);
+    color: var(--color-text);
+  }
+}
+
+.chipOn,
+.chipOn:hover {
+  border-color: transparent;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+}
+
+.chipDivider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 16px;
+  margin: 0 var(--space-1);
+  background: var(--color-border);
+}
+
 .muted {
   flex-shrink: 0;
   color: var(--color-text-muted);

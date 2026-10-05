@@ -1,4 +1,4 @@
-import { Clock, FolderOpen, Link2, SquareCheck } from 'lucide-react';
+import { FolderOpen, Link2, NotebookText, SquareCheck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { List } from '../../components/ui/List';
@@ -6,17 +6,25 @@ import { Section } from '../../components/ui/Section';
 import { LinkCards } from '../group/LinksPage';
 import type { GroupLink } from '../group/groupStore';
 import { MaterialRow } from '../materials/MaterialRow';
-import type { ISODate, Material, Task } from '../../types/models';
+import { LectureNoteRow } from '../materials/LectureNoteRow';
+import { compareLessons } from '../materials/NoteReader';
+import { parseLessonLabel } from '../schedule/lessons';
+import { DeadlinesPanel, HomeworkPanel } from '../today/HomePanels';
+import type { ISODate, LectureNote, Material, Task } from '../../types/models';
 import { isOpenTask, sortTasks } from '../tasks/taskFilters';
 import { TaskRow } from '../tasks/TaskRow';
 import type { SubjectTab } from './SubjectDetailPage';
 import styles from './SubjectOverview.module.css';
 
-const UPCOMING_LIMIT = 5;
+const PLAN_LIMIT = 5;
 const RECENT_MATERIALS_LIMIT = 4;
 const QUICK_LINKS_LIMIT = 5;
+const LAST_NOTES_LIMIT = 4;
 
 interface SubjectOverviewProps {
+  subjectId: string;
+  lectureNotes: LectureNote[];
+  onEditNote: (note: LectureNote) => void;
   tasks: Task[];
   materials: Material[];
   links: Material[];
@@ -27,17 +35,31 @@ interface SubjectOverviewProps {
   onEditMaterial: (material: Material) => void;
 }
 
-/** Сводка по предмету: задачи на сейчас, ближайшие дедлайны, последние материалы, быстрые ссылки. */
-export function SubjectOverview({ tasks, materials, links, groupLinks, today, onSwitchTab, onEditTask, onEditMaterial }: SubjectOverviewProps) {
-  const tasksForNow = sortTasks(
-    tasks.filter((task) => isOpenTask(task) && task.deadline !== undefined && task.deadline <= today),
-    'deadline',
-  );
-
-  const upcomingDeadlines = sortTasks(
-    tasks.filter((task) => isOpenTask(task) && task.deadline !== undefined && task.deadline > today),
-    'deadline',
-  ).slice(0, UPCOMING_LIMIT);
+/**
+ * Всё по предмету на одном экране: дедлайны и ДЗ группы по этому предмету, конспекты последних занятий,
+ * свой учебный план, материалы и ссылки. Раньше «Обзор» показывал только личные задачи — общего тут не было.
+ */
+export function SubjectOverview({
+  subjectId,
+  lectureNotes,
+  onEditNote,
+  tasks,
+  materials,
+  links,
+  groupLinks,
+  today,
+  onSwitchTab,
+  onEditTask,
+  onEditMaterial,
+}: SubjectOverviewProps) {
+  const plan = sortTasks(tasks.filter(isOpenTask), 'deadline').slice(0, PLAN_LIMIT);
+  // Конспекты последних занятий — свежие сверху (Лекция 5, Практика 4…)
+  // Только папки занятий («Лекция 4», «Практика 3»): «Доп Материалы» и «Тесты» — во вкладке «Материалы»
+  const lastNotes = lectureNotes
+    .filter((note) => parseLessonLabel(note.lectureNumber))
+    .sort(compareLessons)
+    .reverse()
+    .slice(0, LAST_NOTES_LIMIT);
 
   const recentMaterials = [...materials].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, RECENT_MATERIALS_LIMIT);
   const quickLinks = [...links].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, QUICK_LINKS_LIMIT);
@@ -50,24 +72,28 @@ export function SubjectOverview({ tasks, materials, links, groupLinks, today, on
 
   return (
     <div className={styles.grid}>
-      <Section title="Задачи" meta={tasksForNow.length} action={seeAll('tasks')}>
-        {tasksForNow.length === 0 ? (
-          <EmptyState compact icon={SquareCheck} title="Сейчас ничего не горит" />
+      <DeadlinesPanel subjectId={subjectId} />
+
+      <HomeworkPanel subjectId={subjectId} today={today} />
+
+      <Section title="Конспекты занятий" action={seeAll('materials')}>
+        {lastNotes.length === 0 ? (
+          <EmptyState compact icon={NotebookText} title="Конспектов пока нет" />
         ) : (
           <List>
-            {tasksForNow.map((task) => (
-              <TaskRow key={task.id} task={task} today={today} onEdit={onEditTask} />
+            {lastNotes.map((note) => (
+              <LectureNoteRow key={note.id} note={note} today={today} onEdit={onEditNote} />
             ))}
           </List>
         )}
       </Section>
 
-      <Section title="Ближайшие дедлайны" action={seeAll('tasks')}>
-        {upcomingDeadlines.length === 0 ? (
-          <EmptyState compact icon={Clock} title="Нет ближайших дедлайнов" />
+      <Section title="Мой план" meta={plan.length || undefined} action={seeAll('tasks')}>
+        {plan.length === 0 ? (
+          <EmptyState compact icon={SquareCheck} title="Своих задач по предмету нет" />
         ) : (
           <List>
-            {upcomingDeadlines.map((task) => (
+            {plan.map((task) => (
               <TaskRow key={task.id} task={task} today={today} onEdit={onEditTask} />
             ))}
           </List>

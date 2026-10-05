@@ -13,6 +13,7 @@ import type { LectureNote } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
 import { LectureNoteContentView } from './LectureNoteContentView';
+import { NoteLessonInfo } from './NoteLessonInfo';
 import { SiteQuiz } from './SiteQuiz';
 import { useMarksStore } from './marksStore';
 import { MarkButton, useMarkHighlights } from './NoteMarks';
@@ -145,7 +146,7 @@ function NoteView({ note }: { note: LectureNote }) {
                 {title}
                 {note.source === 'github' && <GithubSourceBadge />}
               </h1>
-              {subjectName && <p className={styles.subtitle}>{subjectName}</p>}
+              <NoteLessonInfo note={note} subjectName={subjectName} />
             </div>
 
             <div className={styles.actions}>

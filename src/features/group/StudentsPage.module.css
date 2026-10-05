@@ -82,10 +82,22 @@
   font-size: var(--text-sm);
 }
 
+/* Логотипы GitHub и Telegram перед ником; ник обрезается многоточием */
 .links a {
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
   color: var(--color-text-secondary);
   text-decoration: none;
+}
+
+.links a svg {
+  flex-shrink: 0;
+}
+
+.links a span {
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
 import { AppearanceSettings } from './AppearanceSettings';
@@ -17,7 +18,9 @@ const TABS: TabItem<SettingsTab>[] = [
 ];
 
 export function SettingsPage() {
-  const [tab, setTab] = useState<SettingsTab>(TABS[0]!.value);
+  // ?tab=data — сразу нужная вкладка (поиск: «Скачать для работы без интернета»)
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState<SettingsTab>(() => TABS.find((item) => item.value === params.get('tab'))?.value ?? TABS[0]!.value);
 
   return (
     <>
