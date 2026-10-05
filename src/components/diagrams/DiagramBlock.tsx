@@ -143,7 +143,7 @@ export function DiagramTools({ figureRef, name, lang, source, editable }: Diagra
   const background = () => (figureRef.current ? getComputedStyle(figureRef.current).backgroundColor : '#ffffff');
 
   return (
-    <div className={styles.tools}>
+    <div className={styles.tools} data-pdf-hide>
       <button
         type="button"
         onClick={() => {

@@ -92,6 +92,7 @@ function CodeBlock(props: ComponentProps<'pre'>) {
       <button
         type="button"
         className={cn(styles.copy, copied && styles.copied)}
+        data-pdf-hide
         aria-label={copied ? 'Скопировано' : 'Копировать код'}
         title={copied ? 'Скопировано' : 'Копировать код'}
         onClick={(event) => {

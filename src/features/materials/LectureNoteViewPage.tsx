@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark, BookmarkCheck, Download, ExternalLink, Pencil, Printer, Trash } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookmarkCheck, Download, ExternalLink, FileDown, LoaderCircle, Pencil, Printer, Trash } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
@@ -113,6 +113,21 @@ function NoteView({ note }: { note: LectureNote }) {
 
   const title = noteTitle(note);
   const sourceUrl = noteSourceUrl(note);
+  // «Скачать PDF» сразу файлом: модуль со съёмкой страниц грузится только по нажатию
+  const [pdfStatus, setPdfStatus] = useState<string | null>(null);
+  async function downloadPdf() {
+    if (pdfStatus || !contentRef.current) return;
+    setPdfStatus('Готовлю…');
+    try {
+      const { downloadNotePdf } = await import('./notePdf');
+      await downloadNotePdf(contentRef.current, title, [subjectName, note.lectureNumber].filter(Boolean).join(' · '), setPdfStatus);
+    } catch (error) {
+      console.error(error);
+      alert('Не получилось собрать PDF. Попробуйте «Печать → Сохранить как PDF».');
+    } finally {
+      setPdfStatus(null);
+    }
+  }
 
   return (
     <div className={styles.layout}>
@@ -147,7 +162,18 @@ function NoteView({ note }: { note: LectureNote }) {
                   onClick={() => void downloadNote(note, title)}
                 />
               )}
-              {note.contentType === 'markdown' && <IconButton icon={Printer} label="Печать / сохранить как PDF" onClick={() => window.print()} />}
+              {note.contentType === 'markdown' && (
+                <>
+                  <IconButton
+                    icon={pdfStatus ? LoaderCircle : FileDown}
+                    label={pdfStatus ? `PDF: ${pdfStatus}` : 'Скачать PDF'}
+                    className={pdfStatus ? styles.spinning : undefined}
+                    aria-busy={Boolean(pdfStatus)}
+                    onClick={() => void downloadPdf()}
+                  />
+                  <IconButton icon={Printer} label="Печать (PDF с выделяемым текстом)" onClick={() => window.print()} />
+                </>
+              )}
               {/* PDF печатает сам браузер из своего просмотрщика — постранично, без обрезки и без интерфейса сайта */}
               {note.contentType === 'pdf' && !note.content.startsWith('data:') && (
                 <IconButton icon={Printer} label="Открыть PDF для печати" onClick={() => window.open(note.content, '_blank', 'noopener')} />

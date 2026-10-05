@@ -177,8 +177,11 @@ html {
   size: A4;
   margin: 16mm 14mm 18mm;
 
+  /* Водяной знак — логотип М3102: SVG с размером в мм (фон в поле страницы Chrome не печатает, а у PNG в content
+     размер не задать). Делается из src/assets/logo-mask.webp — public/pdf-watermark.png и .svg */
   @bottom-left {
-    content: 'М3102 · lazerprook1.github.io/itmo-m3102';
+    content: url('/pdf-watermark.svg') '   lazerprook1.github.io/itmo-m3102';
+    white-space: pre;
     font-family: 'Inter Variable', Inter, sans-serif;
     font-size: 8pt;
     color: #8a8a93;
