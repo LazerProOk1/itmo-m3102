@@ -1,4 +1,5 @@
 import { useId, type CSSProperties } from 'react';
+import { routeFlow } from './flowRoutes';
 import { resolveColor, takeOptions, textWidth, unquote, wrapText, type DiagramLines } from './parse';
 import styles from './Diagrams.module.css';
 
@@ -32,6 +33,8 @@ export interface GraphModel {
   edges: GraphEdge[];
   layout: string;
   directed: boolean;
+  /** Блок-схема (`diagram`): стрелки обходят блоки по дорожкам (flowRoutes.ts), а не напрямую */
+  flow?: boolean;
 }
 
 const EDGE = /^(.+?)\s*(->|--|<-)\s*(.+?)(?:\s*:\s*(.+))?$/;
@@ -117,7 +120,7 @@ export function parseGraph({ header, body }: DiagramLines, kind: 'graph' | 'diag
 
   for (const node of nodes.values()) Object.assign(node, sizeNode(node));
   const layout = header.layout ?? (kind === 'diagram' ? 'layered' : [...nodes.values()].every((node) => node.x !== undefined) ? 'manual' : 'circle');
-  const model: GraphModel = { nodes: [...nodes.values()], edges, layout, directed };
+  const model: GraphModel = { nodes: [...nodes.values()], edges, layout, directed, flow: kind === 'diagram' };
   if (model.nodes.length === 0) throw new Error('Пустая диаграмма');
   applyLayout(model);
   return model;
@@ -290,16 +293,32 @@ function EdgeLabel({ x, y, label }: { x: number; y: number; label: string }) {
   );
 }
 
+const labelSize = (text: string): [number, number] => [textWidth(text, 11) + 10, 18];
+
 export function GraphView({ model }: { model: GraphModel }) {
   const markerId = `arrow-${useId().replace(/[^a-z0-9]/gi, '')}`;
   const byId = new Map(model.nodes.map((node) => [node.id, node]));
+  const flow = model.flow && model.edges.length ? routeFlow(model, labelSize) : null;
   const pad = 24;
-  const minX = Math.min(...model.nodes.map((node) => node.x! - node.w / 2)) - pad;
-  // Над вершиной с петлёй нужно место под дугу
-  const loops = new Set(model.edges.filter((edge) => edge.from === edge.to).map((edge) => edge.from));
-  const minY = Math.min(...model.nodes.map((node) => node.y! - node.h / 2 - (loops.has(node.id) ? Math.max(16, node.w / 3) * 2.2 : 0))) - pad;
-  const maxX = Math.max(...model.nodes.map((node) => node.x! + node.w / 2)) + pad;
-  const maxY = Math.max(...model.nodes.map((node) => node.y! + node.h / 2)) + pad;
+  // Дорожки блок-схемы и подписи выходят за блоки — в рамку попадают и они
+  const extraX: number[] = [];
+  const extraY: number[] = [];
+  flow?.routes.forEach((route, index) => {
+    route.pts.forEach(([x, y]) => (extraX.push(x), extraY.push(y)));
+    const at = flow.labels[index];
+    if (at) {
+      const [w, h] = labelSize(model.edges[index]!.label!);
+      extraX.push(at[0] - w / 2, at[0] + w / 2);
+      extraY.push(at[1] - h / 2, at[1] + h / 2);
+    }
+  });
+  const minX = Math.min(...model.nodes.map((node) => node.x! - node.w / 2), ...extraX) - pad;
+  // Над вершиной с петлёй нужно место под дугу (у блок-схемы петля — своей дорожкой, она уже в extraY)
+  const loops = new Set(model.edges.filter((edge) => !flow && edge.from === edge.to).map((edge) => edge.from));
+  const minY =
+    Math.min(...model.nodes.map((node) => node.y! - node.h / 2 - (loops.has(node.id) ? Math.max(16, node.w / 3) * 2.2 : 0)), ...extraY) - pad;
+  const maxX = Math.max(...model.nodes.map((node) => node.x! + node.w / 2), ...extraX) + pad;
+  const maxY = Math.max(...model.nodes.map((node) => node.y! + node.h / 2), ...extraY) + pad;
   const pairs = new Set(model.edges.map((edge) => `${edge.from}>${edge.to}`));
 
   return (
@@ -320,6 +339,17 @@ export function GraphView({ model }: { model: GraphModel }) {
         const to = byId.get(edge.to)!;
         const edgeStyle = { stroke: edge.color, strokeDasharray: edge.dashed ? '5 4' : undefined };
         const marker = edge.directed ? `url(#${markerId})` : undefined;
+        if (flow) {
+          const { d } = flow.routes[index]!;
+          const at = flow.labels[index];
+          return (
+            <g key={index} data-dgm-edge={index}>
+              <path className={styles.edgeHit} d={d} />
+              <path className={styles.edge} style={edgeStyle} d={d} markerEnd={marker} />
+              {edge.label && at && <EdgeLabel x={at[0]} y={at[1]} label={edge.label} />}
+            </g>
+          );
+        }
         if (from === to) {
           // Петля — дуга над вершиной
           const [x, top, r] = [from.x!, from.y! - from.h / 2, Math.max(16, from.w / 3)];
