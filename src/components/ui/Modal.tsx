@@ -32,9 +32,13 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   const dialogRef = useRef<HTMLDialogElement>(null);
   const pressedOnBackdrop = useRef(false);
   const titleId = useId();
-  // Пока идёт анимация закрытия, окно уже логически закрыто (open=false), но контент
-  // остаётся отрисован — иначе закрытию попросту нечего было бы показывать.
-  const [isClosing, setIsClosing] = useState(false);
+  // Пока идёт анимация закрытия, окно уже логически закрыто (open=false), но контент остаётся отрисован —
+  // иначе закрытию нечего показать. «Закрывается» считается в том же рендере, где пришло open=false: раньше это
+  // ставил эффект, и на один кадр контент пропадал, а потом создавался заново — окно мигало и «застывало»,
+  // анимации внутри (аватарка профиля) начинались сначала.
+  const [mounted, setMounted] = useState(open);
+  if (open && !mounted) setMounted(true);
+  const isClosing = mounted && !open;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -54,18 +58,17 @@ export function Modal({ open, onClose, title, description, children, footer, siz
         dialog.style.removeProperty('--origin-x');
         dialog.style.removeProperty('--origin-y');
       }
-      setIsClosing(false);
       dialog.showModal();
-    } else if (!open && dialog.open && !isClosing) {
-      setIsClosing(true);
     }
-  }, [open, isClosing]);
+  }, [open]);
 
   // Реальное закрытие <dialog> откладывается до конца анимации ухода
   useEffect(() => {
     if (!isClosing) return;
     const dialog = dialogRef.current;
     if (!dialog) return;
+    // Окно так и не открылось (закрыли в том же кадре) — анимировать нечего
+    if (!dialog.open) return setMounted(false);
 
     // Фильтр по цели (не по имени: CSS-модули манглят имена @keyframes, так что
     // сравнивать event.animationName со строкой из исходника бессмысленно) — иначе
@@ -74,7 +77,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
     function handleAnimationEnd(event: globalThis.AnimationEvent) {
       if (event.target !== dialog) return;
       dialog?.close();
-      setIsClosing(false);
+      setMounted(false);
     }
 
     dialog.addEventListener('animationend', handleAnimationEnd);

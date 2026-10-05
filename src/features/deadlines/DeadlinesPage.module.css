@@ -109,29 +109,64 @@
   font-size: var(--text-sm);
 }
 
-.queue a,
-.queuePerson {
+.queue a {
   color: var(--color-text);
 }
 
-/* Имя студента группы открывает его профиль — выглядит как текст, подчёркивание пунктиром на наведении */
+.queue li + li {
+  margin-top: var(--space-1);
+}
+
+.queue li::marker {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Студент группы — чип с фото: сразу видно, что это человек и его можно открыть (профиль) */
 .queuePerson {
-  padding: 0;
-  border: 0;
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-height: 28px;
+  padding: 2px var(--space-2-5) 2px 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
   font: inherit;
-  text-align: left;
-  text-decoration: underline dotted transparent;
-  text-underline-offset: 3px;
+  vertical-align: middle;
   cursor: pointer;
-  transition: text-decoration-color var(--duration-fast) var(--ease);
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    background var(--duration-fast) var(--ease);
+}
+
+.queuePerson img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-bg-hover);
+  object-fit: cover;
 }
 
 @media (hover: hover) {
   .queuePerson:hover {
-    color: var(--color-accent-text);
-    text-decoration-color: currentColor;
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
   }
+}
+
+.queuePerson:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Очередь не обновилась (лимит GitHub, нет сети) — мелко внизу страницы, показана сохранённая */
+.staleNote {
+  margin: var(--space-6) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  text-align: center;
 }
 
 /* Что человек сам написал в заголовке записи (или @логин, если его нет в списке группы) */
