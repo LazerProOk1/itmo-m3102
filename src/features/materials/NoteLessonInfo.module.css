@@ -1,0 +1,21 @@
+/* Связи конспекта — обычный текст с « · » между кусками: переносится как текст, точка не уезжает в начало строки */
+.info {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.info > * + *::before {
+  content: ' · ';
+}
+
+.info a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .info a:hover {
+    color: var(--color-accent-text);
+  }
+}

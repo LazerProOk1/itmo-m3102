@@ -1,7 +1,8 @@
-import { Clock, MapPin, Pencil, Plus, User, Users } from 'lucide-react';
+import { Clock, MapPin, NotebookText, Pencil, Plus, User, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { SPRING_SNAPPY } from '../../lib/motion';
@@ -9,10 +10,13 @@ import { useFloatingPosition } from '../../lib/useFloatingPosition';
 import { HomeworkCard } from '../homework/HomeworkCard';
 import { useHomeworkDialog } from '../homework/HomeworkDialog';
 import { useHomeworkStore } from '../homework/homeworkStore';
+import { useLectureNotesStore } from '../materials/lectureNotesStore';
 import { useEditMode } from '../settings/EditModeContext';
 import { useSubjectName } from '../subjects/subjectsStore';
 import { CLASS_TYPE_LABELS, CLASS_TYPE_TONES } from './labels';
+import { labelMatches, lessonNumber } from './lessons';
 import type { ClassOccurrence } from './occurrences';
+import { useScheduleData } from './scheduleStore';
 import styles from './ClassDetailsPopover.module.css';
 
 interface ClassDetailsPopoverProps {
@@ -40,6 +44,13 @@ export function ClassDetailsPopover({ occurrence, onClose, onEdit, anchorRef, al
   // ДЗ этой пары: тот же предмет и та же дата (id занятий у нас и на сайте группы разные)
   const allHomework = useHomeworkStore((state) => state.items);
   const homework = allHomework.filter((item) => item.lessonDate === occurrence.date && item.subject === subjectName);
+  // Конспект этой пары: она третья лекция по предмету — папка «Лекция 3» (или «Лекция 2-3») у группы
+  const scheduleData = useScheduleData();
+  const lesson = lessonNumber(occurrence, scheduleData);
+  const allNotes = useLectureNotesStore((state) => state.lectureNotes);
+  const lessonNotes = lesson
+    ? allNotes.filter((note) => !note.archived && note.subjectId === details.subjectId && labelMatches(note.lectureNumber, lesson))
+    : [];
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -115,6 +126,29 @@ export function ClassDetailsPopover({ occurrence, onClose, onEdit, anchorRef, al
           </span>
         </div>
       </div>
+
+      {lesson && (
+        <div className={styles.homework}>
+          <p className={styles.homeworkTitle}>
+            {lesson.kind} {lesson.n} · конспект
+          </p>
+          {lessonNotes.length > 0 ? (
+            lessonNotes.map((note) => (
+              <Link key={note.id} to={`/materials/notes/${note.id}`} className={styles.noteLink} onClick={onClose}>
+                <NotebookText size={14} strokeWidth={1.75} aria-hidden />
+                {note.title}
+              </Link>
+            ))
+          ) : (
+            <p className={styles.noteEmpty}>
+              Пока нет —{' '}
+              <Link to={`/materials?s=${details.subjectId}`} onClick={onClose}>
+                все конспекты предмета
+              </Link>
+            </p>
+          )}
+        </div>
+      )}
 
       {homework.length > 0 && (
         <div className={styles.homework}>

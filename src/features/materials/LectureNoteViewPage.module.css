@@ -51,12 +51,6 @@
   letter-spacing: -0.025em;
 }
 
-.subtitle {
-  margin-top: var(--space-1);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
 .actions {
   display: flex;
   flex-shrink: 0;

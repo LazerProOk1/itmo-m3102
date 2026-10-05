@@ -1,8 +1,9 @@
-import { ArrowUpRight, Send } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { buttonClass } from '../../components/ui/Button';
 import { GithubMark } from '../../components/ui/GithubMark';
 import { Modal } from '../../components/ui/Modal';
+import { TelegramMark } from '../../components/ui/TelegramMark';
 import { M3102_STUDENTS, type Student } from '../../data/m3102';
 import { REPO_URL } from '../../services/github';
 import { useQueueStore } from '../deadlines/queueStore';
@@ -67,7 +68,7 @@ function ProfileBody({ student }: { student: Student }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Send size={16} strokeWidth={1.75} aria-hidden />@{student.telegram}
+            <TelegramMark size={16} />@{student.telegram}
           </a>
         )}
         <a

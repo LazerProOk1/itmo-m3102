@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
+import { GithubMark } from '../../components/ui/GithubMark';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { TelegramMark } from '../../components/ui/TelegramMark';
 import { M3102_STUDENTS } from '../../data/m3102';
 import { REPO_URL } from '../../services/github';
 import { useProfileStore } from './profileStore';
@@ -45,11 +47,13 @@ export function StudentsPage() {
                 </h3>
                 <div className={styles.links}>
                   <a href={github} target="_blank" rel="noopener noreferrer">
-                    GitHub · @{student.github}
+                    <GithubMark size={14} />
+                    <span>@{student.github}</span>
                   </a>
                   {student.telegram && (
                     <a href={`https://t.me/${encodeURIComponent(student.telegram)}`} target="_blank" rel="noopener noreferrer">
-                      Telegram · @{student.telegram}
+                      <TelegramMark size={14} />
+                      <span>@{student.telegram}</span>
                     </a>
                   )}
                 </div>

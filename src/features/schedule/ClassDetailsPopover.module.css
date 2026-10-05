@@ -51,6 +51,38 @@
   color: var(--color-accent-text);
 }
 
+/* Конспект этой пары — ссылки строками */
+.noteLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.noteLink svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+@media (hover: hover) {
+  .noteLink:hover {
+    color: var(--color-accent-text);
+  }
+}
+
+.noteEmpty {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.noteEmpty a {
+  color: var(--color-text-secondary);
+}
+
 /* ДЗ этой пары (общее ДЗ группы) */
 .homework {
   max-height: 220px;

@@ -155,6 +155,9 @@ export function SubjectDetailPage() {
       <div role="tabpanel" className={styles.panel}>
         {tab === 'overview' && (
           <SubjectOverview
+            subjectId={subject.id}
+            lectureNotes={subjectLectureNotes}
+            onEditNote={lectureNoteDialog.openEdit}
             tasks={subjectTasks}
             materials={subjectMaterials}
             links={subjectLinks}

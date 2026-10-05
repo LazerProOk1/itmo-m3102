@@ -1,5 +1,6 @@
 import { ExternalLink, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { Badge } from '../../components/ui/Badge';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
@@ -9,7 +10,10 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
 import { GROUP_REPO, repoEditUrl } from '../../services/github';
-import { useGroupStore, type GroupDeadline } from '../group/groupStore';
+import { filePath, useGroupStore, type GroupDeadline } from '../group/groupStore';
+import { resolveSubjectFolder } from '../../data/m3102';
+import { deadlineSubjectId } from '../subjects/subjectStats';
+import { useSubjectsStore } from '../subjects/subjectsStore';
 import { deadlineInfo, orderDeadlines } from './deadlineInfo';
 import { useEditMode } from '../settings/EditModeContext';
 import { useProfileStore } from '../group/profileStore';
@@ -96,6 +100,26 @@ export function DeadlinesPage() {
   );
 }
 
+/** Связи дедлайна: предмет «АИСД - Лаба» → страница предмета, его конспекты и папка лабораторных группы */
+function DeadlineLinks({ name }: { name: string }) {
+  const subjectId = deadlineSubjectId(name);
+  const subjectName = useSubjectsStore((state) => state.subjects.find((subject) => subject.id === subjectId)?.name);
+  const labsFolder = useGroupStore((state) => {
+    const file = state.files.find(
+      (item) => item.path.startsWith('Лабораторные/') && resolveSubjectFolder(item.path.split('/')[1] ?? '') === subjectId,
+    );
+    return file && file.path.split('/').slice(0, 2).join('/');
+  });
+  if (!subjectId || !subjectName) return null;
+  return (
+    <p className={styles.links}>
+      <Link to={`/subjects/${subjectId}`}>{subjectName}</Link>
+      <Link to={`/materials?s=${subjectId}`}>Конспекты</Link>
+      {labsFolder && <Link to={filePath(labsFolder)}>Лабораторные</Link>}
+    </p>
+  );
+}
+
 interface DeadlineCardProps {
   item: GroupDeadline;
   index: number;
@@ -128,6 +152,7 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
         до {formatFull(item.deadline)}
         {item.note && ` · ${item.note}`}
       </p>
+      <DeadlineLinks name={item.name} />
 
       <div className={styles.queueHead}>
         Очередь <span>{queueError ? 'недоступна' : `${queue.length} чел.`}</span>

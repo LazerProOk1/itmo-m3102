@@ -56,6 +56,30 @@
   color: var(--color-text-muted);
 }
 
+/* Связи дедлайна: предмет · конспекты · лабораторные — тихие ссылки через точку */
+.links {
+  margin: calc(-1 * var(--space-1)) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.links > * + *::before {
+  content: ' · ';
+}
+
+.links a {
+  position: relative;
+  z-index: 1;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .links a:hover {
+    color: var(--color-accent-text);
+  }
+}
+
 .title {
   margin: 0;
   font-size: var(--text-md);
