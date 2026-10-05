@@ -18,7 +18,13 @@ function normalize(raw) {
 async function ensureMemes() {
   if (manifest) return manifest;
   if (!loading) loading = (async () => {
-    const remote = await readRepoFileOptional(MEMES_PATH);
+    let remote;
+    try { remote = await readRepoFileOptional(MEMES_PATH); }
+    catch (error) {
+      const response = await fetch('./data/memes.json').catch(() => null);
+      if (!response?.ok) throw error;
+      remote = { text: await response.text() };
+    }
     manifest = remote ? normalize(JSON.parse(remote.text)) : { version: 1, items: [] };
     return manifest;
   })().catch(error => { loading = null; throw error; });

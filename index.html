@@ -357,6 +357,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     import { quizFigure, bindQuizzes, quizPageSource, mountQuizPage } from './js/quiz.js';
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
     import { ic, hydrateIcons, installGlyphIcons } from './js/icons.js';
+    import { installOffline, mountOfflinePanel } from './js/offline.js';
+
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
       'Записи лекций':'Аудиозаписи лекций',
@@ -1357,8 +1359,9 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
           <a class="card" data-go="diagrams"><div class="ic">${ic('diagram',22)}</div><div class="meta"><div class="name">Диаграммы</div><div class="desc">Конструктор диаграмм для конспектов</div></div></a>
           <a class="card" data-go="memes"><div class="ic">${ic('smile',22)}</div><div class="meta"><div class="name">Мемы</div><div class="desc">Мемы группы</div></div></a>
           <a class="card" data-go="hedgehog"><div class="ic">🦔</div><div class="meta"><div class="name">Ёжик-кувырок</div><div class="desc">Мини-игра: катись с холмов, делай кувырки, не засыпай</div></div></a>
-        </div>`;
+        </div><div id="offline-panel" style="margin-top:18px"></div>`;
       c.querySelectorAll('[data-go]').forEach(el=>el.onclick=e=>{e.preventDefault();location.hash='#/'+el.dataset.go;});
+        mountOfflinePanel(c.querySelector('#offline-panel'));
     }
 
     /* ---------- страница «ДЗ и Дедлайны» ---------- */
@@ -3072,41 +3075,96 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       }
     }
 
-    function renderPdfView(path){
-      const seq=routeSeq;
-      const name=prettyName(path,path.split('/').pop());
-      const c=document.getElementById('content');
-      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
-      loadDisplayNames().then(()=>{const v=document.querySelector('.vn-t');if(v)v.textContent=stripExt(prettyName(path,name));});
-      bindBack(path);
-      mountSidebar(document.getElementById('note-side'),path,{toc:false});
-      if(!window.__pdfWorkerSet){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';window.__pdfWorkerSet=true;}
-      pdfjsLib.getDocument(rawUrl(path)).promise.then(pdf=>{
-        if(seq!==routeSeq)return;
-        const status=document.getElementById('pdf-status');if(status)status.remove();
-        const container=document.getElementById('pdf-pages');
-        for(let n=1;n<=pdf.numPages;n++){
-          const canvas=document.createElement('canvas');
-          canvas.className='pdf-page';
-          container.appendChild(canvas);
-          pdf.getPage(n).then(page=>{
-            const cw=Math.min(container.clientWidth||860,900);
-            const vp0=page.getViewport({scale:1});
-            const viewport=page.getViewport({scale:cw/vp0.width});
-            canvas.width=viewport.width;canvas.height=viewport.height;
-            page.render({canvasContext:canvas.getContext('2d'),viewport});
-          });
-        }
-      }).catch(err=>{
-      if(seq!==routeSeq)return;
-      findMoved(path).then(moved=>{
-        if(seq!==routeSeq)return;
-        if(moved){location.replace('#/view/'+encodePath(moved));return;}
-        const status=document.getElementById('pdf-status');
-        if(status)status.textContent='Не удалось загрузить PDF ('+err.message+'). Попробуйте скачать файл напрямую.';
-      });
-    });
+function renderPdfView(path){
+  const seq=routeSeq;
+  const name=prettyName(path,path.split('/').pop());
+  const c=document.getElementById('content');
+
+  c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
+
+  loadDisplayNames().then(()=>{
+    const v=document.querySelector('.vn-t');
+    if(v)v.textContent=stripExt(prettyName(path,name));
+  });
+
+  bindBack(path);
+  mountSidebar(document.getElementById('note-side'),path,{toc:false});
+
+  if(!window.__pdfWorkerSet){
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    window.__pdfWorkerSet=true;
+  }
+
+  const cachedPdf=async()=>{
+    try{
+      const hit=await caches.match(rawUrl(path),{ignoreVary:true});
+      return hit ? await hit.arrayBuffer() : null;
+    }catch(e){
+      return null;
     }
+  };
+
+  const open=async()=>{
+    const offline=navigator.onLine ? null : await cachedPdf();
+
+    if(offline)
+      return pdfjsLib.getDocument({data:offline}).promise;
+
+    try{
+      return await pdfjsLib.getDocument(rawUrl(path)).promise;
+    }catch(err){
+      const data=await cachedPdf();
+      if(data)
+        return pdfjsLib.getDocument({data}).promise;
+      throw err;
+    }
+  };
+
+  open().then(pdf=>{
+    if(seq!==routeSeq)return;
+
+    const status=document.getElementById('pdf-status');
+    if(status)status.remove();
+
+    const container=document.getElementById('pdf-pages');
+
+    for(let n=1;n<=pdf.numPages;n++){
+      const canvas=document.createElement('canvas');
+      canvas.className='pdf-page';
+      container.appendChild(canvas);
+
+      pdf.getPage(n).then(page=>{
+        const cw=Math.min(container.clientWidth||860,900);
+        const vp0=page.getViewport({scale:1});
+        const viewport=page.getViewport({scale:cw/vp0.width});
+
+        canvas.width=viewport.width;
+        canvas.height=viewport.height;
+
+        page.render({
+          canvasContext:canvas.getContext('2d'),
+          viewport
+        });
+      });
+    }
+  }).catch(err=>{
+    if(seq!==routeSeq)return;
+
+    findMoved(path).then(moved=>{
+      if(seq!==routeSeq)return;
+
+      if(moved){
+        location.replace('#/view/'+encodePath(moved));
+        return;
+      }
+
+      const status=document.getElementById('pdf-status');
+      if(status)
+        status.textContent='Не удалось загрузить PDF ('+err.message+'). Попробуйте скачать файл напрямую.';
+    });
+  });
+}
+
 
     function renderNoteView(path){
       const seq=routeSeq;
