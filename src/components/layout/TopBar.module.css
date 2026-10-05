@@ -6,14 +6,14 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* На всю ширину колонки, а не по центральной колонке страницы: название раздела — сразу у боковой панели,
+   кнопки — у правого края (на широком экране иначе между панелью и названием большая пустота) */
 .inner {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  max-width: var(--content-max-width);
   height: var(--topbar-height);
-  margin: 0 auto;
-  padding: 0 var(--space-10);
+  padding: 0 var(--space-6);
 }
 
 .mobileBrand {
