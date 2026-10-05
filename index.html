@@ -1294,7 +1294,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         alert('Не удалось сформировать PDF: '+(e&&e.message?e.message:e));
       }finally{
         if(root && root.parentNode)root.parentNode.removeChild(root);
-        if(btn){btn.disabled=false;btn.textContent=origText||'📄 Скачать PDF';}
+        if(btn){btn.disabled=false;btn.textContent=origText||'📄 PDF';}
         btn.innerHTML=origHtml
       }
     }
@@ -2868,7 +2868,7 @@ function mount(container,opts){
         const own=save.owned.includes(h.id),sel=save.hat===h.id;
         return '<button type="button" class="hh-hat'+(sel?' hh-sel':'')+(own?'':' hh-lock')+'" data-hat="'+h.id+'"><canvas></canvas><b>'+h.name+'</b><span>'+(sel?'Надето':own?'Надеть':'🍓 '+h.cost)+'</span></button>';
       }).join('')+'</div>'+
-      '<div class="hh-row"><button class="btn2 btn-primary hh-big" data-act="back" type="button">← Назад</button></div>'+
+      '<div class="hh-row"><button class="btn2 btn-primary hh-big" data-act="back" type="button">←</button></div>'+
     '</div>';
     ovs.hats.querySelectorAll('.hh-hat').forEach(el=>drawPreview(el.querySelector('canvas'),el.dataset.hat,22,[72,72]));
   }
@@ -3007,10 +3007,10 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
     function viewBar(kind,name,path,extra=''){
       const kindIcon=kind==='PDF'?'file':'notes';
       return `<div class="viewbar">
-        <button class="btn2" id="back-btn" type="button">${ic('arrowLeft',16)} Назад</button>
+        <button class="btn2" id="back-btn" type="button">${ic('arrowLeft',16)}</button>
         <div class="viewname"><span class="vn-ic">${ic(kindIcon,18)}</span> <span class="vn-t">${esc(name)}</span></div>
         ${extra}
-        <a class="btn2" href="${rawUrl(path)}" target="_blank" rel="noopener" download>${ic('download',16)} Скачать</a>
+        <a class="btn2" href="${rawUrl(path)}" target="_blank" rel="noopener" download>${ic('download',16)}</a>
       </div>`;
     }
     function bindBack(path){document.getElementById('back-btn').onclick=()=>goto(path.split('/').slice(0,-1).join('/'));}
@@ -3058,7 +3058,7 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
             }else if(e==='md'){
               grid+=`<a class="card" data-note="${esc(it.path)}"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)} · читать конспект</div></div></a>`;
             }else{
-              grid+=`<div class="card" style="cursor:default;"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)}</div></div><a class="btn" href="${rawUrl(it.path)}" target="_blank" rel="noopener">Скачать</a></div>`;
+              grid+=`<div class="card" style="cursor:default;"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)}</div></div><a class="btn" href="${rawUrl(it.path)}" target="_blank" rel="noopener"></a></div>`;
             }
           }
         });
@@ -3170,7 +3170,7 @@ function renderPdfView(path){
       const seq=routeSeq;
       const name=prettyName(path,path.split('/').pop());
       const c=document.getElementById('content');
-      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,   `<button class="btn2" id="note-print-btn" type="button">${ic('download',16)} Скачать PDF</button>`)}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
+      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,   `<button class="btn2" id="note-print-btn" type="button">${ic('download',16)} PDF</button>`)}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
       bindBack(path);
       const side=mountSidebar(document.getElementById('note-side'),path,{toc:true});
       document.getElementById('note-print-btn').onclick=()=>{generateNotePdf(prettyName(path,name));};
