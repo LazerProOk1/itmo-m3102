@@ -5,6 +5,7 @@
 }
 
 .card {
+  position: relative;
   display: flex;
   gap: var(--space-4);
   padding: var(--space-4);
@@ -33,6 +34,46 @@
   margin: 0;
   font-size: var(--text-base);
   font-weight: var(--weight-semibold);
+}
+
+/* Вся карточка открывает профиль: растянутый ::after кнопки; ссылки внутри — поверх него */
+.open {
+  position: static;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.open:focus-visible {
+  outline: none;
+}
+
+.card:has(.open:focus-visible) {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .card:has(.open:hover) {
+    border-color: var(--color-border-hover);
+  }
+}
+
+.links a,
+.commits {
+  position: relative;
+  z-index: 1;
 }
 
 .links {

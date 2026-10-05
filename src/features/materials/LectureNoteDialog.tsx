@@ -4,14 +4,13 @@ import { Button } from '../../components/ui/Button';
 import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 import { Modal } from '../../components/ui/Modal';
 import { useEditMode } from '../settings/EditModeContext';
-import type { ID, LectureNote, LectureNoteCollection } from '../../types/models';
+import type { ID, LectureNote } from '../../types/models';
 import { LectureNoteForm, type LectureNoteFormValues } from './LectureNoteForm';
 import { useLectureNotesStore } from './lectureNotesStore';
 import styles from './LectureNoteDialog.module.css';
 
 /** Что открыто в окне: новый конспект (можно заранее задать предмет) или редактирование существующего */
-export type LectureNoteDialogTarget =
-  { mode: 'create'; defaultSubjectId?: ID; defaultCollection?: LectureNoteCollection } | { mode: 'edit'; note: LectureNote };
+export type LectureNoteDialogTarget = { mode: 'create'; defaultSubjectId?: ID } | { mode: 'edit'; note: LectureNote };
 
 const FORM_ID = 'lecture-note-form';
 
@@ -41,7 +40,7 @@ export function LectureNoteDialog({ target, onClose }: LectureNoteDialogProps) {
     };
 
     if (target.mode === 'edit') updateLectureNote(target.note.id, draft);
-    else addLectureNote({ ...draft, collection: target.defaultCollection });
+    else addLectureNote(draft);
     onClose();
   }
 

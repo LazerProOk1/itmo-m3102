@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveSubjectFolder } from '../data/m3102';
-import { cleanTitle, fileUrl, parseLessonFolder, parseStreamFilename, stripFrontMatter, stripVaultSections } from './githubContent';
+import { cleanTitle, fileUrl, parseLessonFolder, stripFrontMatter, stripVaultSections } from './githubContent';
 
 describe('githubContent', () => {
   it('папка занятия → номер', () => {
@@ -24,16 +24,6 @@ describe('githubContent', () => {
   it('front-matter снимается только служебный', () => {
     expect(stripFrontMatter('---\nmain: true\n---\n# Заголовок')).toBe('# Заголовок');
     expect(stripFrontMatter('---\nпросто линия\n---\nтекст')).toBe('---\nпросто линия\n---\nтекст');
-  });
-
-  it('файл конспекта 1 потока → номер, название, дата', () => {
-    expect(parseStreamFilename('02. Лекция - Предикаты и кванторы (2026-09-09).md')).toEqual({
-      lectureNumber: 'Лекция 2',
-      title: 'Предикаты и кванторы',
-      date: '2026-09-09',
-    });
-    expect(parseStreamFilename('01. Практикум - Основы работы с консольным Git (2026-09-09).md')?.lectureNumber).toBe('Практикум 1');
-    expect(parseStreamFilename('Дискретная математика.md')).toBeNull();
   });
 
   it('заголовок без LaTeX и префикса', () => {

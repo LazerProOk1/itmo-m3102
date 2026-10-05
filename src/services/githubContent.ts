@@ -11,7 +11,7 @@ import { quizPageToMarkdown } from '../components/quiz/parseQuiz';
 import { useScheduleStore } from '../features/schedule/scheduleStore';
 import { useSemesterSettingsStore } from '../features/settings/semesterSettingsStore';
 import { storageKey } from '../lib/storage';
-import type { LectureNote, LectureNoteCollection, Material, MaterialCategory, MaterialType, SubjectInfo } from '../types/models';
+import type { LectureNote, Material, MaterialCategory, MaterialType, SubjectInfo } from '../types/models';
 
 /**
  * Контент из двух публичных репозиториев:
@@ -21,9 +21,9 @@ import type { LectureNote, LectureNoteCollection, Material, MaterialCategory, Ma
  *   Материалы/{Предмет}/…, Лабораторные/{Предмет}/…, Записи лекций/{Предмет}/…, Дедлайны/deadlines.json,
  *   data/homework.json — общее ДЗ группы, data/links.json — полезные ссылки
  *
- * stream — Kefirleos/itmo-vault, Obsidian-хранилище 1 потока:
- *   Конспекты/1 семестр/Поток 1/{Предмет}/{NN}. {Тип} - {Название} ({YYYY-MM-DD}).md
- *   Конспекты/1 семестр/Поток 1/{Предмет}/{Предмет}.md — описание курса (SubjectInfo)
+ * stream — Kefirleos/itmo-vault, Obsidian-хранилище 1 потока: оттуда берём только описания курсов
+ *   Конспекты/1 семестр/Поток 1/{Предмет}/{Предмет}.md (SubjectInfo). Конспекты потока на сайте не показываем
+ *   (решение владельца 05.10.2026): в «Конспектах» — только конспекты группы.
  *
  * Список файлов — по 1 запросу к GitHub API на репозиторий (лимит 60/час без токена), сами файлы —
  * с raw.githubusercontent.com / GitHub Pages (CORS открыт, лимита нет). Записи имеют id "gh:{путь}".
@@ -32,11 +32,6 @@ export const REPOS = {
   group: { name: 'RedstoneLord/itmo-m3102', branch: 'master' },
   stream: { name: 'Kefirleos/itmo-vault', branch: 'main' },
 } as const;
-
-export const COLLECTION_LABELS: Record<LectureNoteCollection, string> = {
-  stream: 'Конспекты 1 потока',
-  group: 'Конспекты группы M3102',
-};
 
 const PAGES_BASE = 'https://redstonelord.github.io/itmo-m3102/';
 const STREAM_FOLDER = 'Конспекты/1 семестр/Поток 1/';
@@ -49,10 +44,9 @@ export function fileUrl(path: string): string {
 }
 
 /** Оригинал конспекта на GitHub — для кнопки «Оригинал» на странице чтения */
-export function noteSourceUrl(note: Pick<LectureNote, 'sourceRef' | 'collection'>): string | undefined {
+export function noteSourceUrl(note: Pick<LectureNote, 'sourceRef'>): string | undefined {
   if (!note.sourceRef) return undefined;
-  const repo = REPOS[note.collection ?? 'group'];
-  return `https://github.com/${repo.name}/blob/${repo.branch}/${encodePath(note.sourceRef)}`;
+  return `https://github.com/${REPOS.group.name}/blob/${REPOS.group.branch}/${encodePath(note.sourceRef)}`;
 }
 
 export function rawUrl(repo: keyof typeof REPOS, path: string): string {
@@ -82,7 +76,7 @@ const MATERIAL_SECTIONS: Record<string, { category: MaterialCategory; label: str
 };
 
 export interface SyncSummary {
-  stream: number;
+  /** Конспектов группы */
   group: number;
   subjectInfo: number;
   materials: number;
@@ -129,17 +123,9 @@ export function stripVaultSections(text: string): string {
 }
 
 /** Папка файла в raw-виде — относительные картинки в конспектах (`../img/diagram.svg`) считаются от неё */
-export function noteAssetBase(note: Pick<LectureNote, 'sourceRef' | 'collection'>): string | undefined {
+export function noteAssetBase(note: Pick<LectureNote, 'sourceRef'>): string | undefined {
   if (!note.sourceRef) return undefined;
-  return rawUrl(note.collection ?? 'group', note.sourceRef.slice(0, note.sourceRef.lastIndexOf('/') + 1));
-}
-
-const STREAM_LESSON = /^(\d+)\.\s*(\S+)\s*-\s*(.+?)\s*\((\d{4}-\d{2}-\d{2})\)$/u;
-
-/** "02. Лекция - Предикаты и кванторы (2026-09-09)" → Лекция 2 / Предикаты и кванторы / дата */
-export function parseStreamFilename(name: string): { lectureNumber: string; title: string; date: string } | null {
-  const match = stem(name).match(STREAM_LESSON);
-  return match ? { lectureNumber: `${match[2]} ${Number(match[1])}`, title: match[3]!, date: match[4]! } : null;
+  return rawUrl('group', note.sourceRef.slice(0, note.sourceRef.lastIndexOf('/') + 1));
 }
 
 function materialType(name: string): MaterialType {
@@ -218,16 +204,16 @@ function splitTitle(markdown: string): { title?: string; content: string } {
   return match ? { title: cleanTitle(match[1]!), content: markdown.slice(match[0].length).trimStart() } : { content: markdown };
 }
 
-type NoteFields = Pick<LectureNote, 'subjectId' | 'lectureNumber' | 'title' | 'contentType' | 'content' | 'collection' | 'sourceVersion'>;
+type NoteFields = Pick<LectureNote, 'subjectId' | 'lectureNumber' | 'title' | 'contentType' | 'content' | 'sourceVersion'>;
 
-function toNote(path: string, fields: NoteFields, previous: LectureNote[], now: string, createdAt = now): LectureNote {
+function toNote(path: string, fields: NoteFields, previous: LectureNote[], now: string): LectureNote {
   const id = `gh:${path}`;
   const old = previous.find((note) => note.id === id);
   const unchanged = old && old.content === fields.content && old.title === fields.title;
   return {
     ...fields,
     id,
-    createdAt: old?.createdAt ?? createdAt,
+    createdAt: old?.createdAt ?? now,
     updatedAt: unchanged ? old.updatedAt : now,
     lastOpenedAt: old?.lastOpenedAt,
     source: 'github',
@@ -269,7 +255,6 @@ async function buildGroupNotes(tree: TreeFile[], previous: LectureNote[], now: s
           title,
           contentType: ext === 'md' ? 'markdown' : ext === 'pdf' ? 'pdf' : 'link',
           content,
-          collection: 'group',
           sourceVersion,
         },
         previous,
@@ -279,64 +264,35 @@ async function buildGroupNotes(tree: TreeFile[], previous: LectureNote[], now: s
   );
 }
 
-interface StreamContent {
-  notes: LectureNote[];
-  info: SubjectInfo[];
-}
-
-async function buildStreamContent(tree: TreeFile[], notes: LectureNote[], info: SubjectInfo[], now: string): Promise<StreamContent> {
+/** Описания курсов из хранилища потока: {Предмет}/{Предмет}.md, без списка конспектов и навигации */
+async function buildCourseInfo(tree: TreeFile[], info: SubjectInfo[], now: string): Promise<SubjectInfo[]> {
   const files = tree
     .filter(({ path }) => path.startsWith(STREAM_FOLDER) && path.endsWith('.md'))
     .map((file) => ({ file, path: file.path, parts: file.path.slice(STREAM_FOLDER.length).split('/') }))
-    .filter(({ parts }) => parts.length === 2 && STREAM_SUBJECT_FOLDERS[parts[0]!]);
+    .filter(({ parts }) => parts.length === 2 && STREAM_SUBJECT_FOLDERS[parts[0]!] && stem(parts[1]!) === parts[0]);
 
-  const result: StreamContent = { notes: [], info: [] };
-  await Promise.all(
-    files.map(async ({ file, path, parts }) => {
-      const [subjectFolder, name] = parts as [string, string];
-      const subjectId = STREAM_SUBJECT_FOLDERS[subjectFolder]!;
-      const id = `gh:${path}`;
-      const oldNote = notes.find((item) => item.id === id);
-      const old = info.find((item) => item.id === id);
+  return Promise.all(
+    files.map(async ({ file, path, parts }): Promise<SubjectInfo> => {
+      const old = info.find((item) => item.id === `gh:${path}`);
       // Файл не менялся с прошлой синхронизации — не качаем
-      if (oldNote?.sourceVersion === fileVersion(file)) return void result.notes.push({ ...oldNote, archived: false });
-      if (old?.sourceVersion === fileVersion(file)) return void result.info.push({ ...old, archived: false });
+      if (old?.sourceVersion === fileVersion(file)) return { ...old, archived: false };
       const fetched = await fetchFile('stream', file);
-      const { content } = splitTitle(stripFrontMatter(fetched.text));
-      const lesson = parseStreamFilename(name);
-
-      if (lesson) {
-        const fields: NoteFields = {
-          subjectId,
-          lectureNumber: lesson.lectureNumber,
-          title: lesson.title,
-          contentType: 'markdown',
-          content,
-          collection: 'stream',
-          sourceVersion: fetched.version,
-        };
-        result.notes.push(toNote(path, fields, notes, now, `${lesson.date}T00:00:00.000Z`));
-        return;
-      }
-
-      const isDescription = stem(name) === subjectFolder;
-      const infoContent = isDescription ? stripVaultSections(content) : content;
-      result.info.push({
-        id,
+      const content = stripVaultSections(splitTitle(stripFrontMatter(fetched.text)).content);
+      return {
+        id: `gh:${path}`,
         createdAt: old?.createdAt ?? now,
-        updatedAt: old?.content === infoContent ? old.updatedAt : now,
-        subjectId,
-        title: isDescription ? 'Описание курса (1 поток)' : stem(name),
-        content: infoContent,
-        category: isDescription ? 'description' : 'other',
+        updatedAt: old?.content === content ? old.updatedAt : now,
+        subjectId: STREAM_SUBJECT_FOLDERS[parts[0]!]!,
+        title: 'Описание курса (1 поток)',
+        content,
+        category: 'description',
         source: 'github',
         sourceRef: path,
         sourceVersion: fetched.version,
         archived: false,
-      });
+      };
     }),
   );
-  return result;
 }
 
 function buildMaterials(paths: string[], previous: Material[], now: string): Material[] {
@@ -385,9 +341,6 @@ function applyGroupSchedule(schedule: GroupSchedule) {
   useSemesterSettingsStore.getState().updateSemesterSettings({ weekOneStart: schedule.weekOneStart });
 }
 
-const isGithubNoteOf = (collection: LectureNoteCollection) => (note: LectureNote) =>
-  note.source === 'github' && (note.collection ?? 'group') === collection;
-
 /**
  * Синхронизирует оба репозитория независимо: если один недоступен, второй всё равно обновится.
  * Файлы, которых больше нет в репозитории: конспекты и описания курсов архивируются, материалы
@@ -399,7 +352,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   const infoBefore = useSubjectInfoStore.getState().items;
   const materialsBefore = useMaterialsStore.getState().materials;
 
-  const [group, stream] = await Promise.allSettled([
+  const [group, courses] = await Promise.allSettled([
     fetchTree('group').then(async (tree) => {
       const paths = tree.map((file) => file.path);
       const files: RepoFile[] = tree.map(({ path, size }) => ({ path, size }));
@@ -415,27 +368,21 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       ]);
       return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
     }),
-    fetchTree('stream').then((tree) => buildStreamContent(tree, notesBefore, infoBefore, now)),
+    fetchTree('stream').then((tree) => buildCourseInfo(tree, infoBefore, now)),
   ]);
 
-  const summary: SyncSummary = { stream: 0, group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };
-
-  function replaceNotes(collection: LectureNoteCollection, fresh: LectureNote[]) {
-    const ids = new Set(fresh.map((note) => note.id));
-    useLectureNotesStore.setState((state) => ({
-      lectureNotes: [
-        ...fresh,
-        ...state.lectureNotes
-          .filter((note) => !ids.has(note.id))
-          .map((note) => (isGithubNoteOf(collection)(note) ? { ...note, archived: true } : note)),
-      ],
-    }));
-    summary[collection] = fresh.length;
-  }
+  const summary: SyncSummary = { group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };
 
   if (group.status === 'fulfilled') {
     const { files, notes, deadlines, homework, links, schedule, materials } = group.value;
-    replaceNotes('group', notes);
+    const ids = new Set(notes.map((note) => note.id));
+    useLectureNotesStore.setState((state) => ({
+      lectureNotes: [
+        ...notes,
+        ...state.lectureNotes.filter((note) => !ids.has(note.id)).map((note) => (note.source === 'github' ? { ...note, archived: true } : note)),
+      ],
+    }));
+    summary.group = notes.length;
     useMaterialsStore.setState((state) => ({
       materials: [...materials, ...state.materials.filter((material) => !material.id.startsWith('gh:'))],
     }));
@@ -450,22 +397,21 @@ export async function syncGithubContent(): Promise<SyncSummary> {
     Object.assign(summary, { materials: materials.length, deadlines: deadlines.length, homework: homework.length, links: links.length });
   }
 
-  if (stream.status === 'fulfilled') {
-    replaceNotes('stream', stream.value.notes);
-    const ids = new Set(stream.value.info.map((item) => item.id));
+  if (courses.status === 'fulfilled') {
+    const ids = new Set(courses.value.map((item) => item.id));
     useSubjectInfoStore.setState((state) => ({
       items: [
-        ...stream.value.info,
+        ...courses.value,
         ...state.items.filter((item) => !ids.has(item.id)).map((item) => (item.source === 'github' ? { ...item, archived: true } : item)),
       ],
     }));
-    summary.subjectInfo = stream.value.info.length;
+    summary.subjectInfo = courses.value.length;
   }
 
   // Хоть один репозиторий обновился — следующая автосинхронизация через 10 минут: иначе недоступный второй
   // заставлял бы синхронизироваться заново при каждом открытии сайта и тратить лимит GitHub API
-  if (group.status === 'fulfilled' || stream.status === 'fulfilled') localStorage.setItem(LAST_SYNC_KEY, String(Date.now()));
-  const failed = [group, stream].find((result) => result.status === 'rejected');
+  if (group.status === 'fulfilled' || courses.status === 'fulfilled') localStorage.setItem(LAST_SYNC_KEY, String(Date.now()));
+  const failed = [group, courses].find((result) => result.status === 'rejected');
   if (failed) throw failed.reason instanceof Error ? failed.reason : new Error('Не удалось синхронизироваться с GitHub.');
   return summary;
 }

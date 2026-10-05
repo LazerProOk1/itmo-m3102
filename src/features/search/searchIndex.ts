@@ -2,7 +2,7 @@ import { FileText, NotebookText } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { SECTIONS, type Section } from '../../app/navigation';
 import { M3102_STUDENTS } from '../../data/m3102';
-import { COLLECTION_LABELS, rawUrl } from '../../services/githubContent';
+import { rawUrl } from '../../services/githubContent';
 import { useGroupStore } from '../group/groupStore';
 import { useHomeworkStore } from '../homework/homeworkStore';
 import { MATERIAL_TYPES } from '../materials/labels';
@@ -218,15 +218,10 @@ function buildGroups(): SearchGroup[] {
         .map((note) => ({
           id: note.id,
           title: note.lectureNumber ? `${note.lectureNumber}. ${note.title}` : note.title,
-          meta: [subjectName(note.subjectId), COLLECTION_LABELS[note.collection ?? 'group']].filter(Boolean).join(' · '),
+          meta: subjectName(note.subjectId),
           icon: note.contentType === 'markdown' ? NotebookText : FileText,
           path: `/materials/notes/${note.id}`,
-          body:
-            note.contentType === 'markdown'
-              ? plainText(note.content)
-              : note.sourceRef && (note.collection ?? 'group') === 'group'
-                ? pdfText.get(note.sourceRef)
-                : undefined,
+          body: note.contentType === 'markdown' ? plainText(note.content) : note.sourceRef ? pdfText.get(note.sourceRef) : undefined,
         })),
     },
     {

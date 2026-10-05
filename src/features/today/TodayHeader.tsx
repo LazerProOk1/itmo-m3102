@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
+import { GithubMark } from '../../components/ui/GithubMark';
 import { HedgehogLane } from '../../components/hedgehog/HedgehogLane';
 import { RunawayHedgehog } from '../../components/hedgehog/RunawayHedgehog';
 import { pickGreeting, RUNAWAY_GREETING, splitAccentPeriod } from '../../data/greetings';
@@ -16,6 +17,11 @@ interface TodayHeaderProps {
   week: StudyWeek;
 }
 
+const GITHUB_LINKS = [
+  { label: 'Репозиторий группы', href: 'https://github.com/RedstoneLord/itmo-m3102' },
+  { label: 'Код этого сайта', href: 'https://github.com/LazerProOk1/itmo-m3102' },
+];
+
 /** Шапка главной, как на сайте группы: случайное приветствие, дата, чётность недели — и ёжик. */
 export function TodayHeader({ date, week }: TodayHeaderProps) {
   const [greeting] = useState(pickGreeting);
@@ -24,7 +30,7 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
   const runaway = greeting === RUNAWAY_GREETING;
 
   return (
-    <header className={`${styles.header} hero`}>
+    <header className={`${styles.header} ${runaway ? styles.free : ''} hero`}>
       <div className={styles.copy}>
         <motion.h1
           key={greeting}
@@ -42,16 +48,20 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
           </strong>
           <span className={styles.chip}>{isVacation(date) ? 'Каникулы' : WEEK_PARITY_LABELS[week.weekInCycle]}</span>
         </div>
-        <p className={styles.links}>
-          <a href="https://github.com/RedstoneLord/itmo-m3102" target="_blank" rel="noreferrer">
-            Репозиторий группы <ArrowUpRight size={14} aria-hidden />
-          </a>
-          <a href="https://github.com/LazerProOk1/itmo-m3102" target="_blank" rel="noreferrer">
-            Код этого сайта <ArrowUpRight size={14} aria-hidden />
-          </a>
-        </p>
+        <nav className={styles.links} aria-label="GitHub">
+          {GITHUB_LINKS.map((link) => (
+            <a key={link.href} className={styles.repo} href={link.href} target="_blank" rel="noreferrer">
+              <GithubMark size={18} />
+              <span className={styles.repoText}>
+                <span className={styles.repoLabel}>{link.label}</span>
+                <span className={styles.repoName}>{link.href.replace('https://github.com/', '')}</span>
+              </span>
+              <ArrowUpRight size={14} strokeWidth={1.75} className={styles.repoArrow} aria-hidden />
+            </a>
+          ))}
+        </nav>
       </div>
-      {/* Ёжик бегает по низу шапки, как на сайте группы; «вырвался на свободу» — бежит по низу экрана */}
+      {/* Ёжик бегает по низу шапки, как на сайте группы; «вырвался на свободу» — бегает по всему экрану */}
       {!runaway && <HedgehogLane />}
       {runaway && <RunawayHedgehog />}
     </header>

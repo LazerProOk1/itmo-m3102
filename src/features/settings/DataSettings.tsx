@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { cn } from '../../lib/cn';
 import { STORAGE_PREFIX, storageKey } from '../../lib/storage';
-import { COLLECTION_LABELS, REPOS } from '../../services/githubContent';
+import { REPOS } from '../../services/githubContent';
 import { useSyncStore } from '../../services/syncStore';
 import { getToken, saveToken } from '../../services/github';
 import { TokenFields, type TokenValue } from '../group/TokenFields';
@@ -82,7 +82,7 @@ export function DataSettings() {
     <>
       <SettingsRow
         label="Синхронизировать с GitHub"
-        description={`Конспекты 1 потока из ${REPOS.stream.name}; конспекты, файлы, дедлайны, ДЗ и ссылки группы из ${REPOS.group.name}. Происходит и автоматически при открытии сайта (не чаще раза в 10 минут). Кнопка есть и в шапке.`}
+        description={`Конспекты, файлы, дедлайны, ДЗ и ссылки группы из ${REPOS.group.name}, описания курсов из ${REPOS.stream.name}. Происходит и автоматически при открытии сайта (не чаще раза в 10 минут). Кнопка есть и в шапке.`}
       >
         <Button variant="secondary" onClick={runSync} disabled={syncing}>
           <RefreshCw size={14} strokeWidth={2} className={cn(styles.syncIcon, syncing && styles.syncIconSpinning)} aria-hidden />
@@ -97,11 +97,7 @@ export function DataSettings() {
           <p className={styles.syncResultTitle}>Синхронизация завершена</p>
           <dl className={styles.syncResultStats}>
             <div>
-              <dt>{COLLECTION_LABELS.stream}</dt>
-              <dd>{syncResult.stream}</dd>
-            </div>
-            <div>
-              <dt>{COLLECTION_LABELS.group}</dt>
+              <dt>Конспекты</dt>
               <dd>{syncResult.group}</dd>
             </div>
             <div>

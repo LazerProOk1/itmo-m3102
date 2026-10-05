@@ -39,9 +39,7 @@ export function compareLessons(a: LectureNote, b: LectureNote): number {
 /** Конспекты того же предмета и той же папки, по порядку занятий — для навигации и «пред./след.» */
 export function useSiblingNotes(note: LectureNote): LectureNote[] {
   const notes = useLectureNotesStore((state) => state.lectureNotes);
-  return notes
-    .filter((item) => !item.archived && item.subjectId === note.subjectId && (item.collection ?? 'group') === (note.collection ?? 'group'))
-    .sort(compareLessons);
+  return notes.filter((item) => !item.archived && item.subjectId === note.subjectId).sort(compareLessons);
 }
 
 /**

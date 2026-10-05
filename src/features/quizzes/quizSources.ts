@@ -11,8 +11,7 @@ export interface QuizSource {
   load: () => Promise<string>;
 }
 
-const isGroupNote = (note: LectureNote) =>
-  note.source === 'github' && (note.collection ?? 'group') === 'group' && !note.archived && note.contentType === 'markdown';
+const isGroupNote = (note: LectureNote) => note.source === 'github' && !note.archived && note.contentType === 'markdown';
 
 /** Тесты конспекта: тесты группы внутри него, а если их нет — наш (как и показывает читалка) */
 // Поиск тестов прогоняет регулярку по всему тексту конспекта (до 100 КБ) — запоминаем по версии конспекта

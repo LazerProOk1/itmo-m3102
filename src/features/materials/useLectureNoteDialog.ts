@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ID, LectureNote, LectureNoteCollection } from '../../types/models';
+import type { ID, LectureNote } from '../../types/models';
 import type { LectureNoteDialogTarget } from './LectureNoteDialog';
 import { useLectureNotesStore } from './lectureNotesStore';
 
@@ -14,8 +14,7 @@ export function useLectureNoteDialog() {
 
   return {
     target,
-    openCreate: (defaultSubjectId?: ID, defaultCollection?: LectureNoteCollection) =>
-      setTarget({ mode: 'create', defaultSubjectId, defaultCollection }),
+    openCreate: (defaultSubjectId?: ID) => setTarget({ mode: 'create', defaultSubjectId }),
     openEdit: (note: LectureNote) => {
       touchLectureNote(note.id);
       setTarget({ mode: 'edit', note });

@@ -181,9 +181,6 @@ export type LectureNoteContentType = 'markdown' | 'pdf' | 'link';
 /** Откуда взялась запись: вручную создана в приложении или подтянута синхронизацией с GitHub (PROMPT 25) */
 export type ContentSource = 'manual' | 'github';
 
-/** Папка конспектов: 'stream' — конспекты 1 потока (Kefirleos/itmo-vault), 'group' — группы М3102 */
-export type LectureNoteCollection = 'stream' | 'group';
-
 /** Конспект лекции — отдельная от Material сущность с текстом, как у Note, но привязанная к номеру занятия */
 export interface LectureNote extends BaseEntity {
   subjectId: ID;
@@ -199,8 +196,6 @@ export interface LectureNote extends BaseEntity {
   sourceRef?: string;
   /** Файл удалили из репозитория при следующей синхронизации — запись не удаляем, а прячем */
   archived: boolean;
-  /** Не указано — 'group' */
-  collection?: LectureNoteCollection;
   /** Версия файла в GitHub (sha) — не менялся, и при синхронизации его не качаем заново */
   sourceVersion?: string;
 }

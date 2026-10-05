@@ -201,9 +201,7 @@ function NoteView({ note }: { note: LectureNote }) {
             <NoteBodySkeleton />
           )}
           {/* Свой тест — только к конспектам группы и только если в конспекте нет теста от самой группы */}
-          {note.source === 'github' && (note.collection ?? 'group') === 'group' && !note.content.includes('```quiz') && (
-            <SiteQuiz sourceRef={note.sourceRef} />
-          )}
+          {note.source === 'github' && !note.content.includes('```quiz') && <SiteQuiz sourceRef={note.sourceRef} />}
         </div>
         <NotePager note={note} siblings={siblings} />
       </article>
@@ -233,7 +231,7 @@ async function downloadNote(note: LectureNote, title: string) {
   const ext = note.contentType === 'pdf' ? 'pdf' : 'md';
   const name = note.sourceRef?.split('/').pop() ?? `${title.replace(/[\\/:*?"<>|]/g, '_')}.${ext}`;
   if (note.source === 'github' && note.sourceRef) {
-    const url = rawUrl(note.collection ?? 'group', note.sourceRef);
+    const url = rawUrl('group', note.sourceRef);
     return downloadUrl(url, name).catch(() => window.open(url, '_blank', 'noopener'));
   }
   if (ext === 'md') return saveBlob(new Blob([note.content], { type: 'text/markdown;charset=utf-8' }), name);
