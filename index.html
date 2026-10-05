@@ -302,6 +302,7 @@
     <link rel="stylesheet" href="./css/shell.css">
     <link rel="stylesheet" href="./css/shell.css">
     <link rel="stylesheet" href="./css/transitions.css">
+    <link rel="stylesheet" href="./css/backdrop.css">
     </head>
 
 <script>
@@ -360,6 +361,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
     import { installOffline, mountOfflinePanel } from './js/offline.js';
     import { ic, hydrateIcons, installGlyphIcons, LOADER } from './js/icons.js';
+    import { installBackdrop } from './js/backdrop.js';
 
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
@@ -2991,6 +2993,7 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       return{mode:'browse',path:decodePath(h)};
     }
     function updateActiveTab(mode){
+      document.documentElement.classList.toggle('is-reading', mode==='note' || mode==='view');
       document.querySelectorAll('.tab,.bn-item').forEach(t=>{t.classList.remove('active');t.removeAttribute('aria-current');});
       let key='materials';
       if(mode==='home')key='home';
@@ -3279,6 +3282,7 @@ function route(){
     mountSiteSearch(document.getElementById('site-search'));
     hydrateIcons();
     installGlyphIcons();
+    installBackdrop();
     route();
     </script>
     </body>

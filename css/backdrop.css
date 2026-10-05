@@ -1,0 +1,70 @@
+/* Фон сайта: размытый ёжик справа, диагональные световые полосы по углам, лёгкое движение.
+   При чтении конспекта/PDF (html.is-reading) фон сильнее размывается и темнеет. */
+:root{
+  --bgfx-base:#f1eff9;
+  --bgfx-hog:.20;
+  --bgfx-stripe:.55;
+  --bgfx-glow:.30;
+  --bgfx-shade:rgba(244,243,251,.72);
+  --bgfx-blur-hog:6px;
+  --bgfx-blur-fx:2px;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bgfx-base:#0d0e16;--bgfx-hog:.38;--bgfx-stripe:1;--bgfx-glow:.45;--bgfx-shade:rgba(6,5,12,.66);
+}}
+:root[data-theme="dark"]{
+  --bgfx-base:#0d0e16;--bgfx-hog:.38;--bgfx-stripe:1;--bgfx-glow:.45;--bgfx-shade:rgba(6,5,12,.66);
+}
+
+.bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--bgfx-base)}
+
+/* мягкое фиолетовое свечение за ёжиком и «пол» внизу */
+.bgfx-glow{position:absolute;inset:0;opacity:var(--bgfx-glow);
+  background:
+    radial-gradient(60vmax 60vmax at 82% 42%,rgba(124,92,255,.55),transparent 62%),
+    radial-gradient(90vmax 30vmax at 50% 112%,rgba(167,139,250,.5),transparent 70%)}
+
+/* ёжик */
+.bgfx-hog{position:absolute;right:-7vw;top:50%;height:min(94vh,1000px);aspect-ratio:760/700;
+  opacity:var(--bgfx-hog);filter:blur(var(--bgfx-blur-hog));
+  transform:translate3d(0,-50%,0);will-change:transform;
+  animation:bgfx-drift 20s ease-in-out infinite alternate;
+  transition:filter .9s ease}
+@keyframes bgfx-drift{
+  from{transform:translate3d(0,-50%,0) scale(1)}
+  to{transform:translate3d(-1.8vw,calc(-50% - 1.6vh),0) scale(1.03)}}
+
+/* диагональные полосы в углах */
+.bgfx-stripes{position:absolute;width:44vmax;height:44vmax;opacity:var(--bgfx-stripe);
+  filter:blur(var(--bgfx-blur-fx));will-change:opacity;
+  animation:bgfx-pulse 7s ease-in-out infinite alternate;transition:filter .9s ease}
+.bgfx-stripes::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,
+    transparent 0 9%,
+    rgba(40,30,90,.55) 9% 22%,
+    transparent 22% 24%,
+    #7c5cff 24% 26.5%,
+    #a78bfa 26.5% 28%,
+    transparent 28% 30%,
+    #b9a2ff 30% 31.2%,
+    transparent 31.2% 34%,
+    rgba(233,227,255,.85) 34% 34.6%,
+    transparent 34.6%);
+  -webkit-mask:linear-gradient(135deg,#000 55%,transparent 85%);mask:linear-gradient(135deg,#000 55%,transparent 85%)}
+.bgfx-stripes.tl{left:0;top:0}
+.bgfx-stripes.br{right:0;bottom:0;transform:rotate(180deg);animation-delay:-3.5s}
+@keyframes bgfx-pulse{from{opacity:calc(var(--bgfx-stripe) * .6)}to{opacity:var(--bgfx-stripe)}}
+
+/* затемнение при чтении */
+.bgfx-shade{position:absolute;inset:0;background:var(--bgfx-shade);opacity:0;transition:opacity .9s ease}
+
+.is-reading .bgfx-hog{filter:blur(18px)}
+.is-reading .bgfx-stripes{filter:blur(9px)}
+.is-reading .bgfx-shade{opacity:1}
+
+@media(max-width:760px){
+  .bgfx-hog{height:72vh;right:-34vw;--bgfx-hog:.26}
+  .bgfx-stripes{width:60vmax;height:60vmax}
+}
+@media(prefers-reduced-motion:reduce){.bgfx-hog,.bgfx-stripes{animation:none!important}.bgfx-hog{transform:translateY(-50%)}}
+@media print{.bgfx{display:none!important}}
