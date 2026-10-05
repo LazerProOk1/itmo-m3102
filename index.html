@@ -300,6 +300,8 @@
     <link rel="stylesheet" href="./css/links.css">
     <link rel="stylesheet" href="./css/quiz.css">
     <link rel="stylesheet" href="./css/shell.css">
+    <link rel="stylesheet" href="./css/shell.css">
+    <link rel="stylesheet" href="./css/transitions.css">
     </head>
 
 <script>
@@ -3064,7 +3066,9 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
         });
         grid+='</div>';
         if(items.length===0)grid='<p class="state">Папка пуста.</p>';
-        c.innerHTML=intro+breadcrumbs(path)+grid;
+        grid=grid.replace('<div class="grid">','<div class="grid fade-in">');
+        const st=c.querySelector('.state');
+        if(st)st.outerHTML=grid; else c.innerHTML=intro+breadcrumbs(path)+grid;
         c.querySelectorAll('[data-nav]').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.nav);});
         c.querySelectorAll('[data-view]').forEach(el=>el.onclick=e=>{e.preventDefault();gotoView(el.dataset.view);});
         c.querySelectorAll('[data-note]').forEach(el=>el.onclick=e=>{e.preventDefault();gotoNote(el.dataset.note);});
@@ -3189,6 +3193,7 @@ function renderPdfView(path){
           const s=document.getElementById('note-status');if(s)s.remove();
           const body=document.getElementById('note-body');
           body.innerHTML=renderNotes(stripFrontMatter(text),path);
+          body.classList.add('fade-in');
           runNoteExtras(body);
           side.setBody(body);
         })
@@ -3202,26 +3207,65 @@ function renderPdfView(path){
     });
     }
 
-    function route(){
-      routeSeq++;
-      if(window.__hhDestroy){try{window.__hhDestroy();}catch(e){}window.__hhDestroy=null;}
-      const {mode,path}=parseHash();
-      updateActiveTab(mode,path);
-      if(mode==='view')renderPdfView(path);
-      else if(mode==='note')renderNoteView(path);
-      else if(mode==='home')renderHome();
-      else if(mode==='schedule')mountSchedule(parseDate(path)||new Date());
-      else if(mode==='homework')renderHomeworkPage();
-      else if(mode==='hw-deadlines')renderHwDeadlinesPage();
-      else if(mode==='deadlines')renderDeadlinesPage();
-      else if(mode==='diagrams')renderDiagramEditor();
-      else if(mode==='memes')renderMemesPage();
-      else if(mode==='links')renderLinksPage();
-      else if(mode==='students')renderStudentsPage();
-      else if(mode==='other')renderOtherPage();
-      else if(mode==='hedgehog')renderHedgehogPage();
-      else renderBrowse(path);
-    }
+const TAB_ORDER={home:0,browse:1,note:1,view:1,links:1,schedule:2,homework:3,'hw-deadlines':3,deadlines:3,other:4,students:4,diagrams:4,memes:4,hedgehog:4};
+let currentMode=null,currentHash=null,transitionToken=0;
+const reducedMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function renderRoute(){
+  if(window.__hhDestroy){try{window.__hhDestroy();}catch(e){}window.__hhDestroy=null;}
+  const {mode,path}=parseHash();
+  updateActiveTab(mode,path);
+  if(mode==='view')renderPdfView(path);
+  else if(mode==='note')renderNoteView(path);
+  else if(mode==='home')renderHome();
+  else if(mode==='schedule')mountSchedule(parseDate(path)||new Date());
+  else if(mode==='homework')renderHomeworkPage();
+  else if(mode==='hw-deadlines')renderHwDeadlinesPage();
+  else if(mode==='deadlines')renderDeadlinesPage();
+  else if(mode==='diagrams')renderDiagramEditor();
+  else if(mode==='memes')renderMemesPage();
+  else if(mode==='links')renderLinksPage();
+  else if(mode==='students')renderStudentsPage();
+  else if(mode==='other')renderOtherPage();
+  else if(mode==='hedgehog')renderHedgehogPage();
+  else renderBrowse(path);
+}
+
+function route(){
+  routeSeq++; // ответы старых страниц игнорируются сразу
+  const token=++transitionToken, {mode}=parseHash(), content=document.getElementById('content');
+  const prevMode=currentMode, sameHash=currentHash===location.hash;
+  currentMode=mode; currentHash=location.hash;
+  updateActiveTab(mode); // вкладка подсвечивается мгновенно
+
+  // первая загрузка, смена дня внутри расписания, reduced-motion — без анимации
+  const stay=prevMode==='schedule'&&mode==='schedule'&&document.querySelector('#schedule-page');
+  if(prevMode===null||stay||reducedMotion()){
+    content.classList.remove('pt-leave','pt-enter');
+    renderRoute();
+    return;
+  }
+
+  // направление берём из порядка вкладок; внутри одной вкладки — мягкое всплытие
+  const dir=Math.sign((TAB_ORDER[mode]??1)-(TAB_ORDER[prevMode]??1)), s=content.style;
+  s.setProperty('--pt-x',dir*28+'px'); s.setProperty('--pt-y',dir?'0px':'10px');
+  s.setProperty('--pt-lx',-dir*18+'px'); s.setProperty('--pt-ly','0px');
+
+  const leaving=content.classList.contains('pt-leave');
+  content.classList.remove('pt-enter');
+  let wait=0;
+  if(!leaving&&!sameHash){content.classList.add('pt-leave');wait=140;}
+
+  setTimeout(()=>{
+    if(token!==transitionToken)return; // пользователь уже ушёл дальше
+    content.classList.remove('pt-leave','pt-enter');
+    if(window.scrollY>0)window.scrollTo({top:0,left:0,behavior:'instant'});
+    renderRoute();
+    void content.offsetWidth;
+    content.classList.add('pt-enter');
+    setTimeout(()=>{if(token===transitionToken)content.classList.remove('pt-enter');},420);
+  },wait);
+}
     window.addEventListener('hashchange',route);
     // Клик по ссылке на уже открытый адрес не вызывает hashchange — перерисовываем страницу вручную
     document.addEventListener('click',e=>{

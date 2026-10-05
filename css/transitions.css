@@ -1,0 +1,20 @@
+/* Плавные переходы между страницами */
+#content.pt-leave{animation:pt-leave .14s cubic-bezier(.4,0,1,1) both}
+#content.pt-enter{animation:pt-enter .36s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes pt-leave{to{opacity:0;transform:translate(var(--pt-lx,0px),var(--pt-ly,0px))}}
+@keyframes pt-enter{from{opacity:0;transform:translate(var(--pt-x,0px),var(--pt-y,10px))}}
+
+/* Заглушки «Загрузка…» появляются, только если загрузка затянулась */
+@keyframes pt-delayed{from{opacity:0}to{opacity:1}}
+.state,.sched-skeleton{animation:pt-delayed .25s ease .2s both}
+
+/* Мягкое появление загруженного содержимого (сетки, текста конспекта) */
+@keyframes pt-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fade-in{animation:pt-fade .32s ease both}
+
+/* Внутри страниц эти блоки больше не анимируются сами — иначе анимация играет дважды */
+#content .intro,#content .sched-bar,#content .sched-day-info,#content .lessons{animation:none}
+
+@media(prefers-reduced-motion:reduce){
+  #content.pt-leave,#content.pt-enter,.fade-in,.state,.sched-skeleton{animation:none!important}
+}
