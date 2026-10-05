@@ -76,7 +76,7 @@ export function SubjectMaterialsTab({
               highlighted
               leading={<BookOpen size={14} strokeWidth={1.75} aria-hidden />}
               title={
-                <Link to={`/materials/notes/${continueReading.id}`} className={styles.continueButton}>
+                <Link to={`/materials/notes/${continueReading.id}`} className={styles.continueButton} data-row-action>
                   Продолжить чтение — {continueReading.title} →
                 </Link>
               }

@@ -64,6 +64,7 @@ export function TaskRow({ task, today, onEdit }: TaskRowProps) {
     <>
       <ListItem
         muted={isDone}
+        wrapOnPhone
         leading={
           <Checkbox
             celebrate
@@ -73,7 +74,7 @@ export function TaskRow({ task, today, onEdit }: TaskRowProps) {
           />
         }
         title={
-          <button type="button" className={styles.titleButton} onClick={() => onEdit(task)}>
+          <button type="button" className={styles.titleButton} onClick={() => onEdit(task)} data-row-action>
             <span className={cn(styles.titleText, isDone && styles.doneTitle)}>{task.title}</span>
           </button>
         }

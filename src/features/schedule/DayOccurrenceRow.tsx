@@ -58,7 +58,7 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
       }
       title={
         <>
-          <button ref={titleRef} type="button" className={styles.titleButton} onClick={() => setPopoverOpen(true)}>
+          <button ref={titleRef} type="button" className={styles.titleButton} onClick={() => setPopoverOpen(true)} data-row-action>
             <span className={cn(isCancelled && styles.cancelledTitle)}>{subjectName}</span>
           </button>
           <AnimatePresence>

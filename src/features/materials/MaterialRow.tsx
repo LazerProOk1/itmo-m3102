@@ -36,7 +36,7 @@ export function MaterialRow({ material, today, onEdit, showSubject = false }: Ma
           </span>
         }
         title={
-          <button type="button" className={styles.titleButton} onClick={() => onEdit(material)}>
+          <button type="button" className={styles.titleButton} onClick={() => onEdit(material)} data-row-action>
             {material.name}
           </button>
         }

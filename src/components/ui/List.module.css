@@ -91,3 +91,47 @@
 .muted .title {
   color: var(--color-text-muted);
 }
+
+/*
+ * Главное действие строки — на всю строку (как в «Материалах»): по узкой надписи с тачпада не попасть.
+ * Ссылка или кнопка в title с data-row-action растягивает ::after на <li>; static — иначе (у кнопок relative
+ * для волны от клика) слой закрыл бы только саму надпись. Чекбокс, меню «⋯» и ссылки сбоку — поверх слоя.
+ */
+.item:has([data-row-action]) {
+  --list-title-size: var(--text-md);
+  min-height: 64px;
+  cursor: pointer;
+}
+
+.item [data-row-action] {
+  position: static;
+}
+
+.item [data-row-action]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.item:has([data-row-action]) :is(.leading, .trailing, .meta) :is(a, button, input, label, select, [role='button'], [tabindex]) {
+  position: relative;
+  z-index: 1;
+}
+
+/* wrapOnPhone: на узком экране бейджи и дата — второй строкой ровно под заголовком (сетка), меню — справа */
+@media (max-width: 600px) {
+  .wrapPhone {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: var(--space-1-5);
+  }
+
+  .wrapPhone .trailing {
+    grid-column: 2;
+  }
+
+  .wrapPhone .trailing > :last-child {
+    margin-left: auto;
+  }
+}
