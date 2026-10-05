@@ -333,11 +333,11 @@ export function mountSiteSearch(root) {
     }
   };
   const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); selected = -1; };
-  const place = () => {
-    if (!matchMedia('(max-width: 760px)').matches) { list.style.left = list.style.width = ''; return; }
-    const rect = root.parentElement.getBoundingClientRect();
-    list.style.left = `${12 - rect.left}px`; list.style.width = `${innerWidth - 24}px`;
-  };
+    const place = () => {
+      if (!matchMedia('(max-width: 760px)').matches) { list.style.left = list.style.width = ''; return; }
+      const rect = root.getBoundingClientRect();
+      list.style.left = `${12 - rect.left}px`; list.style.width = `${innerWidth - 24}px`;
+    };
   function search(query, limit) {
     const terms = norm(query).split(/\s+/).filter(Boolean), scored = [];
     for (const entry of entries) {

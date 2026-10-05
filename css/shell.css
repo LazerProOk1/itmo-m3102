@@ -2,6 +2,7 @@
    Подключается ПОСЛЕДНИМ, поэтому перекрывает старые правила шапки из index.html / site.css / lectures.css. */
 
 html, body { overflow-x: clip; max-width: 100%; }
+.site-search{flex:none;position:relative}
 
 /* ---------- иконки ---------- */
 .ic-svg{display:inline-block;flex:none;vertical-align:-.2em}
