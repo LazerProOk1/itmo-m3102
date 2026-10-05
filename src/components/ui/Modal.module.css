@@ -18,7 +18,8 @@
 }
 
 .dialog.closing {
-  animation: dialog-out 140ms var(--ease-luxury-in);
+  /* Уход — сразу и ровно (стандартная кривая): с ease-in первые ~70 мс окно стояло («застывало»), с expo-out — исчезало рывком */
+  animation: dialog-out var(--duration-base) var(--ease) forwards;
 }
 
 .dialog::backdrop {
@@ -28,7 +29,7 @@
 }
 
 .dialog.closing::backdrop {
-  animation: fade-out 150ms var(--ease-luxury-in);
+  animation: fade-out var(--duration-base) var(--ease) forwards;
 }
 
 .sm {

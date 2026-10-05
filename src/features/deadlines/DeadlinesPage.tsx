@@ -38,7 +38,8 @@ export function DeadlinesPage() {
   const deadlines = useGroupStore((state) => state.deadlines);
   const doneMap = useGroupStore((state) => state.deadlinesDone);
   useConfettiWhenCleared(deadlines.filter((item) => !doneMap[item.id]).length);
-  const { queues, error: queueError, loading, refresh, refreshIfStale } = useQueueStore();
+  const { queues, at: queueAt, error: queueError, loading, refresh, refreshIfStale } = useQueueStore();
+  const queueKnown = queueAt > 0;
 
   useEffect(() => {
     // Открыли страницу или вернулись во вкладку — сами обновляем не чаще раза в 2 минуты (лимит GitHub API);
@@ -89,15 +90,29 @@ export function DeadlinesPage() {
                 index={index}
                 done={Boolean(doneMap[item.id])}
                 queue={queues[item.id] ?? []}
-                queueError={queueError}
+                queueKnown={queueKnown}
                 onJoined={() => setTimeout(() => void refresh(), 8000)}
               />
             ))}
           </div>
+          {queueError && (
+            <p className={styles.staleNote}>
+              {queueKnown ? `Очередь от ${formatClock(queueAt)}: обновить не вышло — ${queueError}.` : `Очередь не загрузилась: ${queueError}.`}
+            </p>
+          )}
         </>
       )}
     </>
   );
+}
+
+/** «14:32», а если не сегодня — «5 окт., 14:32» */
+function formatClock(at: number): string {
+  const date = new Date(at);
+  const time = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return date.toDateString() === new Date().toDateString()
+    ? time
+    : `${date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}, ${time}`;
 }
 
 /** Связи дедлайна: предмет «АИСД - Лаба» → страница предмета, его конспекты и папка лабораторных группы */
@@ -125,11 +140,12 @@ interface DeadlineCardProps {
   index: number;
   done: boolean;
   queue: QueueEntry[];
-  queueError: string;
+  /** Очередь хоть раз загружалась (показываем сохранённую, даже если обновить сейчас не вышло) */
+  queueKnown: boolean;
   onJoined: () => void;
 }
 
-function DeadlineCard({ item, index, done, queue, queueError, onJoined }: DeadlineCardProps) {
+function DeadlineCard({ item, index, done, queue, queueKnown, onJoined }: DeadlineCardProps) {
   const toggleDone = useGroupStore((state) => state.toggleDeadlineDone);
   const openProfile = useProfileStore((state) => state.open);
   const [name, setName] = useState('');
@@ -155,17 +171,23 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
       <DeadlineLinks name={item.name} />
 
       <div className={styles.queueHead}>
-        Очередь <span>{queueError ? 'недоступна' : `${queue.length} чел.`}</span>
+        Очередь <span>{queueKnown ? `${queue.length} чел.` : 'не загрузилась'}</span>
       </div>
       <ol className={styles.queue}>
         {queue.length === 0 ? (
-          <li className={styles.queueEmpty}>{queueError || 'Очередь пока пуста'}</li>
+          <li className={styles.queueEmpty}>{queueKnown ? 'Очередь пока пуста' : 'Появится, когда GitHub ответит'}</li>
         ) : (
           queue.map((entry) => (
             <li key={entry.url}>
-              {/* Студент группы — его профиль (где ещё стоит, коммиты); чужой — запись на GitHub */}
+              {/* Студент группы — чип с фото: видно, что это человек и его можно открыть; чужой — запись на GitHub */}
               {entry.login ? (
-                <button type="button" className={styles.queuePerson} onClick={() => openProfile(entry.login!)}>
+                <button
+                  type="button"
+                  className={styles.queuePerson}
+                  onClick={() => openProfile(entry.login!)}
+                  aria-label={`${entry.name} — открыть профиль`}
+                >
+                  <img src={`https://github.com/${encodeURIComponent(entry.login)}.png?size=40`} alt="" loading="lazy" />
                   {entry.name}
                 </button>
               ) : (
