@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>M3102</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="img/icons/favicon-48.png">
+    <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#f5f6fa" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#11131b" media="(prefers-color-scheme: dark)">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="М3102">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
     <style>
@@ -292,10 +300,17 @@
     <link rel="stylesheet" href="./css/links.css">
     <link rel="stylesheet" href="./css/quiz.css">
     </head>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+
     <body>
     <div class="wrap">
       <header>
-        <div class="brand-wrap"><a class="brand" id="home-link" href="./" aria-label="М3102 — главная"><img class="brand-logo" src="img/logo-t.png" alt="М3102"></a><span class="brand-divider"></span><div class="site-search" id="site-search"></div></div>
+        <div class="brand-wrap"><a class="brand" id="home-link" href="./" aria-label="М3102 — главная"><img class="brand-logo" src="img/icons/logo-t.png" alt="М3102"></a><span class="brand-divider"></span><div class="site-search" id="site-search"></div></div>
         <nav class="tabs" aria-label="Основная навигация">
           <a class="tab" id="tab-home" href="./">Главная</a>
           <a class="tab" id="tab-materials" href="#/materials">Материалы</a>
@@ -310,7 +325,7 @@
       <div id="content"><p class="state">Загрузка…</p></div>
       <footer>Файлы загружаются напрямую из GitHub-репозитория RedstoneLord/itmo-m3102</footer>
     </div>
-    <div class="print-logo"><img src="img/logo.png" alt="logo"></div>
+    <div class="print-logo"><img src="img/icons/logo.png" alt="logo"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
@@ -343,7 +358,7 @@
 
     function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
     // Файлы и папки, которые не должны отображаться при просмотре материалов
-    const HIDDEN_FILE_NAMES=['site.css','package.json','readme.md','.gitignore'];
+    const HIDDEN_FILE_NAMES=['site.css','package.json','readme.md','.gitignore','sw.js','manifest.webmanifest'];
     const HIDDEN_FOLDER_NAMES=['tests','inner','data','js','css','docs','img','tools', '.github'];
     function isHiddenPath(path){
       if(!path)return false;
@@ -1163,7 +1178,7 @@
           }catch(e){resolve(null);}
         };
         img.onerror=()=>resolve(null);
-        img.src='img/logo.png';
+        img.src='img/icons/logo.png';
       });
     }
 
