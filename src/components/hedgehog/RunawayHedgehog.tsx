@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { Hedgehog, HEDGEHOG_RATIO } from './Hedgehog';
-import { backflip, HOG, HOP, hopsFor, runHops, wait } from './moves';
+import { backflip, gallop, HOG, skid, STRIDE, stridesFor, wait } from './moves';
 import styles from './RunawayHedgehog.module.css';
 
 /** Следующая точка — случайная, но не ближе трети экрана: короткие перебежки выглядят как дёрганье */
@@ -41,16 +41,17 @@ export function RunawayHedgehog() {
         const to = nextPoint(at, area.current.clientWidth, area.current.clientHeight);
         const direction = to.x >= at.x ? 1 : -1;
         setFacing(direction === 1 ? 'right' : 'left');
-        const hops = hopsFor(Math.hypot(to.x - at.x, to.y - at.y));
+        const strides = stridesFor(Math.hypot(to.x - at.x, to.y - at.y));
         setRunning(true);
-        void runHops(jump, hops, direction);
-        await travel.start({ ...to, transition: { duration: hops * HOP, ease: 'linear' } });
+        void gallop(jump, strides, direction);
+        await travel.start({ ...to, transition: { duration: strides * STRIDE, ease: 'linear' } });
         at = to;
         setRunning(false);
         if (!alive) break;
-        // Через раз — сальто, иначе передышка
+        // Через раз — сальто, иначе притормозил с заносом и короткая передышка
         if (Math.random() < 0.5) await backflip(jump, direction);
-        await wait(300 + Math.random() * 900);
+        else await skid(jump, direction);
+        await wait(150 + Math.random() * 600);
       }
     })();
     return () => {

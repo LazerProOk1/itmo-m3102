@@ -1,5 +1,6 @@
 import { ArrowUpRight, Send } from 'lucide-react';
 import { useRef } from 'react';
+import { buttonClass } from '../../components/ui/Button';
 import { GithubMark } from '../../components/ui/GithubMark';
 import { Modal } from '../../components/ui/Modal';
 import type { Student } from '../../data/m3102';
@@ -13,7 +14,7 @@ const STATS = ['Конспектов', 'Тестов пройдено', 'Сда�
 
 /**
  * Набросок профиля студента: крупная аватарка с GitHub, контакты и места под то, что появится после бэкенда
- * (о себе, активность). Открыт — `?u=логин` в адресе: ссылкой можно поделиться, «Назад» закрывает.
+ * (о себе, активность). Ссылка `#/students?u=логин` открывает профиль сразу.
  */
 export function StudentProfile({ student, onClose }: { student: Student | undefined; onClose: () => void }) {
   // Пока окно закрывается, студент уже сброшен — показываем прошлого, иначе закрытию нечего показать
@@ -36,16 +37,21 @@ function ProfileBody({ student }: { student: Student }) {
       <span className={styles.fact}>{student.fact}</span>
 
       <div className={styles.links}>
-        <a className={styles.link} href={github} target="_blank" rel="noopener noreferrer">
+        <a className={buttonClass('secondary', 'sm')} href={github} target="_blank" rel="noopener noreferrer">
           <GithubMark size={16} />@{student.github}
         </a>
         {student.telegram && (
-          <a className={styles.link} href={`https://t.me/${encodeURIComponent(student.telegram)}`} target="_blank" rel="noopener noreferrer">
+          <a
+            className={buttonClass('secondary', 'sm')}
+            href={`https://t.me/${encodeURIComponent(student.telegram)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Send size={16} strokeWidth={1.75} aria-hidden />@{student.telegram}
           </a>
         )}
         <a
-          className={styles.link}
+          className={buttonClass('secondary', 'sm')}
           href={`${REPO_URL}/commits?author=${encodeURIComponent(student.github)}`}
           target="_blank"
           rel="noopener noreferrer"

@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 import { GithubMark } from '../../components/ui/GithubMark';
 import { HedgehogLane } from '../../components/hedgehog/HedgehogLane';
@@ -50,13 +49,12 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
         </div>
         <nav className={styles.links} aria-label="GitHub">
           {GITHUB_LINKS.map((link) => (
-            <a key={link.href} className={styles.repo} href={link.href} target="_blank" rel="noreferrer">
+            <a key={link.href} className={styles.repo} href={link.href} target="_blank" rel="noreferrer" data-spot>
               <GithubMark size={18} />
               <span className={styles.repoText}>
                 <span className={styles.repoLabel}>{link.label}</span>
                 <span className={styles.repoName}>{link.href.replace('https://github.com/', '')}</span>
               </span>
-              <ArrowUpRight size={14} strokeWidth={1.75} className={styles.repoArrow} aria-hidden />
             </a>
           ))}
         </nav>
