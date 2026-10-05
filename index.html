@@ -3060,7 +3060,7 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
             }else if(e==='md'){
               grid+=`<a class="card" data-note="${esc(it.path)}"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)} · читать конспект</div></div></a>`;
             }else{
-              grid+=`<div class="card" style="cursor:default;"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)}</div></div><a class="btn" href="${rawUrl(it.path)}" target="_blank" rel="noopener"></a></div>`;
+              grid+=`<div class="card" style="cursor:default;"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)}</div></div><a class="btn" href="${rawUrl(it.path)}" target="_blank" rel="noopener">${ic('download',16)}</a></div>`;
             }
           }
         });
