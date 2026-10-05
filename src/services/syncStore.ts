@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { storageKey } from '../lib/storage';
 import { autoSyncGithubContent, syncGithubContent, type SyncSummary } from './githubContent';
 
 type SyncStatus = 'idle' | 'syncing' | 'done' | 'error';
@@ -29,6 +30,10 @@ export const useSyncStore = create<SyncStore>()((set, get) => {
     try {
       const summary = await task();
       set((state) => ({ status: 'done', summary: summary ?? state.summary }));
+      // Новые и изменённые файлы группы — сразу на устройство, если человек включил работу без интернета
+      // Модуль — отдельным куском (в нём загрузка читалки PDF и mermaid), грузится, только если что-то уже скачано
+      if (summary && localStorage.getItem(storageKey('offline'))?.includes('"saved":{"'))
+        void import('./offline').then((module) => module.updateOfflineIfEnabled());
     } catch (error) {
       // fetch без сети бросает TypeError «Failed to fetch» — человеку это ничего не говорит
       const message =

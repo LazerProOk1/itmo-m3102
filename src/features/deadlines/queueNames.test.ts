@@ -1,5 +1,6 @@
+import { M3102_STUDENTS } from '../../data/m3102';
 import { describe, expect, it } from 'vitest';
-import { hasExtraText, queuePerson, studentName } from './queueNames';
+import { hasExtraText, queueLogin, queuePerson, studentName } from './queueNames';
 
 describe('очередь: кто стоит', () => {
   it('логин без учёта регистра → «Имя Фамилия»; чужой логин — нет', () => {
@@ -22,5 +23,9 @@ describe('очередь: кто стоит', () => {
     expect(queuePerson('андрей (10.10.26)', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: 'андрей (10.10.26)' });
     expect(queuePerson('Артём Д', 'artemiks727')).toEqual({ name: 'Артём Давалов', note: undefined });
     expect(queuePerson('Гость', 'stranger')).toEqual({ name: 'Гость', note: '@stranger' });
+    // Профиль — того, кто стоит, а не того, кто записал
+    expect(queueLogin('максим еланский', 'zur1kov')).toBe(M3102_STUDENTS.find((student) => student.name.startsWith('Еланский'))?.github);
+    expect(queueLogin('андрей (10.10.26)', 'zur1kov')).toBe('zur1kov');
+    expect(queueLogin('Гость', 'stranger')).toBeUndefined();
   });
 });

@@ -3,7 +3,10 @@
  * - Страница — сначала сеть (свежая версия после деплоя), без сети — из кеша.
  * - Файлы сборки (assets/ с хешем в имени), шрифты, иконки — из кеша, иначе сеть. При установке в кеш
  *   кладутся все страницы (~0,8 МБ по сети); после следующих деплоев — по ходу, при докачке в простое (App.tsx).
- * - PDF конспектов с GitHub — из кеша, а в фоне обновляются (stale-while-revalidate).
+ * - PDF и картинки конспектов с GitHub — из кеша, а в фоне обновляются (stale-while-revalidate).
+ * - «Работа без интернета» (src/services/offline.ts) кладёт PDF и картинки группы в свой кеш OFFLINE заранее —
+ *   по адресу raw.githubusercontent; конспекты открывают те же файлы через GitHub Pages, поэтому при промахе
+ *   ищем и под вторым адресом. Кеш OFFLINE обновление сайта не удаляет.
  * - Тексты конспектов, расписание, ДЗ и так лежат в localStorage — их SW не трогает.
  * ponytail: старые файлы сборки копятся в кеше; если разрастётся — сменить CACHE на новую версию.
  */
@@ -11,7 +14,19 @@
 const CACHE = 'm3102-v5';
 // Vary: Origin у сервера: скрипт с crossorigin и тот же файл из addAll иначе считаются разными записями
 const MATCH = { ignoreVary: true };
+const OFFLINE = 'm3102-offline';
 const PDF_HOSTS = ['raw.githubusercontent.com', 'redstonelord.github.io'];
+const FILES = /\.(pdf|png|jpe?g|gif|webp|svg)$/i;
+const RAW = 'https://raw.githubusercontent.com/RedstoneLord/itmo-m3102/master/';
+const PAGES = 'https://redstonelord.github.io/itmo-m3102/';
+
+/** Тот же файл группы под другим адресом: raw ↔ GitHub Pages */
+const twin = (url) => (url.startsWith(RAW) ? PAGES + url.slice(RAW.length) : url.startsWith(PAGES) ? RAW + url.slice(PAGES.length) : null);
+const findFile = async (request) => {
+  const hit = await caches.match(request, MATCH);
+  const other = hit ? null : twin(request.url);
+  return hit || (other && (await caches.match(other, MATCH)));
+};
 
 /** Файлы оболочки и всех страниц по манифесту сборки (vite.config.ts); pdf.js и mermaid — при первом использовании */
 async function shellFiles() {
@@ -46,7 +61,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE && key !== OFFLINE).map((key) => caches.delete(key))))
       .then(() => self.clients.claim()),
   );
 });
@@ -75,9 +90,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (PDF_HOSTS.includes(url.hostname) && url.pathname.toLowerCase().endsWith('.pdf')) {
+  if (PDF_HOSTS.includes(url.hostname) && FILES.test(url.pathname)) {
     event.respondWith(
-      caches.match(request, MATCH).then((hit) => {
+      findFile(request).then((hit) => {
         // Без сети фоновое обновление просто не удаётся — отдаём сохранённый файл
         const fresh = fetch(request)
           .then((response) => put(request, response))

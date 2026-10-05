@@ -85,8 +85,29 @@
   font-size: var(--text-sm);
 }
 
-.queue a {
+.queue a,
+.queuePerson {
   color: var(--color-text);
+}
+
+/* Имя студента группы открывает его профиль — выглядит как текст, подчёркивание пунктиром на наведении */
+.queuePerson {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline dotted transparent;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: text-decoration-color var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .queuePerson:hover {
+    color: var(--color-accent-text);
+    text-decoration-color: currentColor;
+  }
 }
 
 /* Что человек сам написал в заголовке записи (или @логин, если его нет в списке группы) */

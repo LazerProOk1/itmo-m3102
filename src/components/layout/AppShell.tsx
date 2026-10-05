@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Suspense, useCallback, useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { ShortcutsDialog, useShortcutsKey } from '../../features/help/ShortcutsDialog';
+import { useProfileStore } from '../../features/group/profileStore';
 import { HomeworkDialog } from '../../features/homework/HomeworkDialog';
 import { SearchDialog } from '../../features/search/SearchDialog';
 import { useSearchShortcut } from '../../features/search/useSearchShortcut';
@@ -18,6 +19,9 @@ import { MobileNav } from './MobileNav';
 import { Sidebar, useSidebarAttribute, useSidebarShortcut } from './Sidebar';
 import { TopBar } from './TopBar';
 import styles from './AppShell.module.css';
+
+// Профиль студента — отдельным куском: грузится при первом открытии и дальше остаётся (для анимации закрытия)
+const StudentProfile = lazy(() => import('../../features/group/StudentProfile').then((module) => ({ default: module.StudentProfile })));
 
 /**
  * Каркас приложения: боковое меню + верхняя панель + область страницы.
@@ -85,8 +89,19 @@ export function AppShell() {
       <RadioCapsule />
       <SearchDialog open={isSearchOpen} onClose={() => setSearchOpen(false)} />
       <HomeworkDialog />
+      <LazyStudentProfile />
       <ShortcutsDialog />
       <CelebrateHedgehog />
     </div>
   );
+}
+
+/** Подписка — здесь, а не в AppShell: иначе первое открытие профиля перерисовало бы всё приложение */
+function LazyStudentProfile() {
+  const used = useProfileStore((state) => state.login !== null || state.used);
+  return used ? (
+    <Suspense fallback={null}>
+      <StudentProfile />
+    </Suspense>
+  ) : null;
 }

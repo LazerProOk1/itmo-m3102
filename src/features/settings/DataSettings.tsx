@@ -9,6 +9,7 @@ import { useSyncStore } from '../../services/syncStore';
 import { getToken, saveToken } from '../../services/github';
 import { TokenFields, type TokenValue } from '../group/TokenFields';
 import { EDITING_ENABLED } from './EditModeContext';
+import { OfflineSettings } from './OfflineSettings';
 import { SettingsRow } from './SettingsRow';
 import styles from './settings.module.css';
 import { saveBlob } from '../../lib/download';
@@ -123,6 +124,8 @@ export function DataSettings() {
           </dl>
         </div>
       )}
+
+      <OfflineSettings />
 
       {EDITING_ENABLED && (
         <>

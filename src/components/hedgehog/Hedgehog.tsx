@@ -16,10 +16,13 @@ interface HedgehogProps {
   /** Перебирает лапками — когда бежит (шапка главной) */
   running?: boolean | 'gallop';
   facing?: 'left' | 'right';
+  /** Спит: глаза закрыты, над ним плывут «z»; клик будит (onWake) */
+  sleeping?: boolean;
+  onWake?: () => void;
 }
 
 /** Ёжик М3102. Дышит, моргает, топорщит иголки при наведении, по клику — сальто и реплика. */
-export function Hedgehog({ size = 96, className, still = false, running = false, facing = 'right' }: HedgehogProps) {
+export function Hedgehog({ size = 96, className, still = false, running = false, facing = 'right', sleeping = false, onWake }: HedgehogProps) {
   const controls = useAnimationControls();
   const reduceMotion = usePrefersReducedMotion();
   const [phrase, setPhrase] = useState('');
@@ -27,6 +30,12 @@ export function Hedgehog({ size = 96, className, still = false, running = false,
 
   async function flip() {
     if (still || busy.current) return;
+    if (sleeping) {
+      setPhrase('Фыр! Я не спал.');
+      setTimeout(() => setPhrase(''), 1600);
+      onWake?.();
+      return;
+    }
     busy.current = true;
     setPhrase(PHRASES[Math.floor(Math.random() * PHRASES.length)]!);
     if (!reduceMotion) {
@@ -59,6 +68,7 @@ export function Hedgehog({ size = 96, className, still = false, running = false,
         type="button"
         className={styles.button}
         data-no-ripple
+        data-hog
         animate={controls}
         onClick={flip}
         disabled={still}
@@ -66,7 +76,7 @@ export function Hedgehog({ size = 96, className, still = false, running = false,
         aria-hidden={still || undefined}
         tabIndex={still ? -1 : undefined}
       >
-        <HedgehogSvg size={size} running={running} facing={facing} />
+        <HedgehogSvg size={size} running={running} facing={facing} sleeping={sleeping} />
       </motion.button>
     </div>
   );
@@ -86,16 +96,24 @@ export function HedgehogSvg({
   running = false,
   facing = 'right',
   season = seasonOf(toISODate(new Date())),
+  sleeping = false,
 }: {
   size?: number;
   running?: boolean | 'gallop';
   facing?: 'left' | 'right';
+  sleeping?: boolean;
   /** Сезонная деталь; по умолчанию — по сегодняшней дате (обычно её нет) */
   season?: Season | null;
 }) {
   return (
     <svg
-      className={cn(styles.svg, running && styles.running, running === 'gallop' && styles.gallop, facing === 'left' && styles.left)}
+      className={cn(
+        styles.svg,
+        running && styles.running,
+        running === 'gallop' && styles.gallop,
+        sleeping && styles.sleeping,
+        facing === 'left' && styles.left,
+      )}
       width={size}
       height={size * HEDGEHOG_RATIO}
       viewBox="0 0 120 86"
@@ -154,6 +172,19 @@ export function HedgehogSvg({
         <ellipse className={cn(styles.leg, styles.legFront)} cx="34" cy="78" rx="6" ry="3.8" />
         <ellipse className={cn(styles.leg, styles.legBack)} cx="78" cy="78" rx="6" ry="3.8" />
       </g>
+      {sleeping && (
+        <g className={styles.zzz}>
+          <text x="96" y="30">
+            z
+          </text>
+          <text x="104" y="20">
+            z
+          </text>
+          <text x="112" y="10">
+            Z
+          </text>
+        </g>
+      )}
     </svg>
   );
 }

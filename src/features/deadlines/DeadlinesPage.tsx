@@ -1,5 +1,5 @@
 import { ExternalLink, RefreshCw } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge } from '../../components/ui/Badge';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
@@ -8,45 +8,13 @@ import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useConfettiWhenCleared } from '../../lib/celebrate';
 import { cn } from '../../lib/cn';
-import { GROUP_REPO, githubError, githubFetch, repoEditUrl } from '../../services/github';
+import { GROUP_REPO, repoEditUrl } from '../../services/github';
 import { useGroupStore, type GroupDeadline } from '../group/groupStore';
 import { deadlineInfo, orderDeadlines } from './deadlineInfo';
 import { useEditMode } from '../settings/EditModeContext';
-import { queuePerson } from './queueNames';
+import { useProfileStore } from '../group/profileStore';
+import { useQueueStore, type QueueEntry } from './queueStore';
 import styles from './DeadlinesPage.module.css';
-
-/** Очередь сдачи — открытые issues с меткой queue-signup и заголовком "[id дедлайна] Имя" */
-const QUEUE_LABEL = 'queue-signup';
-
-interface QueueEntry {
-  /** «Имя Фамилия» студента по GitHub-автору записи; не из группы — что он написал в заголовке */
-  name: string;
-  /** Что написано в заголовке сверх имени («(10.10.26)») или @логин автора не из группы */
-  note?: string;
-  url: string;
-}
-
-const QUEUE_TTL = 2 * 60_000;
-/** Последняя загруженная очередь — живёт, пока открыт сайт: вернулись на страницу — показываем сразу */
-let loadedQueues: { at: number; queues: Record<string, QueueEntry[]> } | null = null;
-
-async function loadQueues(): Promise<Record<string, QueueEntry[]>> {
-  const { owner, repo } = GROUP_REPO;
-  const response = await githubFetch(
-    `https://api.github.com/repos/${owner}/${repo}/issues?labels=${QUEUE_LABEL}&state=open&sort=created&direction=asc&per_page=100`,
-  );
-  if (!response.ok) throw new Error(githubError(response.status, false, response));
-  const issues = (await response.json()) as { title?: string; html_url: string; pull_request?: unknown; user?: { login?: string } }[];
-  const queues: Record<string, QueueEntry[]> = {};
-  for (const issue of issues) {
-    const match = !issue.pull_request && /^\[([^\]]+)\]\s*(.*)$/.exec(issue.title ?? '');
-    if (!match) continue;
-    // Кто стоит — по GitHub-аккаунту автора и базе студентов: в заголовке пишут что угодно («Ладно Федя, я начну»)
-    const entry: QueueEntry = { ...queuePerson(match[2]!.trim(), issue.user?.login), url: issue.html_url };
-    (queues[match[1]!.trim()] ??= []).push(entry);
-  }
-  return queues;
-}
 
 /**
  * Метку queue-signup ставит workflow label-deadline-signups.yml в репозитории группы: через ?labels=
@@ -66,33 +34,15 @@ export function DeadlinesPage() {
   const deadlines = useGroupStore((state) => state.deadlines);
   const doneMap = useGroupStore((state) => state.deadlinesDone);
   useConfettiWhenCleared(deadlines.filter((item) => !doneMap[item.id]).length);
-  const [queues, setQueues] = useState<Record<string, QueueEntry[]>>(() => loadedQueues?.queues ?? {});
-  const [queueError, setQueueError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    try {
-      loadedQueues = { at: Date.now(), queues: await loadQueues() };
-      setQueues(loadedQueues.queues);
-      setQueueError('');
-    } catch (error) {
-      setQueueError(error instanceof Error ? error.message : 'Не удалось загрузить очередь.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { queues, error: queueError, loading, refresh, refreshIfStale } = useQueueStore();
 
   useEffect(() => {
-    // Открыли страницу или вернулись во вкладку — сами обновляем не чаще раза в 2 минуты: каждый запрос
-    // тратит лимит GitHub API (60 в час). Кнопка «Обновить» — всегда
-    const refreshIfStale = () => {
-      if (!document.hidden && Date.now() - (loadedQueues?.at ?? 0) > QUEUE_TTL) void refresh();
-    };
+    // Открыли страницу или вернулись во вкладку — сами обновляем не чаще раза в 2 минуты (лимит GitHub API);
+    // кнопка «Обновить» — всегда
     refreshIfStale();
     document.addEventListener('visibilitychange', refreshIfStale);
     return () => document.removeEventListener('visibilitychange', refreshIfStale);
-  }, [refresh]);
+  }, [refreshIfStale]);
 
   const remaining = deadlines.filter((item) => !doneMap[item.id]).length;
 
@@ -103,7 +53,7 @@ export function DeadlinesPage() {
         subtitle="Сроки сдачи и очередь группы М3102. Отметки выполнения видны только вам."
         actions={
           <>
-            <Button variant="ghost" onClick={refresh} disabled={loading}>
+            <Button variant="ghost" onClick={() => void refresh()} disabled={loading}>
               <RefreshCw size={14} strokeWidth={2} className={cn(loading && styles.spinning)} aria-hidden />
               Обновить
             </Button>
@@ -136,7 +86,7 @@ export function DeadlinesPage() {
                 done={Boolean(doneMap[item.id])}
                 queue={queues[item.id] ?? []}
                 queueError={queueError}
-                onJoined={() => setTimeout(refresh, 8000)}
+                onJoined={() => setTimeout(() => void refresh(), 8000)}
               />
             ))}
           </div>
@@ -157,6 +107,7 @@ interface DeadlineCardProps {
 
 function DeadlineCard({ item, index, done, queue, queueError, onJoined }: DeadlineCardProps) {
   const toggleDone = useGroupStore((state) => state.toggleDeadlineDone);
+  const openProfile = useProfileStore((state) => state.open);
   const [name, setName] = useState('');
   const badge = deadlineInfo(item.deadline);
 
@@ -187,9 +138,16 @@ function DeadlineCard({ item, index, done, queue, queueError, onJoined }: Deadli
         ) : (
           queue.map((entry) => (
             <li key={entry.url}>
-              <a href={entry.url} target="_blank" rel="noopener noreferrer">
-                {entry.name}
-              </a>
+              {/* Студент группы — его профиль (где ещё стоит, коммиты); чужой — запись на GitHub */}
+              {entry.login ? (
+                <button type="button" className={styles.queuePerson} onClick={() => openProfile(entry.login!)}>
+                  {entry.name}
+                </button>
+              ) : (
+                <a href={entry.url} target="_blank" rel="noopener noreferrer">
+                  {entry.name}
+                </a>
+              )}
               {entry.note && <span className={styles.queueNote}>{entry.note}</span>}
             </li>
           ))
