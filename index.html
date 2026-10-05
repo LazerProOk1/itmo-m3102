@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
     <style>
-    :root{--bg:#f4f5fa;--card:#ffffff;--text:#1a1c24;--muted:#6b7280;--border:#e6e7ee;--accent:#5b5fef;--accent2:#7c7ffb;--radius:16px;}
+    :root{--bg:#f4f5fa;--card:#ffffff;--text:#1a1c24;--muted:#6b7280;--border:#e6e7ee;--accent:#5b5fef;--accent2:#7c7ffb;--radius:11px;}
     @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1016;--card:#1a1c26;--text:#eef0f7;--muted:#9599ab;--border:#2b2e3c;}}
     :root[data-theme="dark"]{--bg:#0f1016;--card:#1a1c26;--text:#eef0f7;--muted:#9599ab;--border:#2b2e3c;}
     *{box-sizing:border-box;}
@@ -45,7 +45,7 @@
     .card .meta{min-width:0;flex:1;}
     .card .name{font-weight:600;font-size:.95rem;word-break:break-word;}
     .card .desc{color:var(--muted);font-size:.78rem;margin-top:2px;}
-    .card .btn{border:1px solid var(--border);background:var(--bg);padding:6px 12px;border-radius:8px;font-size:.78rem;white-space:nowrap;text-decoration:none;color:var(--text);}
+    .card .btn{border:1px solid var(--border);background:var(--bg);padding:6px 12px;border-radius:6px;font-size:.78rem;white-space:nowrap;text-decoration:none;color:var(--text);}
     .card .btn:hover{border-color:var(--accent);}
     .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;background:var(--border);}
     .nick-link{color:var(--muted);font-size:.78rem;text-decoration:none;}
@@ -68,7 +68,7 @@
     .student-card .btn{position:absolute;top:12px;right:12px;z-index:1;background:rgba(20,20,26,.55);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(3px);}
     .student-card .btn:hover{border-color:#fff;background:rgba(20,20,26,.75);}
     .viewbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
-    .btn2{border:1px solid var(--border);background:var(--card);color:var(--text);padding:8px 14px;border-radius:10px;font-size:.85rem;cursor:pointer;text-decoration:none;}
+    .btn2{border:1px solid var(--border);background:var(--card);color:var(--text);padding:8px 14px;border-radius:7px;font-size:.85rem;cursor:pointer;text-decoration:none;}
     .btn2:hover{border-color:var(--accent);}
     .viewname{font-weight:600;flex:1;min-width:0;word-break:break-word;}
     .pdf-page{display:block;margin:0 auto 14px;max-width:100%;height:auto;box-shadow:0 2px 14px rgba(0,0,0,.18);border-radius:4px;}
@@ -81,15 +81,15 @@
     .prose blockquote{border-left:3px solid var(--border);margin:.8em 0;padding:.2em 1em;color:var(--muted);}
     .prose table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9rem;display:block;overflow-x:auto;}
     .prose th,.prose td{border:1px solid var(--border);padding:6px 10px;text-align:left;}
-    .prose img{max-width:100%;border-radius:8px;}
-    .prose pre{position:relative;background:#1e1f29;border-radius:10px;padding:14px;overflow-x:auto;margin:1em 0;}
+    .prose img{max-width:100%;border-radius:6px;}
+    .prose pre{position:relative;background:#1e1f29;border-radius:7px;padding:14px;overflow-x:auto;margin:1em 0;}
     .prose code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85em;}
     .prose :not(pre)>code{background:var(--border);padding:1px 5px;border-radius:5px;}
-    .prose .code-copy{position:absolute;top:8px;right:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#d7d9e2;font-size:.72rem;padding:4px 9px;border-radius:6px;cursor:pointer;opacity:0;transition:opacity .15s;}
+    .prose .code-copy{position:absolute;top:8px;right:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#d7d9e2;font-size:.72rem;padding:4px 9px;border-radius:4px;cursor:pointer;opacity:0;transition:opacity .15s;}
     .prose pre:hover .code-copy{opacity:1;}
     .prose .code-copy.copied{opacity:1;border-color:#22c55e;color:#22c55e;}
-    .prose .mermaid{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:1em 0;overflow-x:auto;text-align:center;}
-    .prose .mermaid-err{color:#e0485c;font-family:monospace;font-size:.85em;white-space:pre-wrap;background:rgba(224,72,92,.08);border-radius:8px;padding:10px 12px;}
+    .prose .mermaid{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:14px;margin:1em 0;overflow-x:auto;text-align:center;}
+    .prose .mermaid-err{color:#e0485c;font-family:monospace;font-size:.85em;white-space:pre-wrap;background:rgba(224,72,92,.08);border-radius:6px;padding:10px 12px;}
     .prose h1[id],.prose h2[id],.prose h3[id]{scroll-margin-top:14px;}
     .prose .heading-anchor{opacity:0;margin-left:.35em;color:var(--muted);text-decoration:none;font-size:.85em;}
     .prose h1:hover .heading-anchor,.prose h2:hover .heading-anchor,.prose h3:hover .heading-anchor{opacity:1;}
@@ -97,11 +97,11 @@
     .prose .img-figure img{cursor:zoom-in;}
     .prose .img-figure figcaption{color:var(--muted);font-size:.82rem;margin-top:6px;}
     .img-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:24px;z-index:1000;cursor:zoom-out;}
-    .img-lightbox img{max-width:100%;max-height:100%;border-radius:6px;}
+    .img-lightbox img{max-width:100%;max-height:100%;border-radius:4px;}
     .prose .katex-display{overflow-x:auto;overflow-y:hidden;padding:.3em 0;}
     .prose .katex-err{color:#e0485c;font-family:monospace;}
     .prose hr{border:none;border-top:1px solid var(--border);margin:1.5em 0;}
-    .callout{border-left:4px solid var(--c-color);background:var(--c-bg);border-radius:10px;padding:12px 16px;margin:14px 0;}
+    .callout{border-left:4px solid var(--c-color);background:var(--c-bg);border-radius:7px;padding:12px 16px;margin:14px 0;}
     .callout-title{font-weight:700;font-size:.76rem;margin-bottom:6px;color:var(--c-color);text-transform:uppercase;letter-spacing:.03em;}
     .callout-body{font-size:.93rem;}
     .callout-body>:first-child{margin-top:0;}
@@ -109,14 +109,14 @@
 
     /* header tabs */
     .tabs{display:flex;gap:2px;flex-wrap:wrap;}
-    .tab{padding:7px 12px;border-radius:10px;font-size:.83rem;color:var(--muted);text-decoration:none;cursor:pointer;white-space:nowrap;}
+    .tab{padding:7px 12px;border-radius:7px;font-size:.83rem;color:var(--muted);text-decoration:none;cursor:pointer;white-space:nowrap;}
     .tab:hover{color:var(--text);background:var(--border);}
     .tab.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));font-weight:600;}
 
     /* home landing page */
     .home-hero{padding:6px 0 4px;}
     .home-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;}
-    .home-actions .btn2{padding:14px 22px;font-size:1rem;border-radius:12px;}
+    .home-actions .btn2{padding:14px 22px;font-size:1rem;border-radius:8px;}
     .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
     .btn-primary:hover{background:var(--accent2);border-color:var(--accent2);}
     .home-grid{display:grid;gap:20px;grid-template-columns:1fr;margin-top:24px;align-items:start;}
@@ -132,14 +132,14 @@
     /* schedule */
     .sched-bar{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;margin:18px 0 8px;}
     .week-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
-    .week-pill{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;padding:6px 10px;font-size:.78rem;cursor:pointer;text-align:center;line-height:1.3;}
+    .week-pill{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:7px;padding:6px 10px;font-size:.78rem;cursor:pointer;text-align:center;line-height:1.3;}
     .week-pill.today{border-color:var(--accent);}
     .week-pill.sel{background:var(--accent);color:#fff;border-color:var(--accent);}
     .sched-day-info{text-align:center;margin:14px 0 20px;}
     .sched-day-title{font-weight:700;font-size:1.05rem;}
     .sched-day-sub{color:var(--muted);font-size:.85rem;margin-top:2px;}
     .lessons{display:flex;flex-direction:column;gap:10px;max-width:640px;margin:0 auto;}
-    .lesson{display:flex;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;}
+    .lesson{display:flex;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;}
     .lesson-time{font-weight:700;font-size:.85rem;color:var(--accent);min-width:92px;}
     .lesson-subject{font-weight:600;font-size:.92rem;}
     .lesson-meta{color:var(--muted);font-size:.78rem;margin-top:2px;}
@@ -209,13 +209,13 @@
     .dl-queue-head{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
     .dl-count{text-transform:none;letter-spacing:0;padding:1px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--border);font-weight:600;}
     .dl-queue{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:172px;overflow-y:auto;}
-    .dl-queue li{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 6px;border-radius:10px;background:var(--bg);font-size:.85rem;}
+    .dl-queue li{display:flex;align-items:center;gap:10px;padding:5px 10px 5px 6px;border-radius:7px;background:var(--bg);font-size:.85rem;}
     .dl-queue a{color:var(--text);text-decoration:none;min-width:0;word-break:break-word;}
     .dl-queue a:hover{color:var(--accent);}
     .dl-pos{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font-size:.7rem;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--card));}
     .dl-empty{margin:0;font-size:.82rem;color:var(--muted);}
     .dl-join{display:flex;gap:8px;flex-wrap:wrap;}
-    .dl-input{flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:.85rem;}
+    .dl-input{flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);font:inherit;font-size:.85rem;}
     .dl-input:focus{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:1px;border-color:var(--accent);}
     .dl-join .btn2{white-space:nowrap;}
     .dl-done{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted);cursor:pointer;user-select:none;}
@@ -243,27 +243,27 @@
 .hh-prev{width:140px;height:110px;display:block;margin:-6px auto 2px;animation:hhbob 2.4s ease-in-out infinite;}
 @keyframes hhbob{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-6px) rotate(2deg);}}
 .hh-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0 12px;}
-.hh-big{padding:12px 22px;font-size:1rem;border-radius:12px;}
+.hh-big{padding:12px 22px;font-size:1rem;border-radius:8px;}
 .hh-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
 .hh-chip{background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid var(--border);border-radius:999px;padding:4px 11px;font-size:.8rem;font-weight:600;}
 .hh-sec{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:10px 0 6px;text-align:left;}
 .hh-goals{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:6px;}
-.hh-goal{position:relative;display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;font-size:.85rem;padding:8px 12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg);}
+.hh-goal{position:relative;display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;font-size:.85rem;padding:8px 12px;border:1px solid var(--border);border-radius:7px;overflow:hidden;background:var(--bg);}
 .hh-goal>span{position:relative;z-index:1;}
 .hh-gbar{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--accent) 16%,transparent);transition:width .3s;}
 .hh-gp{color:var(--muted);font-size:.78rem;white-space:nowrap;font-variant-numeric:tabular-nums;}
 .hh-done{border-color:color-mix(in srgb,#22c55e 55%,var(--border));}
 .hh-done .hh-gbar{background:color-mix(in srgb,#22c55e 18%,transparent);}
 .hh-done .hh-gp{color:#1a9c4a;font-weight:700;}
-.hh-help{list-style:none;margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--bg);text-align:left;color:var(--muted);font-size:.78rem;line-height:1.45;display:grid;gap:5px;}
+.hh-help{list-style:none;margin:12px 0 0;padding:10px 12px;border-radius:7px;background:var(--bg);text-align:left;color:var(--muted);font-size:.78rem;line-height:1.45;display:grid;gap:5px;}
 .hh-help b{color:var(--text);}
 .hh-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 4px;}
-.hh-stat-grid>div{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:10px 6px;}
+.hh-stat-grid>div{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 6px;}
 .hh-stat-grid b{display:block;font-size:1.1rem;font-weight:800;}
 .hh-stat-grid span{display:block;font-size:.7rem;color:var(--muted);margin-top:2px;}
 .hh-new{font-style:normal;color:#e0485c;font-weight:800;}
 .hh-hatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:8px 0 14px;}
-.hh-hat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px 10px;border:1px solid var(--border);border-radius:14px;background:var(--bg);color:var(--text);cursor:pointer;font:inherit;}
+.hh-hat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);cursor:pointer;font:inherit;}
 .hh-hat:hover{border-color:var(--accent);}
 .hh-hat canvas{width:72px;height:72px;}
 .hh-hat b{font-size:.8rem;}
@@ -299,6 +299,7 @@
     <link rel="stylesheet" href="./css/browse.css">
     <link rel="stylesheet" href="./css/links.css">
     <link rel="stylesheet" href="./css/quiz.css">
+    <link rel="stylesheet" href="./css/shell.css">
     </head>
 
 <script>
@@ -309,19 +310,27 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
     <body>
     <div class="wrap">
-      <header>
-        <div class="brand-wrap"><a class="brand" id="home-link" href="./" aria-label="М3102 — главная"><img class="brand-logo" src="img/icons/logo-t.png" alt="М3102"></a><span class="brand-divider"></span><div class="site-search" id="site-search"></div></div>
-        <nav class="tabs" aria-label="Основная навигация">
-          <a class="tab" id="tab-home" href="./">Главная</a>
-          <a class="tab" id="tab-materials" href="#/materials">Материалы</a>
-          <a class="tab" id="tab-schedule" href="#/schedule">Расписание</a>
-          <a class="tab" id="tab-homework" href="#/hw-deadlines">ДЗ и Дедлайны</a>
-          <a class="tab" id="tab-other" href="#/other">Другое</a>
+        <header>
+          <a class="brand" id="home-link" href="./" aria-label="М3102 — главная"><img class="brand-logo" src="img/icons/logo-t.png" alt="М3102"></a>
+          <nav class="tabs" aria-label="Основная навигация">
+            <a class="tab" id="tab-home" href="./"><span data-icon="home"></span>Главная</a>
+            <a class="tab" id="tab-materials" href="#/materials"><span data-icon="folder"></span>Материалы</a>
+            <a class="tab" id="tab-schedule" href="#/schedule"><span data-icon="calendar"></span>Расписание</a>
+            <a class="tab" id="tab-homework" href="#/hw-deadlines"><span data-icon="tasks"></span>ДЗ и Дедлайны</a>
+            <a class="tab" id="tab-other" href="#/other"><span data-icon="more"></span>Еще</a>
+          </nav>
+          <div class="header-actions">
+            <div class="site-search" id="site-search"></div>
+            <a class="gh-link" href="https://github.com/RedstoneLord/itmo-m3102" target="_blank" rel="noopener" aria-label="GitHub"><img src="img/github.png" alt=""></a>
+          </div>
+        </header>
+        <nav class="bottom-nav" aria-label="Навигация">
+          <a class="bn-item" id="bn-home" href="./"><span data-icon="home" data-size="22"></span><span>Главная</span></a>
+          <a class="bn-item" id="bn-materials" href="#/materials"><span data-icon="folder" data-size="22"></span><span>Материалы</span></a>
+          <a class="bn-item" id="bn-schedule" href="#/schedule"><span data-icon="calendar" data-size="22"></span><span>Расписание</span></a>
+          <a class="bn-item" id="bn-homework" href="#/hw-deadlines"><span data-icon="tasks" data-size="22"></span><span>ДЗ</span></a>
+          <a class="bn-item" id="bn-other" href="#/other"><span data-icon="more" data-size="22"></span><span>Еще</span></a>
         </nav>
-        <div class="navlinks">
-          <a href="https://github.com/RedstoneLord/itmo-m3102" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
-        </div>
-      </header>
       <div id="content"><p class="state">Загрузка…</p></div>
       <footer>Файлы загружаются напрямую из GitHub-репозитория RedstoneLord/itmo-m3102</footer>
     </div>
@@ -347,6 +356,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     import { renderLinksPage, materialsSwitch } from './js/links.js';
     import { quizFigure, bindQuizzes, quizPageSource, mountQuizPage } from './js/quiz.js';
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
+    import { ic, hydrateIcons, installGlyphIcons } from './js/icons.js';
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
       'Записи лекций':'Аудиозаписи лекций',
@@ -377,8 +387,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     function gotoView(path){location.hash='#/view/'+encodePath(path);}
     function gotoNote(path){location.hash='#/note/'+encodePath(path);}
     function gotoHomePage(){if(location.hash===''||location.hash==='#')route();else location.hash='';}
-    document.getElementById('home-link').onclick=e=>{e.preventDefault();gotoHomePage();};
-    document.getElementById('tab-home').onclick=e=>{e.preventDefault();gotoHomePage();};
+    document.querySelectorAll('#home-link,#tab-home,#bn-home').forEach(el=>el.onclick=e=>{e.preventDefault();gotoHomePage();});
     document.getElementById('tab-materials').onclick=e=>{e.preventDefault();location.hash='#/materials';};
     document.getElementById('tab-schedule').onclick=e=>{e.preventDefault();location.hash='#/schedule';};
 
@@ -1188,6 +1197,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
     async function generateNotePdf(fileName){
       const btn=document.getElementById('note-print-btn');
+      const origHtml=btn.innerHTML
       const bodyEl=document.getElementById('note-body');
       if(!bodyEl)return;
       if(!window.jspdf || !window.html2canvas){
@@ -1283,6 +1293,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       }finally{
         if(root && root.parentNode)root.parentNode.removeChild(root);
         if(btn){btn.disabled=false;btn.textContent=origText||'📄 Скачать PDF';}
+        btn.innerHTML=origHtml
       }
     }
 
@@ -1337,14 +1348,14 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       c.innerHTML=`<div class="intro"><h1>Студенты группы М3102</h1><p class="sub">Ник — ссылка на GitHub-профиль, «Коммиты» — история правок этого студента в репозитории материалов группы.</p></div><div class="students-grid">${cards}</div>`;
     }
 
-    /* ---------- страница «Другое» (Диаграммы + Мемы) ---------- */
+    /* ---------- страница «Ещё» (Диаграммы + Мемы +...) ---------- */
     function renderOtherPage(){
       const c=document.getElementById('content');
-      c.innerHTML=`<div class="intro"><h1>Другое</h1><p class="sub">Дополнительные разделы сайта.</p></div>
+      c.innerHTML=`<div class="intro"><h1>Ещё</h1><p class="sub">Дополнительные разделы сайта.</p></div>
         <div class="grid">
-          <a class="card" data-go="students"><div class="ic">🎓</div><div class="meta"><div class="name">Студенты</div><div class="desc">Список группы и контакты</div></div></a>
-          <a class="card" data-go="diagrams"><div class="ic">◇</div><div class="meta"><div class="name">Диаграммы</div><div class="desc">Конструктор диаграмм для конспектов</div></div></a>
-          <a class="card" data-go="memes"><div class="ic">😂</div><div class="meta"><div class="name">Мемы</div><div class="desc">Мемы группы</div></div></a>
+          <a class="card" data-go="students"><div class="ic">${ic('cap',22)}</div><div class="meta"><div class="name">Студенты</div><div class="desc">Список группы и контакты</div></div></a>
+          <a class="card" data-go="diagrams"><div class="ic">${ic('diagram',22)}</div><div class="meta"><div class="name">Диаграммы</div><div class="desc">Конструктор диаграмм для конспектов</div></div></a>
+          <a class="card" data-go="memes"><div class="ic">${ic('smile',22)}</div><div class="meta"><div class="name">Мемы</div><div class="desc">Мемы группы</div></div></a>
           <a class="card" data-go="hedgehog"><div class="ic">🦔</div><div class="meta"><div class="name">Ёжик-кувырок</div><div class="desc">Мини-игра: катись с холмов, делай кувырки, не засыпай</div></div></a>
         </div>`;
       c.querySelectorAll('[data-go]').forEach(el=>el.onclick=e=>{e.preventDefault();location.hash='#/'+el.dataset.go;});
@@ -1355,8 +1366,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       const c=document.getElementById('content');
       c.innerHTML=`<div class="intro"><h1>ДЗ и Дедлайны</h1><p class="sub">Задания по предметам и общие сроки сдачи.</p></div>
         <div class="grid">
-          <a class="card" data-go="homework"><div class="ic">✎</div><div class="meta"><div class="name">Домашнее задание</div><div class="desc">Задания по предметам, выполнение видно только вам</div></div></a>
-          <a class="card deadline-card" href="#/deadlines"><div class="ic">ДД</div><div class="meta"><div class="name">Дедлайны</div><div class="desc">Сроки сдачи и важные даты</div></div></a>
+          <a class="card" data-go="homework"><div class="ic">${ic('pencil',22)}</div><div class="meta"><div class="name">Домашнее задание</div><div class="desc">Задания по предметам, выполнение видно только вам</div></div></a>
+          <a class="card deadline-card" href="#/deadlines"><div class="ic">${ic('clock',22)}</div><div class="meta"><div class="name">Дедлайны</div><div class="desc">Сроки сдачи и важные даты</div></div></a>
         </div>`;
       c.querySelectorAll('[data-go]').forEach(el=>el.onclick=e=>{e.preventDefault();location.hash='#/'+el.dataset.go;});
     }
@@ -1474,10 +1485,10 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&location.hash==='#/deadlines')refreshDeadlinesPage();});
 
     const HOME_TILES=[
-      {name:'Конспекты',icon:'01',desc:'Лекции и практики по предметам'},
-      {name:'Записи лекций',icon:'02',desc:'Аудио прошедших занятий'},
-      {name:'Лабораторные',icon:'03',desc:'Задания и отчёты'},
-      {name:'Материалы',icon:'04',desc:'Учебники и полезные файлы'}
+      {name:'Конспекты',icon:'notes',desc:'Лекции и практики по предметам'},
+      {name:'Записи лекций',icon:'mic',desc:'Аудио прошедших занятий'},
+      {name:'Лабораторные',icon:'flask',desc:'Задания и отчёты'},
+      {name:'Материалы',icon:'book',desc:'Учебники и полезные файлы'}
     ];
     const PLAN_KEY='m3102-study-plan-v1';
     function readPlan(){
@@ -1542,16 +1553,16 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     function renderHome(){
       const c=document.getElementById('content');
       const now=new Date();
-      const tiles=HOME_TILES.map(t=>`<a class="material-link" href="#/${encodePath(t.name)}" data-nav="${esc(t.name)}"><span class="material-icon">${t.icon}</span><strong>${esc(t.name)}</strong><small>${esc(t.desc)}</small><span class="material-arrow" aria-hidden="true">↗</span></a>`).join('');
+      const tiles=HOME_TILES.map(t=>`<a class="material-link" href="#/${encodePath(t.name)}" data-nav="${esc(t.name)}"><span class="material-icon">${ic(t.icon,22)}</span><strong>${esc(t.name)}</strong><small>${esc(t.desc)}</small><span class="material-arrow" aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a>`).join('');
       c.innerHTML=`
       <section class="home-hero"><div class="hero-inner"><div><h1>${greetingHtml()}</h1><p class="sub">Всё важное для группы М3102 — в одном месте.</p></div><div class="hero-date"><strong>${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</strong><span class="hero-week">${scheduleLabel(now)}</span></div></div><span class="hero-orbit" aria-hidden="true"></span><span class="hero-hedgehog" aria-hidden="true">🦔</span></section>
       <div class="dashboard-grid">
-        <section class="dash-panel schedule-panel"><div class="panel-head"><h2>Сегодня в расписании</h2><a href="#/schedule">Все занятия <span aria-hidden="true">↗</span></a></div>${homeSchedule()}</section>
-        <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">↗</span></a></div><div id="home-deadlines"><p class="empty-line">Загрузка сроков…</p></div><div id="completed-deadlines"></div></section>
-        <section class="dash-panel homework-panel"><div class="panel-head"><h2>Домашнее задание</h2><a href="#/homework">Все задания <span aria-hidden="true">↗</span></a></div><div id="home-homework"><p class="empty-line">Загрузка заданий…</p></div></section>
-        <section class="dash-panel materials-panel"><div class="panel-head"><h2>Материалы</h2><a href="#/materials">Все материалы <span aria-hidden="true">↗</span></a></div><div class="material-links">${tiles}</div></section>
+        <section class="dash-panel schedule-panel"><div class="panel-head"><h2>Сегодня в расписании</h2><a href="#/schedule">Все занятия <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div>${homeSchedule()}</section>
+        <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div id="home-deadlines"><p class="empty-line">Загрузка сроков…</p></div><div id="completed-deadlines"></div></section>
+        <section class="dash-panel homework-panel"><div class="panel-head"><h2>Домашнее задание</h2><a href="#/homework">Все задания <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div id="home-homework"><p class="empty-line">Загрузка заданий…</p></div></section>
+        <section class="dash-panel materials-panel"><div class="panel-head"><h2>Материалы</h2><a href="#/materials">Все материалы <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div class="material-links">${tiles}</div></section>
         <section class="dash-panel plan-panel"><div class="panel-head"><h2>Мой учебный план</h2><label class="toggle-label"><input id="hide-completed" type="checkbox" ${hideCompleted?'checked':''}> Скрыть выполненные</label></div><form id="plan-form" class="plan-form"><input id="task-name" name="name" type="text" maxlength="120" placeholder="Добавить свою задачу…" aria-label="Новая задача" required><input id="task-date" name="date" type="date" aria-label="Срок задачи"><button type="submit">Добавить</button></form><div id="plan-list"></div><p class="plan-hint">Личные задачи и отметки хранятся в этом браузере.</p></section>
-        <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">↗</span></a></div><div id="recent-notes"><p class="empty-line">Загрузка конспектов…</p></div></section>
+        <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div id="recent-notes"><p class="empty-line">Загрузка конспектов…</p></div></section>
       </div>`;
       c.querySelectorAll('[data-nav]').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.nav);});
       document.getElementById('plan-form').onsubmit=e=>{
@@ -2974,16 +2985,14 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       if(h.startsWith('note/'))return{mode:'note',path:decodePath(h.slice(5))};
       return{mode:'browse',path:decodePath(h)};
     }
-    function updateActiveTab(mode,path){
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-      let id='tab-materials';
-      if(mode==='home')id='tab-home';
-      else if(mode==='schedule')id='tab-schedule';
-      else if(mode==='homework'||mode==='hw-deadlines'||mode==='deadlines')id='tab-homework';
-      else if(mode==='students')id='tab-students';
-      else if(mode==='diagrams'||mode==='memes'||mode==='hedgehog'||mode==='other')id='tab-other';
-      const el=document.getElementById(id);
-      if(el)el.classList.add('active');
+    function updateActiveTab(mode){
+      document.querySelectorAll('.tab,.bn-item').forEach(t=>{t.classList.remove('active');t.removeAttribute('aria-current');});
+      let key='materials';
+      if(mode==='home')key='home';
+      else if(mode==='schedule')key='schedule';
+      else if(['homework','hw-deadlines','deadlines'].includes(mode))key='homework';
+      else if(['diagrams','memes','hedgehog','other','students'].includes(mode))key='other';
+      document.querySelectorAll(`#tab-${key},#bn-${key}`).forEach(el=>{el.classList.add('active');el.setAttribute('aria-current','page');});
     }
     function breadcrumbs(path){
       const parts=path?path.split('/'):[];
@@ -2992,14 +3001,22 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       parts.forEach(p=>{acc=acc?acc+'/'+p:p;html+=' / <a data-p="'+esc(acc)+'">'+esc(prettyName(acc,p))+'</a>';});
       return html+'</div>';
     }
-    function viewBar(icon,name,path,extra=''){
-      return `<div class="viewbar"><button class="btn2" id="back-btn">← Назад</button><div class="viewname">${icon} ${esc(name)}</div>${extra}<a class="btn2" href="${rawUrl(path)}" target="_blank" rel="noopener" download>Скачать</a></div>`;
+    function viewBar(kind,name,path,extra=''){
+      const kindIcon=kind==='PDF'?'file':'notes';
+      return `<div class="viewbar">
+        <button class="btn2" id="back-btn" type="button">${ic('arrowLeft',16)} Назад</button>
+        <div class="viewname"><span class="vn-ic">${ic(kindIcon,18)}</span> <span class="vn-t">${esc(name)}</span></div>
+        ${extra}
+        <a class="btn2" href="${rawUrl(path)}" target="_blank" rel="noopener" download>${ic('download',16)} Скачать</a>
+      </div>`;
     }
     function bindBack(path){document.getElementById('back-btn').onclick=()=>goto(path.split('/').slice(0,-1).join('/'));}
     const stripExt=n=>n.replace(/\.[^.]+$/,'');
     const PILL_SKIP=new Set(); // например new Set(['md']), чтобы не показывать плашку у конспектов
     let routeSeq=0; // номер текущего перехода: поздние ответы старых страниц игнорируются
     async function renderBrowse(path){
+      const dirIcon=n=>({'Конспекты':'notes','Записи лекций':'mic','Лабораторные':'flask','Материалы':'book','Дедлайны':'clock'})[n]||'folder';
+      const fileIcon=e=>({md:'notes',mp3:'audio',wav:'audio',m4a:'audio',html:'globe',htm:'globe',djvu:'book'})[e]||'file';
       const seq=routeSeq;
       const c=document.getElementById('content');
       let intro='';
@@ -3023,22 +3040,22 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
         items.forEach(it=>{
           if(it.type==='dir'){
             if(!path && it.name==='Дедлайны'){
-              grid+=`<a class="card deadline-card" href="#/deadlines"><div class="ic">ДД</div><div class="meta"><div class="name">Дедлайны</div><div class="desc">Сроки сдачи и важные даты</div></div></a>`;
+              grid+=`<a class="card deadline-card" href="#/deadlines"><div class="ic">${ic('clock',22)}</div><div class="meta"><div class="name">Дедлайны</div><div class="desc">Сроки сдачи и важные даты</div></div></a>`;
               return;
             }
             const sub=path?'':(SUBTITLES[it.name]||'Папка');
-            grid+=`<a class="card" data-nav="${esc(it.path)}"><div class="ic">↗</div><div class="meta"><div class="name">${esc(shown(it))}</div><div class="desc">${esc(sub)}</div></div></a>`;
+            grid+=`<a class="card" data-nav="${esc(it.path)}"><div class="ic">${ic(path?'folder':dirIcon(it.name),22)}</div><div class="meta"><div class="name">${esc(shown(it))}</div><div class="desc">${esc(sub)}</div></div></a>`;
           }else{
             const e=ext(it.name);
             if(it.name==='index.html')return;
             const pill=PILL_SKIP.has(e)?'':`<span class="fmt-pill">${esc(EXT_ICON[e]||e.toUpperCase()||'ФАЙЛ')}</span>`;
             const title=`${esc(shown(it))}${pill}`;
             if(e==='pdf'){
-              grid+=`<a class="card" data-view="${esc(it.path)}"><div class="ic">▤</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)} · читать в браузере</div></div></a>`;
+              grid+=`<a class="card" data-view="${esc(it.path)}"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)} · читать в браузере</div></div></a>`;
             }else if(e==='md'){
-              grid+=`<a class="card" data-note="${esc(it.path)}"><div class="ic">▤</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)} · читать конспект</div></div></a>`;
+              grid+=`<a class="card" data-note="${esc(it.path)}"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)} · читать конспект</div></div></a>`;
             }else{
-              grid+=`<div class="card" style="cursor:default;"><div class="ic">▤</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)}</div></div><a class="btn" href="${rawUrl(it.path)}" target="_blank" rel="noopener">Скачать</a></div>`;
+              grid+=`<div class="card" style="cursor:default;"><div class="ic">${ic(fileIcon(e),22)}</div><div class="meta"><div class="name">${title}</div><div class="desc">${fmtSize(it.size)}</div></div><a class="btn" href="${rawUrl(it.path)}" target="_blank" rel="noopener">Скачать</a></div>`;
             }
           }
         });
@@ -3060,7 +3077,7 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       const name=prettyName(path,path.split('/').pop());
       const c=document.getElementById('content');
       c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
-      loadDisplayNames().then(()=>{const v=document.querySelector('.viewname');if(v)v.textContent='PDF '+stripExt(prettyName(path,name));});
+      loadDisplayNames().then(()=>{const v=document.querySelector('.vn-t');if(v)v.textContent=stripExt(prettyName(path,name));});
       bindBack(path);
       mountSidebar(document.getElementById('note-side'),path,{toc:false});
       if(!window.__pdfWorkerSet){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';window.__pdfWorkerSet=true;}
@@ -3095,11 +3112,11 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       const seq=routeSeq;
       const name=prettyName(path,path.split('/').pop());
       const c=document.getElementById('content');
-      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,'<button class="btn2" id="note-print-btn" type="button">📄 Скачать PDF</button>')}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
+      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,   `<button class="btn2" id="note-print-btn" type="button">${ic('download',16)} Скачать PDF</button>`)}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
       bindBack(path);
       const side=mountSidebar(document.getElementById('note-side'),path,{toc:true});
       document.getElementById('note-print-btn').onclick=()=>{generateNotePdf(prettyName(path,name));};
-      loadDisplayNames().then(()=>{const v=document.querySelector('.viewname');if(v)v.textContent='MD '+stripExt(prettyName(path,name));});
+      loadDisplayNames().then(()=>{const v=document.querySelector('.vn-t');if(v)v.textContent=stripExt(prettyName(path,name));});
       fetch(rawUrl(path)).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
         .then(text=>{
           if(seq!==routeSeq)return;
@@ -3160,6 +3177,8 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
     installMemes();
     mountSiteSearch(document.getElementById('site-search'));
     route();
+    hydrateIcons();
+    installGlyphIcons();
     </script>
     </body>
     </html>

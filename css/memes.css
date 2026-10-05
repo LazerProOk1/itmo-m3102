@@ -3,7 +3,7 @@
 .memes-intro .sub{margin-bottom:0}
 .memes-intro .btn2{min-height:44px;white-space:nowrap}
 .meme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.meme-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s}
+.meme-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s}
 .meme-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 35%,var(--border));box-shadow:0 14px 30px rgba(20,20,35,.08)}
 .meme-img{aspect-ratio:1/1;overflow:hidden;background:var(--bg);cursor:zoom-in}
 .meme-img img{width:100%;height:100%;object-fit:cover;display:block}
@@ -13,7 +13,7 @@
 .meme-delete{position:absolute;top:8px;right:8px;z-index:1;width:28px;height:28px;border:0;border-radius:50%;background:rgba(10,10,18,.55);color:#fff;font-size:1rem;line-height:1;cursor:pointer;opacity:0;transition:opacity .2s,background .2s}
 .meme-card:hover .meme-delete{opacity:1}
 .meme-delete:hover{background:#d24c52}
-.meme-empty{grid-column:1/-1;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--border);border-radius:19px;color:var(--muted);background:var(--card)}
+.meme-empty{grid-column:1/-1;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--border);border-radius:13px;color:var(--muted);background:var(--card)}
 .meme-empty>span{font-size:2.2rem;color:var(--accent);margin-bottom:9px}
 .meme-empty strong{color:var(--text);font-size:1.1rem}
 .meme-empty p{margin:7px 0 0}

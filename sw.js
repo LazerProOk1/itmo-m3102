@@ -7,7 +7,7 @@
     не перехватывается: у сайта свои механизмы кэша и пометка «показана сохранённая версия».
   При изменении списка SHELL или после крупных правок можно поднять номер в CACHE.
 */
-const CACHE = 'm3102-shell-v1';
+const CACHE = 'm3102-shell-v2';
 const SHELL = [
   './', './index.html', './site.css', './manifest.webmanifest',
   './css/schedule.css', './css/homework.css', './css/diagrams.css', './css/memes.css', './css/deadlines.css',
@@ -19,6 +19,7 @@ const SHELL = [
   './js/diagrams/array-player.js', './js/diagrams/editor.js',
   './img/logo.png', './img/logo-t.png',
   './img/icons/icon-192.png', './img/icons/icon-512.png', './img/icons/apple-touch-icon.png',
+  './css/shell.css', './js/icons.js', 
 ];
 const CDN = 'cdnjs.cloudflare.com';
 

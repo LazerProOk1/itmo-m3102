@@ -2,7 +2,7 @@
    Все правила специально ограничены классом .deadlines-page, чтобы не
    переопределять .grid/.card, используемые остальным сайтом (материалы,
    «Другое» и т.д.) с другой раскладкой. */
-.deadlines-page .overview{display:flex;align-items:center;justify-content:space-between;gap:25px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 28px;margin:0 0 16px;animation:rise .5s both}
+.deadlines-page .overview{display:flex;align-items:center;justify-content:space-between;gap:25px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:22px 28px;margin:0 0 16px;animation:rise .5s both}
 .deadlines-page .overview>div{display:flex;align-items:baseline;gap:15px}
 .deadlines-page .overview-label{font-size:.77rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
 .deadlines-page .overview strong{font-size:1.7rem;letter-spacing:-.06em}
@@ -15,7 +15,7 @@
 .deadlines-page .card.is-done h3{text-decoration:line-through}
 .deadlines-page .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
 .deadlines-page .card-index{font-size:1.35rem;font-weight:750;letter-spacing:-.07em;color:var(--accent)}
-.deadlines-page .badge{font-size:.72rem;border-radius:7px;padding:6px 9px;font-weight:600;white-space:nowrap}
+.deadlines-page .badge{font-size:.72rem;border-radius:5px;padding:6px 9px;font-weight:600;white-space:nowrap}
 .deadlines-page .badge.ok{background:rgba(31,169,113,.1);color:var(--ok,#298069)}
 .deadlines-page .badge.warn{background:rgba(221,154,43,.12);color:var(--warn,#ad7b32)}
 .deadlines-page .badge.danger{background:rgba(224,72,92,.11);color:var(--danger,#d65c68)}
@@ -29,7 +29,7 @@
 .deadlines-page .queue li a:hover{color:var(--accent);text-decoration:underline}
 .deadlines-page .empty{font-style:normal;color:var(--muted);font-size:.8rem;list-style:none;margin-left:-20px}
 .deadlines-page .joinrow{display:flex;gap:8px;margin-top:15px}
-.deadlines-page .joinrow input{flex:1;min-width:0;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-size:.83rem}
+.deadlines-page .joinrow input{flex:1;min-width:0;padding:11px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-size:.83rem}
 .deadlines-page .joinrow .btn2{white-space:nowrap;font-size:.8rem;padding:9px 12px;box-shadow:0 6px 14px rgba(101,72,232,.2)}
 .deadlines-page .done-control{margin-top:20px;padding-top:15px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:8px;cursor:pointer}
 .deadlines-page .done-control input{accent-color:var(--accent);width:17px;height:17px;cursor:pointer}
