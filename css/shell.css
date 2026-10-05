@@ -1,6 +1,8 @@
 /* Оболочка сайта: липкая шапка, нижняя навигация (мобильные), поиск-кнопка, иконки.
    Подключается ПОСЛЕДНИМ, поэтому перекрывает старые правила шапки из index.html / site.css / lectures.css. */
 
+html, body { overflow-x: clip; max-width: 100%; }
+
 /* ---------- иконки ---------- */
 .ic-svg{display:inline-block;flex:none;vertical-align:-.2em}
 [data-icon]{display:inline-flex;align-items:center;justify-content:center;flex:none}
@@ -81,3 +83,7 @@ header{
   .home-hero::after{content:"";position:absolute;left:22px;right:22px;bottom:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);pointer-events:none}
 }
 @media(max-width:390px){.brand-logo{height:20px}}
+@media (max-width:1000px){
+  .side{ clip-path: inset(0 0 0 100%); }      /* closed */
+  .is-open .side{ clip-path: inset(0); }
+}
