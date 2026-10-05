@@ -1550,51 +1550,51 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       if(!schedule)return 'Расписание загружается';
       return isVacation(now,schedule)?'Каникулы':weekParity(now,schedule)==='even'?'Чётная неделя':'Нечётная неделя';
     }
-    function renderHome(){
-      const c=document.getElementById('content');
-      const now=new Date();
-      const tiles=HOME_TILES.map(t=>`<a class="material-link" href="#/${encodePath(t.name)}" data-nav="${esc(t.name)}"><span class="material-icon">${ic(t.icon,22)}</span><strong>${esc(t.name)}</strong><small>${esc(t.desc)}</small><span class="material-arrow" aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a>`).join('');
-      c.innerHTML=`
-      <section class="home-hero"><div class="hero-inner"><div><h1>${greetingHtml()}</h1><p class="sub">Всё важное для группы М3102 — в одном месте.</p></div><div class="hero-date"><strong>${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</strong><span class="hero-week">${scheduleLabel(now)}</span></div></div><span class="hero-orbit" aria-hidden="true"></span><span class="hero-hedgehog" aria-hidden="true">🦔</span></section>
-      <div class="dashboard-grid">
-        <section class="dash-panel schedule-panel"><div class="panel-head"><h2>Сегодня в расписании</h2><a href="#/schedule">Все занятия <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div>${homeSchedule()}</section>
-        <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div id="home-deadlines"><p class="empty-line">Загрузка сроков…</p></div><div id="completed-deadlines"></div></section>
-        <section class="dash-panel homework-panel"><div class="panel-head"><h2>Домашнее задание</h2><a href="#/homework">Все задания <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div id="home-homework"><p class="empty-line">Загрузка заданий…</p></div></section>
-        <section class="dash-panel materials-panel"><div class="panel-head"><h2>Материалы</h2><a href="#/materials">Все материалы <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div class="material-links">${tiles}</div></section>
-        <section class="dash-panel plan-panel"><div class="panel-head"><h2>Мой учебный план</h2><label class="toggle-label"><input id="hide-completed" type="checkbox" ${hideCompleted?'checked':''}> Скрыть выполненные</label></div><form id="plan-form" class="plan-form"><input id="task-name" name="name" type="text" maxlength="120" placeholder="Добавить свою задачу…" aria-label="Новая задача" required><input id="task-date" name="date" type="date" aria-label="Срок задачи"><button type="submit">Добавить</button></form><div id="plan-list"></div><p class="plan-hint">Личные задачи и отметки хранятся в этом браузере.</p></section>
-        <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">${ic(path?'folder':dirIcon(it.name),22)}</span></a></div><div id="recent-notes"><p class="empty-line">Загрузка конспектов…</p></div></section>
-      </div>`;
-      c.querySelectorAll('[data-nav]').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.nav);});
-      document.getElementById('plan-form').onsubmit=e=>{
-        e.preventDefault();
-        const name=document.getElementById('task-name').value.trim();
-        if(!name)return;
-        plan.tasks.push({id:crypto.randomUUID(),name,date:document.getElementById('task-date').value});
-        savePlan();renderPlan();e.target.reset();document.getElementById('task-name').focus();
-      };
-      c.onchange=e=>{
-        if(e.target.id==='hide-completed'){hideCompleted=e.target.checked;renderPlan();}
-        if(e.target.dataset.task){plan.done[e.target.dataset.task]=e.target.checked;savePlan();renderPlan();}
-        if(e.target.dataset.deadline){plan.done['deadline:'+e.target.dataset.deadline]=e.target.checked;savePlan();renderDeadlines(homeDeadlineItems);}
-      };
-      c.onclick=e=>{
-        const button=e.target.closest('[data-delete]');if(!button)return;
-        plan.tasks=plan.tasks.filter(t=>t.id!==button.dataset.delete);
-        delete plan.done[button.dataset.delete];savePlan();renderPlan();
-      };
-      renderPlan();
-      loadHomeDeadlines();
-      renderHomeHomework();
-      fetchRecentNotes();
-      ensureSchedule().then(()=>{
-        // раньше после загрузки обновлялась только панель расписания, а подпись под датой навсегда оставалась «загружается»
-        const week=c.querySelector('.hero-week');if(week)week.textContent=scheduleLabel(new Date());
-        const box=c.querySelector('.schedule-panel');if(box){const old=box.querySelector('.today-list,.empty-line');if(old)old.outerHTML=homeSchedule();}
-      }).catch(()=>{
-        const week=c.querySelector('.hero-week');if(week)week.textContent='Расписание недоступно';
-        const old=c.querySelector('.schedule-panel .empty-line');if(old)old.textContent='Не удалось загрузить расписание. Обновите страницу.';
-      });
-    }
+function renderHome(){
+  const c=document.getElementById('content');
+  const now=new Date();
+  const tiles=HOME_TILES.map(t=>`<a class="material-link" href="#/${encodePath(t.name)}" data-nav="${esc(t.name)}"><span class="material-icon">${ic(t.icon,22)}</span><strong>${esc(t.name)}</strong><small>${esc(t.desc)}</small><span class="material-arrow" aria-hidden="true">${ic('arrowUpRight',18)}</span></a>`).join('');
+  c.innerHTML=`
+  <section class="home-hero"><div class="hero-inner"><div><h1>${greetingHtml()}</h1><p class="sub">Всё важное для группы М3102 — в одном месте.</p></div><div class="hero-date"><strong>${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</strong><span class="hero-week">${scheduleLabel(now)}</span></div></div><span class="hero-orbit" aria-hidden="true"></span><span class="hero-hedgehog" aria-hidden="true">🦔</span></section>
+  <div class="dashboard-grid">
+    <section class="dash-panel schedule-panel"><div class="panel-head"><h2>Сегодня в расписании</h2><a href="#/schedule">Все занятия <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div>${homeSchedule()}</section>
+    <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="home-deadlines"><p class="empty-line">Загрузка сроков…</p></div><div id="completed-deadlines"></div></section>
+    <section class="dash-panel homework-panel"><div class="panel-head"><h2>Домашнее задание</h2><a href="#/homework">Все задания <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="home-homework"><p class="empty-line">Загрузка заданий…</p></div></section>
+    <section class="dash-panel materials-panel"><div class="panel-head"><h2>Материалы</h2><a href="#/materials">Все материалы <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div class="material-links">${tiles}</div></section>
+    <section class="dash-panel plan-panel"><div class="panel-head"><h2>Мой учебный план</h2><label class="toggle-label"><input id="hide-completed" type="checkbox" ${hideCompleted?'checked':''}> Скрыть выполненные</label></div><form id="plan-form" class="plan-form"><input id="task-name" name="name" type="text" maxlength="120" placeholder="Добавить свою задачу…" aria-label="Новая задача" required><input id="task-date" name="date" type="date" aria-label="Срок задачи"><button type="submit">Добавить</button></form><div id="plan-list"></div><p class="plan-hint">Личные задачи и отметки хранятся в этом браузере.</p></section>
+    <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="recent-notes"><p class="empty-line">Загрузка конспектов…</p></div></section>
+  </div>`;
+  c.querySelectorAll('[data-nav]').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.nav);});
+  document.getElementById('plan-form').onsubmit=e=>{
+    e.preventDefault();
+    const name=document.getElementById('task-name').value.trim();
+    if(!name)return;
+    plan.tasks.push({id:crypto.randomUUID(),name,date:document.getElementById('task-date').value});
+    savePlan();renderPlan();e.target.reset();document.getElementById('task-name').focus();
+  };
+  c.onchange=e=>{
+    if(e.target.id==='hide-completed'){hideCompleted=e.target.checked;renderPlan();}
+    if(e.target.dataset.task){plan.done[e.target.dataset.task]=e.target.checked;savePlan();renderPlan();}
+    if(e.target.dataset.deadline){plan.done['deadline:'+e.target.dataset.deadline]=e.target.checked;savePlan();renderDeadlines(homeDeadlineItems);}
+  };
+  c.onclick=e=>{
+    const button=e.target.closest('[data-delete]');if(!button)return;
+    plan.tasks=plan.tasks.filter(t=>t.id!==button.dataset.delete);
+    delete plan.done[button.dataset.delete];savePlan();renderPlan();
+  };
+  renderPlan();
+  loadHomeDeadlines();
+  renderHomeHomework();
+  fetchRecentNotes();
+  ensureSchedule().then(()=>{
+    // раньше после загрузки обновлялась только панель расписания, а подпись под датой навсегда оставалась «загружается»
+    const week=c.querySelector('.hero-week');if(week)week.textContent=scheduleLabel(new Date());
+    const box=c.querySelector('.schedule-panel');if(box){const old=box.querySelector('.today-list,.empty-line');if(old)old.outerHTML=homeSchedule();}
+  }).catch(()=>{
+    const week=c.querySelector('.hero-week');if(week)week.textContent='Расписание недоступно';
+    const old=c.querySelector('.schedule-panel .empty-line');if(old)old.textContent='Не удалось загрузить расписание. Обновите страницу.';
+  });
+}
     const RECENT_NOTES_LIMIT=6;
     async function fetchRecentNotes(){
       const box=document.getElementById('recent-notes');
@@ -3176,9 +3176,9 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
     installDiagramEditor();
     installMemes();
     mountSiteSearch(document.getElementById('site-search'));
-    route();
     hydrateIcons();
     installGlyphIcons();
+    route();
     </script>
     </body>
     </html>
