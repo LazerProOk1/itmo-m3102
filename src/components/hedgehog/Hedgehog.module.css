@@ -185,23 +185,21 @@
   }
 }
 
-/* Бег — галоп: лапки молотят по кругу (вперёд-вверх, вниз, назад), передние и задние в противофазе;
-   тело подпрыгивает и сплющивается на каждый мах. Период — STRIDE из moves.ts (0,2 с) */
+/* Бег: лапки ходят вперёд-назад поочерёдно, на каждый шаг — мягкий подскок, тело чуть сплющивается */
 .running .hog {
-  animation: hog-bob 0.2s ease-in-out infinite alternate;
+  animation: hog-bob 0.27s ease-in-out infinite alternate;
 }
 
 .running .body {
-  animation: hog-squash 0.2s ease-in-out infinite alternate;
+  animation: hog-squash 0.27s ease-in-out infinite alternate;
 }
 
 .running .legFront {
-  animation: hog-step 0.2s linear infinite;
+  animation: hog-step 0.27s ease-in-out infinite alternate;
 }
 
 .running .legBack {
-  animation: hog-step 0.2s linear infinite;
-  animation-delay: -0.1s;
+  animation: hog-step 0.27s ease-in-out infinite alternate-reverse;
 }
 
 @keyframes hog-breathe {
@@ -226,7 +224,7 @@
     transform: translateY(0);
   }
   to {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 }
 
@@ -235,11 +233,51 @@
     transform: scale(1, 1);
   }
   to {
-    transform: scale(1.03, 0.97);
+    transform: scale(1.015, 0.985);
   }
 }
 
 @keyframes hog-step {
+  from {
+    transform: translate(-3px, 0);
+  }
+  to {
+    transform: translate(3px, -1.5px);
+  }
+}
+
+/* Беглец по всему экрану — галоп: лапки молотят по кругу (вперёд-вверх, вниз, назад), передние и задние
+   в противофазе; тело подпрыгивает и сплющивается на каждый мах. Период — STRIDE из moves.ts (0,2 с) */
+.running.gallop .hog {
+  animation: hog-bob-fast 0.2s ease-in-out infinite alternate;
+}
+
+.running.gallop .body {
+  animation: hog-squash-fast 0.2s ease-in-out infinite alternate;
+}
+
+.running.gallop .legFront,
+.running.gallop .legBack {
+  animation: hog-gallop-step 0.2s linear infinite;
+}
+
+.running.gallop .legBack {
+  animation-delay: -0.1s;
+}
+
+@keyframes hog-bob-fast {
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes hog-squash-fast {
+  to {
+    transform: scale(1.03, 0.97);
+  }
+}
+
+@keyframes hog-gallop-step {
   0%,
   100% {
     transform: translate(-6px, 0);

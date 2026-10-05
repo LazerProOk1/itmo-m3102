@@ -67,7 +67,7 @@ export function RunawayHedgehog() {
     <div ref={area} className={styles.area}>
       <motion.div className={styles.runner} animate={travel}>
         <motion.div className={styles.jumper} animate={jump}>
-          <Hedgehog size={HOG} running={running} facing={facing} />
+          <Hedgehog size={HOG} running={running && 'gallop'} facing={facing} />
         </motion.div>
       </motion.div>
     </div>,
