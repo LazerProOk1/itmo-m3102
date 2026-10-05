@@ -1,4 +1,5 @@
 import { repoEditUrl } from './github.js';
+import { LOADER } from './icons.js';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const KINDS = [
@@ -57,7 +58,7 @@ export async function renderLinksPage() {
       <a class="btn2 btn-primary" href="${repoEditUrl('data/links.json')}" target="_blank" rel="noopener">＋ Добавить ссылку</a></div>
     ${materialsSwitch('links')}
     <label class="links-search"><input type="search" placeholder="Поиск по ссылкам" aria-label="Поиск по ссылкам" autocomplete="off"></label>
-    <div id="links-list"><p class="state">Загрузка…</p></div>
+    <div id="links-list"><p class="state">${LOADER}</p></div>
     <details class="links-help"><summary>Как добавить ссылку</summary>
       <p>Нажмите «Добавить ссылку», в открывшемся файле <code>data/links.json</code> скопируйте любой блок внутри <code>items</code> и поправьте поля:</p>
       <pre>{

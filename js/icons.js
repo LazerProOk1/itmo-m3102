@@ -65,6 +65,8 @@ export const ic = (name, size = 20, cls = '') => {
   return `<svg class="ic-svg${cls ? ' ' + cls : ''}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[name] || P.file}</svg>`;
 };
 
+export const LOADER = '<span class="hh-loader" role="status" aria-label="Загрузка"><span aria-hidden="true">🦔</span></span>';
+
 export function hydrateIcons(root = document) {
   root.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = ic(el.dataset.icon, Number(el.dataset.size) || 18); });
 }

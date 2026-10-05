@@ -1,3 +1,6 @@
+import { LOADER } from './icons.js';
+
+
 /*
   Боковая панель конспекта (лекции + «Содержание») и поиск по сайту.
   Всё находится ВНЕ #note-body, поэтому генератор PDF (он клонирует только #note-body) не затрагивается.
@@ -119,7 +122,7 @@ export function mountSidebar(host, path, { toc = true } = {}) {
     <div class="side-backdrop"></div>
     <aside class="side" aria-label="Навигация по конспекту">
       <div class="side-top"><div class="side-tabs" role="tablist"><button type="button" role="tab" data-tab="lectures" aria-selected="false">Лекции</button><button type="button" role="tab" data-tab="toc" aria-selected="false">Содержание</button><span class="side-tabs-ink" aria-hidden="true"></span></div><button class="side-close" type="button" aria-label="Закрыть навигацию">×</button></div>
-      <section class="side-sec side-lectures" aria-label="Лекции"><div class="side-head"><h2>Лекции</h2><span class="side-subject"></span></div><input class="side-search" type="search" placeholder="Поиск в предмете" aria-label="Поиск по лекциям этого предмета" autocomplete="off"><div class="lec-list"><p class="side-empty">Загрузка…</p></div></section>
+      <section class="side-sec side-lectures" aria-label="Лекции"><div class="side-head"><h2>Лекции</h2><span class="side-subject"></span></div><input class="side-search" type="search" placeholder="Поиск в предмете" aria-label="Поиск по лекциям этого предмета" autocomplete="off"><div class="lec-list"><p class="side-empty"><span class="hh-loader hh-loader--inline" role="status" aria-label="Загрузка"><span aria-hidden="true">🦔</span></span></p></div></section>
       ${toc ? '<section class="side-sec side-toc" aria-label="Содержание"><div class="side-head"><h2>Содержание</h2></div><nav class="toc"><span class="toc-ink" aria-hidden="true"></span><ol></ol></nav></section>' : ''}
     </aside>
     ${toc ? '<div class="read-progress" aria-hidden="true"><span></span></div>' : ''}`;

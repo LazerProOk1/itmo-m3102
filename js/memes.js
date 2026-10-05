@@ -1,4 +1,5 @@
 import { getToken, saveToken, forgetToken, readRepoFileOptional, readRepoFileMeta, writeRepoFile, writeRepoFileBase64, deleteRepoFile, repoEditUrl } from './github.js';
+import { LOADER } from './icons.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const MEMES_PATH = 'data/memes.json';
@@ -117,7 +118,7 @@ async function removeMeme(id) {
 }
 export function renderMemesPage() {
   const content = document.querySelector('#content');
-  content.innerHTML = `<section class="memes-page"><div class="intro memes-intro"><div><span class="sched-eyebrow">БЕЗ ЭТОГО НИКАК · М3102</span><h1>Мемы</h1><p class="sub">Общая коллекция группы. Загружайте новые — они появятся у всех после сохранения в GitHub.</p></div><button class="btn2 btn-primary" id="meme-add" type="button">＋ Добавить мем</button></div><div id="meme-grid" class="meme-grid"><p class="state">Загрузка…</p></div><p class="dialog-hint">Изображения и подписи хранятся в репозитории и видны всей группе. <a href="${repoEditUrl(MEMES_PATH)}" target="_blank" rel="noopener">Список на GitHub ↗</a></p></section>`;
+  content.innerHTML = `<section class="memes-page"><div class="intro memes-intro"><div><span class="sched-eyebrow">БЕЗ ЭТОГО НИКАК · М3102</span><h1>Мемы</h1><p class="sub">Общая коллекция группы. Загружайте новые — они появятся у всех после сохранения в GitHub.</p></div><button class="btn2 btn-primary" id="meme-add" type="button">＋ Добавить мем</button></div><div id="meme-grid" class="meme-grid"><p class="state">${LOADER}</p></div><p class="dialog-hint">Изображения и подписи хранятся в репозитории и видны всей группе. <a href="${repoEditUrl(MEMES_PATH)}" target="_blank" rel="noopener">Список на GitHub ↗</a></p></section>`;
   content.querySelector('#meme-add').onclick = openUploadDialog;
   ensureMemes().then(renderGrid).catch(error => { const grid = content.querySelector('#meme-grid'); if (grid) grid.innerHTML = `<p class="state">Не удалось загрузить мемы: ${esc(error.message)}</p>`; });
 }

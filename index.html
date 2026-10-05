@@ -333,7 +333,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
           <a class="bn-item" id="bn-homework" href="#/hw-deadlines"><span data-icon="tasks" data-size="22"></span><span>ДЗ</span></a>
           <a class="bn-item" id="bn-other" href="#/other"><span data-icon="more" data-size="22"></span><span>Еще</span></a>
         </nav>
-      <div id="content"><p class="state">Загрузка…</p></div>
+      <div id="content"><p class="state"><span class="hh-loader" role="status" aria-label="Загрузка"><span aria-hidden="true">🦔</span></span></p></div>
       <footer>Файлы загружаются напрямую из GitHub-репозитория RedstoneLord/itmo-m3102</footer>
     </div>
     <div class="print-logo"><img src="img/icons/logo.png" alt="logo"></div>
@@ -360,6 +360,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     import { mountSidebar, mountSiteSearch, stripFrontMatter, loadDisplayNames, prettyName, findMoved, byLecture } from './js/lectures.js';
     import { ic, hydrateIcons, installGlyphIcons } from './js/icons.js';
     import { installOffline, mountOfflinePanel } from './js/offline.js';
+    import { ic, hydrateIcons, installGlyphIcons, LOADER } from './js/icons.js';
 
     const OWNER='RedstoneLord', REPO='itmo-m3102', BRANCH='master';
     const SUBTITLES={
@@ -1482,7 +1483,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     }
     function renderDeadlinesPage(){
       const c=document.getElementById('content');
-      c.innerHTML=`<section class="deadlines-page dl-page"><div class="intro"><h1>Дедлайны</h1><p class="sub">Сроки сдачи и очередь группы М3102. Отмечайте выполненное — прогресс сохранится в этом браузере.</p></div><div class="viewbar"><button class="btn2" id="deadlines-refresh" type="button">↻ Обновить</button><a class="btn2" href="https://github.com/${OWNER}/${REPO}/edit/${BRANCH}/${encodePath('Дедлайны/deadlines.json')}" target="_blank" rel="noopener">Изменить сроки на GitHub ↗</a></div><div id="deadlines-content"><p class="state">Загрузка…</p></div></section>`;
+      c.innerHTML=`<section class="deadlines-page dl-page"><div class="intro"><h1>Дедлайны</h1><p class="sub">Сроки сдачи и очередь группы М3102. Отмечайте выполненное — прогресс сохранится в этом браузере.</p></div><div class="viewbar"><button class="btn2" id="deadlines-refresh" type="button">↻ Обновить</button><a class="btn2" href="https://github.com/${OWNER}/${REPO}/edit/${BRANCH}/${encodePath('Дедлайны/deadlines.json')}" target="_blank" rel="noopener">Изменить сроки на GitHub ↗</a></div><div id="deadlines-content"><p class="state">${LOADER}</p></div></section>`;
       document.getElementById('deadlines-refresh').onclick=refreshDeadlinesPage;
       refreshDeadlinesPage();
     }
@@ -1511,7 +1512,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     }
     function homeSchedule(){
       const now=new Date(), schedule=getSchedule();
-      if(!schedule)return '<p class="empty-line">Загрузка расписания…</p>';
+      if(!schedule)return `<p class="empty-line">${LOADER}</p>`;
       const lessons=lessonsOn(now,schedule);
       if(!lessons.length)return '<p class="empty-line">Сегодня занятий нет. Можно заняться материалами или планом.</p>';
       return `<div class="today-list">${lessons.map(l=>`<div class="today-row${l.break?' is-break':''}"><span class="today-time">${esc(l.start)}<br>${esc(l.end)}</span><span class="today-dot" aria-hidden="true"></span><span class="today-detail"><strong>${esc(l.subject)}</strong>${l.break?'':`<small>Ауд. ${esc(l.room)} · ${esc(l.teacher)}</small>`}</span></div>`).join('')}</div>`;
@@ -1563,11 +1564,11 @@ function renderHome(){
   <section class="home-hero"><div class="hero-inner"><div><h1>${greetingHtml()}</h1><p class="sub">Всё важное для группы М3102 — в одном месте.</p></div><div class="hero-date"><strong>${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</strong><span class="hero-week">${scheduleLabel(now)}</span></div></div><span class="hero-orbit" aria-hidden="true"></span><span class="hero-hedgehog" aria-hidden="true">🦔</span></section>
   <div class="dashboard-grid">
     <section class="dash-panel schedule-panel"><div class="panel-head"><h2>Сегодня в расписании</h2><a href="#/schedule">Все занятия <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div>${homeSchedule()}</section>
-    <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="home-deadlines"><p class="empty-line">Загрузка сроков…</p></div><div id="completed-deadlines"></div></section>
-    <section class="dash-panel homework-panel"><div class="panel-head"><h2>Домашнее задание</h2><a href="#/homework">Все задания <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="home-homework"><p class="empty-line">Загрузка заданий…</p></div></section>
+    <section class="dash-panel deadline-panel"><div class="panel-head"><h2>Ближайшие дедлайны</h2><a href="#/deadlines">Все дедлайны <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="home-deadlines"><p class="empty-line">${LOADER}</p></div><div id="completed-deadlines"></div></section>
+    <section class="dash-panel homework-panel"><div class="panel-head"><h2>Домашнее задание</h2><a href="#/homework">Все задания <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="home-homework"><p class="empty-line">${LOADER}</p></div></section>
     <section class="dash-panel materials-panel"><div class="panel-head"><h2>Материалы</h2><a href="#/materials">Все материалы <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div class="material-links">${tiles}</div></section>
     <section class="dash-panel plan-panel"><div class="panel-head"><h2>Мой учебный план</h2><label class="toggle-label"><input id="hide-completed" type="checkbox" ${hideCompleted?'checked':''}> Скрыть выполненные</label></div><form id="plan-form" class="plan-form"><input id="task-name" name="name" type="text" maxlength="120" placeholder="Добавить свою задачу…" aria-label="Новая задача" required><input id="task-date" name="date" type="date" aria-label="Срок задачи"><button type="submit">Добавить</button></form><div id="plan-list"></div><p class="plan-hint">Личные задачи и отметки хранятся в этом браузере.</p></section>
-    <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="recent-notes"><p class="empty-line">Загрузка конспектов…</p></div></section>
+    <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="recent-notes"><p class="empty-line">${LOADER}</p></div></section>
   </div>`;
   c.querySelectorAll('[data-nav]').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.nav);});
   document.getElementById('plan-form').onsubmit=e=>{
@@ -3026,7 +3027,7 @@ global.HedgehogGame={mount,_test:{Game,World,Terrain,loadSave}};
       const c=document.getElementById('content');
       let intro='';
       if(!path)intro='<div class="intro"><h1>Материалы группы М3102</h1><p class="sub">Конспекты, записи лекций, лабораторные и учебники по дисциплинам первого курса ИТМО. Выберите раздел, затем — предмет и нужный файл. PDF и конспекты .md открываются прямо в браузере.</p></div>'+materialsSwitch('files');
-      c.innerHTML=intro+breadcrumbs(path)+'<p class="state">Загрузка…</p>';
+      c.innerHTML=intro+breadcrumbs(path)+`<p class="state">${LOADER}</p>`;
       try{
         const [res]=await Promise.all([githubFetch(apiUrl(path)),loadDisplayNames()]);
         if(seq!==routeSeq)return;
@@ -3084,7 +3085,7 @@ function renderPdfView(path){
   const name=prettyName(path,path.split('/').pop());
   const c=document.getElementById('content');
 
-  c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">Загрузка PDF…</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
+  c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('PDF',name,path)}<p class="state" id="pdf-status">${LOADER}</p><div id="pdf-pages" style="max-width:900px;margin:0 auto;"></div></div><div class="note-side-host" id="note-side"></div></div>`;
 
   loadDisplayNames().then(()=>{
     const v=document.querySelector('.vn-t');
@@ -3174,7 +3175,7 @@ function renderPdfView(path){
       const seq=routeSeq;
       const name=prettyName(path,path.split('/').pop());
       const c=document.getElementById('content');
-      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,   `<button class="btn2" id="note-print-btn" type="button">${ic('download',16)} PDF</button>`)}<p class="state" id="note-status">Загрузка…</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
+      c.innerHTML=`<div class="note-layout"><div class="note-main">${viewBar('MD',name,path,   `<button class="btn2" id="note-print-btn" type="button">${ic('download',16)} PDF</button>`)}<p class="state" id="note-status">${LOADER}</p><div class="prose" id="note-body"></div></div><div class="note-side-host" id="note-side"></div></div>`;
       bindBack(path);
       const side=mountSidebar(document.getElementById('note-side'),path,{toc:true});
       document.getElementById('note-print-btn').onclick=()=>{generateNotePdf(prettyName(path,name));};
@@ -3193,7 +3194,6 @@ function renderPdfView(path){
           const s=document.getElementById('note-status');if(s)s.remove();
           const body=document.getElementById('note-body');
           body.innerHTML=renderNotes(stripFrontMatter(text),path);
-          body.classList.add('fade-in');
           runNoteExtras(body);
           side.setBody(body);
         })
