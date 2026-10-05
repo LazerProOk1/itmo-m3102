@@ -31,7 +31,7 @@ const SHELL = [
   './img/icons/favicon-32.png', './img/icons/favicon-48.png',
   './img/icons/icon-192.png', './img/icons/icon-512.png', './img/icons/apple-touch-icon.png',
   './img/icons/icon-maskable-192.png', './img/icons/icon-maskable-512.png', './css/backdrop.css',
-  './js/backdrop.js',
+  './js/backdrop.js', './css/glass.css'
 ];
 const CDN = 'cdnjs.cloudflare.com';
 const RAW = 'raw.githubusercontent.com';
