@@ -185,21 +185,23 @@
   }
 }
 
-/* Бег: лапки ходят вперёд-назад поочерёдно, на каждый шаг — мягкий подскок, тело чуть сплющивается */
+/* Бег — галоп: лапки молотят по кругу (вперёд-вверх, вниз, назад), передние и задние в противофазе;
+   тело подпрыгивает и сплющивается на каждый мах. Период — STRIDE из moves.ts (0,2 с) */
 .running .hog {
-  animation: hog-bob 0.27s ease-in-out infinite alternate;
+  animation: hog-bob 0.2s ease-in-out infinite alternate;
 }
 
 .running .body {
-  animation: hog-squash 0.27s ease-in-out infinite alternate;
+  animation: hog-squash 0.2s ease-in-out infinite alternate;
 }
 
 .running .legFront {
-  animation: hog-step 0.27s ease-in-out infinite alternate;
+  animation: hog-step 0.2s linear infinite;
 }
 
 .running .legBack {
-  animation: hog-step 0.27s ease-in-out infinite alternate-reverse;
+  animation: hog-step 0.2s linear infinite;
+  animation-delay: -0.1s;
 }
 
 @keyframes hog-breathe {
@@ -224,7 +226,7 @@
     transform: translateY(0);
   }
   to {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
   }
 }
 
@@ -233,16 +235,23 @@
     transform: scale(1, 1);
   }
   to {
-    transform: scale(1.015, 0.985);
+    transform: scale(1.03, 0.97);
   }
 }
 
 @keyframes hog-step {
-  from {
-    transform: translate(-3px, 0);
+  0%,
+  100% {
+    transform: translate(-6px, 0);
   }
-  to {
-    transform: translate(3px, -1.5px);
+  30% {
+    transform: translate(1px, -3.5px);
+  }
+  55% {
+    transform: translate(6px, -0.5px);
+  }
+  75% {
+    transform: translate(2px, 0);
   }
 }
 

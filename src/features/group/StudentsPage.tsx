@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { M3102_STUDENTS } from '../../data/m3102';
@@ -7,9 +8,16 @@ import styles from './StudentsPage.module.css';
 
 /** Студенты группы М3102: фото с GitHub, контакты, факт о себе и коммиты; карточка открывает профиль. */
 export function StudentsPage() {
+  // Открытый профиль — своё состояние, а не адрес: смена адреса перерисовывает всё приложение (~100 мс на телефоне),
+  // и окно «застывало» перед закрытием. ?u=логин только открывает профиль по ссылке; при закрытии адрес чистим
+  // после анимации, когда перерисовку уже не видно
   const [params, setParams] = useSearchParams();
-  const login = params.get('u');
+  const [login, setLogin] = useState(() => params.get('u'));
   const profile = login ? M3102_STUDENTS.find((student) => student.github === login) : undefined;
+  const closeProfile = () => {
+    setLogin(null);
+    if (params.has('u')) setTimeout(() => setParams({}, { replace: true }), 400);
+  };
 
   return (
     <>
@@ -31,7 +39,7 @@ export function StudentsPage() {
               />
               <div className={styles.info}>
                 <h3 className={styles.name}>
-                  <button type="button" className={styles.open} data-row-action onClick={() => setParams({ u: student.github })}>
+                  <button type="button" className={styles.open} data-row-action onClick={() => setLogin(student.github)}>
                     {student.name}
                   </button>
                 </h3>
@@ -62,7 +70,7 @@ export function StudentsPage() {
           );
         })}
       </div>
-      <StudentProfile student={profile} onClose={() => setParams({})} />
+      <StudentProfile student={profile} onClose={closeProfile} />
     </>
   );
 }

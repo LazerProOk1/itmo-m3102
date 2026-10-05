@@ -58,68 +58,51 @@
   font-weight: var(--weight-medium);
 }
 
-/* Две ссылки на GitHub — карточки-пилюли с логотипом: заметные, но тише главных кнопок */
+/* Две ссылки на GitHub — как плитки «Материалов» на главной: рамка, --radius-lg и data-spot (свет за курсором
+   из aurora.css). Своих фонов и цветов на наведение нет — иначе выбиваются из сайта */
 .links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-top: var(--space-4);
 }
 
 .repo {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2-5);
-  min-height: 44px;
-  padding: var(--space-1-5) var(--space-3) var(--space-1-5) var(--space-2-5);
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
   color: var(--color-text);
   text-decoration: none;
-  transition:
-    border-color var(--duration-fast) var(--ease),
-    background var(--duration-fast) var(--ease);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+.repo:hover {
+  border-color: var(--color-border-hover);
 }
 
 .repoText {
   display: grid;
+  gap: 2px;
   line-height: 1.2;
 }
 
 .repoLabel {
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
 }
 
 .repoName {
   color: var(--color-text-muted);
-  font-size: var(--text-xs);
-}
-
-.repoArrow {
-  color: var(--color-text-muted);
-  transition: transform var(--duration-fast) var(--ease);
-}
-
-@media (hover: hover) {
-  .repo:hover {
-    border-color: var(--color-border-hover);
-    background: var(--color-bg-hover);
-  }
-
-  .repo:hover .repoArrow {
-    color: var(--color-accent-text);
-    transform: translate(1px, -1px);
-  }
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
 }
 
 @media (max-width: 600px) {
   .repo {
     flex: 1 1 100%;
-  }
-
-  .repoArrow {
-    margin-left: auto;
   }
 }
