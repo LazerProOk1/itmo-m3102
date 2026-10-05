@@ -88,5 +88,7 @@ const ALL_SECTIONS: Section[] = Object.values(SECTIONS);
 
 /** Раздел, к которому относится адрес страницы: "/tasks" → Задачи */
 export function findSection(pathname: string): Section | undefined {
+  // Файлы группы и ссылки — части «Материалов» (вкладки), отдельных разделов у них нет
+  if (pathname.startsWith('/files') || pathname.startsWith('/links')) return SECTIONS.materials;
   return ALL_SECTIONS.find((section) => pathname.startsWith(section.path));
 }

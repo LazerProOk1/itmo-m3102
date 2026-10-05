@@ -43,7 +43,7 @@ export function NoteRow({ note, today, onEdit, showSubject = false }: NoteRowPro
           </span>
         }
         title={
-          <button type="button" className={styles.titleButton} onClick={() => onEdit(note)}>
+          <button type="button" className={styles.titleButton} onClick={() => onEdit(note)} data-row-action>
             {note.title}
           </button>
         }

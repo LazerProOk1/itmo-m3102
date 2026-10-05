@@ -92,9 +92,17 @@ export function parseLinks(raw: unknown): GroupLink[] {
 const HIDDEN_FILES = ['site.css', 'package.json', 'readme.md', '.gitignore', 'index.html'];
 const HIDDEN_FOLDERS = ['tests', 'inner', 'data', 'js', 'css', 'docs', 'img', '.github', 'дедлайны', 'tools', 'src', 'public'];
 
+/** Служебное в корне репозитория (скрипты, стили, манифест, конфиги): материалы лежат только в папках */
+const ROOT_TECHNICAL = /\.(js|mjs|cjs|ts|css|html|json|webmanifest|ya?ml|toml|ico|lock)$/i;
+
 export function isHiddenPath(path: string): boolean {
   const parts = path.split('/');
-  return HIDDEN_FILES.includes(parts[parts.length - 1]!.toLowerCase()) || parts.some((part) => HIDDEN_FOLDERS.includes(part.toLowerCase()));
+  const name = parts[parts.length - 1]!;
+  return (
+    HIDDEN_FILES.includes(name.toLowerCase()) ||
+    (parts.length === 1 && (ROOT_TECHNICAL.test(name) || name.startsWith('.'))) ||
+    parts.some((part) => HIDDEN_FOLDERS.includes(part.toLowerCase()))
+  );
 }
 
 /** Адрес страницы просмотра файла из репозитория группы (`#/files/...`) */

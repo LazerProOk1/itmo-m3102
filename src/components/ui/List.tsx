@@ -34,6 +34,8 @@ interface ListItemProps {
   muted?: boolean;
   /** Выделить строку (текущее занятие) */
   highlighted?: boolean;
+  /** На телефоне trailing (бейджи, дата, меню) — второй строкой под заголовком, а не сжимает его до «Подгото…» */
+  wrapOnPhone?: boolean;
   className?: string;
   /** Например, кастомное свойство --type-color для строки, зависящее от данных */
   style?: CSSProperties;
@@ -50,6 +52,7 @@ export function ListItem({
   trailing,
   muted = false,
   highlighted = false,
+  wrapOnPhone = false,
   className,
   style,
   onPointerMove,
@@ -68,7 +71,7 @@ export function ListItem({
         transition: { duration: 0.2, ease: [0.7, 0, 0.84, 0] },
       }}
       transition={SPRING_SNAPPY}
-      className={cn(styles.item, muted && styles.muted, highlighted && styles.highlighted, className)}
+      className={cn(styles.item, muted && styles.muted, highlighted && styles.highlighted, wrapOnPhone && styles.wrapPhone, className)}
       style={{ overflow: 'hidden', ...style }}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}

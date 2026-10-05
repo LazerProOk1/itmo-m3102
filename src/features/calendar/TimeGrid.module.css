@@ -101,6 +101,11 @@
   transform: translateY(-50%);
 }
 
+/* Первая метка (07:00) — под линией, а не на ней: иначе половиной заезжает в строку «Весь день» */
+.hourLabel:first-child {
+  transform: translateY(2px);
+}
+
 .dayColumn {
   position: relative;
   border-right: 1px solid var(--color-border);

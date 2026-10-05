@@ -43,7 +43,7 @@ export function SubjectRow({ subject }: SubjectRowProps) {
         </span>
       }
       title={
-        <Link to={`/subjects/${subject.id}`} className={styles.titleLink} data-morph>
+        <Link to={`/subjects/${subject.id}`} className={styles.titleLink} data-morph data-row-action>
           {subject.name}
         </Link>
       }

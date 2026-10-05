@@ -1,4 +1,4 @@
-import { ArrowLeft, Download, Printer } from 'lucide-react';
+import { ArrowLeft, Download, Folder, Printer } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { LazyMarkdown } from '../../components/markdown/LazyMarkdown';
@@ -135,7 +135,9 @@ function FolderView({ files, folder, embedded = false, exclude = [] }: FolderVie
         <div className={`${styles.grid} stagger`}>
           {listing.folders.map((name) => (
             <Link key={name} className={styles.card} data-spot to={filePath(folder ? `${folder}/${name}` : name)}>
-              <span className={styles.icon}>↗</span>
+              <span className={styles.icon}>
+                <Folder size={18} strokeWidth={1.75} aria-hidden />
+              </span>
               <span className={styles.meta}>
                 <span className={styles.name}>{name}</span>
                 <span className={styles.desc}>{isRoot ? (SUBTITLES[name] ?? 'Папка') : 'Папка'}</span>
