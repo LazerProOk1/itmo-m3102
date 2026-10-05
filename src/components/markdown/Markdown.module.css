@@ -187,6 +187,8 @@
   padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--callout-color) 8%, transparent);
+  /* фон и полоса — и при печати (браузер по умолчанию фоны не печатает) */
+  print-color-adjust: exact;
 }
 
 .markdown :global(.callout)::before {

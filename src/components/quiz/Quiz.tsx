@@ -114,7 +114,8 @@ export function QuizRunner({ data, full, onAnswer, onFinish }: QuizRunnerProps) 
   }
 
   return (
-    <div ref={rootRef} className={cn(styles.quiz, full && styles.full)} data-spot>
+    // data-pdf-hide: в «Скачать PDF» тестов нет (notePdf.ts), как и в печати
+    <div ref={rootRef} className={cn(styles.quiz, full && styles.full)} data-spot data-pdf-hide>
       <div className={styles.head}>
         <div className={styles.title}>
           <ListChecks size={18} strokeWidth={1.75} aria-hidden />

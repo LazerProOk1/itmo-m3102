@@ -135,3 +135,14 @@
     opacity: 1;
   }
 }
+
+/* «Скачать PDF» собирается — значок крутится (сам transform кнопки занят framer-motion) */
+.spinning svg {
+  animation: pdf-spin 0.9s linear infinite;
+}
+
+@keyframes pdf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

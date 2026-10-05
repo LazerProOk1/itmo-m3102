@@ -155,6 +155,7 @@ export function ArrayPlayer({ model }: { model: ArrayModel }) {
   return (
     <div
       className={cn(styles.player, !model.hideCode && styles.withCode)}
+      data-pdf-hide
       tabIndex={0}
       role="group"
       aria-label="Пошаговая демонстрация кода"
