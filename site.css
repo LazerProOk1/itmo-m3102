@@ -20,37 +20,73 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{o
 .home-hero{background:#171821;color:#fff;position:relative;isolation:isolate;overflow:hidden;border-radius:28px;margin:28px 0 22px;padding:52px 56px;min-height:235px;display:flex;align-items:center;box-shadow:0 25px 60px rgba(21,22,39,.12)}
 .home-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 80% 110%,rgba(115,85,247,.47),transparent 36%),linear-gradient(120deg,#171821 15%,#272338 100%)}
 .hero-orbit{position:absolute;right:-105px;bottom:-245px;width:600px;height:600px;border:1px solid rgba(206,194,255,.18);border-radius:50%;box-shadow:0 0 0 65px rgba(193,181,255,.025),0 0 0 130px rgba(193,181,255,.025);pointer-events:none}
-.hero-hedgehog{position:absolute;left:18px;bottom:18px;font-size:1.9rem;line-height:1;z-index:0;pointer-events:none;transform-origin:50% 85%;will-change:left,transform;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));animation:hedgehog-run 20s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes hedgehog-run{
-  0%{left:18px;transform:translateY(0) rotate(0deg) scaleX(-1)}
-  4%{transform:translateY(-20px) rotate(-22deg) scaleX(-1)}
-  8%{transform:translateY(0) rotate(0deg) scaleX(-1)}
-  12%{transform:translateY(-20px) rotate(-22deg) scaleX(-1)}
-  16%{transform:translateY(0) rotate(0deg) scaleX(-1)}
-  20%{transform:translateY(-20px) rotate(-22deg) scaleX(-1)}
-  24%{transform:translateY(0) rotate(0deg) scaleX(-1)}
-  28%{transform:translateY(-20px) rotate(-22deg) scaleX(-1)}
-  32%{transform:translateY(0) rotate(0deg) scaleX(-1)}
-  36%{transform:translateY(-20px) rotate(-22deg) scaleX(-1)}
-  40%{transform:translateY(0) rotate(0deg) scaleX(-1)}
-  44%{left:calc(100% - 18px - 2.4em);transform:translateY(-20px) rotate(-22deg) scaleX(-1)}
-  47%{transform:translateY(-78px) rotate(-190deg) scaleX(-1)}
-  50%{left:calc(100% - 18px - 2.4em);transform:translateY(0) rotate(-360deg) scaleX(1)}
-  54%{transform:translateY(-20px) rotate(0deg) scaleX(1)}
-  58%{transform:translateY(0) rotate(0deg) scaleX(1)}
-  62%{transform:translateY(-20px) rotate(22deg) scaleX(1)}
-  66%{transform:translateY(0) rotate(0deg) scaleX(1)}
-  70%{transform:translateY(-20px) rotate(22deg) scaleX(1)}
-  74%{transform:translateY(0) rotate(0deg) scaleX(1)}
-  78%{transform:translateY(-20px) rotate(22deg) scaleX(1)}
-  82%{transform:translateY(0) rotate(0deg) scaleX(1)}
-  86%{transform:translateY(-20px) rotate(22deg) scaleX(1)}
-  90%{transform:translateY(0) rotate(0deg) scaleX(1)}
-  94%{left:18px;transform:translateY(-20px) rotate(22deg) scaleX(1)}
-  97%{transform:translateY(-78px) rotate(190deg) scaleX(1)}
-  100%{left:18px;transform:translateY(0) rotate(360deg) scaleX(-1)}
+@property --hop{syntax:'<number>';inherits:false;initial-value:0}
+@property --hgate{syntax:'<number>';inherits:false;initial-value:1}
+
+.hero-hedgehog{--flip-h:80px;position:absolute;left:18px;bottom:18px;font-size:1.9rem;line-height:1;z-index:0;pointer-events:none;transform-origin:50% 85%;will-change:left,translate,rotate,scale;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));
+  translate:0 calc(var(--hop) * var(--hgate) * -16px);
+  scale:calc(1 + (.12 - .18 * var(--hop)) * var(--hgate)) calc(1 + (-.14 + .24 * var(--hop)) * var(--hgate));
+  animation:
+    hedgehog-travel 20s linear infinite,
+    hedgehog-face 20s linear infinite,
+    hedgehog-flip 20s linear infinite,
+    hedgehog-arc 20s linear infinite,
+    hedgehog-gate 20s linear infinite,
+    hedgehog-hop .55s linear infinite}
+
+/* Cycle: 0–44% run right · 44–49% backflip at the wall · 49–50% turn · 50–94% run left · 94–99% backflip · 99–100% turn */
+
+/* Same speed on the ground and in the air: the flip covers ~10% of the distance in 5% of the time */
+@keyframes hedgehog-travel{
+  0%{left:18px}
+  44%{left:calc(18px + (100% - 36px - 2.4em) * .898)}
+  49%,50%{left:calc(100% - 18px - 2.4em)}
+  94%{left:calc(18px + (100% - 36px - 2.4em) * .102)}
+  99%,100%{left:18px}
 }
-@media(max-width:760px){.hero-hedgehog{bottom:14px;font-size:1.5rem}}
+
+/* Facing changes only during the short ground turns */
+@keyframes hedgehog-face{
+  0%,49%{transform:scaleX(-1)}
+  50%,99%{transform:scaleX(1)}
+  100%{transform:scaleX(-1)}
+}
+
+/* One full backflip per end */
+@keyframes hedgehog-flip{
+  0%{rotate:0deg}
+  44%{rotate:0deg;animation-timing-function:cubic-bezier(.4,.1,.6,.9)}
+  49%{rotate:-360deg}
+  94%{rotate:-360deg;animation-timing-function:cubic-bezier(.4,.1,.6,.9)}
+  99%{rotate:0deg}
+  100%{rotate:0deg}
+}
+
+/* Jump arc: fast up, hang, drop */
+@keyframes hedgehog-arc{
+  0%,44%{margin-bottom:0;animation-timing-function:cubic-bezier(.2,.7,.4,1)}
+  46.5%{margin-bottom:var(--flip-h);animation-timing-function:cubic-bezier(.6,0,.8,.3)}
+  49%,94%{margin-bottom:0;animation-timing-function:cubic-bezier(.2,.7,.4,1)}
+  96.5%{margin-bottom:var(--flip-h);animation-timing-function:cubic-bezier(.6,0,.8,.3)}
+  99%,100%{margin-bottom:0}
+}
+
+/* Gate: 1 = running hops on, 0 = hops off (during flips) */
+@keyframes hedgehog-gate{
+  0%,42%{--hgate:1}
+  44%,49%{--hgate:0}
+  51%,92%{--hgate:1}
+  94%,99%{--hgate:0}
+  100%{--hgate:1}
+}
+
+/* Running hop phase: 0 = on the ground (squashed), 1 = top of the hop (stretched) */
+@keyframes hedgehog-hop{
+  0%{--hop:0;animation-timing-function:cubic-bezier(.2,.7,.4,1)}
+  50%{--hop:1;animation-timing-function:cubic-bezier(.6,0,.8,.3)}
+  100%{--hop:0}
+}
+@media(max-width:760px){.hero-hedgehog{--flip-h:56px;bottom:14px;font-size:1.5rem}}
 .hero-inner{width:100%;display:flex;align-items:end;justify-content:space-between;gap:32px;position:relative;z-index:1}
 .home-hero h1{color:#fff;background:none;font-size:clamp(2rem,4.3vw,3.75rem);font-weight:760;letter-spacing:-.075em;line-height:1.06;margin:0 0 12px}
 .hero-period{color:#a791ff}
@@ -139,4 +175,9 @@ footer{padding:24px 0 0}
 @media(prefers-reduced-motion:reduce){
   .hero-hedgehog{animation:none!important;left:18px;transform:scaleX(-1)}
   .home-hero:before{animation:none!important}
+}
+@media(min-width:761px){
+  .materials-panel{grid-row:span 2;display:flex;flex-direction:column}
+  .materials-panel .material-links{flex:1;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr}
+  .materials-panel .material-link{min-height:0}
 }
