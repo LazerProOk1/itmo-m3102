@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from '../../lib/motion';
 import { Hedgehog } from './Hedgehog';
 import styles from './HedgehogLane.module.css';
-import { backflip, gallop, HOG, STRIDE, stridesFor, wait } from './moves';
+import { backflip, HOG, HOP, hopsFor, runHops, wait } from './moves';
 
 /**
  * Ёжик бегает по дорожке туда-обратно, как на сайте группы: скачет на бегу, задирая нос, а у края — присел,
@@ -28,10 +28,10 @@ export function HedgehogLane() {
       await wait(1000);
       while (alive) {
         const target = direction === 1 ? Math.max(0, (lane.current?.clientWidth ?? 0) - HOG) : 0;
-        const strides = stridesFor(Math.abs(target - x));
+        const hops = hopsFor(Math.abs(target - x));
         setRunning(true);
-        void gallop(jump, strides, direction);
-        await travel.start({ x: target, transition: { duration: strides * STRIDE, ease: 'linear' } });
+        void runHops(jump, hops, direction);
+        await travel.start({ x: target, transition: { duration: hops * HOP, ease: 'linear' } });
         x = target;
         setRunning(false);
         if (!alive) break;

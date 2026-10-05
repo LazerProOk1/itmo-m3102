@@ -14,7 +14,7 @@ interface HedgehogProps {
   /** Без реакции на клик — просто дышит и моргает */
   still?: boolean;
   /** Перебирает лапками — когда бежит (шапка главной) */
-  running?: boolean;
+  running?: boolean | 'gallop';
   facing?: 'left' | 'right';
 }
 
@@ -88,14 +88,14 @@ export function HedgehogSvg({
   season = seasonOf(toISODate(new Date())),
 }: {
   size?: number;
-  running?: boolean;
+  running?: boolean | 'gallop';
   facing?: 'left' | 'right';
   /** Сезонная деталь; по умолчанию — по сегодняшней дате (обычно её нет) */
   season?: Season | null;
 }) {
   return (
     <svg
-      className={cn(styles.svg, running && styles.running, facing === 'left' && styles.left)}
+      className={cn(styles.svg, running && styles.running, running === 'gallop' && styles.gallop, facing === 'left' && styles.left)}
       width={size}
       height={size * HEDGEHOG_RATIO}
       viewBox="0 0 120 86"
