@@ -13,9 +13,11 @@ export function rippleSize(width: number, height: number, x: number, y: number):
 }
 
 function startRipple(event: PointerEvent) {
-  if (event.button !== 0) return;
+  // Только мышь: на телефоне волна под пальцем выглядела как вспыхивающая область нажатия (нижнее меню, ёжик)
+  if (event.button !== 0 || event.pointerType !== 'mouse') return;
   const host = (event.target as Element | null)?.closest<HTMLElement>(HOSTS);
-  if (!host) return;
+  // data-no-ripple — прозрачные кнопки-картинки (ёжик): волна обвела бы прямоугольник вокруг рисунка
+  if (!host || host.closest('[data-no-ripple]')) return;
   const layer = document.createElement('i');
   layer.className = 'ripple';
   layer.setAttribute('aria-hidden', 'true');
