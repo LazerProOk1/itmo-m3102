@@ -15,6 +15,8 @@ export interface GroupDeadline {
 export interface RepoFile {
   path: string;
   size: number;
+  /** Версия файла (git sha) — по ней «Работа без интернета» докачивает только изменённое */
+  sha?: string;
 }
 
 /** Полезная ссылка из data/links.json — формы сдачи, чужие конспекты, курсы */

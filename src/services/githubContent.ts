@@ -355,7 +355,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   const [group, courses] = await Promise.allSettled([
     fetchTree('group').then(async (tree) => {
       const paths = tree.map((file) => file.path);
-      const files: RepoFile[] = tree.map(({ path, size }) => ({ path, size }));
+      const files: RepoFile[] = tree.map(({ path, size, sha }) => ({ path, size, sha }));
       const [notes, deadlines, homework, links, schedule] = await Promise.all([
         buildGroupNotes(tree, notesBefore, now),
         fetchText(rawUrl('group', 'Дедлайны/deadlines.json')).then((text) => parseDeadlines(JSON.parse(text))),

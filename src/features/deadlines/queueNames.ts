@@ -68,3 +68,9 @@ export function queuePerson(typed: string, login: string | undefined): { name: s
   if (author) return { name: author, note: typed && hasExtraText(typed, author) ? typed : undefined };
   return { name: typed || '(без имени)', note: login && `@${login}` };
 }
+
+/** GitHub-логин студента, который стоит в очереди (не обязательно автор записи) — по нему открывается профиль */
+export function queueLogin(typed: string, login: string | undefined): string | undefined {
+  const { name } = queuePerson(typed, login);
+  return M3102_STUDENTS.find((student) => shortName(student) === name)?.github;
+}

@@ -12,6 +12,9 @@
   border-radius: 50%;
   background: var(--color-bg-subtle);
   object-fit: cover;
+}
+
+.avatar[data-loaded] {
   animation: avatar-grow 420ms var(--ease-luxury-out) both;
 }
 
@@ -23,7 +26,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .avatar {
+  .avatar[data-loaded] {
     animation: none;
   }
 }
@@ -89,4 +92,86 @@
 .stat dt {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
+}
+
+/* Плитка того, что появится после бэкенда, — пунктиром; настоящие числа — сплошной рамкой */
+.stat:not(.statSoon) {
+  border-style: solid;
+  border-color: var(--color-border);
+}
+
+.places {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.places li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.places a {
+  overflow: hidden;
+  color: var(--color-text);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .places a:hover {
+    color: var(--color-accent-text);
+  }
+}
+
+.places span {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Плитка того, что появится после бэкенда, — пунктиром; настоящие числа — сплошной рамкой */
+.stat:not(.statSoon) {
+  border-style: solid;
+  border-color: var(--color-border);
+}
+
+.places {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.places li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.places a {
+  overflow: hidden;
+  color: var(--color-text);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .places a:hover {
+    color: var(--color-accent-text);
+  }
+}
+
+.places span {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
 }

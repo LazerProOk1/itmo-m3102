@@ -293,6 +293,56 @@
   }
 }
 
+/* Сон: глаза закрыты (тот же scaleY, что у моргания), дышит медленно и глубоко, над головой плывут «z» */
+.sleeping .eye {
+  transform: scaleY(0.12);
+  animation: none;
+}
+
+.sleeping .body {
+  animation-duration: 5s;
+}
+
+.zzz text {
+  fill: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 650;
+  opacity: 0;
+  animation: hog-zzz 3s ease-out infinite;
+}
+
+.zzz text:nth-child(2) {
+  font-size: 11px;
+  animation-delay: 1s;
+}
+
+.zzz text:nth-child(3) {
+  font-size: 13px;
+  animation-delay: 2s;
+}
+
+/* Ёжик смотрит влево — весь рисунок отражён; буквы «z» возвращаем каждую на место (scale не мешает анимации transform) */
+.left .zzz text {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: -1 1;
+}
+
+@keyframes hog-zzz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 6px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(4px, -6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .svg {
     transition: none;

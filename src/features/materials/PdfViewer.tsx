@@ -7,7 +7,9 @@ import { storageKey } from '../../lib/storage';
 import { useSettingsStore } from '../settings/settingsStore';
 import styles from './PdfViewer.module.css';
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+/** Адрес воркера pdf.js — «Работа без интернета» скачивает его заранее */
+export const PDF_WORKER_URL = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
 
 type PdfDocument = Awaited<ReturnType<typeof pdfjs.getDocument>['promise']>;
 

@@ -255,3 +255,44 @@
   background: transparent;
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
 }
+
+.offlineButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Полоска прогресса «Работы без интернета» — тонкая, акцентом, без системного вида */
+.offlineProgress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin: calc(-1 * var(--space-2)) 0 var(--space-3);
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  appearance: none;
+}
+
+.offlineProgress::-webkit-progress-bar {
+  background: var(--color-bg-subtle);
+}
+
+.offlineProgress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--color-accent);
+  transition: width var(--duration-base) var(--ease);
+}
+
+.offlineProgress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.offlineUsage {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
