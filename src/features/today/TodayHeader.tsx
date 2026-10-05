@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 import { HedgehogLane } from '../../components/hedgehog/HedgehogLane';
 import { RunawayHedgehog } from '../../components/hedgehog/RunawayHedgehog';
@@ -41,6 +42,14 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
           </strong>
           <span className={styles.chip}>{isVacation(date) ? 'Каникулы' : WEEK_PARITY_LABELS[week.weekInCycle]}</span>
         </div>
+        <p className={styles.links}>
+          <a href="https://github.com/RedstoneLord/itmo-m3102" target="_blank" rel="noreferrer">
+            Репозиторий группы <ArrowUpRight size={14} aria-hidden />
+          </a>
+          <a href="https://github.com/LazerProOk1/itmo-m3102" target="_blank" rel="noreferrer">
+            Код этого сайта <ArrowUpRight size={14} aria-hidden />
+          </a>
+        </p>
       </div>
       {/* Ёжик бегает по низу шапки, как на сайте группы; «вырвался на свободу» — бежит по низу экрана */}
       {!runaway && <HedgehogLane />}
