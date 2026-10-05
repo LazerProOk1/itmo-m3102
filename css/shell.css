@@ -149,3 +149,17 @@ header{
   }
 }
 
+/* ---------- шапка на узких экранах: поиск сжимается, иконка GitHub остаётся на месте ---------- */
+.gh-link{flex:none}
+.ss-input{width:100%}
+@media(max-width:760px){
+  header{min-width:0}
+  .header-actions{flex:1 1 0;min-width:0;justify-content:flex-end}
+  .site-search{flex:1 1 auto;min-width:0;max-width:340px}
+  .ss-box{width:100%;min-width:0;padding:0 8px 0 10px}
+}
+@media(max-width:390px){
+  .brand-logo{height:18px}
+  .header-actions{gap:6px}
+}
+
