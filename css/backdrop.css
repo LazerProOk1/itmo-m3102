@@ -6,8 +6,8 @@
   --bgfx-stripe:.55;
   --bgfx-glow:.30;
   --bgfx-shade:rgba(244,243,251,.72);
-  --bgfx-blur-hog:6px;
-  --bgfx-blur-fx:2px;
+  --bgfx-blur-hog:10px;
+  --bgfx-blur-fx:8px;
 }
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bgfx-base:#0d0e16;--bgfx-hog:.38;--bgfx-stripe:1;--bgfx-glow:.45;--bgfx-shade:rgba(6,5,12,.66);
@@ -25,7 +25,7 @@
     radial-gradient(90vmax 30vmax at 50% 112%,rgba(167,139,250,.5),transparent 70%)}
 
 /* ёжик */
-.bgfx-hog{position:absolute;right:-7vw;top:50%;height:min(94vh,1000px);aspect-ratio:760/700;
+.bgfx-hog{position:absolute;right:-12vw;top:66%;height:min(160vh,1700px);aspect-ratio:760/700;
   opacity:var(--bgfx-hog);filter:blur(var(--bgfx-blur-hog));
   transform:translate3d(0,-50%,0);will-change:transform;
   animation:bgfx-drift 20s ease-in-out infinite alternate;
@@ -58,12 +58,12 @@
 /* затемнение при чтении */
 .bgfx-shade{position:absolute;inset:0;background:var(--bgfx-shade);opacity:0;transition:opacity .9s ease}
 
-.is-reading .bgfx-hog{filter:blur(18px)}
-.is-reading .bgfx-stripes{filter:blur(9px)}
+.is-reading .bgfx-hog{filter:blur(24px)}
+.is-reading .bgfx-stripes{filter:blur(12px)}
 .is-reading .bgfx-shade{opacity:1}
 
 @media(max-width:760px){
-  .bgfx-hog{height:72vh;right:-34vw;--bgfx-hog:.26}
+  .bgfx-hog{height:122vh;right:-58vw;top:64%;--bgfx-hog:.26}
   .bgfx-stripes{width:60vmax;height:60vmax}
 }
 @media(prefers-reduced-motion:reduce){.bgfx-hog,.bgfx-stripes{animation:none!important}.bgfx-hog{transform:translateY(-50%)}}
