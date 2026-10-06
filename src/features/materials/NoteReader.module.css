@@ -107,9 +107,11 @@
     color var(--duration-fast) var(--ease);
 }
 
-.lectureLink:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .lectureLink:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .current {
@@ -132,8 +134,10 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
-.tocItem:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .tocItem:hover {
+    color: var(--color-text);
+  }
 }
 
 .tocSub {
@@ -191,9 +195,11 @@
     transform var(--duration-fast) var(--ease);
 }
 
-.pagerLink:hover {
-  border-color: var(--color-border-hover);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .pagerLink:hover {
+    border-color: var(--color-border-hover);
+    transform: translateY(-1px);
+  }
 }
 
 .pagerLink small {

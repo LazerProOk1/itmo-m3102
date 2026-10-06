@@ -80,8 +80,10 @@
   transition: border-color var(--duration-fast) var(--ease);
 }
 
-.repo:hover {
-  border-color: var(--color-border-hover);
+@media (hover: hover) {
+  .repo:hover {
+    border-color: var(--color-border-hover);
+  }
 }
 
 .repoText {

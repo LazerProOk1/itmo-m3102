@@ -22,8 +22,10 @@
   border-radius: var(--radius-md);
 }
 
-.block:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .block:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .off .check {
@@ -57,9 +59,11 @@
   color: var(--color-text-muted);
 }
 
-.move:hover:not(:disabled) {
-  background: var(--color-bg-active);
-  color: var(--color-text);
+@media (hover: hover) {
+  .move:hover:not(:disabled) {
+    background: var(--color-bg-active);
+    color: var(--color-text);
+  }
 }
 
 .move:disabled {

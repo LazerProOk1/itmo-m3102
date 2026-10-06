@@ -20,8 +20,10 @@
   cursor: pointer;
 }
 
-.continueButton:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .continueButton:hover {
+    text-decoration: underline;
+  }
 }
 
 .divider {

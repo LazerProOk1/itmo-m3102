@@ -15,8 +15,10 @@
   pointer-events: none;
 }
 
-.row:hover::before {
-  opacity: 0.04;
+@media (hover: hover) {
+  .row:hover::before {
+    opacity: 0.04;
+  }
 }
 
 .titleLink {
@@ -28,10 +30,12 @@
   white-space: nowrap;
 }
 
-.titleLink:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--color-border-hover);
-  text-underline-offset: 2px;
+@media (hover: hover) {
+  .titleLink:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-border-hover);
+    text-underline-offset: 2px;
+  }
 }
 
 .monogram {

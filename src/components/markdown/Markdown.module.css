@@ -71,8 +71,10 @@
   color: var(--color-accent-text);
 }
 
-.markdown a:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .markdown a:hover {
+    text-decoration: underline;
+  }
 }
 
 .markdown code {
@@ -122,10 +124,15 @@
     color var(--duration-fast) var(--ease);
 }
 
-.codeBlock:hover .copy,
 .copy:focus-visible,
 .copied {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .codeBlock:hover .copy {
+    opacity: 1;
+  }
 }
 
 .copied {

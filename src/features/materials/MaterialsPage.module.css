@@ -51,8 +51,10 @@
   cursor: pointer;
 }
 
-.backButton:hover {
-  color: var(--color-accent-text);
+@media (hover: hover) {
+  .backButton:hover {
+    color: var(--color-accent-text);
+  }
 }
 
 /* Список предметов (шаг 1 вкладки "Конспекты") — монограмма и счётчик, как на странице Предметов */
@@ -100,10 +102,12 @@
   border-radius: inherit;
 }
 
-.subjectButton:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--color-border-hover);
-  text-underline-offset: 2px;
+@media (hover: hover) {
+  .subjectButton:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-border-hover);
+    text-underline-offset: 2px;
+  }
 }
 
 .count {
@@ -132,8 +136,10 @@
   height: 18px;
 }
 
-.bigList > li:hover {
-  cursor: pointer;
+@media (hover: hover) {
+  .bigList > li:hover {
+    cursor: pointer;
+  }
 }
 
 @media (max-width: 767px) {

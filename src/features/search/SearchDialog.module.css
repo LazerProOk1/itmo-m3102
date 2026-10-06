@@ -58,11 +58,18 @@
   }
 }
 
-.chipOn,
-.chipOn:hover {
+.chipOn {
   border-color: transparent;
   background: var(--color-accent-soft);
   color: var(--color-accent-text);
+}
+
+@media (hover: hover) {
+  .chipOn:hover {
+    border-color: transparent;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+  }
 }
 
 .chipDivider {
@@ -112,11 +119,17 @@
   text-align: left;
 }
 
-.result:hover,
 .result:focus-visible,
 .active {
   outline: none;
   background: var(--color-bg-hover);
+}
+
+@media (hover: hover) {
+  .result:hover {
+    outline: none;
+    background: var(--color-bg-hover);
+  }
 }
 
 .resultTitle {

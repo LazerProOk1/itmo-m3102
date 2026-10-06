@@ -156,8 +156,10 @@
   transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.swatch:hover {
-  transform: scale(1.1);
+@media (hover: hover) {
+  .swatch:hover {
+    transform: scale(1.1);
+  }
 }
 
 .swatch[aria-checked='true'] {

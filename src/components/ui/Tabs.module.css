@@ -28,13 +28,20 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
-.tab:hover {
-  color: var(--color-text-secondary);
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--color-text-secondary);
+  }
 }
 
-.active,
-.active:hover {
+.active {
   color: var(--color-text);
+}
+
+@media (hover: hover) {
+  .active:hover {
+    color: var(--color-text);
+  }
 }
 
 /* Один общий индикатор — он и переезжает между вкладками (см. layoutId в Tabs.tsx) */

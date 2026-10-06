@@ -16,15 +16,23 @@
     color var(--duration-fast) var(--ease);
 }
 
-.toggle:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-secondary);
+@media (hover: hover) {
+  .toggle:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
+  }
 }
 
-.active,
-.active:hover {
+.active {
   background: var(--color-accent-soft);
   color: var(--color-accent-text);
+}
+
+@media (hover: hover) {
+  .active:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+  }
 }
 
 @media (max-width: 767px) {

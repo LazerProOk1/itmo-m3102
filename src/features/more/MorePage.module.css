@@ -19,10 +19,6 @@
   text-decoration: none;
 }
 
-.row:active {
-  background: var(--color-bg-hover);
-}
-
 .label {
   flex: 1;
 }

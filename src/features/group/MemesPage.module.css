@@ -37,9 +37,14 @@
   transition: opacity var(--duration-fast) var(--ease);
 }
 
-.card:hover .delete,
 .delete:focus-visible {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .card:hover .delete {
+    opacity: 1;
+  }
 }
 
 .card figcaption {

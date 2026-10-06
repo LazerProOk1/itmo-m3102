@@ -43,28 +43,45 @@
 }
 
 /* Наведение — с задержкой (не мелькает, когда мышь просто проходит мимо); фокус с клавиатуры — сразу */
-.anchor:hover .tip {
-  opacity: 1;
-  transition-delay: 400ms;
+@media (hover: hover) {
+  .anchor:hover .tip {
+    opacity: 1;
+    transition-delay: 400ms;
+  }
 }
 
 .anchor:has(:focus-visible) .tip {
   opacity: 1;
 }
 
-.anchor:hover .bottom,
 .anchor:has(:focus-visible) .bottom {
   transform: translate(-50%, 0);
 }
 
-.anchor:hover .bottomStart,
+@media (hover: hover) {
+  .anchor:hover .bottom {
+    transform: translate(-50%, 0);
+  }
+}
+
 .anchor:has(:focus-visible) .bottomStart {
   transform: none;
 }
 
-.anchor:hover .right,
+@media (hover: hover) {
+  .anchor:hover .bottomStart {
+    transform: none;
+  }
+}
+
 .anchor:has(:focus-visible) .right {
   transform: translate(0, -50%);
+}
+
+@media (hover: hover) {
+  .anchor:hover .right {
+    transform: translate(0, -50%);
+  }
 }
 
 /* Клавиши на тёмной пилюле — полупрозрачные, в цвет текста подсказки */
@@ -82,7 +99,9 @@
 
 /* На сенсорном экране наведения нет — подсказка не застревает после касания */
 @media (hover: none) {
-  .anchor:hover .tip {
-    opacity: 0;
+  @media (hover: hover) {
+    .anchor:hover .tip {
+      opacity: 0;
+    }
   }
 }

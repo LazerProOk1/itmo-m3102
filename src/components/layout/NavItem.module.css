@@ -14,9 +14,11 @@
     color var(--duration-fast) var(--ease);
 }
 
-.link:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .link:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .icon {
@@ -28,9 +30,11 @@
     transform var(--duration-base) var(--ease-luxury-spring);
 }
 
-.link:hover .icon {
-  color: var(--color-text-secondary);
-  transform: translateX(1px) scale(1.08);
+@media (hover: hover) {
+  .link:hover .icon {
+    color: var(--color-text-secondary);
+    transform: translateX(1px) scale(1.08);
+  }
 }
 
 /* Подсветка активного пункта — переезжает между пунктами (framer-motion layoutId) */
@@ -48,16 +52,28 @@
   white-space: nowrap;
 }
 
-.active,
-.active:hover {
+.active {
   background: transparent;
   color: var(--color-accent-text);
   font-weight: var(--weight-medium);
 }
 
-.active .icon,
-.active:hover .icon {
+@media (hover: hover) {
+  .active:hover {
+    background: transparent;
+    color: var(--color-accent-text);
+    font-weight: var(--weight-medium);
+  }
+}
+
+.active .icon {
   color: var(--color-accent);
+}
+
+@media (hover: hover) {
+  .active:hover .icon {
+    color: var(--color-accent);
+  }
 }
 
 :global(:root[data-glow='on']) .pill {

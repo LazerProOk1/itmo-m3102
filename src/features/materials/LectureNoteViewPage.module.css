@@ -30,8 +30,10 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
-.back:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .back:hover {
+    color: var(--color-text);
+  }
 }
 
 .titleRow {

@@ -13,9 +13,11 @@
     color var(--duration-fast) var(--ease);
 }
 
-.button:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .button:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .button:disabled {

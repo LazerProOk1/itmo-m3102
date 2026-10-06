@@ -23,8 +23,10 @@
   background: var(--color-bg);
 }
 
-.day:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .day:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .weekday {

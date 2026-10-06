@@ -31,21 +31,33 @@
   background: var(--color-border);
 }
 
-.item:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .item:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
-.highlighted,
-.highlighted:hover {
+.highlighted {
   background: var(--color-accent-soft);
 }
 
+@media (hover: hover) {
+  .highlighted:hover {
+    background: var(--color-accent-soft);
+  }
+}
+
 /* Рядом с подсвеченной строкой линии не нужны */
-.item:hover::before,
-.item:hover + .item::before,
 .highlighted::before,
 .highlighted + .item::before {
   opacity: 0;
+}
+
+@media (hover: hover) {
+  .item:hover::before,
+  .item:hover + .item::before {
+    opacity: 0;
+  }
 }
 
 .leading {

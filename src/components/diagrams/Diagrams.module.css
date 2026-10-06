@@ -154,10 +154,12 @@
   stroke: color-mix(in srgb, var(--d-orange) 55%, transparent);
 }
 
-.nodeGroup:hover .node,
-.nodeGroup:hover .nodeAccent,
-.nodeGroup:hover .nodeWarm {
-  filter: brightness(1.04) drop-shadow(0 2px 6px rgb(0 0 0 / 0.12));
+@media (hover: hover) {
+  .nodeGroup:hover .node,
+  .nodeGroup:hover .nodeAccent,
+  .nodeGroup:hover .nodeWarm {
+    filter: brightness(1.04) drop-shadow(0 2px 6px rgb(0 0 0 / 0.12));
+  }
 }
 
 .nodeText {
@@ -264,9 +266,11 @@
   transition: opacity var(--duration-fast) var(--ease);
 }
 
-.bar:hover,
-.slice:hover {
-  opacity: 0.8;
+@media (hover: hover) {
+  .bar:hover,
+  .slice:hover {
+    opacity: 0.8;
+  }
 }
 
 .slice {
@@ -314,10 +318,12 @@
     color var(--duration-fast) var(--ease);
 }
 
-.tools button:hover,
-.tools a:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .tools button:hover,
+  .tools a:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 @media print {

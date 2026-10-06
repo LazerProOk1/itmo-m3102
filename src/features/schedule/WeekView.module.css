@@ -75,9 +75,11 @@
   color: var(--color-text-muted);
 }
 
-.addButton:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .addButton:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .hour {

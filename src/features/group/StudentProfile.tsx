@@ -1,6 +1,5 @@
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { Button } from '../../components/ui/Button';
+import { buttonClass } from '../../components/ui/Button';
 import { GithubMark } from '../../components/ui/GithubMark';
 import { Modal } from '../../components/ui/Modal';
 import { TelegramMark } from '../../components/ui/TelegramMark';
@@ -15,61 +14,23 @@ const SOON = '#появится после бэкенда';
 /**
  * Профиль студента — одно окно на всё приложение (AppShell), открывается из «Студентов» и из очереди дедлайнов.
  * Что есть в открытых данных GitHub — уже настоящее: число коммитов и места в очередях сдачи.
- * «О себе» и пройденные тесты — после бэкенда. ← / → и кнопки внизу листают группу, не закрывая окно.
+ * «О себе» и пройденные тесты — после бэкенда. Листания между студентами нет — владелец попросил убрать.
  */
 export function StudentProfile() {
   const login = useProfileStore((state) => state.login);
   const close = useProfileStore((state) => state.close);
-  const open = useProfileStore((state) => state.open);
-  const index = login ? M3102_STUDENTS.findIndex((item) => item.github.toLowerCase() === login.toLowerCase()) : -1;
-  const student = M3102_STUDENTS[index];
+  const student = login ? M3102_STUDENTS.find((item) => item.github.toLowerCase() === login.toLowerCase()) : undefined;
   // Пока окно закрывается, студент уже сброшен — показываем прошлого, иначе закрытию нечего показать
   const last = useRef(student);
   if (student) last.current = student;
   const shown = student ?? last.current;
-  const neighbour = (step: number) => M3102_STUDENTS[(index + step + M3102_STUDENTS.length) % M3102_STUDENTS.length]!;
-
-  useEffect(() => {
-    if (index < 0) return undefined;
-    function handleKey(event: KeyboardEvent) {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-      if (event.target instanceof HTMLElement && event.target.closest('input, textarea')) return;
-      open(M3102_STUDENTS[(index + (event.key === 'ArrowRight' ? 1 : -1) + M3102_STUDENTS.length) % M3102_STUDENTS.length]!.github);
-    }
-    addEventListener('keydown', handleKey);
-    return () => removeEventListener('keydown', handleKey);
-  }, [index, open]);
 
   return (
-    <Modal
-      open={Boolean(student)}
-      onClose={close}
-      title="Профиль студента"
-      size="sm"
-      footer={
-        student && (
-          <div className={styles.pager}>
-            <Button variant="ghost" size="sm" icon={ArrowLeft} onClick={() => open(neighbour(-1).github)}>
-              {shortName(neighbour(-1))}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => open(neighbour(1).github)}>
-              {shortName(neighbour(1))}
-              <ArrowRight size={14} strokeWidth={2} aria-hidden />
-            </Button>
-          </div>
-        )
-      }
-    >
+    <Modal open={Boolean(student)} onClose={close} title="Профиль студента" size="sm">
       {shown && <ProfileBody key={shown.github} student={shown} />}
     </Modal>
   );
 }
-
-/** «Гулякин Илья Александрович» → «Илья Гулякин» */
-const shortName = (student: Student) => {
-  const [last, first] = student.name.split(' ');
-  return first ? `${first} ${last}` : student.name;
-};
 
 function ProfileBody({ student }: { student: Student }) {
   const login = student.github.toLowerCase();
@@ -105,18 +66,20 @@ function ProfileBody({ student }: { student: Student }) {
         </div>
       </div>
 
-      {/* Контакты — просто текст с логотипом, не кнопки (владелец: «ненажимаемые, в обычном состоянии»);
-          перейти на GitHub и в Telegram можно с карточки на «Студентах» */}
-      <div className={styles.contacts}>
-        <span>
-          <GithubMark size={16} />
-          {student.github}
-        </span>
+      {/* Контакты — кнопки-таблетки сайта (buttonClass): нажимаются целиком, свечение и отклик — как у всех кнопок */}
+      <div className={styles.links}>
+        <a className={buttonClass('secondary', 'sm')} href={github} target="_blank" rel="noopener noreferrer">
+          <GithubMark size={16} />@{student.github}
+        </a>
         {student.telegram && (
-          <span>
-            <TelegramMark size={16} />
-            {student.telegram}
-          </span>
+          <a
+            className={buttonClass('secondary', 'sm')}
+            href={`https://t.me/${encodeURIComponent(student.telegram)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <TelegramMark size={16} />@{student.telegram}
+          </a>
         )}
       </div>
 

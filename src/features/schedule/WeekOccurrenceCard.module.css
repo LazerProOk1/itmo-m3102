@@ -15,9 +15,11 @@
     box-shadow 140ms var(--ease-luxury-out);
 }
 
-.card:not(.now):not(.cancelled):hover {
-  background: var(--color-bg-hover);
-  box-shadow: var(--shadow-xs);
+@media (hover: hover) {
+  .card:not(.now):not(.cancelled):hover {
+    background: var(--color-bg-hover);
+    box-shadow: var(--shadow-xs);
+  }
 }
 
 /* Полоска типа пары внутри карточки — не изгибается на скруглённых углах, как border-left */
@@ -45,8 +47,10 @@
   background: color-mix(in srgb, var(--type-color, transparent) 13%, var(--color-bg-elevated));
 }
 
-.filled:not(.now):not(.cancelled):hover {
-  background: color-mix(in srgb, var(--type-color, transparent) 20%, var(--color-bg-elevated));
+@media (hover: hover) {
+  .filled:not(.now):not(.cancelled):hover {
+    background: color-mix(in srgb, var(--type-color, transparent) 20%, var(--color-bg-elevated));
+  }
 }
 
 /* Прошедшая пара: плашка остаётся, тише только её содержимое и цвет — неделя не превращается в серые плиты */
@@ -61,10 +65,15 @@
   transition: opacity var(--duration-fast) var(--ease);
 }
 
-.past:hover > *,
-.past:hover::before,
 .past:focus-visible > * {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .past:hover > *,
+  .past:hover::before {
+    opacity: 1;
+  }
 }
 
 .filled .subject {

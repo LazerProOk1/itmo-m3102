@@ -55,9 +55,11 @@
   color: var(--color-text-muted);
 }
 
-.add:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .add:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 /* Прошедшие дни — тише, но читаются: вдруг надо вспомнить, что было во вторник */

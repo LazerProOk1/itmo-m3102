@@ -104,8 +104,10 @@
   white-space: nowrap;
 }
 
-.links a:hover {
-  color: var(--color-accent-text);
+@media (hover: hover) {
+  .links a:hover {
+    color: var(--color-accent-text);
+  }
 }
 
 .pills {

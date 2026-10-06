@@ -35,8 +35,10 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
-.item:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .item:hover {
+    color: var(--color-text);
+  }
 }
 
 .active {
