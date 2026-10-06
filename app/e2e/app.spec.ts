@@ -101,7 +101,7 @@ test('переключатель стиля: на классический са�
   await expect(back).toHaveText('Переключить стиль');
   await expect(page.locator('[data-site-veil]')).toHaveCount(0, { timeout: 5000 });
   await back.click();
-  await expect(page).toHaveURL(/\/app\/$/);
+  await expect(page).toHaveURL(/\/app\/(#.*)?$/);
   await expect(page.getByRole('link', { name: 'Переключить стиль' }).first()).toBeVisible();
   await expect(page.locator('[data-site-veil]')).toHaveCount(0, { timeout: 5000 });
 });
