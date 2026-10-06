@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router';
 import { findSection } from '../../app/navigation';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { Brand } from './Brand';
 import { EditModeToggle } from './EditModeToggle';
 import { SearchTrigger } from './SearchTrigger';
@@ -20,6 +21,8 @@ export function TopBar({ onOpenSearch }: TopBarProps) {
   const { pathname } = useLocation();
   const section = findSection(pathname);
   const SectionIcon = section?.icon;
+  // Название вкладки — раздел; конспект и предмет уточняют своим (см. useDocumentTitle)
+  useDocumentTitle(section?.label, pathname);
 
   return (
     <header className={styles.bar}>

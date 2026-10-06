@@ -6,6 +6,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { Tabs, type TabItem } from '../../components/ui/Tabs';
 import { formatShortDate } from '../../lib/dates';
 import { useClock } from '../../lib/useClock';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { SECTIONS } from '../../app/navigation';
 import { resolveSubjectFolder } from '../../data/m3102';
 import { useGroupStore } from '../group/groupStore';
@@ -91,6 +92,8 @@ export function SubjectDetailPage() {
   const subjectInfoDialog = useSubjectInfoDialog();
 
   // Предмет не найден (удалён или неверная ссылка) — возвращаемся к списку
+  useDocumentTitle(subject?.name, subjectId);
+
   if (!subject) return <Navigate to={SECTIONS.subjects.path} replace />;
 
   const subjectTasks = tasks.filter((task) => task.subjectId === subject.id);
