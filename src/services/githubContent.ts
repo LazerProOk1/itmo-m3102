@@ -21,20 +21,21 @@ import type { LectureNote, Material, MaterialCategory, MaterialType, SubjectInfo
  *   Материалы/{Предмет}/…, Лабораторные/{Предмет}/…, Записи лекций/{Предмет}/…, Дедлайны/deadlines.json,
  *   data/homework.json — общее ДЗ группы, data/links.json — полезные ссылки
  *
- * stream — Kefirleos/itmo-vault, Obsidian-хранилище 1 потока: оттуда берём только описания курсов
- *   Конспекты/1 семестр/Поток 1/{Предмет}/{Предмет}.md (SubjectInfo). Конспекты потока на сайте не показываем
- *   (решение владельца 05.10.2026): в «Конспектах» — только конспекты группы.
+ * Описания курсов (баллы, преподаватели) лежат у нас: `src/data/courseInfo/{Предмет}.md` — скопированы
+ *   из Kefirleos/itmo-vault (Obsidian-хранилище 1 потока), сайт больше не обращается к тому репозиторию.
+ *   Конспекты потока на сайте не показываются (решение владельца 05.10.2026).
  *
  * Список файлов — по 1 запросу к GitHub API на репозиторий (лимит 60/час без токена), сами файлы —
  * с raw.githubusercontent.com / GitHub Pages (CORS открыт, лимита нет). Записи имеют id "gh:{путь}".
  */
 export const REPOS = {
   group: { name: 'RedstoneLord/itmo-m3102', branch: 'master' },
-  stream: { name: 'Kefirleos/itmo-vault', branch: 'main' },
 } as const;
 
 const PAGES_BASE = 'https://redstonelord.github.io/itmo-m3102/';
-const STREAM_FOLDER = 'Конспекты/1 семестр/Поток 1/';
+/** Откуда описания приехали — id и sourceRef записей остаются прежними, чтобы сохранённые не задвоились */
+const COURSE_INFO_FOLDER = 'Конспекты/1 семестр/Поток 1/';
+const COURSE_INFO_FILES = import.meta.glob<string>('../data/courseInfo/*.md', { query: '?raw', import: 'default', eager: true });
 
 const encodePath = (path: string) => path.split('/').map(encodeURIComponent).join('/');
 
@@ -264,35 +265,31 @@ async function buildGroupNotes(tree: TreeFile[], previous: LectureNote[], now: s
   );
 }
 
-/** Описания курсов из хранилища потока: {Предмет}/{Предмет}.md, без списка конспектов и навигации */
-async function buildCourseInfo(tree: TreeFile[], info: SubjectInfo[], now: string): Promise<SubjectInfo[]> {
-  const files = tree
-    .filter(({ path }) => path.startsWith(STREAM_FOLDER) && path.endsWith('.md'))
-    .map((file) => ({ file, path: file.path, parts: file.path.slice(STREAM_FOLDER.length).split('/') }))
-    .filter(({ parts }) => parts.length === 2 && STREAM_SUBJECT_FOLDERS[parts[0]!] && stem(parts[1]!) === parts[0]);
-
-  return Promise.all(
-    files.map(async ({ file, path, parts }): Promise<SubjectInfo> => {
-      const old = info.find((item) => item.id === `gh:${path}`);
-      // Файл не менялся с прошлой синхронизации — не качаем
-      if (old?.sourceVersion === fileVersion(file)) return { ...old, archived: false };
-      const fetched = await fetchFile('stream', file);
-      const content = stripVaultSections(splitTitle(stripFrontMatter(fetched.text)).content);
-      return {
+/** Описания курсов — из встроенных файлов `src/data/courseInfo` (без сети): без списка конспектов и навигации */
+function buildCourseInfo(info: SubjectInfo[], now: string): SubjectInfo[] {
+  return Object.entries(COURSE_INFO_FILES).flatMap(([file, raw]): SubjectInfo[] => {
+    const name = stem(file.slice(file.lastIndexOf('/') + 1));
+    const subjectId = STREAM_SUBJECT_FOLDERS[name];
+    if (!subjectId) return [];
+    const path = `${COURSE_INFO_FOLDER}${name}/${name}.md`;
+    const old = info.find((item) => item.id === `gh:${path}`);
+    const content = stripVaultSections(splitTitle(stripFrontMatter(raw)).content);
+    return [
+      {
         id: `gh:${path}`,
         createdAt: old?.createdAt ?? now,
         updatedAt: old?.content === content ? old.updatedAt : now,
-        subjectId: STREAM_SUBJECT_FOLDERS[parts[0]!]!,
+        subjectId,
         title: 'Описание курса (1 поток)',
         content,
         category: 'description',
         source: 'github',
         sourceRef: path,
-        sourceVersion: fetched.version,
+        sourceVersion: 'bundled',
         archived: false,
-      };
-    }),
-  );
+      },
+    ];
+  });
 }
 
 function buildMaterials(paths: string[], previous: Material[], now: string): Material[] {
@@ -368,7 +365,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       ]);
       return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
     }),
-    fetchTree('stream').then((tree) => buildCourseInfo(tree, infoBefore, now)),
+    Promise.resolve(buildCourseInfo(infoBefore, now)),
   ]);
 
   const summary: SyncSummary = { group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };

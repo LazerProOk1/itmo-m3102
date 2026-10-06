@@ -39,7 +39,7 @@ export function resolveSubjectFolder(folder: string): string | undefined {
   return Object.entries(STREAM_SUBJECT_FOLDERS).find(([name]) => normalizeName(name) === key)?.[1];
 }
 
-/** Папки предметов в хранилище 1 потока (Kefirleos/itmo-vault) → id предмета */
+/** Названия предметов в описаниях курсов (`src/data/courseInfo`, 1 поток) → id предмета */
 export const STREAM_SUBJECT_FOLDERS: Record<string, string> = {
   'Алгоритмы и структуры данных': 'aisd',
   'Дискретная математика': 'dm',

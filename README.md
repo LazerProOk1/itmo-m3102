@@ -79,7 +79,7 @@
 ## Откуда данные
 
 - Конспекты, ДЗ, дедлайны, расписание, ссылки и мемы — [RedstoneLord/itmo-m3102](https://github.com/RedstoneLord/itmo-m3102).
-- Описания курсов (баллы, преподаватели) — [Kefirleos/itmo-vault](https://github.com/Kefirleos/itmo-vault).
+- Описания курсов (баллы, преподаватели) лежат в `src/data/courseInfo/`, скопированы из [Kefirleos/itmo-vault](https://github.com/Kefirleos/itmo-vault) (1 поток).
   Конспекты 1 потока на сайте не показываются: в «Конспектах» только конспекты группы.
 - Очередь на сдачу — GitHub Issues репозитория группы.
 
