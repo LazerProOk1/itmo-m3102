@@ -83,7 +83,7 @@ export function DataSettings() {
     <>
       <SettingsRow
         label="Синхронизировать с GitHub"
-        description={`Конспекты, файлы, дедлайны, ДЗ и ссылки группы из ${REPOS.group.name}, описания курсов из ${REPOS.stream.name}. Происходит и автоматически при открытии сайта (не чаще раза в 10 минут). Кнопка есть и в шапке.`}
+        description={`Конспекты, файлы, дедлайны, ДЗ и ссылки группы из ${REPOS.group.name}. Происходит и автоматически при открытии сайта (не чаще раза в 10 минут). Кнопка есть и в шапке.`}
       >
         <Button variant="secondary" onClick={runSync} disabled={syncing}>
           <RefreshCw size={14} strokeWidth={2} className={cn(styles.syncIcon, syncing && styles.syncIconSpinning)} aria-hidden />
