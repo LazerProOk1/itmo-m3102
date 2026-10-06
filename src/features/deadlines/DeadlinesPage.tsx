@@ -45,6 +45,8 @@ export function DeadlinesPage() {
     // Открыли страницу или вернулись во вкладку — сами обновляем не чаще раза в 2 минуты (лимит GitHub API);
     // кнопка «Обновить» — всегда
     refreshIfStale();
+    // Имена в очереди открывают профиль — окно готовим заранее, чтобы первое открытие не ждало загрузки
+    useProfileStore.getState().prepare();
     document.addEventListener('visibilitychange', refreshIfStale);
     return () => document.removeEventListener('visibilitychange', refreshIfStale);
   }, [refreshIfStale]);

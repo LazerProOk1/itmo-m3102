@@ -1,35 +1,53 @@
+/*
+ * Слой окна поверх страницы (портал в body). Анимируются только opacity и transform — их рисует композитор,
+ * поэтому открытие и закрытие идут ровно, даже если главный поток занят. Фон — без blur: размытие всей страницы
+ * пересчитывалось бы каждый кадр, на телефоне это рывки.
+ */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  overscroll-behavior: contain;
+}
+
+/* Окно поиска — ближе к верху: под ним список результатов меняет высоту */
+.bareLayer {
+  align-items: start;
+  padding-top: 12vh;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-backdrop);
+  animation: backdrop-in 200ms var(--ease) both;
+}
+
 .dialog {
-  width: calc(100% - var(--space-8));
+  position: relative;
+  width: 100%;
   max-height: calc(100dvh - var(--space-16));
-  padding: 0;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-elevated);
   color: var(--color-text);
   box-shadow: var(--shadow-modal);
-  /* Точка, откуда «родилось» окно — по умолчанию центр, но Modal.tsx подставляет
-     координаты элемента, на который кликнули, чтобы окно росло оттуда, а не из воздуха */
-  transform-origin: var(--origin-x, 50%) var(--origin-y, 50%);
+  outline: none;
+  animation: dialog-in 260ms var(--ease-luxury-out) both;
+  will-change: transform, opacity;
 }
 
-.dialog[open] {
-  animation: dialog-in 220ms var(--ease-luxury-out);
+/* Уход — короче появления и сразу (стандартная кривая): с медленным стартом окно «застывало» */
+.closing .dialog {
+  animation: dialog-out 170ms var(--ease) both;
 }
 
-.dialog.closing {
-  /* Уход — сразу и ровно (стандартная кривая): с ease-in первые ~70 мс окно стояло («застывало»), с expo-out — исчезало рывком */
-  animation: dialog-out var(--duration-base) var(--ease) forwards;
-}
-
-.dialog::backdrop {
-  background: var(--color-backdrop);
-  backdrop-filter: blur(3px);
-  animation: fade-in var(--duration-base) var(--ease);
-}
-
-.dialog.closing::backdrop {
-  animation: fade-out var(--duration-base) var(--ease) forwards;
+.closing .backdrop {
+  animation: backdrop-out 170ms var(--ease) both;
 }
 
 .sm {
@@ -46,7 +64,6 @@
 
 .bare {
   max-width: 560px;
-  margin-top: 12vh;
 }
 
 .panel {
@@ -103,29 +120,28 @@
   right: var(--space-3);
 }
 
-/* Появление без пружины и перехлёста (scale 0.9 → 1.015 → 1 выглядел «сгенерированно»): чуть снизу и почти
-   в полный размер — origin от кнопки-триггера остаётся, но едва заметен */
+/* Появление: поднимается на 8px и чуть вырастает, без пружины и перехлёста (перехлёст выглядел «сгенерированно») */
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.985);
+    transform: translateY(8px) scale(0.97);
   }
 }
 
 @keyframes dialog-out {
   to {
     opacity: 0;
-    transform: translateY(4px) scale(0.99);
+    transform: translateY(4px) scale(0.98);
   }
 }
 
-@keyframes fade-in {
+@keyframes backdrop-in {
   from {
     opacity: 0;
   }
 }
 
-@keyframes fade-out {
+@keyframes backdrop-out {
   to {
     opacity: 0;
   }

@@ -62,11 +62,6 @@ a {
   background: color-mix(in srgb, var(--color-accent) 45%, transparent);
 }
 
-/* Пока открыто модальное окно, страница под ним не прокручивается */
-html:has(dialog[open]) {
-  overflow: hidden;
-}
-
 /* Скрыть визуально, но оставить для скринридеров */
 .sr-only {
   position: absolute;

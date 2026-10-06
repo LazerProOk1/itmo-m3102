@@ -79,6 +79,8 @@
 .links {
   display: flex;
   flex-direction: column;
+  /* Ссылка — ровно по логотипу и нику, а не на всю ширину колонки: мимо ника нажимается карточка (профиль) */
+  align-items: flex-start;
   font-size: var(--text-sm);
 }
 
@@ -87,7 +89,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-1-5);
-  min-width: 0;
+  max-width: 100%;
   color: var(--color-text-secondary);
   text-decoration: none;
 }

@@ -14,7 +14,7 @@ interface Cached<T> {
 interface ProfileStore {
   /** GitHub-логин открытого профиля */
   login: string | null;
-  /** Профиль уже открывали — окно загружено и остаётся в DOM */
+  /** Окно профиля загружено и смонтировано (закрытым) — открывается без задержки */
   used: boolean;
   /** Логин → коммитов в репозиторий группы; null — ещё не загружено или GitHub недоступен */
   commits: Record<string, number> | null;
@@ -22,6 +22,8 @@ interface ProfileStore {
   error: string;
   open: (login: string) => void;
   close: () => void;
+  /** Страницы, откуда открывают профиль, готовят окно заранее: иначе первое открытие ждало загрузки кода (~350 мс) */
+  prepare: () => void;
 }
 
 function read<T>(key: string): T | null {
@@ -108,6 +110,7 @@ export const useProfileStore = create<ProfileStore>()((set) => {
       set({ login, used: true, error: '' });
       void loadCommits();
     },
+    prepare: () => set({ used: true }),
     close: () => {
       set({ login: null });
       dropProfileEntry();

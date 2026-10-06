@@ -14,6 +14,8 @@ export function StudentsPage() {
   // и окно «застывало». ?u=логин в ссылке только открывает профиль — и сразу убирается из адреса
   const [params, setParams] = useSearchParams();
   const openProfile = useProfileStore((state) => state.open);
+  const prepareProfile = useProfileStore((state) => state.prepare);
+  useEffect(prepareProfile, [prepareProfile]);
   useEffect(() => {
     const login = params.get('u');
     if (!login) return;
