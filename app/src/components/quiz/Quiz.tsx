@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Eye, EyeOff, Flame, ListChecks, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
 import { Markdown } from '../markdown/Markdown';
@@ -212,7 +212,6 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
   const [revealed, setRevealed] = useState(false);
   const optionRefs = useRef<(HTMLElement | null)[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const nextRef = useRef<HTMLButtonElement>(null);
   const single = question.type === 'single';
   const locked = verdict !== null;
   const showAnswer = verdict !== null && (verdict.ok || revealed);
@@ -222,6 +221,9 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
     if (locked) return;
     setSelected((value) => (single ? [index] : value.includes(index) ? value.filter((item) => item !== index) : [...value, index]));
   }
+
+  // «Далее» появляется после проверки; фокус на неё — в момент появления (React переиспользовал бы одну кнопку, поэтому у каждой свой key)
+  const focusOnMount = useCallback((node: HTMLButtonElement | null) => node?.focus({ preventScroll: true }), []);
 
   function check() {
     if (locked || !canCheck) return;
@@ -234,9 +236,15 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
     onAnswer({ ok, selected, text }, anchor?.getBoundingClientRect());
   }
 
-  useEffect(() => {
-    if (locked) nextRef.current?.focus({ preventScroll: true });
-  }, [locked]);
+  // Enter на варианте ответа (после клика по нему фокус остаётся на кнопке варианта) раньше просто переключал его ещё раз;
+  // теперь, когда есть что проверять, он нажимает «Проверить». Текстовое поле и сами кнопки действий обрабатывают Enter сами.
+  function onCardKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
+    if (event.key !== 'Enter' || event.nativeEvent.isComposing || locked || !canCheck) return;
+    const target = event.target as HTMLElement;
+    if (target === inputRef.current || target.closest('[data-quiz-actions]')) return;
+    event.preventDefault();
+    check();
+  }
 
   // Тест на всю страницу: 1–9 выбирают вариант, Enter — проверить / далее
   useEffect(() => {
@@ -264,6 +272,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
   return (
     <motion.div
       className={styles.card}
+      onKeyDown={onCardKeyDown}
       animate={verdict ? (verdict.ok ? { scale: [1, 1.015, 1] } : { x: [0, -6, 6, -4, 0] }) : undefined}
       transition={{ duration: 0.4 }}
     >
@@ -309,14 +318,14 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
         </motion.div>
       )}
 
-      <div className={styles.actions}>
+      <div className={styles.actions} data-quiz-actions>
         {locked && !showAnswer && (
           <Button variant="ghost" icon={Eye} onClick={() => setRevealed(true)}>
             Показать правильный ответ
           </Button>
         )}
         {locked ? (
-          <Button ref={nextRef} variant="primary" onClick={onNext}>
+          <Button key="next" ref={focusOnMount} variant="primary" onClick={onNext}>
             {last ? (
               'Результат'
             ) : (
@@ -326,7 +335,7 @@ function QuestionCard({ question, last, full, onAnswer, onNext }: QuestionCardPr
             )}
           </Button>
         ) : (
-          <Button variant="primary" onClick={check} disabled={!canCheck}>
+          <Button key="check" variant="primary" onClick={check} disabled={!canCheck}>
             Проверить
           </Button>
         )}
