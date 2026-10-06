@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { findSection } from '../../app/navigation';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -24,6 +25,21 @@ export function TopBar({ onOpenSearch }: TopBarProps) {
   const SectionIcon = section?.icon;
   // Название вкладки — раздел; конспект и предмет уточняют своим (см. useDocumentTitle)
   useDocumentTitle(section?.label, pathname);
+
+  // Пока страница в самом верху, шапка сливается с фоном (без грани); при прокрутке получает подложку и линию (data-scrolled)
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => {
+      if (scrollY > 4) root.dataset.scrolled = '';
+      else delete root.dataset.scrolled;
+    };
+    update();
+    addEventListener('scroll', update, { passive: true });
+    return () => {
+      removeEventListener('scroll', update);
+      delete root.dataset.scrolled;
+    };
+  }, []);
 
   return (
     <header className={styles.bar}>

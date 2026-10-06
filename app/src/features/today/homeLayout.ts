@@ -1,7 +1,6 @@
 /** Блоки главной — в порядке по умолчанию. wide — во всю ширину, остальные — в сетку по два */
 export const HOME_BLOCKS = [
   { id: 'next', label: 'Сейчас и следующая пара', wide: true },
-  { id: 'continue', label: 'Продолжить чтение', wide: true },
   { id: 'review', label: 'Повторение ошибок', wide: true },
   { id: 'schedule', label: 'Пары на сегодня', wide: false },
   { id: 'deadlines', label: 'Ближайшие дедлайны', wide: false },

@@ -1,4 +1,4 @@
-import { BookOpen, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
@@ -19,7 +19,6 @@ import { deadlineInfo, orderDeadlines } from '../deadlines/deadlineInfo';
 import { HomeworkCard } from '../homework/HomeworkCard';
 import { useHomeworkStore } from '../homework/homeworkStore';
 import { useLectureNotesStore } from '../materials/lectureNotesStore';
-import { savedPage } from '../materials/pdfPages';
 import { useMarksStore } from '../materials/marksStore';
 import { resolveSubjectFolder } from '../../data/m3102';
 import { deadlineSubjectId } from '../subjects/subjectStats';
@@ -237,30 +236,6 @@ export function RecentNotesPanel() {
         </div>
       )}
     </Section>
-  );
-}
-
-/** Продолжить с того места, где остановился: последний открытый конспект (у PDF — и страница); без открытых конспектов блока нет */
-export function ContinuePanel() {
-  const notes = useLectureNotesStore((state) => state.lectureNotes);
-  const subjects = useSubjectsStore((state) => state.subjects);
-  const last = notes.filter((note) => !note.archived && note.lastOpenedAt).sort((a, b) => b.lastOpenedAt!.localeCompare(a.lastOpenedAt!))[0];
-  if (!last) return null;
-  const page = last.contentType === 'pdf' ? savedPage(last.content) : 0;
-
-  return (
-    <Link to={`/materials/notes/${last.id}`} className={styles.resume} data-spot>
-      <span className={styles.resumeIcon}>
-        <BookOpen size={18} strokeWidth={1.75} aria-hidden />
-      </span>
-      <span className={styles.resumeBody}>
-        <small>Продолжить чтение{page > 1 && ` · страница ${page}`}</small>
-        <strong>{last.title}</strong>
-        <small>
-          {subjects.find((subject) => subject.id === last.subjectId)?.name ?? 'Прочее'} · {last.lectureNumber}
-        </small>
-      </span>
-    </Link>
   );
 }
 

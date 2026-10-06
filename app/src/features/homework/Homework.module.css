@@ -212,3 +212,25 @@
   font-size: var(--text-sm);
   color: var(--color-danger);
 }
+
+/* Компактная карточка (главная, окно пары): нажимается вся, ведёт на страницу ДЗ; чекбокс и ссылки задания — поверх */
+.cardLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.card:has(.cardLink) {
+  cursor: pointer;
+}
+
+.card:has(.cardLink) :is(.check, .link, .origin, .actions) {
+  position: relative;
+  z-index: 1;
+}

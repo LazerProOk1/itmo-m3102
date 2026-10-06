@@ -49,6 +49,16 @@
     return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   }
 
+  /** Акценты сайта, с которого уходим (у приложения — выбранные в настройках, у классического — его выбранный акцент) */
+  function currentAccents() {
+    var look = LOOKS[side];
+    var css = getComputedStyle(document.documentElement);
+    var names = side === 'classic' ? ['--accent', '--accent2'] : ['--accent-base', '--accent-base-2'];
+    var a = css.getPropertyValue(names[0]).trim();
+    var b = css.getPropertyValue(names[1]).trim();
+    return { a: a || look.accent, b: b || look.accent2 };
+  }
+
   function farthest(x, y) {
     var w = window.innerWidth;
     var h = window.innerHeight;
@@ -60,23 +70,23 @@
   }
 
   /** Слой перехода: нижний — акцентный, верхний — фон сайта назначения с названием. Оба — на весь экран. */
-  function buildVeil(look, colors) {
+  function buildVeil(look, colors, acc) {
     var root = document.createElement('div');
     root.setAttribute('data-site-veil', '');
     root.setAttribute('aria-hidden', 'true');
     root.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:all;overflow:hidden;';
     var lead = document.createElement('div');
-    lead.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,' + look.accent + ',' + look.accent2 + ');';
+    lead.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,' + acc.a + ',' + acc.b + ');';
     var body = document.createElement('div');
     body.style.cssText =
       'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;' +
-      'background:radial-gradient(60vmax 60vmax at 50% 38%,' + look.accent + '33,transparent 70%),' + colors.bg + ';' +
+      'background:radial-gradient(60vmax 60vmax at 50% 38%,color-mix(in srgb,' + acc.a + ' 20%,transparent),transparent 70%),' + colors.bg + ';' +
       'color:' + colors.text + ';font-family:' + look.font + ';text-align:center;';
     var title = document.createElement('div');
     title.textContent = look.name;
     title.style.cssText = 'font-size:clamp(28px,6vw,52px);font-weight:700;letter-spacing:-0.03em;line-height:1.1;';
     var rule = document.createElement('div');
-    rule.style.cssText = 'width:72px;height:3px;border-radius:3px;background:linear-gradient(90deg,' + look.accent + ',' + look.accent2 + ');';
+    rule.style.cssText = 'width:72px;height:3px;border-radius:3px;background:linear-gradient(90deg,' + acc.a + ',' + acc.b + ');';
     var sub = document.createElement('div');
     sub.textContent = look.sub;
     sub.style.cssText = 'font-size:15px;opacity:0.65;';
@@ -97,7 +107,8 @@
     var target = side === 'modern' ? 'classic' : 'modern';
     var look = LOOKS[target];
     var colors = isDark() ? look.dark : look.light;
-    var payload = { x: x, y: y, to: target, colors: colors, dark: isDark(), t: Date.now() };
+    var acc = currentAccents();
+    var payload = { x: x, y: y, to: target, colors: colors, acc: acc, dark: isDark(), t: Date.now() };
     try {
       sessionStorage.setItem(KEY, JSON.stringify(payload));
     } catch (e) {
@@ -107,7 +118,7 @@
       location.href = url;
       return;
     }
-    var veil = buildVeil(look, colors);
+    var veil = buildVeil(look, colors, acc);
     veil.lead.style.clipPath = circle(0, x, y);
     veil.body.style.clipPath = circle(0, x, y);
     veil.text.forEach(function (node) {
@@ -173,7 +184,7 @@
   }
 
   if (arrival && canAnimate) {
-    var veil = buildVeil(LOOKS[side], arrival.colors);
+    var veil = buildVeil(LOOKS[side], arrival.colors, arrival.acc || { a: LOOKS[side].accent, b: LOOKS[side].accent2 });
     document.documentElement.appendChild(veil.root);
     var started = Date.now();
     var revealed = false;

@@ -15,7 +15,7 @@ import { getOccurrencesForDate } from '../schedule/occurrences';
 import { useScheduleData } from '../schedule/scheduleStore';
 import { useScheduleDialogs } from '../schedule/useScheduleDialogs';
 import { getClassStatus } from './classStatus';
-import { BookmarksPanel, ContinuePanel, DeadlinesPanel, HomeworkPanel, MaterialsPanel, RecentNotesPanel, StudyPlanPanel } from './HomePanels';
+import { BookmarksPanel, DeadlinesPanel, HomeworkPanel, MaterialsPanel, RecentNotesPanel, StudyPlanPanel } from './HomePanels';
 import { NextClassBlock } from './NextClassBlock';
 import { ReviewBanner, SubjectsPanel } from './SubjectsPanel';
 import { TodayHeader } from './TodayHeader';
@@ -48,7 +48,6 @@ export function TodayPage() {
           .map((id, index) => (
             <Reveal key={id} index={index + 1} className={cn(HOME_BLOCKS.find((block) => block.id === id)!.wide && styles.wide)}>
               {id === 'next' && <NextClassBlock status={classStatus} />}
-              {id === 'continue' && <ContinuePanel />}
               {id === 'review' && <ReviewBanner today={today} />}
               {id === 'schedule' && (
                 <TodaySchedule occurrences={todayOccurrences} today={today} time={time} onAction={scheduleDialogs.handleAction} />

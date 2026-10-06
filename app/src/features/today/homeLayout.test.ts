@@ -15,7 +15,7 @@ describe('раскладка главной', () => {
 
   it('шаг вверх и вниз, за край не уходит', () => {
     const order = arrangeBlocks([]);
-    expect(moveBlock(order, 'continue', -1).slice(0, 2)).toEqual(['continue', 'next']);
+    expect(moveBlock(order, 'review', -1).slice(0, 2)).toEqual(['review', 'next']);
     expect(moveBlock(order, 'next', -1)).toEqual(order);
     expect(moveBlock(order, 'bookmarks', 1)).toEqual(order);
   });

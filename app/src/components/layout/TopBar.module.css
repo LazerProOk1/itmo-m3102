@@ -63,8 +63,18 @@
   }
 }
 
-/* Под сиянием шапка полупрозрачная — без backdrop-filter, он дорог на прокрутке */
+/* Под сиянием шапка сливается с фоном: вверху страницы без подложки и линии, при прокрутке (data-scrolled) — полупрозрачная
+   подложка и тонкая линия. Без backdrop-filter: он дорог на прокрутке (кроме режима «Стекло») */
 :global(:root[data-aurora='on']) .bar {
+  border-bottom-color: transparent;
+  background: transparent;
+  transition:
+    background-color var(--duration-base) var(--ease),
+    border-color var(--duration-base) var(--ease);
+}
+
+:global(:root[data-aurora='on'][data-scrolled]) .bar {
+  border-bottom-color: color-mix(in srgb, var(--color-border) 70%, transparent);
   background: color-mix(in srgb, var(--color-bg) 86%, transparent);
 }
 

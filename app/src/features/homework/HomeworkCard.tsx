@@ -59,7 +59,12 @@ export function HomeworkCard({ item, today, compact = false, onEdit, onDelete }:
       <div className={styles.body}>
         <div className={styles.top}>
           {/* На странице «Домашнее задание» предмет уже в заголовке группы — не повторяем */}
-          {compact && <strong>{item.subject}</strong>}
+          {compact && (
+            // Карточка на главной и в окне пары целиком нажимается: ссылка растянута на всю карточку (Homework.module.css)
+            <Link to="/homework" className={styles.cardLink}>
+              <strong>{item.subject}</strong>
+            </Link>
+          )}
           <span className={styles.due}>
             {dueStatus(item.due, today)}
             {item.due && !compact && <span className={styles.dueDate}> · {shortDate(item.due)}</span>}

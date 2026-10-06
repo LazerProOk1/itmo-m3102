@@ -283,3 +283,10 @@ html {
 ::highlight(note-marks) {
   background-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
 }
+
+/* Мышь/тачпад: страница не «тянется» за верхний и нижний край (за ней видна подложка и грань шапки). Телефон не трогаем — там нужно обновление свайпом */
+@media (pointer: fine) {
+  html {
+    overscroll-behavior-y: none;
+  }
+}

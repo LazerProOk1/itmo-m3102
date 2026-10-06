@@ -190,6 +190,13 @@
   animation: hog-bob 0.27s ease-in-out infinite alternate;
 }
 
+/* Скачки по дорожке (период HOP = 0,42 с в moves.ts): присел на приземлении, вытянулся в прыжке, к вершине расправился.
+   Низ ёжика на месте (transform-origin), поэтому он сжимается «в землю», а не к центру */
+.running:not(.gallop) .hog {
+  transform-origin: 50% 100%;
+  animation: hog-hop 0.42s ease-in-out infinite;
+}
+
 .running .body {
   animation: hog-squash 0.27s ease-in-out infinite alternate;
 }
@@ -237,6 +244,22 @@
   }
 }
 
+@keyframes hog-hop {
+  0%,
+  100% {
+    transform: scale(1.08, 0.9);
+  }
+  24% {
+    transform: scale(0.95, 1.08);
+  }
+  52% {
+    transform: scale(1, 1);
+  }
+  80% {
+    transform: scale(0.97, 1.04);
+  }
+}
+
 @keyframes hog-step {
   from {
     transform: translate(-3px, 0);
@@ -249,7 +272,8 @@
 /* Беглец по всему экрану — галоп: лапки молотят по кругу (вперёд-вверх, вниз, назад), передние и задние
    в противофазе; тело подпрыгивает и сплющивается на каждый мах. Период — STRIDE из moves.ts (0,2 с) */
 .running.gallop .hog {
-  animation: hog-bob-fast 0.2s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+  animation: hog-gallop-squash 0.2s ease-in-out infinite;
 }
 
 .running.gallop .body {
@@ -263,6 +287,16 @@
 
 .running.gallop .legBack {
   animation-delay: -0.1s;
+}
+
+@keyframes hog-gallop-squash {
+  0%,
+  100% {
+    transform: scale(1.05, 0.94);
+  }
+  45% {
+    transform: scale(0.97, 1.05);
+  }
 }
 
 @keyframes hog-bob-fast {
