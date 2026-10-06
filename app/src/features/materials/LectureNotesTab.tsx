@@ -125,7 +125,7 @@ export function LectureNotesTab() {
 }
 
 /** Папки занятий предмета по порядку (Лекция 1, Практика 1, Лекция 2…) с числом конспектов в каждой */
-function FolderList({ notes, onSelect }: { notes: LectureNote[]; onSelect: (folder: string) => void }) {
+export function FolderList({ notes, onSelect }: { notes: LectureNote[]; onSelect: (folder: string) => void }) {
   const folders = [...new Set(notes.map((note) => note.lectureNumber))];
   return (
     <List className={styles.bigList}>

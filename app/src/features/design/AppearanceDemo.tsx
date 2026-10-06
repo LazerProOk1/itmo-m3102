@@ -8,7 +8,7 @@ import styles from './DesignSystemPage.module.css';
 
 /** «Сияние»: акценты, свечение карточек и кнопок, фон. Всё переключается в «Настройки → Оформление». */
 export function AppearanceDemo() {
-  const { accent, accent2, dynamicTheme, flow, setAppearance } = useSettingsStore();
+  const { accent, accent2, dynamicTheme, glass, setAppearance } = useSettingsStore();
 
   return (
     <Section title="Оформление и свет">
@@ -82,8 +82,8 @@ export function AppearanceDemo() {
           >
             {dynamicTheme === 'off' ? 'Включить (при запуске)' : 'Сменить пару сейчас'}
           </Button>
-          <Button variant="secondary" onClick={() => setAppearance({ flow: !flow })}>
-            {flow ? 'Остановить переливание' : 'Включить переливание'}
+          <Button variant="secondary" onClick={() => setAppearance({ glass: !glass })}>
+            {glass ? 'Выключить стекло' : 'Включить стекло (шапка и меню)'}
           </Button>
           {dynamicTheme !== 'off' && (
             <Button variant="ghost" onClick={() => setAppearance({ dynamicTheme: 'off' })}>

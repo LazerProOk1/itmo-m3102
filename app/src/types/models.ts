@@ -176,7 +176,7 @@ export interface Note extends BaseEntity {
  * markdown — content хранит текст; pdf — content хранит либо data: URI (загружен локально,
  * только для небольших файлов), либо ссылку на файл в Google Drive; link — content хранит URL.
  */
-export type LectureNoteContentType = 'markdown' | 'pdf' | 'link';
+export type LectureNoteContentType = 'markdown' | 'pdf' | 'docx' | 'link';
 
 /** Откуда взялась запись: вручную создана в приложении или подтянута синхронизацией с GitHub (PROMPT 25) */
 export type ContentSource = 'manual' | 'github';

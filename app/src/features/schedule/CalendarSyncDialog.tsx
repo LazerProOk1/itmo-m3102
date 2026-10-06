@@ -102,7 +102,7 @@ export function CalendarSyncButton() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button variant="ghost" icon={CalendarPlus} onClick={() => setOpen(true)}>
+      <Button variant="primary" icon={CalendarPlus} onClick={() => setOpen(true)}>
         В календарь
       </Button>
       <CalendarSyncDialog open={open} onClose={() => setOpen(false)} />

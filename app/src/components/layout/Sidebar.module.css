@@ -74,3 +74,11 @@
     display: none;
   }
 }
+
+/* «Стекло»: у меню появляется своя полупрозрачная панель с размытием */
+:global(:root[data-glass='on']) .inner {
+  background: color-mix(in srgb, var(--color-bg) 50%, transparent);
+  border-right: 1px solid color-mix(in srgb, white 7%, var(--color-border));
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+}

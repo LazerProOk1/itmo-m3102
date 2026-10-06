@@ -15,8 +15,8 @@ interface LocalSettings {
   accent: string;
   /** Второй акцент для градиента: 'auto' — тот же цвет, повёрнутый по оттенку, или id готового цвета */
   accent2: string;
-  /** Переливание градиента: цвета в кнопках и полосах медленно «текут» (по умолчанию выключено) */
-  flow: boolean;
+  /** «Стекло»: шапка и меню полупрозрачные с размытием (на слабых телефонах дорого — по умолчанию выключено) */
+  glass: boolean;
   /** Динамическая тема: сама меняет пару акцентов — при запуске, раз в 15 минут или раз в час */
   dynamicTheme: DynamicTheme;
   /** Фон-сияние: медленные пятна света в цвете акцента за страницей */
@@ -56,7 +56,7 @@ interface SettingsStore extends LocalSettings {
         | 'accent'
         | 'accent2'
         | 'dynamicTheme'
-        | 'flow'
+        | 'glass'
         | 'aurora'
         | 'glow'
         | 'liveBg'
@@ -78,7 +78,7 @@ const DEFAULT_SETTINGS: LocalSettings = {
   accent: 'indigo',
   accent2: 'rose',
   dynamicTheme: 'off',
-  flow: false,
+  glass: false,
   aurora: true,
   glow: true,
   liveBg: true,

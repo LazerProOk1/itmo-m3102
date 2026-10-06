@@ -2,9 +2,9 @@
   container-type: inline-size;
   position: relative;
   padding: var(--space-2) var(--space-2-5) var(--space-2) 14px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  /* Лёгкий оттенок цветом типа пары — карточки читаются как цветные плашки, без жёстких рамок */
+  border: 0;
+  border-radius: var(--radius-lg);
+  /* Лёгкий оттенок цветом типа пары — карточки читаются как цветные плашки, без рамок */
   background: color-mix(in srgb, var(--type-color, transparent) 7%, transparent);
   cursor: pointer;
   box-shadow: 0 0 #0000;
@@ -43,20 +43,29 @@
 .filled {
   height: 100%;
   overflow: hidden;
-  border-color: var(--color-border);
-  background: color-mix(in srgb, var(--type-color, transparent) 13%, var(--color-bg-elevated));
+  /* Без обводки: цвет типа пары течёт из угла по диагонали, сверху — тонкий блик */
+  background: linear-gradient(
+    150deg in oklab,
+    color-mix(in srgb, var(--type-color, transparent) 24%, var(--color-bg-elevated)),
+    color-mix(in srgb, var(--type-color, transparent) 7%, var(--color-bg-elevated)) 70%
+  );
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
 }
 
 @media (hover: hover) {
   .filled:not(.now):not(.cancelled):hover {
-    background: color-mix(in srgb, var(--type-color, transparent) 20%, var(--color-bg-elevated));
+    background: linear-gradient(
+      150deg in oklab,
+      color-mix(in srgb, var(--type-color, transparent) 32%, var(--color-bg-elevated)),
+      color-mix(in srgb, var(--type-color, transparent) 12%, var(--color-bg-elevated)) 70%
+    );
   }
 }
 
 /* Прошедшая пара: плашка остаётся, тише только её содержимое и цвет — неделя не превращается в серые плиты */
 .past {
-  border-color: var(--color-border);
-  background: color-mix(in srgb, var(--type-color, transparent) 5%, var(--color-bg-elevated));
+  background: color-mix(in srgb, var(--type-color, transparent) 6%, var(--color-bg-elevated));
+  box-shadow: none;
 }
 
 .past > *,
@@ -178,8 +187,10 @@
 
 /* Текущее занятие — самое сильное выделение на странице */
 .now {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+  background: var(--accent-soft-gradient);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 55%, transparent),
+    0 10px 28px -14px var(--color-accent);
 }
 
 .now .subject,

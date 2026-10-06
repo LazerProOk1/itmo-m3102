@@ -144,7 +144,7 @@ function NoteView({ note }: { note: LectureNote }) {
 
           <div className={styles.titleRow}>
             <div>
-              <h1 className={styles.title} data-morph-target>
+              <h1 className={styles.title}>
                 {title}
                 {note.source === 'github' && <GithubSourceBadge />}
               </h1>
@@ -161,7 +161,7 @@ function NoteView({ note }: { note: LectureNote }) {
               {note.contentType !== 'link' && (
                 <IconButton
                   icon={Download}
-                  label={note.contentType === 'pdf' ? 'Скачать PDF' : 'Скачать .md'}
+                  label={note.contentType === 'pdf' ? 'Скачать PDF' : note.contentType === 'docx' ? 'Скачать .docx' : 'Скачать .md'}
                   onClick={() => void downloadNote(note, title)}
                 />
               )}
@@ -231,7 +231,7 @@ function NoteView({ note }: { note: LectureNote }) {
 
 /** Оригинальный файл конспекта: из GitHub — как лежит в репозитории, свой — из сохранённого текста */
 async function downloadNote(note: LectureNote, title: string) {
-  const ext = note.contentType === 'pdf' ? 'pdf' : 'md';
+  const ext = note.contentType === 'pdf' ? 'pdf' : note.contentType === 'docx' ? 'docx' : 'md';
   const name = note.sourceRef?.split('/').pop() ?? `${title.replace(/[\\/:*?"<>|]/g, '_')}.${ext}`;
   if (note.source === 'github' && note.sourceRef) {
     const url = rawUrl('group', note.sourceRef);

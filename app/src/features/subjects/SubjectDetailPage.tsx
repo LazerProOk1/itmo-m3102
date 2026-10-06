@@ -52,7 +52,7 @@ let hasRevealedSubjectTitle = false;
 const TAB_LABELS: Record<SubjectTab, string> = {
   overview: 'Обзор',
   tasks: 'Задачи',
-  materials: 'Материалы',
+  materials: 'Конспекты',
   notes: 'Заметки',
   links: 'Ссылки',
 };
@@ -181,11 +181,11 @@ export function SubjectDetailPage() {
         )}
         {tab === 'materials' && (
           <SubjectMaterialsTab
+            subjectId={subject.id}
             lectureNotes={subjectLectureNotes}
             materials={subjectMaterials}
             today={today}
             onAddNote={() => lectureNoteDialog.openCreate(subject.id)}
-            onEditNote={lectureNoteDialog.openEdit}
             onAddMaterial={() => materialDialog.openCreate({ subjectId: subject.id, type: 'pdf' })}
             onEditMaterial={materialDialog.openEdit}
           />

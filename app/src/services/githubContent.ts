@@ -256,7 +256,7 @@ async function buildGroupNotes(tree: TreeFile[], previous: LectureNote[], now: s
           subjectId: resolveSubjectFolder(subjectFolder)!,
           lectureNumber: parseLessonFolder(lessonFolder),
           title,
-          contentType: ext === 'md' ? 'markdown' : ext === 'pdf' ? 'pdf' : 'link',
+          contentType: ext === 'md' ? 'markdown' : ext === 'pdf' ? 'pdf' : ext === 'docx' ? 'docx' : 'link',
           content,
           sourceVersion,
         },

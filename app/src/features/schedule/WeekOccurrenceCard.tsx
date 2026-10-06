@@ -48,7 +48,6 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction, filled =
       ref={cardRef}
       className={cn(styles.card, filled && styles.filled, past && styles.past, isNow && styles.now, isCancelled && styles.cancelled)}
       style={{ '--type-color': classTypeColorVar(occurrence.details.type) } as CSSProperties}
-      data-spot
       whileHover={interactive ? { y: -2 } : undefined}
       whileTap={interactive ? { y: 0, scale: 0.985 } : undefined}
       transition={SPRING_SNAPPY}

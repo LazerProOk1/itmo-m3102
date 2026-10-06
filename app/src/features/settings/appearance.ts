@@ -24,6 +24,25 @@ export function parseCustomAccent(accent: string): { hue: number; chroma: number
   return match ? { chroma: Number(match[1]), hue: Number(match[2]) } : null;
 }
 
+/** Оттенок цвета акцента в OKLCH (0–360): для «#rrggbb» считаем через OKLab, для своего цвета берём из записи */
+export function accentHue(color: string): number | null {
+  const custom = parseCustomAccent(color);
+  if (custom) return custom.hue;
+  if (!/^#[0-9a-f]{6}$/i.test(color)) return null;
+  const [r, g, b] = [1, 3, 5]
+    .map((index) => parseInt(color.slice(index, index + 2), 16) / 255)
+    .map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  const l = Math.cbrt(0.4122214708 * r! + 0.5363325363 * g! + 0.0514459929 * b!);
+  const m = Math.cbrt(0.2119034982 * r! + 0.6806995451 * g! + 0.1073969566 * b!);
+  const s = Math.cbrt(0.0883024619 * r! + 0.2817188376 * g! + 0.6299787005 * b!);
+  const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return ((Math.atan2(bb, a) * 180) / Math.PI + 360) % 360;
+}
+
+/** Оранжево-жёлтые оттенки (от «морковного» до жёлтого): рядом с цветом практики */
+export const isWarmHue = (hue: number) => hue >= 45 && hue <= 110;
+
 export const accentColor = (accent: string) =>
   ACCENTS.find((item) => item.id === accent)?.color ?? (/^#[0-9a-f]{6}$/i.test(accent) || parseCustomAccent(accent) ? accent : ACCENTS[0].color);
 
@@ -107,12 +126,12 @@ function useDynamicPair(mode: DynamicTheme): AccentPair | null {
 export function useApplyAppearance() {
   // Только нужные поля (useShallow): хук живёт в AppShell — родителе страницы, и подписка на весь стор
   // перерисовывала бы страницу при любой настройке (например, при сворачивании меню — лаги на конспекте)
-  const { accent, accent2, dynamicTheme, flow, aurora, glow, liveBg, radius, density } = useSettingsStore(
-    useShallow(({ accent, accent2, dynamicTheme, flow, aurora, glow, liveBg, radius, density }) => ({
+  const { accent, accent2, dynamicTheme, glass, aurora, glow, liveBg, radius, density } = useSettingsStore(
+    useShallow(({ accent, accent2, dynamicTheme, glass, aurora, glow, liveBg, radius, density }) => ({
       accent,
       accent2,
       dynamicTheme,
-      flow,
+      glass,
       aurora,
       glow,
       liveBg,
@@ -132,10 +151,14 @@ export function useApplyAppearance() {
     else root.style.removeProperty('--accent-base-2');
     root.dataset.aurora = aurora ? 'on' : 'off';
     root.dataset.glow = glow ? 'on' : 'off';
-    root.dataset.flow = flow ? 'on' : 'off';
+    root.dataset.glass = glass ? 'on' : 'off';
+    // Тёплый акцент (оранжевый, янтарь) совпал бы с цветом практики — тогда практика темнее
+    const hue = accentHue(pair?.a ?? accentColor(accent));
+    if (hue !== null && isWarmHue(hue)) root.dataset.practice = 'deep';
+    else delete root.dataset.practice;
     root.dataset.radius = radius;
     root.dataset.density = density;
-  }, [accent, accent2, pair, aurora, glow, flow, radius, density]);
+  }, [accent, accent2, pair, aurora, glow, glass, radius, density]);
 
   // Подсветка под курсором: один обработчик на всю страницу пишет координаты в ту карточку
   // [data-spot], над которой курсор, — никаких слушателей на каждой карточке

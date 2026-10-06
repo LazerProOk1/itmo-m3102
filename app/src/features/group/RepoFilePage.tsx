@@ -12,6 +12,7 @@ import { filePath, isHiddenPath, useGroupStore, type RepoFile } from './groupSto
 import styles from './RepoFilePage.module.css';
 
 const PdfViewer = lazy(() => import('../materials/PdfViewer').then((module) => ({ default: module.PdfViewer })));
+const DocxViewer = lazy(() => import('../materials/DocxViewer').then((module) => ({ default: module.DocxViewer })));
 
 /** Подписи разделов корня — как на сайте группы */
 const SUBTITLES: Record<string, string> = {
@@ -222,6 +223,10 @@ function FileView({ file }: { file: RepoFile }) {
       {ext === 'pdf' ? (
         <Suspense fallback={<p className={styles.state}>Загрузка PDF…</p>}>
           <PdfViewer file={groupRawUrl(file.path)} />
+        </Suspense>
+      ) : ext === 'docx' ? (
+        <Suspense fallback={<p className={styles.state}>Загрузка документа…</p>}>
+          <DocxViewer file={groupRawUrl(file.path)} />
         </Suspense>
       ) : ext === 'md' ? (
         error ? (

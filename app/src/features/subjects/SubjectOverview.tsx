@@ -1,5 +1,7 @@
 import { FolderOpen, Link2, NotebookText, SquareCheck } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
+import { Link } from 'react-router';
+import { SECTIONS } from '../../app/navigation';
+import { Button, buttonClass } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { List } from '../../components/ui/List';
 import { Section } from '../../components/ui/Section';
@@ -76,7 +78,15 @@ export function SubjectOverview({
 
       <HomeworkPanel subjectId={subjectId} today={today} />
 
-      <Section title="Конспекты занятий" action={seeAll('materials')}>
+      <Section
+        title="Конспекты занятий"
+        action={
+          // «Все» — в папки конспектов этого предмета (раздел «Материалы → Конспекты»)
+          <Link to={`${SECTIONS.materials.path}?s=${encodeURIComponent(subjectId)}`} className={buttonClass('ghost', 'sm')}>
+            Все
+          </Link>
+        }
+      >
         {lastNotes.length === 0 ? (
           <EmptyState compact icon={NotebookText} title="Конспектов пока нет" />
         ) : (

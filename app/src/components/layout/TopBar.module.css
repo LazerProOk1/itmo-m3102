@@ -67,3 +67,11 @@
 :global(:root[data-aurora='on']) .bar {
   background: color-mix(in srgb, var(--color-bg) 86%, transparent);
 }
+
+/* «Стекло» (настройка): размытие того, что под шапкой, и тонкая светлая кромка */
+:global(:root[data-glass='on']) .bar {
+  background: color-mix(in srgb, var(--color-bg) 52%, transparent);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, white 7%, transparent);
+}

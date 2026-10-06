@@ -12,8 +12,6 @@
   display: block;
   height: 100%;
   background: var(--accent-gradient);
-  background-size: var(--flow-size);
-  animation: var(--flow-anim);
   transform-origin: left;
   transition: transform 80ms linear;
 }

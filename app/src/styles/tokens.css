@@ -172,10 +172,6 @@
   --color-accent-2: color-mix(in oklab, var(--accent-base-2) 92%, black);
   --accent-gradient: linear-gradient(135deg in oklab, var(--color-accent), var(--color-accent-2));
   --accent-gradient-hover: linear-gradient(135deg in oklab, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 80%, black));
-  /* Переливание (настройка «Переливание градиента»): размер и анимация подложки градиента — см. :root[data-flow] внизу */
-  --flow-size: 100% 100%;
-  --flow-anim: none;
-  --flow-anim-2: none;
   /* Динамическая тема меняет цвета плавно; «уменьшить движение» гасит переход общим правилом в global.css */
   transition:
     --accent-base 1.8s ease,
@@ -293,12 +289,7 @@
   --radius-lg: 18px;
 }
 
-/* Переливание градиента: градиент зеркальный (цвет 1 → цвет 2 → цвет 1) и вдвое шире элемента; анимация сдвигает подложку ровно на период.
-   Двигается только фон самих элементов (кнопки, полосы) — ничего не пересчитывает по всей странице */
-:root[data-flow='on'] {
-  --accent-gradient: linear-gradient(90deg in oklab, var(--color-accent), var(--color-accent-2), var(--color-accent));
-  --accent-gradient-hover: linear-gradient(90deg in oklab, var(--color-accent-hover), var(--color-accent-2), var(--color-accent-hover));
-  --flow-size: 200% 100%;
-  --flow-anim: accent-flow 7s linear infinite;
-  --flow-anim-2: accent-flow-2 7s linear infinite;
+/* Рядом с оранжевым акцентом практика (янтарь) сливается с лекцией — делаем её темнее и бурее (appearance.ts ставит data-practice) */
+:root[data-practice='deep'] {
+  --color-practice: color-mix(in oklab, var(--color-warning) 62%, #3b1a00);
 }
