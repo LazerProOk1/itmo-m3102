@@ -8,6 +8,7 @@ import { groupRawUrl } from '../../services/github';
 import { downloadUrl } from '../../lib/download';
 import { quizPageToMarkdown } from '../../components/quiz/parseQuiz';
 import { filePath, isHiddenPath, useGroupStore, type RepoFile } from './groupStore';
+import { LinesSkeleton } from '../../components/ui/LinesSkeleton';
 import styles from './RepoFilePage.module.css';
 
 const PdfViewer = lazy(() => import('../materials/PdfViewer').then((module) => ({ default: module.PdfViewer })));
@@ -197,14 +198,14 @@ function FileView({ file }: { file: RepoFile }) {
       </div>
 
       {ext === 'pdf' ? (
-        <Suspense fallback={<p className={styles.state}>Загрузка PDF…</p>}>
+        <Suspense fallback={<LinesSkeleton />}>
           <PdfViewer file={groupRawUrl(file.path)} />
         </Suspense>
       ) : ext === 'md' ? (
         error ? (
           <p className={styles.state}>{error}</p>
         ) : text === null ? (
-          <p className={styles.state}>Загрузка…</p>
+          <LinesSkeleton />
         ) : (
           <LazyMarkdown content={text} sourceRef={file.path} className={styles.prose} />
         )

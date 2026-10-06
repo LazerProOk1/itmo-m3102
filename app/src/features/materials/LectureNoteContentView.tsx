@@ -4,6 +4,7 @@ import { Markdown } from '../../components/markdown/Markdown';
 import { buttonClass } from '../../components/ui/Button';
 import { splitSections } from '../../lib/splitSections';
 import type { LectureNoteContentType } from '../../types/models';
+import { LinesSkeleton } from '../../components/ui/LinesSkeleton';
 import styles from './LectureNoteContentView.module.css';
 
 // pdf.js тяжёлый — загружаем его только когда действительно открыт конспект с PDF
@@ -26,7 +27,7 @@ export function LectureNoteContentView({ contentType, content, sourceRef, baseUr
 
   if (contentType === 'pdf') {
     return (
-      <Suspense fallback={<p className={styles.loading}>Загрузка просмотрщика…</p>}>
+      <Suspense fallback={<LinesSkeleton />}>
         <PdfViewer file={content} />
       </Suspense>
     );

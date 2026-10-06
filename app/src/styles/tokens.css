@@ -293,3 +293,10 @@
 :root[data-practice='deep'] {
   --color-practice: color-mix(in oklab, var(--color-warning) 62%, #3b1a00);
 }
+
+/* «Стекло» (настройка): размытие с насыщением, блик сверху и светлая кромка — общие для шапки, меню и окон */
+:root {
+  --glass-blur: blur(20px) saturate(1.7);
+  --glass-sheen: linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent 55%);
+  --glass-edge: color-mix(in srgb, white 11%, transparent);
+}

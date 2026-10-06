@@ -3,7 +3,6 @@ import { ListItem } from '../../components/ui/List';
 import { formatShortDate } from '../../lib/dates';
 import { pluralize } from '../../lib/pluralize';
 import { useClock } from '../../lib/useClock';
-import { useCursorGlow } from '../../lib/useCursorGlow';
 import type { Subject } from '../../types/models';
 import { useGroupStore } from '../group/groupStore';
 import { useLectureNotesStore } from '../materials/lectureNotesStore';
@@ -24,7 +23,6 @@ export function SubjectRow({ subject }: SubjectRowProps) {
   const lectureNotes = useLectureNotesStore((state) => state.lectureNotes);
   const deadlines = useGroupStore((state) => state.deadlines);
   const done = useGroupStore((state) => state.deadlinesDone);
-  const glow = useCursorGlow();
 
   const openTaskCount = getOpenTasks(tasks, subject.id).length;
   // Как вкладка «Материалы» предмета: файлы без ссылок + конспекты
@@ -36,7 +34,6 @@ export function SubjectRow({ subject }: SubjectRowProps) {
   return (
     <ListItem
       className={styles.row}
-      {...glow}
       leading={
         <span className={styles.monogram} aria-hidden>
           {subject.name.charAt(0)}

@@ -1,0 +1,27 @@
+.lines {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  /* Пауза 250 мс: если файл открылся быстрее, заглушку никто не увидит */
+  animation: lines-in 200ms var(--ease) 250ms both;
+}
+
+.lines span {
+  display: block;
+  height: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-active);
+  animation: lines-pulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes lines-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes lines-pulse {
+  to {
+    opacity: 0.45;
+  }
+}

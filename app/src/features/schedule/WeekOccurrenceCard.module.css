@@ -3,7 +3,7 @@
   position: relative;
   padding: var(--space-2) var(--space-2-5) var(--space-2) 14px;
   border: 0;
-  border-radius: var(--radius-lg);
+  border-radius: 10px /* не от --radius-*: у «мягких» скруглений палочка слева подходила к самому углу */;
   /* Чистая поверхность без цветной заливки (цвет на тёмном даёт грязь): тип пары — полоска слева и слово типа */
   background: var(--color-bg-elevated);
   cursor: pointer;
@@ -28,9 +28,9 @@
 .card::before {
   content: '';
   position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 5px;
+  top: 11px;
+  bottom: 11px;
+  left: 6px;
   width: 3px;
   border-radius: 999px;
   background: var(--type-color, transparent);

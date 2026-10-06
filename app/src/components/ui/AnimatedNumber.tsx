@@ -4,12 +4,14 @@ import { SPRING_SNAPPY, usePrefersReducedMotion } from '../../lib/motion';
 
 interface AnimatedNumberProps {
   value: number;
+  /** С какого числа начать при появлении (например, 0 — «набежать» до результата) */
+  from?: number;
 }
 
 /** Число, которое при смене плавно «доезжает» до нового значения, а не скачет мгновенно. */
-export function AnimatedNumber({ value }: AnimatedNumberProps) {
+export function AnimatedNumber({ value, from }: AnimatedNumberProps) {
   const reduceMotion = usePrefersReducedMotion();
-  const motionValue = useMotionValue(value);
+  const motionValue = useMotionValue(from ?? value);
   const rounded = useTransform(motionValue, (latest) => Math.round(latest));
   const spanRef = useRef<HTMLSpanElement>(null);
 
@@ -30,5 +32,5 @@ export function AnimatedNumber({ value }: AnimatedNumberProps) {
     [rounded],
   );
 
-  return <span ref={spanRef}>{value}</span>;
+  return <span ref={spanRef}>{from ?? value}</span>;
 }

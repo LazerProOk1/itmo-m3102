@@ -4,6 +4,7 @@ import { LazyMarkdown as Markdown } from '../../components/markdown/LazyMarkdown
 import { Checkbox } from '../../components/ui/Checkbox';
 import { IconButton } from '../../components/ui/IconButton';
 import { cn } from '../../lib/cn';
+import { useCursorGlow } from '../../lib/useCursorGlow';
 import { daysBetween } from '../../lib/dates';
 import type { ISODate } from '../../types/models';
 import { useHomeworkStore, type HomeworkItem } from './homeworkStore';
@@ -38,12 +39,19 @@ interface HomeworkCardProps {
 export function HomeworkCard({ item, today, compact = false, onEdit, onDelete }: HomeworkCardProps) {
   const done = useHomeworkStore((state) => Boolean(state.done[item.id]));
   const toggleDone = useHomeworkStore((state) => state.toggleDone);
+  const glow = useCursorGlow();
   const tone = done ? 'none' : dueTone(item.due, today);
 
   return (
-    <article className={cn(styles.card, styles[tone], done && styles.done)}>
+    <article
+      className={cn(styles.card, styles[tone], done && styles.done)}
+      data-lit=""
+      onPointerMove={glow.onPointerMove}
+      onPointerLeave={glow.onPointerLeave}
+    >
       <Checkbox
         celebrate
+        className={styles.check}
         aria-label={`Отметить «${item.subject}» выполненным`}
         checked={done}
         onChange={(event) => toggleDone(item.id, event.target.checked)}

@@ -58,8 +58,9 @@
 
 @media (max-width: 767px) {
   :global(:root[data-glass='on']) .bar {
-    background: color-mix(in srgb, var(--color-bg) 55%, transparent);
-    backdrop-filter: blur(18px) saturate(1.5);
-    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    background: var(--glass-sheen), color-mix(in srgb, var(--color-bg) 55%, transparent);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-top-color: var(--glass-edge);
   }
 }

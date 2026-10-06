@@ -5,6 +5,7 @@ import { cn } from '../../lib/cn';
 import { pluralize } from '../../lib/pluralize';
 import { Markdown } from '../markdown/Markdown';
 import { Button } from '../ui/Button';
+import { AnimatedNumber } from '../ui/AnimatedNumber';
 import { Swap } from '../ui/Swap';
 import { burst, rain } from './confetti';
 import { toISODate } from '../../lib/dates';
@@ -558,12 +559,12 @@ function Result({
           />
         </svg>
         <span className={styles.ringNumber}>
-          {good}/{total}
+          <AnimatedNumber value={good} from={0} />/{total}
         </span>
       </div>
       <p className={styles.resultTitle}>{title}</p>
       <p className={styles.resultSub}>
-        Верно: {Math.round(share * 100)}%{best >= 2 && ` · лучшая серия: ${best} подряд`}
+        Верно: <AnimatedNumber value={Math.round(share * 100)} from={0} />%{best >= 2 && ` · лучшая серия: ${best} подряд`}
       </p>
       <div className={styles.actions}>
         {wrong > 0 && (

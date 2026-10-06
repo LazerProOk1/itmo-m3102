@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useRef, useState, type CSSProperties } from 'react';
 import { cn } from '../../lib/cn';
 import { SPRING_SNAPPY } from '../../lib/motion';
+import { useCursorGlow } from '../../lib/useCursorGlow';
 import { useSubjectName } from '../subjects/subjectsStore';
 import { ClassDetailsPopover } from './ClassDetailsPopover';
 import { classTypeColorVar, CLASS_TYPE_LABELS, CLASS_TYPE_SHORT, describeMove } from './labels';
@@ -35,6 +36,7 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction, filled =
   const moveNote = describeMove(occurrence);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const glow = useCursorGlow();
 
   function handleEdit() {
     setPopoverOpen(false);
@@ -46,6 +48,9 @@ export function WeekOccurrenceCard({ occurrence, today, time, onAction, filled =
   return (
     <motion.div
       ref={cardRef}
+      data-lit=""
+      onPointerMove={glow.onPointerMove}
+      onPointerLeave={glow.onPointerLeave}
       className={cn(styles.card, filled && styles.filled, past && styles.past, isNow && styles.now, isCancelled && styles.cancelled)}
       style={{ '--type-color': classTypeColorVar(occurrence.details.type) } as CSSProperties}
       whileHover={interactive ? { y: -2 } : undefined}

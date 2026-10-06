@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import type { CSSProperties, PointerEventHandler, ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import { SPRING_SNAPPY } from '../../lib/motion';
+import { useCursorGlow } from '../../lib/useCursorGlow';
 import styles from './List.module.css';
 
 interface ListProps {
@@ -58,6 +59,7 @@ export function ListItem({
   onPointerMove,
   onPointerLeave,
 }: ListItemProps) {
+  const glow = useCursorGlow();
   return (
     <motion.li
       layout="position"
@@ -73,8 +75,10 @@ export function ListItem({
       transition={SPRING_SNAPPY}
       className={cn(styles.item, muted && styles.muted, highlighted && styles.highlighted, wrapOnPhone && styles.wrapPhone, className)}
       style={{ overflow: 'hidden', ...style }}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
+      // data-lit: подсветка под курсором (aurora.css); координаты пишет useCursorGlow
+      data-lit=""
+      onPointerMove={onPointerMove ?? glow.onPointerMove}
+      onPointerLeave={onPointerLeave ?? glow.onPointerLeave}
     >
       {leading && <div className={styles.leading}>{leading}</div>}
       <div className={styles.body}>

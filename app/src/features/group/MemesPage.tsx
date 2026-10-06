@@ -12,6 +12,7 @@ import { deleteRepoFile, getToken, groupRawUrl, readRepoFile, saveToken, writeRe
 import { useEditMode } from '../settings/EditModeContext';
 import { TokenFields, type TokenValue } from './TokenFields';
 import groupStyles from './group.module.css';
+import { LinesSkeleton } from '../../components/ui/LinesSkeleton';
 import styles from './MemesPage.module.css';
 
 interface Meme {
@@ -98,7 +99,7 @@ export function MemesPage() {
       {error && <p className={styles.error}>{error}</p>}
 
       {memes === null ? (
-        !error && <p className={styles.loading}>Загрузка…</p>
+        !error && <LinesSkeleton />
       ) : sorted.length === 0 ? (
         <EmptyState title="Мемов пока нет" description="Загрузите первый — кнопка выше." />
       ) : (
