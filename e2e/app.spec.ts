@@ -81,25 +81,25 @@ test('без сети сайт открывается из кеша', async ({ p
   await expect(page.getByRole('heading', { name: 'Определение' })).toBeVisible();
 });
 
-test('переключатель стиля: туда на копию сайта Феди и обратно, слой перехода не застревает', async ({ page }) => {
-  // Копии сайта Феди в тестовой сборке нет (её кладёт npm run fedya) — подменяем одну страницу, остальное настоящее
-  await page.route('**/fedya/index.html', (route) =>
+test('переключатель стиля: туда на копию классического сайта группы и обратно, слой перехода не застревает', async ({ page }) => {
+  // Копия классического сайта в сборке есть, но она ходит в сеть (библиотеки, GitHub) — подменяем одну страницу, остальное настоящее
+  await page.route('**/classic/index.html', (route) =>
     route.request().method() === 'HEAD'
       ? route.fulfill({ status: 200 })
       : route.fulfill({
           contentType: 'text/html',
-          body: '<!doctype html><html><head><script src="../switch/switch.js" charset="utf-8"></script></head><body><h1>Сайт Феди</h1></body></html>',
+          body: '<!doctype html><html><head><script src="../switch/switch.js" charset="utf-8"></script></head><body><h1>Классический сайт</h1></body></html>',
         }),
   );
   await openSynced(page);
   await page.getByRole('link', { name: 'Переключить стиль' }).first().click();
-  await expect(page).toHaveURL(/\/fedya\/index\.html$/);
+  await expect(page).toHaveURL(/\/classic\/index\.html$/);
   // На его стороне та же кнопка рисуется скриптом; слой перехода после прихода убирается
   const back = page.locator('[data-site-switch]');
   await expect(back).toHaveText('Переключить стиль');
   await expect(page.locator('[data-site-veil]')).toHaveCount(0, { timeout: 5000 });
   await back.click();
-  await expect(page).not.toHaveURL(/fedya/);
+  await expect(page).not.toHaveURL(/classic/);
   await expect(page.getByRole('link', { name: 'Переключить стиль' }).first()).toBeVisible();
   await expect(page.locator('[data-site-veil]')).toHaveCount(0, { timeout: 5000 });
 });

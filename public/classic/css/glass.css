@@ -1,0 +1,131 @@
+/* Стеклянная тема контейнеров: многослойный фон, glassmorphism, усиленная рамка,
+   внутреннее свечение, едва заметная текстура и более чёткая типографика.
+   Подключается ПОСЛЕДНИМ, поэтому перекрывает прежние правила карточек. */
+
+:root{
+  --gl-bg-a:#f3f1fb;
+  --gl-bg-b:#e3dff2;
+  --gl-fill:color-mix(in srgb,var(--card) 66%,transparent);
+  --gl-fill-hover:color-mix(in srgb,var(--card) 78%,transparent);
+  --gl-border:color-mix(in srgb,var(--text) 14%,transparent);
+  --gl-border-top:rgba(255,255,255,.75);
+  --gl-glow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 22px color-mix(in srgb,var(--accent) 7%,transparent);
+  --gl-drop:0 12px 32px rgba(35,28,80,.10),0 2px 6px rgba(35,28,80,.06);
+  --gl-sheen:linear-gradient(145deg,rgba(255,255,255,.55),rgba(255,255,255,0) 42%);
+  --gl-tex:repeating-linear-gradient(135deg,rgba(40,30,90,.018) 0 1px,transparent 1px 5px);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --gl-bg-a:#10111b;
+  --gl-bg-b:#05060b;
+  --gl-fill:color-mix(in srgb,var(--card) 58%,transparent);
+  --gl-fill-hover:color-mix(in srgb,var(--card) 74%,transparent);
+  --gl-border:rgba(255,255,255,.14);
+  --gl-border-top:rgba(255,255,255,.26);
+  --gl-glow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 26px color-mix(in srgb,var(--accent) 9%,transparent);
+  --gl-drop:0 14px 36px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);
+  --gl-sheen:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%);
+  --gl-tex:repeating-linear-gradient(135deg,rgba(255,255,255,.014) 0 1px,transparent 1px 5px);
+}}
+:root[data-theme="dark"]{
+  --gl-bg-a:#10111b;
+  --gl-bg-b:#05060b;
+  --gl-fill:color-mix(in srgb,var(--card) 58%,transparent);
+  --gl-fill-hover:color-mix(in srgb,var(--card) 74%,transparent);
+  --gl-border:rgba(255,255,255,.14);
+  --gl-border-top:rgba(255,255,255,.26);
+  --gl-glow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 26px color-mix(in srgb,var(--accent) 9%,transparent);
+  --gl-drop:0 14px 36px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);
+  --gl-sheen:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%);
+  --gl-tex:repeating-linear-gradient(135deg,rgba(255,255,255,.014) 0 1px,transparent 1px 5px);
+}
+
+/* 1. Фон: лёгкий переход в более тёмный тон (без «градиентности») */
+.bgfx{background:linear-gradient(180deg,var(--gl-bg-a) 0%,var(--gl-bg-b) 100%)}
+
+/* 2–3. Стеклянные контейнеры */
+.dash-panel,.home-side,.card,.material-link,.dl-card,.dl-overview,.deadlines-page .card,.deadlines-page .overview,
+.sched-card,.sched-edit-panel,.sched-bar,.week-pills,.sched-empty,.link-card,.link-empty,.links-help,.meme-card,.meme-empty,
+.hw-item,.hw-empty,.diagram-canvas,.diagram-source,.quiz,.side,.lesson,.hh-card,.off-bar{
+  background:var(--gl-tex),var(--gl-sheen),var(--gl-fill);
+  -webkit-backdrop-filter:blur(16px) saturate(1.45);backdrop-filter:blur(16px) saturate(1.45);
+  border:1px solid var(--gl-border);
+  border-top-color:var(--gl-border-top);
+  box-shadow:var(--gl-glow),var(--gl-drop);
+}
+/* вложенные элементы внутри уже «стеклянных» блоков не размываем повторно */
+.sched-homework-slot .hw-item,.homework-panel .hw-item,.dash-panel .deadline-row,.dash-panel .hw-item{
+  -webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:color-mix(in srgb,var(--card) 40%,transparent);
+  border:1px solid color-mix(in srgb,var(--gl-border) 70%,transparent)
+}
+.dash-panel{border-radius:16px}
+
+/* ДЗ на главной: homework.css обнуляет рамку, радиус и отступы — возвращаем карточки */
+.dash-panel.homework-panel .hw-item,
+.dash-panel.homework-panel .hw-item:first-child{
+  padding:12px 14px;margin:0 0 8px;
+  border:1px solid color-mix(in srgb,var(--gl-border) 80%,transparent);
+  border-radius:11px;
+  background:var(--gl-sheen),color-mix(in srgb,var(--card) 45%,transparent);
+  transition:transform .5s cubic-bezier(.22,.8,.24,1),border-color .5s cubic-bezier(.22,.8,.24,1),background-color .5s cubic-bezier(.22,.8,.24,1)
+}
+.dash-panel.homework-panel .hw-item:last-child{margin-bottom:0}
+.dash-panel.homework-panel .hw-item:hover{
+  border-color:color-mix(in srgb,var(--accent) 40%,var(--gl-border));
+  background:var(--gl-sheen),color-mix(in srgb,var(--card) 62%,transparent);
+  transform:translateY(-1px)
+}
+.dash-panel.homework-panel .hw-item-top{align-items:center;gap:10px}
+.dash-panel.homework-panel .hw-item-top strong{display:block;font-size:.85rem;font-weight:700}
+.dash-panel.homework-panel .hw-text{margin-top:5px}
+
+/* наведение: стекло становится плотнее, акцентная рамка */
+/* плавность: одинаковое число теней в обычном и hover-состоянии, чтобы box-shadow интерполировался */
+.dash-panel,.card,.material-link,.dl-card,.sched-card,.link-card,.meme-card,.hw-item{
+  transition:
+    transform .6s cubic-bezier(.22,.8,.24,1),
+    background-color .6s cubic-bezier(.22,.8,.24,1),
+    border-color .6s cubic-bezier(.22,.8,.24,1),
+    box-shadow .7s cubic-bezier(.22,.8,.24,1)
+}
+.dash-panel:hover,.card:hover,.material-link:hover,.dl-card:hover,.sched-card:hover,.link-card:hover,.meme-card:hover,.hw-item:hover{
+  background:var(--gl-tex),var(--gl-sheen),var(--gl-fill-hover);
+  border-color:color-mix(in srgb,var(--accent) 45%,var(--gl-border));
+  box-shadow:
+    var(--gl-glow),
+    0 18px 40px color-mix(in srgb,var(--accent) 16%,rgba(0,0,0,.2)),
+    0 0 0 transparent
+}
+@media(prefers-reduced-motion:reduce){
+  .dash-panel,.card,.material-link,.dl-card,.sched-card,.link-card,.meme-card,.hw-item{transition-duration:.01ms!important}
+}
+.link-card,.sched-card,.dl-card{border-left-width:4px;border-left-color:var(--tone,var(--accent))}
+.week-indicator{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 20px color-mix(in srgb,var(--accent) 28%,transparent)}
+
+/* диалоги — почти непрозрачные, чтобы формы читались */
+.app-dialog{
+  background:var(--gl-tex),var(--gl-sheen),color-mix(in srgb,var(--card) 90%,transparent);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  border:1px solid var(--gl-border);border-top-color:var(--gl-border-top);
+  box-shadow:var(--gl-glow),0 30px 90px rgba(0,0,0,.35)
+}
+
+/* Типографика: чёткая иерархия внутри контейнеров */
+.panel-head{padding-bottom:14px;border-bottom:1px solid color-mix(in srgb,var(--gl-border) 70%,transparent);margin-bottom:18px}
+.panel-head h2{font-size:1.02rem;font-weight:780;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.panel-head h2::before{content:"";width:4px;height:1em;border-radius:3px;background:linear-gradient(180deg,var(--accent),var(--accent2))}
+.panel-head>a{font-size:.74rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.card .name,.material-link strong,.link-body strong,.dl-title,.sched-card-main strong,.today-detail strong{font-weight:700;letter-spacing:-.02em}
+.card .desc,.material-link small,.link-body small,.dl-note,.today-detail small,.recent-meta,.sched-card-main small{color:var(--muted);font-size:.76rem;line-height:1.5}
+.dl-queue-head,.dl-stat-label,.deadlines-page .overview-label,.sched-eyebrow,.hw-sec,.hh-sec{
+  font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)
+}
+.sched-eyebrow{color:var(--accent)}
+.dl-title,.sched-card-main strong{font-size:1.1rem}
+.dash-panel .plan-hint,.dash-panel .empty-line{opacity:.85}
+
+@media(prefers-reduced-motion:reduce){.dash-panel,.card,.link-card,.dl-card{transition:none!important}}
+/* без поддержки blur — делаем плотнее, чтобы текст читался */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :root{--gl-fill:color-mix(in srgb,var(--card) 92%,transparent)}
+}
+@media print{.dash-panel,.card,.dl-card{backdrop-filter:none;background:#fff;box-shadow:none}}

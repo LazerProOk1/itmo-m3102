@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { buttonClass } from '../ui/Button';
 import styles from './SiteSwitch.module.css';
 
-/** Копия второго оформления лежит рядом (public/fedya, её кладёт npm run fedya). Нет копии — кнопки нет, а не ссылка в пустоту. */
-const FEDYA_URL = './fedya/index.html';
+/** Классическое оформление лежит в репозитории (public/classic, обновляется npm run classic). Нет копии — кнопки нет, а не ссылка в пустоту. */
+const CLASSIC_URL = './classic/index.html';
 let available: Promise<boolean> | undefined;
-const hasFedyaCopy = () =>
-  (available ??= fetch(FEDYA_URL, { method: 'HEAD' }).then(
+const hasClassicCopy = () =>
+  (available ??= fetch(CLASSIC_URL, { method: 'HEAD' }).then(
     (response) => response.ok,
     () => false,
   ));
@@ -21,7 +21,7 @@ export function SiteSwitch() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let alive = true;
-    void hasFedyaCopy().then((ok) => alive && setReady(ok));
+    void hasClassicCopy().then((ok) => alive && setReady(ok));
     return () => {
       alive = false;
     };
@@ -29,7 +29,7 @@ export function SiteSwitch() {
   if (!ready) return null;
   return (
     <a
-      href={FEDYA_URL}
+      href={CLASSIC_URL}
       data-site-switch
       className={`${buttonClass('primary', 'sm')} ${styles.switch}`}
       title="Переключить стиль оформления"

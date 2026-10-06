@@ -1,11 +1,11 @@
 /*
- * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах (наш — ./switch/switch.js, копия сайта Феди
- * в /fedya/ — ../switch/switch.js, её патчит scripts/import-fedya.ts), поэтому написан на чистом JS без сборки.
+ * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах (наш — ./switch/switch.js, копия классического сайта группы
+ * в /classic/ — ../switch/switch.js, её патчит scripts/import-classic.ts), поэтому написан на чистом JS без сборки.
  *
  *  - клик по любой ссылке с data-site-switch: круговая волна цвета сайта, на который переходим, затем переход;
  *  - на новой странице тот же слой уже закрывает экран и «схлопывается» в точку клика — получается одно движение
  *    через две страницы. Параметры волны (точка, цвета, тема) передаются через sessionStorage;
- *  - на стороне Феди сам добавляет кнопку в ряд кнопок его шапки (рядом с GitHub), в его же стиле;
+ *  - в классическом оформлении сам добавляет кнопку в ряд кнопок его шапки (рядом с GitHub), в его же стиле;
  *  - «уменьшить движение» — без анимации, просто переход.
  * Подключать в <head> обычным (не module/defer) скриптом: слой открытия должен появиться до первой отрисовки.
  */
@@ -13,14 +13,14 @@
   'use strict';
 
   var KEY = 'm3102:switch';
-  var side = /\/fedya(\/|$)/.test(location.pathname) ? 'fedya' : 'mine';
+  var side = /\/classic(\/|$)/.test(location.pathname) ? 'classic' : 'modern';
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canAnimate = !reduce && typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
   var EASE = 'cubic-bezier(0.65, 0, 0.2, 1)';
 
   // Облик сайтов — для слоя перехода (на странице назначения он должен выглядеть так же, как при уходе)
   var LOOKS = {
-    mine: {
+    modern: {
       name: 'Переключаем стиль',
       sub: 'тот же сайт, другое оформление',
       accent: '#6372f5',
@@ -29,7 +29,7 @@
       light: { bg: '#ffffff', text: '#18181b' },
       font: "'Unbounded Variable', 'Inter Variable', Inter, system-ui, sans-serif",
     },
-    fedya: {
+    classic: {
       name: 'Переключаем стиль',
       sub: 'тот же сайт, другое оформление',
       accent: '#5b5fef',
@@ -92,7 +92,7 @@
   function go(url, x, y) {
     if (leaving) return;
     leaving = true;
-    var target = side === 'mine' ? 'fedya' : 'mine';
+    var target = side === 'modern' ? 'classic' : 'modern';
     var look = LOOKS[target];
     var colors = isDark() ? look.dark : look.light;
     var payload = { x: x, y: y, to: target, colors: colors, dark: isDark(), t: Date.now() };
@@ -165,8 +165,8 @@
   }
 
   var arrival = takePayload();
-  // Тема приходит вместе с переходом: на сайт Феди — наша, чтобы не было смены светлой на тёмную
-  if (arrival && side === 'fedya' && arrival.dark !== undefined) {
+  // Тема приходит вместе с переходом: в классическое оформление — наша, чтобы не было смены светлой на тёмную
+  if (arrival && side === 'classic' && arrival.dark !== undefined) {
     document.documentElement.setAttribute('data-theme', arrival.dark ? 'dark' : 'light');
   }
 
@@ -223,8 +223,8 @@
     for (var i = 0; i < stale.length; i++) stale[i].remove();
   });
 
-  /* ---------- Кнопка на стороне Феди: в ряду кнопок его шапки, как его же «GitHub» ---------- */
-  if (side !== 'fedya') return;
+  /* ---------- Кнопка в классическом оформлении: в ряду кнопок его шапки, как его же «GitHub» ---------- */
+  if (side !== 'classic') return;
 
   var ICON =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -258,7 +258,7 @@
     var actions = document.querySelector('header .header-actions');
     if (actions) actions.insertBefore(link, actions.querySelector('.gh-link'));
     else {
-      // Разметка Феди изменилась — кнопка всё равно должна быть: плавающая в углу
+      // Разметка классического сайта изменилась — кнопка всё равно должна быть: плавающая в углу
       link.className += ' m3102-floating';
       document.body.appendChild(link);
     }

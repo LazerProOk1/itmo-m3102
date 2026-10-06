@@ -1,0 +1,165 @@
+/* Оболочка сайта: липкая шапка, нижняя навигация (мобильные), поиск-кнопка, иконки.
+   Подключается ПОСЛЕДНИМ, поэтому перекрывает старые правила шапки из index.html / site.css / lectures.css. */
+
+html, body { overflow-x: clip; max-width: 100%; }
+.site-search{flex:none;position:relative}
+
+/* ---------- иконки ---------- */
+.ic-svg{display:inline-block;flex:none;vertical-align:-.2em}
+[data-icon]{display:inline-flex;align-items:center;justify-content:center;flex:none}
+.gi{display:inline-flex;vertical-align:-.18em;line-height:0}
+.gi .ic-svg{vertical-align:baseline}
+.card .ic .ic-svg,.material-icon .ic-svg,.link-badge .ic-svg{width:22px;height:22px}
+.btn2 .ic-svg,.tab .ic-svg{vertical-align:-.25em}
+
+/* ---------- шапка ---------- */
+body{padding-top:0}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px)}
+header{
+  position:sticky;top:0;z-index:900;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:12px;
+  min-height:62px;margin:0 -32px 6px;padding:env(safe-area-inset-top,0px) 32px 0;
+  background:color-mix(in srgb,var(--bg) 68%,transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);
+  border-bottom:1px solid color-mix(in srgb,var(--border) 70%,transparent);
+}
+.brand{flex:none}
+.brand-logo{height:26px}
+.brand-divider,.navlinks{display:none}
+.tabs{flex:1;justify-content:center;gap:4px}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:10px 12px}
+.header-actions{display:flex;align-items:center;gap:8px;flex:none}
+.site-search{flex:none}
+.ss-btn,.gh-link{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--border);border-radius:10px;background:color-mix(in srgb,var(--card) 70%,transparent);color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s,transform .2s}
+.ss-btn:hover,.gh-link:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
+.gh-link img{width:22px;height:22px;display:block;object-fit:contain}
+/* github.png чёрный? — в тёмной теме инвертируем (уберите, если картинка уже светлая) */
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .gh-link img{filter:invert(1)}}
+:root[data-theme="dark"] .gh-link img{filter:invert(1)}
+
+/* липкие элементы страниц не должны прятаться под шапкой */
+@media(min-width:1001px){.side{top:calc(env(safe-area-inset-top,0px) + 78px);max-height:calc(100dvh - 96px)}}
+.quiz-full .quiz-bar{top:calc(env(safe-area-inset-top,0px) + 62px)}
+.prose h1[id],.prose h2[id],.prose h3[id]{scroll-margin-top:80px}
+
+/* ---------- поиск: кнопка + панель вверху по центру ---------- */
+.ss-overlay{position:fixed;inset:0;z-index:1300;display:flex;justify-content:center;align-items:flex-start;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px 12px;background:rgba(8,9,17,.42);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.ss-overlay[hidden]{display:none}
+.ss-panel{width:min(580px,100%);display:grid;gap:8px;align-content:start;animation:ss-in .18s ease-out both}
+.ss-panel .ss-box{width:100%;height:50px;background:var(--card);box-shadow:0 18px 50px rgba(20,20,35,.22)}
+.ss-panel .ss-box kbd{display:inline}
+.ss-panel .ss-results{position:static;width:auto;max-height:min(62vh,540px)}
+
+/* ---------- нижняя навигация ---------- */
+.bottom-nav{display:none}
+@media(max-width:760px){
+  body{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  .wrap{padding:0 16px 24px}
+  header{margin:0 -16px 4px;padding:env(safe-area-inset-top,0px) 16px 0;min-height:56px;gap:10px}
+  .brand-logo{height:22px}
+  .tabs{display:none}
+  .header-actions{margin-left:auto}
+  .ss-btn,.gh-link{width:38px;height:38px}
+  .ss-box kbd{display:none}
+  .ss-panel .ss-box{width:100%}
+  .bottom-nav{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;
+    position:fixed;left:0;right:0;bottom:0;z-index:950;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+    background:color-mix(in srgb,var(--card) 78%,transparent);
+    -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+    border-top:1px solid color-mix(in srgb,var(--border) 80%,transparent);
+  }
+  .bn-item{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:6px 2px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.66rem;font-weight:620;letter-spacing:0;-webkit-tap-highlight-color:transparent;transition:color .2s,background .2s}
+  .bn-item span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bn-item.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,transparent)}
+  .bn-item:active{transform:scale(.96)}
+  /* кнопка навигации по конспекту поднимается над нижней панелью */
+  .side-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 84px)}
+  footer{padding-bottom:8px}
+
+  /* главная: ёжику отдана собственная «дорожка» под текстом */
+  .home-hero{padding-bottom:96px;min-height:0}
+  .hero-hedgehog{bottom:18px}
+  .home-hero::after{content:"";position:absolute;left:22px;right:22px;bottom:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);pointer-events:none}
+}
+
+@media(max-width:390px){.brand-logo{height:20px}}
+@media (max-width:1000px){
+  .side{ clip-path: inset(0 0 0 100%); }      /* closed */
+  .is-open .side{ clip-path: inset(0); }
+}
+
+/* ---------- загрузка: крутящийся ёжик ---------- */
+.hh-loader{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:850;
+
+  width:68px;
+  height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  vertical-align:middle;
+
+  border-radius:50%;
+  background:color-mix(in srgb,var(--card) 82%,transparent);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(20,20,35,.2);
+
+  pointer-events:none;
+}
+
+.hh-loader>span{
+  display:block;
+  font-size:2rem;
+  line-height:1;
+  transform-origin:50% 55%;
+  animation:hh-spin 1s linear infinite;
+}
+
+@keyframes hh-spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+.hh-loader--inline>span{
+  font-size:1.3rem;
+}
+
+/* On small screens keep the same centered framed loader.
+   Do NOT reset .hh-loader--inline to position:static. */
+@media(max-width:760px){
+  .hh-loader{
+    width:68px;
+    height:68px;
+  }
+}
+
+/* при reduced-motion вращение замедляем, но не убираем */
+@media(prefers-reduced-motion:reduce){
+  .hh-loader>span{
+    animation-duration:3s!important;
+  }
+}
+
+/* ---------- шапка на узких экранах: поиск сжимается, иконка GitHub остаётся на месте ---------- */
+.gh-link{flex:none}
+.ss-input{width:100%}
+@media(max-width:760px){
+  header{min-width:0}
+  .header-actions{flex:1 1 0;min-width:0;justify-content:flex-end}
+  .site-search{flex:1 1 auto;min-width:0;max-width:340px}
+  .ss-box{width:100%;min-width:0;padding:0 8px 0 10px}
+}
+@media(max-width:390px){
+  .brand-logo{height:18px}
+  .header-actions{gap:6px}
+}
+
