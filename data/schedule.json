@@ -46,7 +46,7 @@
         "room": "2240",
         "teacher": "Кулешова Екатерина Дмитриевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       },
       {
@@ -57,7 +57,7 @@
         "room": "2240",
         "teacher": "Кулешова Екатерина Дмитриевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -70,7 +70,7 @@
         "room": "2430",
         "teacher": "Бровкина Екатерина Анатольевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       },
       {
@@ -81,7 +81,7 @@
         "room": "2430",
         "teacher": "Бровкина Екатерина Анатольевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -94,7 +94,7 @@
         "room": "2238",
         "teacher": "Хегай Максим Вилорьевич",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       },
       {
@@ -127,7 +127,7 @@
         "room": "2138",
         "teacher": "Мурадова Мариам Баширова",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -173,7 +173,7 @@
         "room": "2311",
         "teacher": "Влад Сергей Евгеньевич",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -212,7 +212,7 @@
         "room": "2240",
         "teacher": "Кулешова Екатерина Дмитриевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       },
       {
@@ -223,7 +223,7 @@
         "room": "2240",
         "teacher": "Кулешова Екатерина Дмитриевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -236,7 +236,7 @@
         "room": "2430",
         "teacher": "Бровкина Екатерина Анатольевна",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -249,7 +249,7 @@
         "room": "2238",
         "teacher": "Хегай Максим Вилорьевич",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       },
       {
@@ -282,7 +282,7 @@
         "room": "2138",
         "teacher": "Мурадова Мариам Баширова",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
@@ -328,7 +328,7 @@
         "room": "2311",
         "teacher": "Влад Сергей Евгеньевич",
         "location": "Кронверкский пр., д.49, лит.А",
-        "kind": "lecture",
+        "kind": "practice",
         "break": false
       }
     ],
