@@ -243,6 +243,10 @@
     '@media (max-width:1100px){.m3102-switch-btn{width:40px;padding:0;}.m3102-switch-btn span{display:none;}}' +
     '@media (max-width:640px){.m3102-switch-btn{width:38px;}}' +
     '.m3102-switch-btn.m3102-floating{position:fixed;top:10px;right:10px;z-index:50;width:40px;padding:0;}' +
+    // Между телефонной раскладкой (до 760 px) и ноутбучной шапка классического сайта не помещается (горизонтальный телефон,
+    // узкое окно): правая часть с поиском и кнопками уезжает за край. Уплотняем вкладки и поиск, чтобы кнопки остались на экране
+    '@media(min-width:761px) and (max-width:1100px){.tab [data-icon]{display:none}.tab{padding:10px 6px}.tabs{gap:0}}' +
+    '@media(min-width:761px) and (max-width:860px){.ss-box{width:100px}.ss-box kbd{display:none}.brand-logo{height:20px}header{gap:6px}}' +
     '@media print{.m3102-switch-btn{display:none !important;}}';
 
   function mount() {
