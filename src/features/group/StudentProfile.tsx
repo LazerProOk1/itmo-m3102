@@ -1,12 +1,10 @@
-import { ArrowLeft, ArrowRight, ArrowUpRight, GitCommitHorizontal } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { Button, buttonClass } from '../../components/ui/Button';
+import { Button } from '../../components/ui/Button';
 import { GithubMark } from '../../components/ui/GithubMark';
 import { Modal } from '../../components/ui/Modal';
 import { TelegramMark } from '../../components/ui/TelegramMark';
 import { M3102_STUDENTS, type Student } from '../../data/m3102';
-import { formatDayLabel, toISODate } from '../../lib/dates';
-import { REPO_URL } from '../../services/github';
 import { useQueueStore } from '../deadlines/queueStore';
 import { useGroupStore } from './groupStore';
 import { useProfileStore } from './profileStore';
@@ -16,7 +14,7 @@ const SOON = '#появится после бэкенда';
 
 /**
  * Профиль студента — одно окно на всё приложение (AppShell), открывается из «Студентов» и из очереди дедлайнов.
- * Что есть в открытых данных GitHub — уже настоящее: коммиты, последние правки и места в очередях сдачи.
+ * Что есть в открытых данных GitHub — уже настоящее: число коммитов и места в очередях сдачи.
  * «О себе» и пройденные тесты — после бэкенда. ← / → и кнопки внизу листают группу, не закрывая окно.
  */
 export function StudentProfile() {
@@ -78,14 +76,12 @@ function ProfileBody({ student }: { student: Student }) {
   const github = `https://github.com/${encodeURIComponent(student.github)}`;
   const commits = useProfileStore((state) => state.commits?.[login]);
   const commitsLoaded = useProfileStore((state) => state.commits !== null);
-  const recent = useProfileStore((state) => state.recent[login]?.data);
   const error = useProfileStore((state) => state.error);
   const queues = useQueueStore((state) => state.queues);
   const queueLoaded = useQueueStore((state) => state.at > 0);
   const refreshQueues = useQueueStore((state) => state.refreshIfStale);
   const deadlines = useGroupStore((state) => state.deadlines);
   useEffect(refreshQueues, [refreshQueues]);
-  const today = toISODate(new Date());
 
   // Где студент стоит: дедлайн, место и сколько всего — по порядку сроков
   const places = deadlines.flatMap((deadline) => {
@@ -97,11 +93,11 @@ function ProfileBody({ student }: { student: Student }) {
   return (
     <div className={styles.profile}>
       <div className={styles.head}>
-        {/* Растёт, когда фото пришло: иначе анимация успевала пройти на пустом круге */}
-        <img className={styles.avatar} src={`${github}.png?size=200`} alt="" onLoad={(event) => (event.currentTarget.dataset.loaded = '')} />
+        {/* Тот же адрес фото, что у карточки (?size=160): другой размер — другой файл, и уже видное фото качалось
+            заново. Растёт, когда фото пришло: иначе анимация проходила на пустом круге */}
+        <img className={styles.avatar} src={`${github}.png?size=160`} alt="" onLoad={(event) => (event.currentTarget.dataset.loaded = '')} />
         <div className={styles.who}>
           <h3 className={styles.name}>{student.name}</h3>
-          <span className={styles.login}>@{student.github}</span>
           <span className={styles.chips}>
             <span className={styles.fact}>{student.fact}</span>
             {student.role && <span className={styles.role}>{student.role}</span>}
@@ -109,20 +105,18 @@ function ProfileBody({ student }: { student: Student }) {
         </div>
       </div>
 
-      <div className={styles.links}>
-        <a className={buttonClass('secondary', 'sm')} href={github} target="_blank" rel="noopener noreferrer">
+      {/* Контакты — просто текст с логотипом, не кнопки (владелец: «ненажимаемые, в обычном состоянии»);
+          перейти на GitHub и в Telegram можно с карточки на «Студентах» */}
+      <div className={styles.contacts}>
+        <span>
           <GithubMark size={16} />
-          GitHub
-        </a>
+          {student.github}
+        </span>
         {student.telegram && (
-          <a
-            className={buttonClass('secondary', 'sm')}
-            href={`https://t.me/${encodeURIComponent(student.telegram)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <TelegramMark size={16} />@{student.telegram}
-          </a>
+          <span>
+            <TelegramMark size={16} />
+            {student.telegram}
+          </span>
         )}
       </div>
 
@@ -156,33 +150,6 @@ function ProfileBody({ student }: { student: Student }) {
             ))}
           </ul>
         )}
-      </section>
-
-      <section className={styles.section}>
-        <h3 className={styles.heading}>Последние правки в репозитории группы</h3>
-        {recent?.length ? (
-          <ul className={styles.rows}>
-            {recent.map((item) => (
-              <li key={item.url}>
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                  <GitCommitHorizontal size={14} strokeWidth={1.75} aria-hidden />
-                  <span className={styles.rowText}>{item.message}</span>
-                </a>
-                <span>{item.date && formatDayLabel(toISODate(new Date(item.date)), today).toLowerCase()}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={styles.empty}>{recent ? 'Пока ничего не добавлял.' : error ? 'Не загрузились.' : 'Загружаются…'}</p>
-        )}
-        <a
-          className={styles.more}
-          href={`${REPO_URL}/commits?author=${encodeURIComponent(student.github)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Все коммиты <ArrowUpRight size={12} strokeWidth={1.75} aria-hidden />
-        </a>
       </section>
 
       <section className={styles.section}>

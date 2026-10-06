@@ -219,52 +219,6 @@
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 22%, transparent);
 }
 
-/* ---------- волна от клика (lib/ripple.ts) ---------- */
-/* Слой волны позиционируется от хозяина; :where не перебивает position из модулей */
-:where(:root[data-glow='on'] :is(button, a[data-spot], [role='button'], nav a[href])) {
-  position: relative;
-}
-
-.ripple {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  border-radius: inherit;
-  pointer-events: none;
-  transition: opacity 360ms var(--ease);
-}
-
-/* Цвет волны — цвет содержимого (state layer в Material), непрозрачность нажатия ~0.12 */
-.ripple > i {
-  position: absolute;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.14;
-  transform: scale(0);
-  animation: ripple-grow 520ms var(--ease-luxury-out) forwards;
-}
-
-/* На карточках волна в цвет акцента — продолжает подсветку под курсором */
-[data-spot] > .ripple > i {
-  background: var(--color-accent);
-  opacity: 0.16;
-}
-
-.ripple-out {
-  opacity: 0;
-}
-
-@keyframes ripple-grow {
-  from {
-    transform: scale(0.1);
-  }
-
-  to {
-    transform: scale(1);
-  }
-}
-
 /* ---------- всё зацикленное стоит, если просили меньше движения ---------- */
 @media (prefers-reduced-motion: reduce) {
   .aurora i {

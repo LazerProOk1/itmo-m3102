@@ -72,7 +72,7 @@ export function AppearanceSettings() {
         />
       </SettingsRow>
 
-      <SettingsRow label="Свечение" description="Подсветка и светящаяся рамка под курсором, волна от клика, светящиеся кнопки.">
+      <SettingsRow label="Свечение" description="Подсветка и светящаяся рамка под курсором, светящиеся кнопки.">
         <SegmentedControl
           label="Свечение"
           options={ON_OFF}
