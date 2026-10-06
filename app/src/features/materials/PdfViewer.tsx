@@ -56,7 +56,8 @@ export function PdfViewer({ file }: PdfViewerProps) {
   const [failed, setFailed] = useState<string | null>(null);
   // Явный выбор кнопкой «Тёмные/Светлые страницы» главнее; пока не выбирали — страницы под тему сайта
   const pdfDark = useSettingsStore((state) => state.pdfDark);
-  const dark = pdfDark ?? useResolvedTheme() === 'dark';
+  const siteDark = useResolvedTheme() === 'dark'; // хук — всегда, а не только когда нет явного выбора
+  const dark = pdfDark ?? siteDark;
   const setAppearance = useSettingsStore((state) => state.setAppearance);
   // Страница, на которой остановился в прошлый раз: кнопка «Продолжить» в панели, пока туда не дошёл
   const [resume, setResume] = useState(() => savedPage(file));

@@ -57,12 +57,19 @@ test('неделя расписания — сеткой по часам', async
   expect((await card.locator('xpath=../..').boundingBox())?.height).toBeGreaterThan(90);
 });
 
-test('PDF: тёмные страницы и «Продолжить» с прошлого места', async ({ page }) => {
+test('PDF: страницы под тему сайта, тёмные по кнопке, «Продолжить» с прошлого места', async ({ page }) => {
+  // По умолчанию страницы PDF следуют теме сайта: в тёмной — сразу тёмные
+  await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto(`./${noteUrl(NOTE_PDF)}`);
   const canvases = page.locator('canvas[data-page]');
   await expect(canvases).toHaveCount(PDF_PAGES);
+  await expect(canvases.first()).toHaveCSS('filter', /invert/);
 
+  // В светлой — светлые, а кнопка включает тёмные
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.getByRole('button', { name: 'Тёмные страницы' }).click();
+  await expect(canvases).toHaveCount(PDF_PAGES);
   await expect(canvases.first()).toHaveCSS('filter', /invert/);
 
   await canvases.nth(4).scrollIntoViewIfNeeded();
