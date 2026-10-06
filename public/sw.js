@@ -11,7 +11,7 @@
  * ponytail: старые файлы сборки копятся в кеше; если разрастётся — сменить CACHE на новую версию.
  */
 // Сменили файлы с постоянными именами (иконки) — поднять версию: старый кеш удалится при активации
-const CACHE = 'm3102-v5';
+const CACHE = 'm3102-v6';
 // Vary: Origin у сервера: скрипт с crossorigin и тот же файл из addAll иначе считаются разными записями
 const MATCH = { ignoreVary: true };
 const OFFLINE = 'm3102-offline';
@@ -77,6 +77,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   // Копия классического сайта (/classic/, public/classic) — не наша: ни кеша, ни подмены страницы на нашу оболочку
   if (url.origin === self.location.origin && /\/classic(\/|$)/.test(url.pathname)) return;
+  // Переключатель стиля (/switch/): файл без хеша в имени, а ниже для своего домена кеш «сначала кеш» — правки не доезжали бы
+  if (url.origin === self.location.origin && /\/switch\//.test(url.pathname)) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(

@@ -1,6 +1,6 @@
 /*
- * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах (наш — ./switch/switch.js, копия классического сайта группы
- * в /classic/ — ../switch/switch.js, её патчит scripts/import-classic.ts), поэтому написан на чистом JS без сборки.
+ * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах (наш — ./switch/site-switch.js, копия классического сайта группы
+ * в /classic/ — ../switch/site-switch.js, её патчит scripts/import-classic.ts), поэтому написан на чистом JS без сборки.
  *
  *  - клик по любой ссылке с data-site-switch: круговая волна цвета сайта, на который переходим, затем переход;
  *  - на новой странице тот же слой уже закрывает экран и «схлопывается» в точку клика — получается одно движение
@@ -246,6 +246,7 @@
   function mount() {
     if (document.querySelector('.m3102-switch-btn')) return;
     var style = document.createElement('style');
+    style.setAttribute('data-site-switch-style', '');
     style.textContent = CSS;
     document.head.appendChild(style);
     var link = document.createElement('a');
@@ -264,6 +265,24 @@
     }
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
-  else mount();
+  function ensure() {
+    var link = document.querySelector('.m3102-switch-btn');
+    if (link && link.isConnected) return;
+    var style = document.querySelector('style[data-site-switch-style]');
+    if (style) style.remove();
+    mount();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensure);
+  else ensure();
+  // Его скрипты достраивают шапку (поиск и др.) — если они заменят блок с нашей кнопкой, возвращаем её на место
+  var pending = false;
+  new MutationObserver(function () {
+    if (pending) return;
+    pending = true;
+    setTimeout(function () {
+      pending = false;
+      ensure();
+    }, 120);
+  }).observe(document.documentElement, { childList: true, subtree: true });
 })();

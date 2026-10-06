@@ -88,7 +88,7 @@ test('переключатель стиля: туда на копию класс
       ? route.fulfill({ status: 200 })
       : route.fulfill({
           contentType: 'text/html',
-          body: '<!doctype html><html><head><script src="../switch/switch.js" charset="utf-8"></script></head><body><h1>Классический сайт</h1></body></html>',
+          body: '<!doctype html><html><head><script src="../switch/site-switch.js" charset="utf-8"></script></head><body><h1>Классический сайт</h1></body></html>',
         }),
   );
   await openSynced(page);
