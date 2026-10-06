@@ -9,10 +9,8 @@ interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  /** Строка под заголовком */
   description?: string;
   children: ReactNode;
-  /** Кнопки внизу окна */
   footer?: ReactNode;
   size?: 'sm' | 'md' | 'lg';
   /** Без заголовка и отступов, ближе к верху экрана — для окон со своей раскладкой (поиск) */

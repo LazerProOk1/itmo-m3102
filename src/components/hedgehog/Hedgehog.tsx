@@ -139,9 +139,7 @@ export function HedgehogSvg({
             d="M12 60 L5 52 L14 47 L7 37 L19 35 L15 23 L28 25 L28 12 L40 18 L44 5 L54 14 L61 3 L68 14 L78 6 L81 19 L92 14 L92 28 L102 27 L98 38 L104 44 L96 48 Z"
           />
           <path className={styles.spikeLines} d="M24 46 L30 38 M36 40 L42 30 M50 36 L55 26 M64 36 L69 26 M78 40 L84 31" />
-          {/* животик */}
           <ellipse className={styles.belly} cx="58" cy="69" rx="32" ry="7" />
-          {/* мордочка с носиком */}
           <path className={styles.face} d="M84 42 C96 39 109 47 115 57 C117 61 115 65 110 66 C100 70 90 70 84 64 C79 58 79 47 84 42 Z" />
           <circle className={styles.ear} cx="86" cy="42" r="4" />
           <circle className={styles.nose} cx="114" cy="59" r="3.6" />

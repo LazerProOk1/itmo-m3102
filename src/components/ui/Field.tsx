@@ -6,7 +6,6 @@ interface FieldProps {
   label: string;
   /** id поля ввода — тогда клик по подписи ставит в него курсор */
   htmlFor?: string;
-  /** Подсказка под полем */
   hint?: string;
   /** Текст ошибки. Если есть — показывается вместо подсказки */
   error?: string;
