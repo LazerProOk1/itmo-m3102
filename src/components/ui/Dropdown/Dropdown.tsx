@@ -177,7 +177,9 @@ export function Dropdown({
       if (event.key === 'Escape') closeMenu();
     }
     // Прокрутка модалки/страницы делает координаты меню неактуальными — проще закрыть, чем гоняться за позицией
-    function handleScrollOrResize() {
+    function handleScrollOrResize(event: Event) {
+      // Прокрутка самого списка (длинный список, колесо мыши) меню не закрывает
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) return;
       closeMenu();
     }
 
