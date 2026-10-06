@@ -247,7 +247,7 @@ export function DateInput({
           ) : (
             panel
           ),
-          rootRef.current?.closest('dialog') ?? document.body,
+          rootRef.current?.closest<HTMLElement>('[data-modal]') ?? document.body,
         )}
     </div>
   );

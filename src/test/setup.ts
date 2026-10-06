@@ -38,13 +38,5 @@ if (typeof window !== 'undefined') {
   window.requestIdleCallback = () => 0;
   // Тесты не ходят в сеть: синхронизация видит «нет интернета» и остаётся на сохранённых данных
   window.fetch = () => Promise.reject(new TypeError('Сеть в тестах отключена'));
-  // <dialog> в jsdom без showModal/close
-  HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
-    this.open = true;
-  };
-  HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
-    this.open = false;
-    this.dispatchEvent(new Event('close'));
-  };
   Element.prototype.scrollIntoView ??= () => {};
 }
