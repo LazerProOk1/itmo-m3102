@@ -245,7 +245,7 @@ function drawFooter(context: CanvasRenderingContext2D, watermark: HTMLImageEleme
   context.fillStyle = '#8a8a93';
   context.textBaseline = 'alphabetic';
   context.textAlign = 'left';
-  context.fillText('lazerprook1.github.io/itmo-m3102', MARGIN_X * SCALE + logoW + 4 * MM * SCALE, baseline);
+  context.fillText('redstonelord.github.io/itmo-m3102', MARGIN_X * SCALE + logoW + 4 * MM * SCALE, baseline);
   context.textAlign = 'right';
   context.fillText(`${page} / ${total}`, (PAGE_W - MARGIN_X) * SCALE, baseline);
 }

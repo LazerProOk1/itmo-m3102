@@ -19,30 +19,12 @@ const REPO = 'RedstoneLord/itmo-m3102';
 const APP = fileURLToPath(new URL('..', import.meta.url));
 const ROOT = join(APP, '..');
 // Что их сайт отдаёт посетителю (читает data/ и Дедлайны/ по относительным путям) и что ещё лежит у них рядом с сайтом
-const SERVED_FILES = ['index.html', 'site.css'];
+const SERVED_FILES = ['index.html', 'site.css', 'sw.js'];
 const SERVED_DIRS = ['css', 'js', 'img', 'data', 'Дедлайны'];
 const DATA_DIRS = ['data', 'Дедлайны'];
-const PULL_FILES = [...SERVED_FILES, 'manifest.webmanifest', 'sw.js', 'package.json'];
+const PULL_FILES = [...SERVED_FILES, 'manifest.webmanifest', 'package.json'];
 const PULL_DIRS = [...SERVED_DIRS, 'tests'];
 const PARALLEL = 8;
-
-/**
- * Старые посетители могли зарегистрировать сервис-воркер приложения на корне адреса (раньше приложение жило там).
- * Теперь в корне классический сайт, а воркер приложения — в /app/. Этот файл ложится на место старого sw.js, сам
- * удаляет старые кеши приложения (но не «Работу без интернета» — m3102-offline) и снимает регистрацию.
- */
-const KILL_SWITCH = `// Снимает старую регистрацию приложения с корня адреса (приложение переехало в /app/).
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    (async () => {
-      for (const key of await caches.keys()) if (/^m3102-v\\d+$/.test(key)) await caches.delete(key);
-      await self.registration.unregister();
-      for (const client of await self.clients.matchAll({ type: 'window' })) client.navigate(client.url);
-    })(),
-  );
-});
-`;
 
 const encodePath = (path: string) => path.split('/').map(encodeURIComponent).join('/');
 const inDirs = (path: string, dirs: string[]) => dirs.some((dir) => path.startsWith(`${dir}/`));
@@ -121,7 +103,6 @@ function assembleSite(out: string): void {
   copyTree(dist, join(out, 'app'));
   // dev-копия классического сайта (app/public/classic) попадает в dist вместе с public/ — в готовом сайте она лишняя
   rmSync(join(out, 'app', 'classic'), { recursive: true, force: true });
-  writeFileSync(join(out, 'sw.js'), KILL_SWITCH);
   // Подписка на календарь живёт по старому адресу (в корне) — у подписчиков он уже прописан
   if (existsSync(join(dist, 'm3102.ics'))) copyFileSync(join(dist, 'm3102.ics'), join(out, 'm3102.ics'));
 }

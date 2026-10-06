@@ -6,6 +6,9 @@ it('служебные файлы сайта группы не попадают 
   expect(isHiddenPath('manifest.webmanifest')).toBe(true);
   expect(isHiddenPath('sw.js')).toBe(true);
   expect(isHiddenPath('site.css')).toBe(true);
+  // Документы для разработчиков в корне — не материалы группы
+  expect(isHiddenPath('AGENTS.md')).toBe(true);
+  expect(isHiddenPath('CLAUDE.md')).toBe(true);
   expect(isHiddenPath('img/icons/icon-192.png')).toBe(true);
   expect(isHiddenPath('Лабораторные/ОП/lab1.js')).toBe(false);
   expect(isHiddenPath('Записи лекций/ОП/лекция 1.mp3')).toBe(false);

@@ -26,21 +26,24 @@ import type { LectureNote, Material, MaterialCategory, MaterialType, SubjectInfo
  *   Конспекты потока на сайте не показываются (решение владельца 05.10.2026).
  *
  * Список файлов — по 1 запросу к GitHub API на репозиторий (лимит 60/час без токена), сами файлы —
- * с raw.githubusercontent.com / GitHub Pages (CORS открыт, лимита нет). Записи имеют id "gh:{путь}".
+ * с raw.githubusercontent.com (CORS открыт, лимита нет). Записи имеют id "gh:{путь}".
  */
 export const REPOS = {
   group: { name: 'RedstoneLord/itmo-m3102', branch: 'master' },
 } as const;
 
-const PAGES_BASE = 'https://redstonelord.github.io/itmo-m3102/';
 /** Откуда описания приехали — id и sourceRef записей остаются прежними, чтобы сохранённые не задвоились */
 const COURSE_INFO_FOLDER = 'Конспекты/1 семестр/Поток 1/';
 
 const encodePath = (path: string) => path.split('/').map(encodeURIComponent).join('/');
 
-/** Файл репозитория группы на GitHub Pages — там html открывается как страница, а не текст */
+/**
+ * Адрес файла репозитория группы для показа (PDF, картинки, аудио). Раньше это был GitHub Pages репозитория — он раздавал
+ * весь репозиторий; теперь Pages публикует только готовый сайт (`app/site`), и конспектов там нет (404). Берём
+ * raw.githubusercontent.com: CORS открыт, лимита нет. Минус: html-файл показывается там как текст, а не страницей.
+ */
 export function fileUrl(path: string): string {
-  return PAGES_BASE + encodePath(path);
+  return rawUrl('group', path);
 }
 
 /** Оригинал конспекта на GitHub — для кнопки «Оригинал» на странице чтения */

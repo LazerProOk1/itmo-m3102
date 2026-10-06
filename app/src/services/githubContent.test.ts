@@ -33,7 +33,7 @@ describe('githubContent', () => {
 
   it('ссылка на файл экранирует каждый сегмент пути', () => {
     expect(fileUrl('Конспекты/ОП/2 практика /a.md')).toBe(
-      'https://redstonelord.github.io/itmo-m3102/%D0%9A%D0%BE%D0%BD%D1%81%D0%BF%D0%B5%D0%BA%D1%82%D1%8B/%D0%9E%D0%9F/2%20%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20/a.md',
+      'https://raw.githubusercontent.com/RedstoneLord/itmo-m3102/master/%D0%9A%D0%BE%D0%BD%D1%81%D0%BF%D0%B5%D0%BA%D1%82%D1%8B/%D0%9E%D0%9F/2%20%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20/a.md',
     );
   });
 

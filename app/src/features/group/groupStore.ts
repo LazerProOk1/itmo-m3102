@@ -91,7 +91,7 @@ export function parseLinks(raw: unknown): GroupLink[] {
 }
 
 /** Файлы и папки сайта, которые не относятся к материалам — как isHiddenPath на сайте M3102 */
-const HIDDEN_FILES = ['site.css', 'package.json', 'readme.md', '.gitignore', 'index.html'];
+const HIDDEN_FILES = ['site.css', 'package.json', 'readme.md', '.gitignore', 'index.html', 'agents.md', 'claude.md'];
 const HIDDEN_FOLDERS = ['tests', 'inner', 'data', 'js', 'css', 'docs', 'img', '.github', 'дедлайны', 'tools', 'src', 'public'];
 
 /** Служебное в корне репозитория (скрипты, стили, манифест, конфиги): материалы лежат только в папках */

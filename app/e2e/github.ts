@@ -27,13 +27,13 @@ export async function mockGithub(page: Page) {
   await context.route('https://raw.githubusercontent.com/**', (route) => {
     const url = decodeURIComponent(route.request().url());
     if (url.endsWith('.md')) return route.fulfill({ body: NOTE_TEXT, contentType: 'text/plain; charset=utf-8' });
+    // PDF отдаёт raw, а не GitHub Pages: Pages публикует только готовый сайт, конспектов там нет
+    if (url.endsWith('.pdf'))
+      return route.fulfill({ body: makePdf(PDF_PAGES), contentType: 'application/pdf', headers: { 'Access-Control-Allow-Origin': '*' } });
     if (url.endsWith('deadlines.json')) return route.fulfill({ json: [] });
     if (url.endsWith('homework.json') || url.endsWith('links.json')) return route.fulfill({ json: { items: [] } });
     return route.fulfill({ status: 404 });
   });
-  await context.route('https://redstonelord.github.io/**/*.pdf', (route) =>
-    route.fulfill({ body: makePdf(PDF_PAGES), contentType: 'application/pdf', headers: { 'Access-Control-Allow-Origin': '*' } }),
-  );
 }
 
 /** Минимальный PDF из n страниц A4 с надписью «Page i» — без файлов-образцов в репозитории */

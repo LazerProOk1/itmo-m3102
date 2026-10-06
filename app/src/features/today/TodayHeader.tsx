@@ -16,9 +16,10 @@ interface TodayHeaderProps {
   week: StudyWeek;
 }
 
+// Сайт и данные группы лежат в одном репозитории: вторая плитка ведёт прямо к коду приложения
 const GITHUB_LINKS = [
-  { label: 'Репозиторий группы', href: 'https://github.com/RedstoneLord/itmo-m3102' },
-  { label: 'Код этого сайта', href: 'https://github.com/LazerProOk1/itmo-m3102' },
+  { label: 'Репозиторий группы', href: 'https://github.com/RedstoneLord/itmo-m3102', name: 'RedstoneLord/itmo-m3102' },
+  { label: 'Код приложения', href: 'https://github.com/RedstoneLord/itmo-m3102/tree/master/app', name: 'RedstoneLord/itmo-m3102 · app/' },
 ];
 
 /** Шапка главной, как на сайте группы: случайное приветствие, дата, чётность недели — и ёжик. */
@@ -53,7 +54,7 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
               <GithubMark size={18} />
               <span className={styles.repoText}>
                 <span className={styles.repoLabel}>{link.label}</span>
-                <span className={styles.repoName}>{link.href.replace('https://github.com/', '')}</span>
+                <span className={styles.repoName}>{link.name}</span>
               </span>
             </a>
           ))}

@@ -108,9 +108,9 @@
 
 - **GitHub App** с правом `contents: write` на репозиторий, сервер коммитит от имени приложения, в сообщении коммита —
   кто из группы внёс правку. PAT в браузере больше не нужен.
-- Формат файлов (`data/homework.json`, `Дедлайны/deadlines.json`, `data/links.json`) **не меняется** — сайт
-  RedstoneLord продолжает их читать. Ставить приложение на `RedstoneLord/itmo-m3102` — только с его согласия; до этого —
-  на наш форк.
+- Формат файлов (`data/homework.json`, `Дедлайны/deadlines.json`, `data/links.json`) **не меняется** — классический
+  сайт продолжает их читать. Сайт и данные группы теперь лежат в одном репозитории `RedstoneLord/itmo-m3102`
+  (современное оформление — в `app/`), поэтому GitHub App ставится именно на него — с согласия владельца.
 - Библиотеки: [google/go-github](https://github.com/google/go-github), [bradleyfalzon/ghinstallation](https://github.com/bradleyfalzon/ghinstallation).
 
 ### 4. Кеш контента и обход лимита GitHub
@@ -188,7 +188,7 @@ Go API (один бинарник)  ── PostgreSQL (всё, кроме фай
 
 ### Важно: один «сайт» для фронта и API
 
-Cookie сессии между `lazerprook1.github.io` и чужим доменом API — это сторонние cookie, которые Safari и Chrome
+Cookie сессии между `redstonelord.github.io` и чужим доменом API — это сторонние cookie, которые Safari и Chrome
 блокируют. Поэтому нужен **свой домен**: фронт на `m3102.<домен>` (GitHub Pages умеет свой домен), API на
 `api.m3102.<домен>` — это один сайт для браузера, cookie с `SameSite=Lax` работают. Хранить токены в `localStorage`
 вместо cookie — не надо: любая XSS их унесёт.
@@ -334,9 +334,8 @@ POST   /webhooks/github                      push в репозиторий гр
 
 ### Наши и группы
 
-- [LazerProOk1/itmo-m3102](https://github.com/LazerProOk1/itmo-m3102) — этот сайт (React), форк.
-- [RedstoneLord/itmo-m3102](https://github.com/RedstoneLord/itmo-m3102) — репозиторий группы: конспекты, дедлайны,
-  ДЗ, ссылки, сайт старосты. Источник данных; форматы файлов не менять.
+- [RedstoneLord/itmo-m3102](https://github.com/RedstoneLord/itmo-m3102) — репозиторий группы и сайт в двух оформлениях (современное — в `app/`): конспекты, дедлайны,
+  ДЗ, ссылки, классический сайт. Источник данных; форматы файлов не менять.
 - [Kefirleos/itmo-vault](https://github.com/Kefirleos/itmo-vault) — конспекты 1 потока.
 
 ### ITMO.ID, my.itmo, БАРС (неофициальные — только как справочник по API)
@@ -373,6 +372,6 @@ POST   /webhooks/github                      push в репозиторий гр
 ## Открытые вопросы
 
 - Дадут ли ИТМО отдельный OIDC-клиент студенческому проекту и с какими правами (claims, доступ к API my.itmo/БАРС).
-- Согласие RedstoneLord на GitHub App в его репозитории (или публикуем только в форк).
+- Согласие владельца репозитория группы на GitHub App в нём.
 - Кто платит за сервер и домен и кто станет вторым админом, чтобы проект не зависел от одного человека.
 - Нужна ли модерация мемов до публикации или достаточно жалоб.

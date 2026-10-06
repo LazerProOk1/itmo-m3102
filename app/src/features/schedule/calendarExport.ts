@@ -7,7 +7,7 @@ import { CLASS_TYPE_LABELS, describeMove } from './labels';
 import { getOccurrencesForDate, type ScheduleData } from './occurrences';
 
 /** Ссылка-подписка: файл собирает GitHub при каждой сборке сайта и раз в сутки (scripts/build-ics.ts) */
-export const SUBSCRIPTION_URL = 'https://lazerprook1.github.io/itmo-m3102/m3102.ics';
+export const SUBSCRIPTION_URL = 'https://redstonelord.github.io/itmo-m3102/m3102.ics';
 
 /** Дедлайн «до 23:59» напоминает накануне в 9:00 (15 ч до полуночи дня сдачи) */
 const DEADLINE_ALARM_MINUTES = 15 * 60;
