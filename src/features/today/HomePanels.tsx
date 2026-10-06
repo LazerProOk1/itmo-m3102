@@ -36,27 +36,30 @@ export function SectionLink({ to, children }: { to: string; children: string }) 
 
 const dayMonth = (iso: string) => new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 
+/** Строка дедлайна: клик по ней ведёт на страницу дедлайнов, а галочка отмечает выполненным — отдельно. */
 function DeadlineRow({ item, done }: { item: GroupDeadline; done: boolean }) {
   const toggle = useGroupStore((state) => state.toggleDeadlineDone);
   return (
-    <label className={cn(styles.row, done && styles.done)}>
+    <div className={cn(styles.linkRow, done && styles.done)}>
       <Checkbox
         celebrate
+        className={styles.rowCheck}
         aria-label={`Отметить «${item.name}» выполненным`}
         checked={done}
         onChange={(event) => toggle(item.id, event.target.checked)}
       />
-      <span className={styles.day}>{dayMonth(item.deadline)}</span>
-      <span className={styles.detail}>
-        <strong>{item.name}</strong>
-        <small>{item.note || 'Общий дедлайн'}</small>
-      </span>
-      {!done && <span className={styles.status}>{deadlineInfo(item.deadline).label}</span>}
-    </label>
+      <Link to={SECTIONS.deadlines.path} className={styles.rowLink}>
+        <span className={styles.day}>{dayMonth(item.deadline)}</span>
+        <span className={styles.detail}>
+          <strong>{item.name}</strong>
+          <small>{item.note || 'Общий дедлайн'}</small>
+        </span>
+        {!done && <span className={styles.status}>{deadlineInfo(item.deadline).label}</span>}
+      </Link>
+    </div>
   );
 }
 
-/** Ближайшие 3 дедлайна группы; отмеченные уходят в «Выполненные». subjectId — только этого предмета (страница предмета) */
 export function DeadlinesPanel({ subjectId }: { subjectId?: string }) {
   const allDeadlines = useGroupStore((state) => state.deadlines);
   const deadlines = subjectId ? allDeadlines.filter((item) => deadlineSubjectId(item.name) === subjectId) : allDeadlines;

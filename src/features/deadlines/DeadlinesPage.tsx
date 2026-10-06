@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { Badge } from '../../components/ui/Badge';
 import { Button, buttonClass } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -17,6 +18,7 @@ import { useSubjectsStore } from '../subjects/subjectsStore';
 import { deadlineInfo, orderDeadlines } from './deadlineInfo';
 import { useEditMode } from '../settings/EditModeContext';
 import { useProfileStore } from '../group/profileStore';
+import { studentNames } from './queueNames';
 import { useQueueStore, type QueueEntry } from './queueStore';
 import styles from './DeadlinesPage.module.css';
 
@@ -27,6 +29,28 @@ import styles from './DeadlinesPage.module.css';
 export function joinQueueUrl(deadlineId: string, name: string): string {
   const { owner, repo } = GROUP_REPO;
   return `https://github.com/${owner}/${repo}/issues/new?title=${encodeURIComponent(`[${deadlineId}] ${name}`)}`;
+}
+
+const OTHER = '__other';
+const QUEUE_OPTIONS = [...studentNames().map((name) => ({ value: name, label: name })), { value: OTHER, label: 'Другое имя…' }];
+const CHOICE_KEY = 'm3102:queue-name';
+
+/** Кого записывали в прошлый раз — чтобы себя не выбирать каждый раз заново (удобство, не данные) */
+function readQueueChoice(): string {
+  try {
+    const saved = localStorage.getItem(CHOICE_KEY);
+    return saved && QUEUE_OPTIONS.some((option) => option.value === saved) ? saved : '';
+  } catch {
+    return '';
+  }
+}
+
+function saveQueueChoice(value: string) {
+  try {
+    localStorage.setItem(CHOICE_KEY, value);
+  } catch {
+    /* без хранилища просто не запоминаем */
+  }
 }
 
 const formatFull = (iso: string) =>
@@ -150,12 +174,14 @@ interface DeadlineCardProps {
 function DeadlineCard({ item, index, done, queue, queueKnown, onJoined }: DeadlineCardProps) {
   const toggleDone = useGroupStore((state) => state.toggleDeadlineDone);
   const openProfile = useProfileStore((state) => state.open);
-  const [name, setName] = useState('');
+  const [choice, setChoice] = useState(readQueueChoice);
+  const [custom, setCustom] = useState('');
+  const name = (choice === OTHER ? custom : choice).trim();
   const badge = deadlineInfo(item.deadline);
 
   function join() {
-    if (!name.trim()) return;
-    window.open(joinQueueUrl(item.id, name.trim()), '_blank', 'noopener');
+    if (!name) return;
+    window.open(joinQueueUrl(item.id, name), '_blank', 'noopener');
     onJoined();
   }
 
@@ -209,8 +235,21 @@ function DeadlineCard({ item, index, done, queue, queueKnown, onJoined }: Deadli
           join();
         }}
       >
-        <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ваше имя" aria-label={`Имя для очереди «${item.name}»`} />
-        <Button type="submit" variant="primary" disabled={!name.trim()}>
+        <Dropdown
+          options={QUEUE_OPTIONS}
+          value={choice}
+          onChange={(value) => {
+            setChoice(value);
+            saveQueueChoice(value);
+          }}
+          placeholder="Кого записать"
+          searchable
+          aria-label={`Кого записать в очередь «${item.name}»`}
+        />
+        {choice === OTHER && (
+          <Input value={custom} onChange={(event) => setCustom(event.target.value)} placeholder="Имя" aria-label="Имя для очереди" autoFocus />
+        )}
+        <Button type="submit" variant="primary" disabled={!name}>
           В очередь ↗
         </Button>
       </form>
