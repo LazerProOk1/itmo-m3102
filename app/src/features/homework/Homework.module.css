@@ -1,4 +1,4 @@
-/* Задание — карточка: цвет слева и лёгкая заливка показывают срочность (--hw-tone), рамок нет */
+/* Задание — карточка на чистой поверхности: срочность — полоска слева и значок срока (--hw-tone) */
 .card {
   --hw-tone: var(--color-accent);
   position: relative;
@@ -8,8 +8,10 @@
   margin-bottom: var(--space-2);
   padding: var(--space-3-5, 14px) var(--space-4) var(--space-3-5, 14px) var(--space-5);
   border-radius: var(--radius-lg);
-  background: linear-gradient(110deg in oklab, color-mix(in srgb, var(--hw-tone) 11%, var(--color-bg-elevated)), var(--color-bg-elevated) 72%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+  background: var(--color-bg-elevated);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.14),
+    inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
   transition: opacity var(--duration-base) var(--ease);
 }
 

@@ -26,6 +26,5 @@ export const MATERIAL_CATEGORIES: Record<MaterialCategory, string> = {
 export const LECTURE_NOTE_CONTENT_ICONS: Record<LectureNoteContentType, LucideIcon> = {
   markdown: NotebookPen,
   pdf: FileText,
-  docx: FileText,
   link: Link2,
 };

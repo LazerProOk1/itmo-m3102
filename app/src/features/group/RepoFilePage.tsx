@@ -1,10 +1,9 @@
 import { ArrowLeft, Download, Folder, Printer } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, Navigate, useNavigate, useParams } from 'react-router';
 import { LazyMarkdown } from '../../components/markdown/LazyMarkdown';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { groupRawUrl } from '../../services/github';
 import { downloadUrl } from '../../lib/download';
 import { quizPageToMarkdown } from '../../components/quiz/parseQuiz';
@@ -12,15 +11,6 @@ import { filePath, isHiddenPath, useGroupStore, type RepoFile } from './groupSto
 import styles from './RepoFilePage.module.css';
 
 const PdfViewer = lazy(() => import('../materials/PdfViewer').then((module) => ({ default: module.PdfViewer })));
-const DocxViewer = lazy(() => import('../materials/DocxViewer').then((module) => ({ default: module.DocxViewer })));
-
-/** Подписи разделов корня — как на сайте группы */
-const SUBTITLES: Record<string, string> = {
-  Конспекты: 'Конспекты лекций и практик по предметам',
-  'Записи лекций': 'Аудиозаписи лекций',
-  Лабораторные: 'Лабораторные работы и отчёты по ним',
-  Материалы: 'Учебники и вспомогательные материалы',
-};
 
 const EXT_LABELS: Record<string, string> = {
   pdf: 'PDF',
@@ -65,20 +55,25 @@ export function listFolder(files: RepoFile[], folder: string): { folders: string
  * Файлы группы — браузер по репозиторию RedstoneLord/itmo-m3102, как «Материалы» на их сайте:
  * разделы → предметы → файлы. PDF и .md открываются прямо здесь, остальное — скачать.
  */
+const MATERIALS_FOLDER = 'Материалы';
+
 export function RepoFilePage() {
   const splat = useParams()['*'] ?? '';
   const path = splat.replace(/\/$/, '');
   const files = useGroupStore((state) => state.files);
   const file = files.find((entry) => entry.path === path);
 
-  return file ? <FileView file={file} /> : <FolderView files={files} folder={path} />;
+  if (file) return <FileView file={file} />;
+  // Корня «Файлы группы» нет: сюда ведёт только вкладка «Материалы» и её папки
+  if (path !== MATERIALS_FOLDER && !path.startsWith(`${MATERIALS_FOLDER}/`)) return <Navigate to="/materials?tab=materials" replace />;
+  return <FolderView files={files} folder={path} />;
 }
 
 function Breadcrumbs({ path }: { path: string }) {
   const parts = path ? path.split('/') : [];
   return (
     <nav className={styles.crumbs} aria-label="Путь">
-      <Link to="/files">Файлы группы</Link>
+      <Link to="/materials?tab=materials">Материалы</Link>
       {parts.map((part, index) => (
         <span key={index}>
           {' / '}
@@ -87,15 +82,6 @@ function Breadcrumbs({ path }: { path: string }) {
       ))}
     </nav>
   );
-}
-
-/** У конспектов и материалов свои вкладки — в «Файлах группы» их не дублируем */
-const OWN_TABS = ['Конспекты', 'Материалы'];
-
-/** Корень репозитория — вкладка «Файлы группы» в «Материалах»: записи лекций, лабораторные и прочее */
-export function GroupFilesRoot() {
-  const files = useGroupStore((state) => state.files);
-  return <FolderView files={files} folder="" embedded exclude={OWN_TABS} />;
 }
 
 /** Одна папка репозитория внутри вкладки, например «Материалы» — учебники по предметам */
@@ -108,23 +94,13 @@ interface FolderViewProps {
   files: RepoFile[];
   folder: string;
   embedded?: boolean;
-  /** Папки, которые не показываем на этом уровне */
-  exclude?: string[];
 }
 
-function FolderView({ files, folder, embedded = false, exclude = [] }: FolderViewProps) {
-  const full = listFolder(files, folder);
-  const listing = { ...full, folders: full.folders.filter((name) => !exclude.includes(name)) };
-  const isRoot = folder === '';
+function FolderView({ files, folder, embedded = false }: FolderViewProps) {
+  const listing = listFolder(files, folder);
 
   return (
     <>
-      {isRoot && !embedded && (
-        <PageHeader
-          title="Материалы группы М3102"
-          subtitle="Конспекты, записи лекций, лабораторные и учебники. Выберите раздел, затем — предмет и файл. PDF и конспекты .md открываются прямо здесь."
-        />
-      )}
       {!embedded && <Breadcrumbs path={folder} />}
 
       {listing.folders.length === 0 && listing.files.length === 0 ? (
@@ -141,7 +117,7 @@ function FolderView({ files, folder, embedded = false, exclude = [] }: FolderVie
               </span>
               <span className={styles.meta}>
                 <span className={styles.name}>{name}</span>
-                <span className={styles.desc}>{isRoot ? (SUBTITLES[name] ?? 'Папка') : 'Папка'}</span>
+                <span className={styles.desc}>Папка</span>
               </span>
             </Link>
           ))}
@@ -223,10 +199,6 @@ function FileView({ file }: { file: RepoFile }) {
       {ext === 'pdf' ? (
         <Suspense fallback={<p className={styles.state}>Загрузка PDF…</p>}>
           <PdfViewer file={groupRawUrl(file.path)} />
-        </Suspense>
-      ) : ext === 'docx' ? (
-        <Suspense fallback={<p className={styles.state}>Загрузка документа…</p>}>
-          <DocxViewer file={groupRawUrl(file.path)} />
         </Suspense>
       ) : ext === 'md' ? (
         error ? (

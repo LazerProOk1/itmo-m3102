@@ -148,7 +148,6 @@ const PAGES: Section[] = [
   SECTIONS.deadlines,
   SECTIONS.materials,
   { label: 'Полезные ссылки', path: '/links', icon: SECTIONS.materials.icon },
-  { label: 'Файлы группы', path: '/files', icon: SECTIONS.materials.icon },
   SECTIONS.students,
   SECTIONS.memes,
   SECTIONS.calendar,

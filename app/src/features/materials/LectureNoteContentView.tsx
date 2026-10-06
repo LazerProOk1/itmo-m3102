@@ -8,8 +8,6 @@ import styles from './LectureNoteContentView.module.css';
 
 // pdf.js тяжёлый — загружаем его только когда действительно открыт конспект с PDF
 const PdfViewer = lazy(() => import('./PdfViewer').then((module) => ({ default: module.PdfViewer })));
-// mammoth (docx → HTML) — тоже отдельным куском, только для документов Word
-const DocxViewer = lazy(() => import('./DocxViewer').then((module) => ({ default: module.DocxViewer })));
 
 interface LectureNoteContentViewProps {
   contentType: LectureNoteContentType;
@@ -30,14 +28,6 @@ export function LectureNoteContentView({ contentType, content, sourceRef, baseUr
     return (
       <Suspense fallback={<p className={styles.loading}>Загрузка просмотрщика…</p>}>
         <PdfViewer file={content} />
-      </Suspense>
-    );
-  }
-
-  if (contentType === 'docx') {
-    return (
-      <Suspense fallback={<p className={styles.loading}>Загрузка документа…</p>}>
-        <DocxViewer file={content} />
       </Suspense>
     );
   }

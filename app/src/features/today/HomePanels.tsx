@@ -123,7 +123,7 @@ export function MaterialsPanel() {
   const count = (folder: string) => files.filter((file) => file.path.startsWith(`${folder}/`)).length;
 
   return (
-    <Section title="Материалы" action={<SectionLink to="/files">Все материалы</SectionLink>}>
+    <Section title="Материалы" action={<SectionLink to="/materials?tab=materials">Все материалы</SectionLink>}>
       <div className={styles.tiles}>
         <Link to={SECTIONS.materials.path} className={cn(styles.tile, styles.tileMain)} data-spot>
           <span className={styles.tileIndex}>01</span>

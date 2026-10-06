@@ -4,10 +4,12 @@
   padding: var(--space-2) var(--space-2-5) var(--space-2) 14px;
   border: 0;
   border-radius: var(--radius-lg);
-  /* Лёгкий оттенок цветом типа пары — карточки читаются как цветные плашки, без рамок */
-  background: color-mix(in srgb, var(--type-color, transparent) 7%, transparent);
+  /* Чистая поверхность без цветной заливки (цвет на тёмном даёт грязь): тип пары — полоска слева и слово типа */
+  background: var(--color-bg-elevated);
   cursor: pointer;
-  box-shadow: 0 0 #0000;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.14),
+    inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
   /* y/scale на hover/tap — Framer Motion spring (WeekOccurrenceCard.tsx), не CSS:
      иначе карточка в покое ловит свой stacking context и запирает в себе popover деталей */
   transition:
@@ -38,33 +40,14 @@
   margin-top: var(--space-2);
 }
 
-/* В сетке по часам (WeekView): карточка занимает свой отрезок времени и непрозрачна — цветная плашка поверх
-   линий часов: оттенок типа пары, замешанный в цвет поверхности, и тонкая рамка того же цвета */
+/* В сетке по часам (WeekView): карточка занимает свой отрезок времени */
 .filled {
   height: 100%;
   overflow: hidden;
-  /* Без обводки: цвет типа пары течёт из угла по диагонали, сверху — тонкий блик */
-  background: linear-gradient(
-    150deg in oklab,
-    color-mix(in srgb, var(--type-color, transparent) 24%, var(--color-bg-elevated)),
-    color-mix(in srgb, var(--type-color, transparent) 7%, var(--color-bg-elevated)) 70%
-  );
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
-}
-
-@media (hover: hover) {
-  .filled:not(.now):not(.cancelled):hover {
-    background: linear-gradient(
-      150deg in oklab,
-      color-mix(in srgb, var(--type-color, transparent) 32%, var(--color-bg-elevated)),
-      color-mix(in srgb, var(--type-color, transparent) 12%, var(--color-bg-elevated)) 70%
-    );
-  }
 }
 
 /* Прошедшая пара: плашка остаётся, тише только её содержимое и цвет — неделя не превращается в серые плиты */
 .past {
-  background: color-mix(in srgb, var(--type-color, transparent) 6%, var(--color-bg-elevated));
   box-shadow: none;
 }
 
@@ -152,6 +135,11 @@
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
+}
+
+.meta > :first-child {
+  font-weight: var(--weight-medium);
+  color: color-mix(in oklab, var(--type-color, currentColor) 70%, var(--color-text-secondary));
 }
 
 .meta {
