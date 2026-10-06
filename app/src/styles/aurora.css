@@ -261,3 +261,12 @@
       8px 12px 28px -18px color-mix(in srgb, var(--color-accent-2) 45%, transparent);
   }
 }
+
+/* «Стекло»: размытию нужно, что размывать — сияние за панелями ярче, иначе стекло выходит серым */
+:root[data-glass='on'] .aurora {
+  --aurora-strength: 0.85;
+}
+
+:root[data-theme='dark'][data-glass='on'] .aurora {
+  --aurora-strength: 1;
+}

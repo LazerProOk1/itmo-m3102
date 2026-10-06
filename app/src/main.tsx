@@ -21,6 +21,9 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
+// iOS Safari включает :active (эффект нажатия) только если на странице есть обработчик касания
+addEventListener('touchstart', () => undefined, { passive: true });
+
 // Офлайн-режим и установка на телефон (public/sw.js). Только в сборке: в разработке кеш мешал бы HMR
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   addEventListener('load', () => void navigator.serviceWorker.register('./sw.js'));

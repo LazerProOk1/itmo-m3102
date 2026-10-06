@@ -80,7 +80,7 @@
 
 /* «Стекло» (настройка): блик сверху, размытие с насыщением, светлая кромка снизу и мягкая тень под шапкой */
 :global(:root[data-glass='on']) .bar {
-  background: var(--glass-sheen), color-mix(in srgb, var(--color-bg) 50%, transparent);
+  background: var(--glass-sheen), var(--glass-tint), color-mix(in srgb, var(--color-bg) 30%, transparent);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   box-shadow:

@@ -22,6 +22,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  flex-wrap: wrap;
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -89,6 +90,8 @@
    остаются примерно своими (красный не превращается в бирюзовый) */
 .dark > .page {
   background: #000;
+  /* Без рамки-тени: фильтр инвертирует и её, и тёмная кромка становилась светлой «белой каймой» */
+  box-shadow: none;
   filter: invert(0.88) hue-rotate(180deg);
 }
 
@@ -165,5 +168,22 @@
 
   .dark > .page {
     filter: none;
+  }
+}
+
+/* Телефон: панель не вылезает за край — кнопки сидят плотнее, а если всё равно не вмещаются, переходят на вторую строку */
+@media (max-width: 480px) {
+  .toolbar {
+    justify-content: center;
+    gap: var(--space-1) var(--space-2);
+    padding: var(--space-1);
+  }
+
+  .group {
+    gap: 0;
+  }
+
+  .pageLabel {
+    min-width: 44px;
   }
 }

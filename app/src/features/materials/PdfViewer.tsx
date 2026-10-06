@@ -4,6 +4,7 @@ import { pdfjs } from 'react-pdf';
 import { IconButton } from '../../components/ui/IconButton';
 import { cn } from '../../lib/cn';
 import { useSettingsStore } from '../settings/settingsStore';
+import { useResolvedTheme } from '../settings/theme';
 import { savedPage, savePage } from './pdfPages';
 import { LinesSkeleton } from '../../components/ui/LinesSkeleton';
 import styles from './PdfViewer.module.css';
@@ -53,7 +54,9 @@ export function PdfViewer({ file }: PdfViewerProps) {
   const [current, setCurrent] = useState(1);
   /** Почему не открылся (текст ошибки pdf.js) — показываем под сообщением, чтобы по скриншоту было видно причину */
   const [failed, setFailed] = useState<string | null>(null);
-  const dark = useSettingsStore((state) => state.pdfDark);
+  // Явный выбор кнопкой «Тёмные/Светлые страницы» главнее; пока не выбирали — страницы под тему сайта
+  const pdfDark = useSettingsStore((state) => state.pdfDark);
+  const dark = pdfDark ?? useResolvedTheme() === 'dark';
   const setAppearance = useSettingsStore((state) => state.setAppearance);
   // Страница, на которой остановился в прошлый раз: кнопка «Продолжить» в панели, пока туда не дошёл
   const [resume, setResume] = useState(() => savedPage(file));

@@ -77,7 +77,7 @@
 
 /* «Стекло»: у меню своя полупрозрачная панель */
 :global(:root[data-glass='on']) .inner {
-  background: var(--glass-sheen), color-mix(in srgb, var(--color-bg) 48%, transparent);
+  background: var(--glass-sheen), var(--glass-tint), color-mix(in srgb, var(--color-bg) 28%, transparent);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--glass-edge);

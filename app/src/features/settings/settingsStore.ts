@@ -26,8 +26,8 @@ interface LocalSettings {
   /** Живой фон: пятна сияния плавно следуют за курсором и прокруткой */
   liveBg: boolean;
   radius: RadiusPreference;
-  /** PDF в тёмных тонах: страницы инвертируются (кнопка в панели PDF) */
-  pdfDark: boolean;
+  /** PDF в тёмных тонах (кнопка в панели PDF); null — как тема сайта */
+  pdfDark: boolean | null;
   /** Главная: порядок блоков и скрытые (features/today/homeLayout.ts) */
   homeOrder: string[];
   homeHidden: string[];
@@ -83,7 +83,7 @@ const DEFAULT_SETTINGS: LocalSettings = {
   glow: true,
   liveBg: true,
   radius: 'normal',
-  pdfDark: false,
+  pdfDark: null,
   homeOrder: [],
   homeHidden: [],
   startPage: '/today',
@@ -103,11 +103,12 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: storageKey('settings'),
       storage: localStore,
-      version: 3,
-      // v3: вариант «Случайно» убрали (лагал) — заменяем на «15 мин»
+      version: 4,
+      // v3: вариант «Случайно» убрали (лагал) — заменяем на «15 мин»; v4: pdfDark по умолчанию null (как тема), старое false было значением по умолчанию
       migrate: (stored) => {
         const state = stored as Omit<Partial<LocalSettings>, 'dynamicTheme'> & { dynamicTheme?: string };
         if (state.dynamicTheme === 'random') state.dynamicTheme = '15';
+        if ((state as { pdfDark?: boolean | null }).pdfDark === false) (state as { pdfDark?: boolean | null }).pdfDark = null;
         return state as LocalSettings;
       },
     },
