@@ -11,6 +11,14 @@ import styles from './PdfViewer.module.css';
 export const PDF_WORKER_URL = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
 
+/** Короткое описание ошибки pdf.js и версия браузера — для сообщения «Не удалось показать PDF» */
+function describeError(error: unknown): string {
+  const name = error instanceof Error ? error.name : 'Ошибка';
+  const message = error instanceof Error ? error.message : String(error);
+  const browser = /(Chrome|Firefox|Version|Edg)\/[\d.]+/.exec(navigator.userAgent)?.[0] ?? 'браузер неизвестен';
+  return `${name}: ${message}`.slice(0, 160) + ` · ${browser}`;
+}
+
 type PdfDocument = Awaited<ReturnType<typeof pdfjs.getDocument>['promise']>;
 
 interface PdfViewerProps {
@@ -70,7 +78,8 @@ export function PdfViewer({ file }: PdfViewerProps) {
   const [baseWidth, setBaseWidth] = useState(0);
   const [zoomIndex, setZoomIndex] = useState(ZOOM_STEPS.indexOf(1));
   const [current, setCurrent] = useState(1);
-  const [failed, setFailed] = useState(false);
+  /** Почему не открылся (текст ошибки pdf.js) — показываем под сообщением, чтобы по скриншоту было видно причину */
+  const [failed, setFailed] = useState<string | null>(null);
   const dark = useSettingsStore((state) => state.pdfDark);
   const setAppearance = useSettingsStore((state) => state.setAppearance);
   // Страница, на которой остановился в прошлый раз: кнопка «Продолжить» в панели, пока туда не дошёл
@@ -100,7 +109,11 @@ export function PdfViewer({ file }: PdfViewerProps) {
     // destroy() при уходе со страницы тоже отклоняет promise — это не ошибка файла
     task.promise.then(
       (doc) => active && setPdf(doc),
-      () => active && setFailed(true),
+      (error: unknown) => {
+        if (!active) return;
+        console.warn('PDF не открылся:', error);
+        setFailed(describeError(error));
+      },
     );
     return () => {
       active = false;
@@ -218,6 +231,7 @@ export function PdfViewer({ file }: PdfViewerProps) {
     return (
       <div className={styles.error}>
         <p>Не удалось показать PDF здесь.</p>
+        <p className={styles.reason}>{failed}</p>
         <a href={file} target="_blank" rel="noopener noreferrer" className={styles.openLink}>
           Открыть файл →
         </a>
