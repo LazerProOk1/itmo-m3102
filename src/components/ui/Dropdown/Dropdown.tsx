@@ -1,6 +1,7 @@
 import { Check, ChevronDown, Search, type LucideIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '../../../lib/cn';
 import { SPRING_SNAPPY } from '../../../lib/motion';
 import { buttonClass } from '../Button';
@@ -287,35 +288,41 @@ export function Dropdown({
         </button>
       )}
 
-      <AnimatePresence>
-        {open && !isMobile && coords && (
-          <motion.div
-            ref={menuRef}
-            className={cn(menuStyles.menu, styles.menu)}
-            style={{
-              position: 'fixed',
-              top: coords.top ?? 'auto',
-              bottom: coords.bottom ?? 'auto',
-              left: coords.left,
-              width: coords.width,
-            }}
-            initial={{ opacity: 0, scale: 0.92, y: coords.bottom !== undefined ? 4 : -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
-            transition={SPRING_SNAPPY}
-          >
-            {menuContent}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Меню — в body: у карточек с transform/свечением position:fixed привязывался к карточке и уходил под соседние */}
+      {createPortal(
+        <>
+          <AnimatePresence>
+            {open && !isMobile && coords && (
+              <motion.div
+                ref={menuRef}
+                className={cn(menuStyles.menu, styles.menu)}
+                style={{
+                  position: 'fixed',
+                  top: coords.top ?? 'auto',
+                  bottom: coords.bottom ?? 'auto',
+                  left: coords.left,
+                  width: coords.width,
+                }}
+                initial={{ opacity: 0, scale: 0.92, y: coords.bottom !== undefined ? 4 : -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
+                transition={SPRING_SNAPPY}
+              >
+                {menuContent}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-      {open && isMobile && (
-        <div className={styles.backdrop} onClick={closeMenu}>
-          <div ref={menuRef} className={styles.sheet} onClick={(event) => event.stopPropagation()}>
-            <span className={styles.sheetHandle} aria-hidden />
-            {menuContent}
-          </div>
-        </div>
+          {open && isMobile && (
+            <div className={styles.backdrop} onClick={closeMenu}>
+              <div ref={menuRef} className={styles.sheet} onClick={(event) => event.stopPropagation()}>
+                <span className={styles.sheetHandle} aria-hidden />
+                {menuContent}
+              </div>
+            </div>
+          )}
+        </>,
+        document.body,
       )}
     </div>
   );
