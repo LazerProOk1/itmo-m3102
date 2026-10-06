@@ -35,7 +35,6 @@ export const REPOS = {
 const PAGES_BASE = 'https://redstonelord.github.io/itmo-m3102/';
 /** Откуда описания приехали — id и sourceRef записей остаются прежними, чтобы сохранённые не задвоились */
 const COURSE_INFO_FOLDER = 'Конспекты/1 семестр/Поток 1/';
-const COURSE_INFO_FILES = import.meta.glob<string>('../data/courseInfo/*.md', { query: '?raw', import: 'default', eager: true });
 
 const encodePath = (path: string) => path.split('/').map(encodeURIComponent).join('/');
 
@@ -266,7 +265,8 @@ async function buildGroupNotes(tree: TreeFile[], previous: LectureNote[], now: s
 }
 
 /** Описания курсов — из встроенных файлов `src/data/courseInfo` (без сети): без списка конспектов и навигации */
-function buildCourseInfo(info: SubjectInfo[], now: string): SubjectInfo[] {
+async function buildCourseInfo(info: SubjectInfo[], now: string): Promise<SubjectInfo[]> {
+  const { COURSE_INFO_FILES } = await import('./courseInfoFiles');
   return Object.entries(COURSE_INFO_FILES).flatMap(([file, raw]): SubjectInfo[] => {
     const name = stem(file.slice(file.lastIndexOf('/') + 1));
     const subjectId = STREAM_SUBJECT_FOLDERS[name];
@@ -365,7 +365,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       ]);
       return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
     }),
-    Promise.resolve(buildCourseInfo(infoBefore, now)),
+    buildCourseInfo(infoBefore, now),
   ]);
 
   const summary: SyncSummary = { group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };

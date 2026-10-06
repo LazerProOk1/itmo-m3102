@@ -24,7 +24,8 @@ npm run build && npm run preview   # собранный сайт, как на Pa
 
 - [ ] `npm run format:check` — Prettier (`npm run format` исправит)
 - [ ] `npm test` — юнит-тесты
-- [ ] `npm run build` — типы и сборка; затем `npm run size` — бюджет размера
+- [ ] `npm run build` — типы и сборка; затем `npm run size` — бюджет размера и `npm run ics` (календарь запускается
+      через tsx, как в CI: `import.meta.glob` и другое, что знает только Vite, в `src/services` статически не тянуть)
 - [ ] поменял интерфейс → `npm run test:e2e`; поменял то, что видно, — посмотри глазами в обеих темах и на
       ширине телефона (Playwright-снимок или dev-сервер)
 - [ ] поменял устройство кода или договорённость → поправь этот файл
