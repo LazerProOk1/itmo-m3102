@@ -31,6 +31,9 @@ const shortName = (student: Student) => {
   return first ? `${first} ${last}` : student.name;
 };
 
+/** Имена студентов группы «Имя Фамилия» по алфавиту фамилий — для выбора, кого записать в очередь */
+export const studentNames = (): string[] => [...M3102_STUDENTS].sort((a, b) => a.name.localeCompare(b.name, 'ru')).map(shortName);
+
 /** Студент группы по GitHub-логину автора записи — «Имя Фамилия» */
 export function studentName(login: string | undefined): string | undefined {
   const student = login ? byLogin.get(login.toLowerCase()) : undefined;

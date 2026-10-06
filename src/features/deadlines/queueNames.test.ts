@@ -1,6 +1,6 @@
 import { M3102_STUDENTS } from '../../data/m3102';
 import { describe, expect, it } from 'vitest';
-import { hasExtraText, queueLogin, queuePerson, studentName } from './queueNames';
+import { hasExtraText, queueLogin, queuePerson, studentName, studentNames } from './queueNames';
 
 describe('очередь: кто стоит', () => {
   it('логин без учёта регистра → «Имя Фамилия»; чужой логин — нет', () => {
@@ -28,4 +28,11 @@ describe('очередь: кто стоит', () => {
     expect(queueLogin('андрей (10.10.26)', 'zur1kov')).toBe('zur1kov');
     expect(queueLogin('Гость', 'stranger')).toBeUndefined();
   });
+});
+
+it('studentNames: все студенты группы, «Имя Фамилия», по алфавиту фамилий', () => {
+  const names = studentNames();
+  expect(names).toHaveLength(M3102_STUDENTS.length);
+  expect(names).toContain('Алексей Громов');
+  expect(names.every((name) => name.split(' ').length === 2)).toBe(true);
 });
