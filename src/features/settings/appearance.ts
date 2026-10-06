@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { installRipple } from '../../lib/ripple';
 import { useSettingsStore } from './settingsStore';
 
 /** Готовые акценты: насыщенные, но не «кислотные» — читаются и на светлом, и на тёмном фоне */
@@ -73,9 +72,6 @@ export function useApplyAppearance() {
       cancelAnimationFrame(frame);
     };
   }, [glow]);
-
-  // Волна от точки клика — часть «Свечения»: выключили эффекты — кнопки снова тихие
-  useEffect(() => (glow ? installRipple() : undefined), [glow]);
 
   // Живой фон: пятна сияния догоняют курсор и уезжают при прокрутке (параллакс). Значения плавно
   // «доезжают» до цели в цикле кадров, который сам останавливается, когда догнал, — без работы в покое
