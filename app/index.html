@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- SomaFM не отдаёт поток, если в запросе Referer чужого сайта (радио-капсула); заодно приватнее для внешних ссылок -->
+    <meta name="referrer" content="no-referrer" />
+    <title>М3102 — учебное пространство</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Синхронизация с GitHub стартует сразу при открытии — соединение готовим заранее -->
+    <link rel="preconnect" href="https://api.github.com" crossorigin />
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin />
+    <meta name="theme-color" content="#131315" />
+    <script>
+      // Применяем сохранённую тему ДО загрузки React,
+      // чтобы страница не «мигала» светлой темой при открытии.
+      (function () {
+        try {
+          var saved = JSON.parse(localStorage.getItem('m3102:settings') || '{}');
+          var theme = saved.state && saved.state.theme;
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {}
+      })();
+    </script>
+    <!-- Переключатель «мой стиль / федин стиль»: слой перехода должен появиться до первой отрисовки, поэтому не module -->
+    <script src="./switch/site-switch.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -11,3 +11,5 @@ test-results/
 playwright-report/
 lighthouse-report/
 .lighthouseci/
+# Копия классического сайта для /classic/: собирается из корня репозитория (npm run classic в app/)
+app/public/classic/

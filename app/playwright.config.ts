@@ -23,7 +23,7 @@ export default defineConfig({
   ],
   webServer: {
     // В CI сборка уже сделана предыдущим шагом
-    command: process.env.CI ? 'npx vite preview --port 4173 --strictPort' : 'npx vite build && npx vite preview --port 4173 --strictPort',
+    command: process.env.CI ? 'npx vite preview --port 4173 --strictPort' : 'npm run classic && npx vite build && npx vite preview --port 4173 --strictPort',
     url: 'http://localhost:4173/',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

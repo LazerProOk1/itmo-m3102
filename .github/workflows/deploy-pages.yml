@@ -21,15 +21,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Проект сайта — в app/, в корне репозитория лежит классический сайт группы и документация
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: app/package-lock.json
       - run: npm ci
-      # Свежие данные классического сайта для переключателя стиля (scripts/import-classic.ts); не получилось — остаётся закоммиченная копия
-      - run: npm run classic
+      # Классический сайт группы (из корня репозитория) → app/public/classic, с самыми свежими data/ и Дедлайны/;
+      # не получилось взять свежие — остаются закоммиченные (scripts/assemble-classic.ts)
+      - run: npm run classic -- --fresh
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - run: npm run format:check
@@ -46,7 +52,7 @@ jobs:
         if: failure()
         with:
           name: e2e-traces
-          path: test-results
+          path: app/test-results
       # Lighthouse по собранному сайту (lighthouserc.json): доступность, практики и сдвиг вёрстки — порог,
       # производительность — только предупреждение (эмуляция слабого телефона шумит). Отчёт — в артефакте
       - run: npm run lighthouse
@@ -54,10 +60,10 @@ jobs:
         if: always()
         with:
           name: lighthouse
-          path: lighthouse-report
+          path: app/lighthouse-report
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: app/dist
 
   deploy:
     needs: build
