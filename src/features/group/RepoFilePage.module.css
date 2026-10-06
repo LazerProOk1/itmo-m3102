@@ -9,8 +9,10 @@
   text-decoration: none;
 }
 
-.crumbs a:hover {
-  color: var(--color-accent-text);
+@media (hover: hover) {
+  .crumbs a:hover {
+    color: var(--color-accent-text);
+  }
 }
 
 .grid {
@@ -34,9 +36,11 @@
     background-color var(--duration-fast) var(--ease);
 }
 
-.card:hover {
-  border-color: var(--color-border-hover);
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
+  }
 }
 
 .icon {

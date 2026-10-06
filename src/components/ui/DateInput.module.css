@@ -82,9 +82,11 @@
   color: var(--color-text-secondary);
 }
 
-.nav:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .nav:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .grid {
@@ -113,8 +115,10 @@
   transition: background-color var(--duration-fast) var(--ease);
 }
 
-.day:hover:not(:disabled) {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .day:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+  }
 }
 
 .outside {
@@ -132,11 +136,18 @@
   font-weight: var(--weight-semibold);
 }
 
-.selected,
-.selected:hover:not(:disabled) {
+.selected {
   background: var(--color-accent);
   color: var(--color-on-accent);
   font-weight: var(--weight-semibold);
+}
+
+@media (hover: hover) {
+  .selected:hover:not(:disabled) {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: var(--weight-semibold);
+  }
 }
 
 .day:focus-visible {
@@ -162,8 +173,10 @@
   color: var(--color-accent-text);
 }
 
-.link:hover:not(:disabled) {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .link:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+  }
 }
 
 @media (max-width: 767px) {

@@ -23,8 +23,10 @@
   color: var(--color-text);
 }
 
-.today:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .today:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .controls {

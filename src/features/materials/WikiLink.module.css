@@ -2,8 +2,10 @@
   color: var(--color-accent-text);
 }
 
-.link:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .link:hover {
+    text-decoration: underline;
+  }
 }
 
 /* Ссылка из Obsidian на файл, которого нет в приложении (другой поток, README, CONTRIBUTING…) */

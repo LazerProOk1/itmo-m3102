@@ -113,8 +113,10 @@ label.row > :first-child {
   transition: border-color var(--duration-fast) var(--ease);
 }
 
-.tile:hover {
-  border-color: var(--color-border-hover);
+@media (hover: hover) {
+  .tile:hover {
+    border-color: var(--color-border-hover);
+  }
 }
 
 .tile small {
@@ -169,8 +171,10 @@ label.row > :first-child {
   text-decoration: none;
 }
 
-.note:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .note:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 /* Название — до двух строк: «Тест — Асимптот…» в одну строку ничего не говорит */

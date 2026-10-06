@@ -57,8 +57,10 @@
   line-clamp: 3;
 }
 
-.text:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .text:hover {
+    color: var(--color-text);
+  }
 }
 
 .remove {
@@ -73,9 +75,11 @@
   color: var(--color-text-muted);
 }
 
-.remove:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-danger);
+@media (hover: hover) {
+  .remove:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-danger);
+  }
 }
 
 .empty {

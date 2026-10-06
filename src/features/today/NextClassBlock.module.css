@@ -42,8 +42,10 @@
   }
 }
 
-.block:hover::before {
-  opacity: 0.05;
+@media (hover: hover) {
+  .block:hover::before {
+    opacity: 0.05;
+  }
 }
 
 .eyebrow {

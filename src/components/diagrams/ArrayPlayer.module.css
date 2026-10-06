@@ -255,9 +255,11 @@
   color: var(--color-text-secondary);
 }
 
-.controls button:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .controls button:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .controls button:disabled {
@@ -273,10 +275,12 @@
   font-weight: var(--weight-medium);
 }
 
-.controls .play:hover:not(:disabled) {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-  filter: brightness(1.08);
+@media (hover: hover) {
+  .controls .play:hover:not(:disabled) {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    filter: brightness(1.08);
+  }
 }
 
 .controls input[type='range'] {

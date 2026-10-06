@@ -47,8 +47,10 @@
   text-decoration: none;
 }
 
-.mapLink:hover {
-  color: var(--color-accent-text);
+@media (hover: hover) {
+  .mapLink:hover {
+    color: var(--color-accent-text);
+  }
 }
 
 /* Конспект этой пары — ссылки строками */

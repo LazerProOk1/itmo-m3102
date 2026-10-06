@@ -26,9 +26,11 @@
   transition: background-color var(--duration-fast) var(--ease);
 }
 
-.contactLink:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .contactLink:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .chatRow {
@@ -42,6 +44,8 @@
   font-weight: var(--weight-medium);
 }
 
-.chatLink:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .chatLink:hover {
+    text-decoration: underline;
+  }
 }

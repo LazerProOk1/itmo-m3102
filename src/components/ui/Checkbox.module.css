@@ -32,8 +32,10 @@
     border-color var(--duration-fast) var(--ease);
 }
 
-.root:hover .box {
-  border-color: var(--color-text-muted);
+@media (hover: hover) {
+  .root:hover .box {
+    border-color: var(--color-text-muted);
+  }
 }
 
 .input:checked + .box {

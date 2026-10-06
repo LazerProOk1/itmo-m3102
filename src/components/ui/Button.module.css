@@ -19,9 +19,11 @@
 }
 
 /* Тень появляется на hover синхронно с пружинным подъёмом кнопки в Button.tsx */
-.primary:hover:not(:disabled),
-.secondary:hover:not(:disabled) {
-  box-shadow: var(--shadow-xs);
+@media (hover: hover) {
+  .primary:hover:not(:disabled),
+  .secondary:hover:not(:disabled) {
+    box-shadow: var(--shadow-xs);
+  }
 }
 
 .button:disabled:not([aria-busy='true']) {
@@ -52,8 +54,10 @@
   color: var(--color-on-accent);
 }
 
-.primary:hover:not(:disabled) {
-  background: var(--color-accent-hover);
+@media (hover: hover) {
+  .primary:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+  }
 }
 
 .secondary {
@@ -62,8 +66,10 @@
   color: var(--color-text);
 }
 
-.secondary:hover:not(:disabled) {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .secondary:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+  }
 }
 
 .ghost {
@@ -71,9 +77,11 @@
   color: var(--color-text-secondary);
 }
 
-.ghost:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .ghost:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .danger {
@@ -81,8 +89,10 @@
   color: var(--color-danger);
 }
 
-.danger:hover:not(:disabled) {
-  background: var(--color-danger-soft);
+@media (hover: hover) {
+  .danger:hover:not(:disabled) {
+    background: var(--color-danger-soft);
+  }
 }
 
 /* Свечение: главная кнопка — объёмный градиент, блик сверху и мягкое свечение акцентом */
@@ -94,10 +104,12 @@
     0 6px 18px -8px color-mix(in srgb, var(--color-accent) 80%, transparent);
 }
 
-:global(:root[data-glow='on']) .primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 75%, white), var(--color-accent));
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.3),
-    0 1px 2px rgb(0 0 0 / 0.15),
-    0 10px 28px -8px color-mix(in srgb, var(--color-accent) 90%, transparent);
+@media (hover: hover) {
+  :global(:root[data-glow='on']) .primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 75%, white), var(--color-accent));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.3),
+      0 1px 2px rgb(0 0 0 / 0.15),
+      0 10px 28px -8px color-mix(in srgb, var(--color-accent) 90%, transparent);
+  }
 }

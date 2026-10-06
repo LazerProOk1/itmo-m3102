@@ -77,9 +77,14 @@
   transition: opacity var(--duration-fast) var(--ease);
 }
 
-.allDayCell:hover .addButton,
 .addButton:focus-visible {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .allDayCell:hover .addButton {
+    opacity: 1;
+  }
 }
 
 @media (hover: none) {

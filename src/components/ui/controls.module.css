@@ -24,8 +24,10 @@
   color: var(--color-text-muted);
 }
 
-.control:hover:not(:disabled) {
-  border-color: var(--color-border-hover);
+@media (hover: hover) {
+  .control:hover:not(:disabled) {
+    border-color: var(--color-border-hover);
+  }
 }
 
 .control:focus-visible {

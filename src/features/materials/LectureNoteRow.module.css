@@ -47,10 +47,12 @@
   z-index: 1;
 }
 
-.titleButton:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--color-border-hover);
-  text-underline-offset: 2px;
+@media (hover: hover) {
+  .titleButton:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-border-hover);
+    text-underline-offset: 2px;
+  }
 }
 
 .date {

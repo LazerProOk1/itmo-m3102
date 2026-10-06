@@ -19,8 +19,10 @@
   text-decoration: none;
 }
 
-.line:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .line:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .name {

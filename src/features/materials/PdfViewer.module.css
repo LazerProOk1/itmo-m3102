@@ -54,9 +54,11 @@
   transition: background-color var(--duration-fast) var(--ease);
 }
 
-.open:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .open:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 /* При увеличении страница шире колонки — прокручивается по горизонтали только сам PDF */
@@ -105,8 +107,10 @@
   white-space: nowrap;
 }
 
-.resume:hover {
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+@media (hover: hover) {
+  .resume:hover {
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  }
 }
 
 @media (max-width: 480px) {
@@ -139,8 +143,10 @@
   color: var(--color-accent-text);
 }
 
-.openLink:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .openLink:hover {
+    text-decoration: underline;
+  }
 }
 
 @media print {

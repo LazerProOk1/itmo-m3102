@@ -35,8 +35,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-.dayNumber:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .dayNumber:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .outside .dayNumber {
@@ -48,8 +50,10 @@
   color: var(--color-on-accent);
 }
 
-.today:hover {
-  background: var(--color-accent-hover);
+@media (hover: hover) {
+  .today:hover {
+    background: var(--color-accent-hover);
+  }
 }
 
 .addButton {
@@ -65,9 +69,14 @@
   transition: opacity var(--duration-fast) var(--ease);
 }
 
-.cell:hover .addButton,
 .addButton:focus-visible {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .cell:hover .addButton {
+    opacity: 1;
+  }
 }
 
 @media (hover: none) {
@@ -76,9 +85,11 @@
   }
 }
 
-.addButton:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-secondary);
+@media (hover: hover) {
+  .addButton:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
+  }
 }
 
 .entries {
@@ -98,9 +109,11 @@
   text-align: left;
 }
 
-.more:hover {
-  color: var(--color-text-secondary);
-  text-decoration: underline;
+@media (hover: hover) {
+  .more:hover {
+    color: var(--color-text-secondary);
+    text-decoration: underline;
+  }
 }
 
 @media (max-width: 767px) {

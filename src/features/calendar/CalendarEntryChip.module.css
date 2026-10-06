@@ -13,8 +13,10 @@
   text-align: left;
 }
 
-.chip:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .dot {

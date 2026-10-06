@@ -161,9 +161,11 @@
     opacity var(--duration-fast) var(--ease);
 }
 
-.option:hover:not(.correct, .wrong, .missed, .dim, .static, .selected) {
-  border-color: var(--color-border-hover);
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .option:hover:not(.correct, .wrong, .missed, .dim, .static, .selected) {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
+  }
 }
 
 .mark {

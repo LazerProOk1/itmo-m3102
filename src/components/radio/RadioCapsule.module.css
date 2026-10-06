@@ -27,9 +27,14 @@
   opacity: 0.85;
 }
 
-.capsule:not(.on):hover,
 .capsule:not(.on):focus-within {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .capsule:not(.on):hover {
+    opacity: 1;
+  }
 }
 
 .on {
@@ -77,8 +82,10 @@
   text-overflow: ellipsis;
 }
 
-.label:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .label:hover {
+    color: var(--color-text);
+  }
 }
 
 /* ---------- эквалайзер ---------- */
@@ -182,16 +189,20 @@
   transition: background-color var(--duration-fast) var(--ease);
 }
 
-.station:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .station:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .current {
   background: var(--color-accent-soft);
 }
 
-.current:hover {
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .current:hover {
+    background: var(--color-accent-soft);
+  }
 }
 
 .stationName {
@@ -230,9 +241,11 @@
   cursor: pointer;
 }
 
-.iconButton:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .iconButton:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .playBig {

@@ -58,9 +58,11 @@
     box-shadow var(--duration-fast) var(--ease);
 }
 
-.card:hover {
-  border-color: color-mix(in srgb, var(--tone) 45%, var(--color-border));
-  box-shadow: 0 6px 20px -12px color-mix(in srgb, var(--tone) 60%, transparent);
+@media (hover: hover) {
+  .card:hover {
+    border-color: color-mix(in srgb, var(--tone) 45%, var(--color-border));
+    box-shadow: 0 6px 20px -12px color-mix(in srgb, var(--tone) 60%, transparent);
+  }
 }
 
 .card[data-tone='0'] {
@@ -137,7 +139,9 @@
   transition: transform var(--duration-fast) var(--ease);
 }
 
-.card:hover .arrow {
-  transform: translate(2px, -2px);
-  color: var(--tone);
+@media (hover: hover) {
+  .card:hover .arrow {
+    transform: translate(2px, -2px);
+    color: var(--tone);
+  }
 }

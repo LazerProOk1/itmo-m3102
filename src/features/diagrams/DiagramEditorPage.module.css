@@ -30,19 +30,27 @@
   color: var(--color-text-secondary);
 }
 
-.tool:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  color: var(--color-text);
+@media (hover: hover) {
+  .tool:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+    color: var(--color-text);
+  }
 }
 
 .tool:disabled {
   opacity: 0.4;
 }
 
-.toolActive,
-.toolActive:hover:not(:disabled) {
+.toolActive {
   background: var(--color-accent-soft);
   color: var(--color-accent-text);
+}
+
+@media (hover: hover) {
+  .toolActive:hover:not(:disabled) {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-text);
+  }
 }
 
 .zoomValue {
@@ -56,8 +64,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-.zoomValue:hover {
-  background: var(--color-bg-hover);
+@media (hover: hover) {
+  .zoomValue:hover {
+    background: var(--color-bg-hover);
+  }
 }
 
 .workspace {

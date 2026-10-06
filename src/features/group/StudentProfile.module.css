@@ -72,19 +72,10 @@
   color: var(--color-accent-text);
 }
 
-/* Контакты — обычный текст с логотипом, не кнопки: перейти можно с карточки на «Студентах» */
-.contacts {
+.links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1-5) var(--space-5);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-}
-
-.contacts span {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1-5);
+  gap: var(--space-2);
 }
 
 .section {
@@ -203,12 +194,4 @@
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   text-align: center;
-}
-
-/* Листать группу, не закрывая окно: соседи по списку слева и справа */
-.pager {
-  display: flex;
-  flex: 1;
-  justify-content: space-between;
-  gap: var(--space-2);
 }
