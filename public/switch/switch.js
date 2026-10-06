@@ -230,9 +230,12 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>';
 
-  // Внешний вид кнопки (рамка, фон, hover) — от его класса .gh-link; здесь только размеры под подпись
+  // Размеры и форма — от его класса .gh-link; цвет — его акцент (фиолетовая заливка), чтобы переключатель было видно сразу
   var CSS =
     '.m3102-switch-btn{width:auto;padding:0 12px;gap:8px;grid-auto-flow:column;font:600 .82rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;cursor:pointer;text-decoration:none;}' +
+    '.gh-link.m3102-switch-btn{background:linear-gradient(135deg,var(--accent,#5b5fef),var(--accent2,#7c7ffb));border-color:transparent;color:#fff;' +
+    'box-shadow:0 6px 16px -8px var(--accent,#5b5fef);}' +
+    '.gh-link.m3102-switch-btn:hover{color:#fff;border-color:transparent;filter:brightness(1.08);box-shadow:0 10px 20px -8px var(--accent,#5b5fef);}' +
     '.m3102-switch-btn svg{width:18px;height:18px;flex:none;}' +
     '.m3102-switch-btn span{white-space:nowrap;}' +
     '@media (max-width:1100px){.m3102-switch-btn{width:40px;padding:0;}.m3102-switch-btn span{display:none;}}' +

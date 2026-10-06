@@ -1,8 +1,9 @@
 import { ArrowLeftRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import sync from './SyncButton.module.css';
+import { buttonClass } from '../ui/Button';
+import styles from './SiteSwitch.module.css';
 
-/** Копия сайта Феди лежит рядом (public/fedya, её кладёт npm run fedya). Нет копии — кнопки нет, а не ссылка в пустоту. */
+/** Копия второго оформления лежит рядом (public/fedya, её кладёт npm run fedya). Нет копии — кнопки нет, а не ссылка в пустоту. */
 const FEDYA_URL = './fedya/index.html';
 let available: Promise<boolean> | undefined;
 const hasFedyaCopy = () =>
@@ -12,9 +13,9 @@ const hasFedyaCopy = () =>
   ));
 
 /**
- * «Переключить стиль» в ряду кнопок шапки, оформлена как соседняя «Синхронизировать» (её стили): общий сайт с двумя
- * оформлениями, а не рекламный баннер. Сам переход с волной делает public/switch/switch.js по data-site-switch;
- * на сайте Феди такая же кнопка — в его шапке и в его оформлении (там же).
+ * «Переключить стиль» в ряду кнопок шапки — главная кнопка (залита акцентом), чтобы её было видно сразу, но без
+ * отдельной плашки: общий сайт с двумя оформлениями. Сам переход с волной делает public/switch/switch.js по
+ * data-site-switch; во втором оформлении такая же кнопка — в его шапке и в его фиолетовом акценте (там же).
  */
 export function SiteSwitch() {
   const [ready, setReady] = useState(false);
@@ -27,9 +28,15 @@ export function SiteSwitch() {
   }, []);
   if (!ready) return null;
   return (
-    <a href={FEDYA_URL} data-site-switch className={sync.button} title="Переключить стиль оформления" aria-label="Переключить стиль">
-      <ArrowLeftRight size={15} strokeWidth={1.75} aria-hidden />
-      <span className={sync.text}>Переключить стиль</span>
+    <a
+      href={FEDYA_URL}
+      data-site-switch
+      className={`${buttonClass('primary', 'sm')} ${styles.switch}`}
+      title="Переключить стиль оформления"
+      aria-label="Переключить стиль"
+    >
+      <ArrowLeftRight size={14} strokeWidth={2} aria-hidden />
+      <span className={styles.text}>Переключить стиль</span>
     </a>
   );
 }

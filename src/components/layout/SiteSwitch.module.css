@@ -1,0 +1,11 @@
+.switch {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* На телефоне в шапке мало места: только иконка (кнопка остаётся яркой) */
+@media (max-width: 767px) {
+  .text {
+    display: none;
+  }
+}
