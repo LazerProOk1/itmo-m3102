@@ -81,6 +81,29 @@ test('без сети сайт открывается из кеша', async ({ p
   await expect(page.getByRole('heading', { name: 'Определение' })).toBeVisible();
 });
 
+test('переключатель стиля: туда на копию сайта Феди и обратно, слой перехода не застревает', async ({ page }) => {
+  // Копии сайта Феди в тестовой сборке нет (её кладёт npm run fedya) — подменяем одну страницу, остальное настоящее
+  await page.route('**/fedya/index.html', (route) =>
+    route.request().method() === 'HEAD'
+      ? route.fulfill({ status: 200 })
+      : route.fulfill({
+          contentType: 'text/html',
+          body: '<!doctype html><html><head><script src="../switch/switch.js" charset="utf-8"></script></head><body><h1>Сайт Феди</h1></body></html>',
+        }),
+  );
+  await openSynced(page);
+  await page.getByRole('link', { name: 'Переключить стиль' }).first().click();
+  await expect(page).toHaveURL(/\/fedya\/index\.html$/);
+  // На его стороне та же кнопка рисуется скриптом; слой перехода после прихода убирается
+  const back = page.locator('[data-site-switch]');
+  await expect(back).toHaveText('Переключить стиль');
+  await expect(page.locator('[data-site-veil]')).toHaveCount(0, { timeout: 5000 });
+  await back.click();
+  await expect(page).not.toHaveURL(/fedya/);
+  await expect(page.getByRole('link', { name: 'Переключить стиль' }).first()).toBeVisible();
+  await expect(page.locator('[data-site-veil]')).toHaveCount(0, { timeout: 5000 });
+});
+
 test('телефон: свайп листает дни, страницы не шире экрана @phone', async ({ page }) => {
   await page.goto('./#/schedule?date=2026-10-01');
   const selected = page.getByRole('tab', { selected: true });

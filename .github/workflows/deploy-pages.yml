@@ -28,6 +28,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Копия сайта Феди для переключателя стиля (scripts/import-fedya.ts); не получилась — сборка идёт без неё
+      - run: npm run fedya
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run format:check
       - run: npm test
       - run: npm run build

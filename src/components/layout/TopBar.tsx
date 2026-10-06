@@ -5,6 +5,7 @@ import { Brand } from './Brand';
 import { EditModeToggle } from './EditModeToggle';
 import { SearchTrigger } from './SearchTrigger';
 import { SidebarToggle } from './Sidebar';
+import { SiteSwitch } from './SiteSwitch';
 import { SyncButton } from './SyncButton';
 import { UserMenu } from './UserMenu';
 import styles from './TopBar.module.css';
@@ -42,6 +43,7 @@ export function TopBar({ onOpenSearch }: TopBarProps) {
         )}
 
         <div className={styles.actions}>
+          <SiteSwitch />
           <SyncButton />
           <EditModeToggle />
           <SearchTrigger onClick={onOpenSearch} />

@@ -16,6 +16,7 @@
     "test:e2e": "playwright test",
     "size": "node scripts/check-size.mjs",
     "ics": "tsx scripts/build-ics.ts",
+    "fedya": "tsx scripts/import-fedya.ts",
     "lighthouse": "npx -y @lhci/cli@0.15.1 autorun",
     "format": "prettier --write src",
     "format:check": "prettier --check src"

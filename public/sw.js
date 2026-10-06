@@ -75,6 +75,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
+  // Копия сайта Феди (/fedya/, public/fedya) — не наша: ни кеша, ни подмены страницы на нашу оболочку
+  if (url.origin === self.location.origin && /\/fedya(\/|$)/.test(url.pathname)) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(

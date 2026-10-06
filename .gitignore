@@ -11,3 +11,6 @@ test-results/
 playwright-report/
 lighthouse-report/
 .lighthouseci/
+# Копия сайта Феди для переключателя стиля: создаётся npm run fedya (в CI — перед сборкой)
+public/fedya/
+public/fedya.tmp/

@@ -1,0 +1,266 @@
+/*
+ * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах (наш — ./switch/switch.js, копия сайта Феди
+ * в /fedya/ — ../switch/switch.js, её патчит scripts/import-fedya.ts), поэтому написан на чистом JS без сборки.
+ *
+ *  - клик по любой ссылке с data-site-switch: круговая волна цвета сайта, на который переходим, затем переход;
+ *  - на новой странице тот же слой уже закрывает экран и «схлопывается» в точку клика — получается одно движение
+ *    через две страницы. Параметры волны (точка, цвета, тема) передаются через sessionStorage;
+ *  - на стороне Феди сам добавляет кнопку в ряд кнопок его шапки (рядом с GitHub), в его же стиле;
+ *  - «уменьшить движение» — без анимации, просто переход.
+ * Подключать в <head> обычным (не module/defer) скриптом: слой открытия должен появиться до первой отрисовки.
+ */
+(function () {
+  'use strict';
+
+  var KEY = 'm3102:switch';
+  var side = /\/fedya(\/|$)/.test(location.pathname) ? 'fedya' : 'mine';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canAnimate = !reduce && typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
+  var EASE = 'cubic-bezier(0.65, 0, 0.2, 1)';
+
+  // Облик сайтов — для слоя перехода (на странице назначения он должен выглядеть так же, как при уходе)
+  var LOOKS = {
+    mine: {
+      name: 'Переключаем стиль',
+      sub: 'тот же сайт, другое оформление',
+      accent: '#6372f5',
+      accent2: '#8b95ff',
+      dark: { bg: '#131315', text: '#ededef' },
+      light: { bg: '#ffffff', text: '#18181b' },
+      font: "'Unbounded Variable', 'Inter Variable', Inter, system-ui, sans-serif",
+    },
+    fedya: {
+      name: 'Переключаем стиль',
+      sub: 'тот же сайт, другое оформление',
+      accent: '#5b5fef',
+      accent2: '#7c7ffb',
+      dark: { bg: '#0f1016', text: '#eef0f7' },
+      light: { bg: '#f4f5fa', text: '#1a1c24' },
+      font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    },
+  };
+
+  function isDark() {
+    var attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'dark') return true;
+    if (attr === 'light') return false;
+    return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
+  function farthest(x, y) {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    return Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) + 12;
+  }
+
+  function circle(r, x, y) {
+    return 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)';
+  }
+
+  /** Слой перехода: нижний — акцентный, верхний — фон сайта назначения с названием. Оба — на весь экран. */
+  function buildVeil(look, colors) {
+    var root = document.createElement('div');
+    root.setAttribute('data-site-veil', '');
+    root.setAttribute('aria-hidden', 'true');
+    root.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:all;overflow:hidden;';
+    var lead = document.createElement('div');
+    lead.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,' + look.accent + ',' + look.accent2 + ');';
+    var body = document.createElement('div');
+    body.style.cssText =
+      'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;' +
+      'background:radial-gradient(60vmax 60vmax at 50% 38%,' + look.accent + '33,transparent 70%),' + colors.bg + ';' +
+      'color:' + colors.text + ';font-family:' + look.font + ';text-align:center;';
+    var title = document.createElement('div');
+    title.textContent = look.name;
+    title.style.cssText = 'font-size:clamp(28px,6vw,52px);font-weight:700;letter-spacing:-0.03em;line-height:1.1;';
+    var rule = document.createElement('div');
+    rule.style.cssText = 'width:72px;height:3px;border-radius:3px;background:linear-gradient(90deg,' + look.accent + ',' + look.accent2 + ');';
+    var sub = document.createElement('div');
+    sub.textContent = look.sub;
+    sub.style.cssText = 'font-size:15px;opacity:0.65;';
+    body.appendChild(title);
+    body.appendChild(rule);
+    body.appendChild(sub);
+    root.appendChild(lead);
+    root.appendChild(body);
+    return { root: root, lead: lead, body: body, text: [title, rule, sub] };
+  }
+
+  /* ---------- Уход: волна раскрывается из точки клика, затем переход ---------- */
+  var leaving = false;
+
+  function go(url, x, y) {
+    if (leaving) return;
+    leaving = true;
+    var target = side === 'mine' ? 'fedya' : 'mine';
+    var look = LOOKS[target];
+    var colors = isDark() ? look.dark : look.light;
+    var payload = { x: x, y: y, to: target, colors: colors, dark: isDark(), t: Date.now() };
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify(payload));
+    } catch (e) {
+      /* без хранилища просто не будет схлопывания на новой странице */
+    }
+    if (!canAnimate) {
+      location.href = url;
+      return;
+    }
+    var veil = buildVeil(look, colors);
+    veil.lead.style.clipPath = circle(0, x, y);
+    veil.body.style.clipPath = circle(0, x, y);
+    veil.text.forEach(function (node) {
+      node.style.opacity = '0';
+    });
+    document.documentElement.appendChild(veil.root);
+    var r = farthest(x, y);
+    var open = { duration: 620, easing: EASE, fill: 'forwards' };
+    veil.lead.animate([{ clipPath: circle(0, x, y) }, { clipPath: circle(r, x, y) }], open);
+    var bodyAnim = veil.body.animate([{ clipPath: circle(0, x, y) }, { clipPath: circle(r, x, y) }], {
+      duration: 620,
+      easing: EASE,
+      fill: 'forwards',
+      delay: 110,
+    });
+    veil.text.forEach(function (node, i) {
+      node.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: node === veil.text[2] ? 0.65 : 1, transform: 'translateY(0)' }], {
+        duration: 320,
+        easing: 'ease-out',
+        fill: 'forwards',
+        delay: 420 + i * 70,
+      });
+    });
+    var done = false;
+    function navigate() {
+      if (done) return;
+      done = true;
+      location.href = url;
+    }
+    bodyAnim.onfinish = function () {
+      setTimeout(navigate, 140);
+    };
+    setTimeout(navigate, 1600); // страховка: если анимация почему-то не завершилась
+  }
+
+  document.addEventListener('click', function (event) {
+    var link = event.target && event.target.closest ? event.target.closest('[data-site-switch]') : null;
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    var rect = link.getBoundingClientRect();
+    var x = event.clientX || rect.left + rect.width / 2;
+    var y = event.clientY || rect.top + rect.height / 2;
+    go(link.href, x, y);
+  });
+
+  /* ---------- Приход: слой уже закрывает экран, схлопывается в точку клика ---------- */
+  function takePayload() {
+    try {
+      var raw = sessionStorage.getItem(KEY);
+      if (!raw) return null;
+      sessionStorage.removeItem(KEY);
+      var data = JSON.parse(raw);
+      return data && data.to === side && Date.now() - data.t < 8000 ? data : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var arrival = takePayload();
+  // Тема приходит вместе с переходом: на сайт Феди — наша, чтобы не было смены светлой на тёмную
+  if (arrival && side === 'fedya' && arrival.dark !== undefined) {
+    document.documentElement.setAttribute('data-theme', arrival.dark ? 'dark' : 'light');
+  }
+
+  if (arrival && canAnimate) {
+    var veil = buildVeil(LOOKS[side], arrival.colors);
+    document.documentElement.appendChild(veil.root);
+    var started = Date.now();
+    var revealed = false;
+
+    var reveal = function () {
+      if (revealed) return;
+      revealed = true;
+      var wait = Math.max(0, 260 - (Date.now() - started));
+      setTimeout(function () {
+        requestAnimationFrame(function () {
+          var x = arrival.x;
+          var y = arrival.y;
+          var r = farthest(x, y);
+          veil.text.forEach(function (node) {
+            node.animate([{ opacity: node === veil.text[2] ? 0.65 : 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' });
+          });
+          veil.body.animate([{ clipPath: circle(r, x, y) }, { clipPath: circle(0, x, y) }], {
+            duration: 640,
+            easing: EASE,
+            fill: 'forwards',
+            delay: 120,
+          });
+          var last = veil.lead.animate([{ clipPath: circle(r, x, y) }, { clipPath: circle(0, x, y) }], {
+            duration: 640,
+            easing: EASE,
+            fill: 'forwards',
+            delay: 230,
+          });
+          last.onfinish = function () {
+            veil.root.remove();
+          };
+        });
+      }, wait);
+    };
+
+    if (document.readyState === 'complete') reveal();
+    else window.addEventListener('load', reveal);
+    setTimeout(reveal, 3000); // тяжёлая страница не должна держать экран закрытым
+    setTimeout(function () {
+      veil.root.remove();
+    }, 6000);
+  }
+
+  // Назад по истории из bfcache: застрявший слой не нужен
+  window.addEventListener('pageshow', function (event) {
+    if (!event.persisted) return;
+    leaving = false;
+    var stale = document.querySelectorAll('[data-site-veil]');
+    for (var i = 0; i < stale.length; i++) stale[i].remove();
+  });
+
+  /* ---------- Кнопка на стороне Феди: в ряду кнопок его шапки, как его же «GitHub» ---------- */
+  if (side !== 'fedya') return;
+
+  var ICON =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>';
+
+  // Внешний вид кнопки (рамка, фон, hover) — от его класса .gh-link; здесь только размеры под подпись
+  var CSS =
+    '.m3102-switch-btn{width:auto;padding:0 12px;gap:8px;grid-auto-flow:column;font:600 .82rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;cursor:pointer;text-decoration:none;}' +
+    '.m3102-switch-btn svg{width:18px;height:18px;flex:none;}' +
+    '.m3102-switch-btn span{white-space:nowrap;}' +
+    '@media (max-width:1100px){.m3102-switch-btn{width:40px;padding:0;}.m3102-switch-btn span{display:none;}}' +
+    '@media (max-width:640px){.m3102-switch-btn{width:38px;}}' +
+    '.m3102-switch-btn.m3102-floating{position:fixed;top:10px;right:10px;z-index:50;width:40px;padding:0;}' +
+    '@media print{.m3102-switch-btn{display:none !important;}}';
+
+  function mount() {
+    if (document.querySelector('.m3102-switch-btn')) return;
+    var style = document.createElement('style');
+    style.textContent = CSS;
+    document.head.appendChild(style);
+    var link = document.createElement('a');
+    link.href = '../';
+    link.className = 'gh-link m3102-switch-btn';
+    link.setAttribute('data-site-switch', '');
+    link.title = 'Переключить стиль оформления';
+    link.setAttribute('aria-label', 'Переключить стиль');
+    link.innerHTML = ICON + '<span>Переключить стиль</span>';
+    var actions = document.querySelector('header .header-actions');
+    if (actions) actions.insertBefore(link, actions.querySelector('.gh-link'));
+    else {
+      // Разметка Феди изменилась — кнопка всё равно должна быть: плавающая в углу
+      link.className += ' m3102-floating';
+      document.body.appendChild(link);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
+  else mount();
+})();
