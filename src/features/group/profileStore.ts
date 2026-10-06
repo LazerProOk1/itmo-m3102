@@ -41,10 +41,50 @@ function failure(response?: Response): string {
 }
 
 /**
+ * «Назад» закрывает профиль, а не уводит со страницы под ним. При открытии кладём в историю запись с тем же
+ * адресом; роутер её не видит: её popstate перехватываем раньше него (capture на window срабатывает первым)
+ * и гасим — иначе роутер перерисовал бы всё приложение и окно снова «застывало» бы. Закрыли крестиком или Esc —
+ * запись убираем сами (history.back), этот popstate тоже гасим.
+ */
+const entry = {
+  /** Наша запись сейчас верхняя в истории */
+  pushed: false,
+  /** Следующий popstate — от нашего же history.back() */
+  swallow: false,
+};
+
+function pushProfileEntry() {
+  if (entry.pushed) return;
+  window.history.pushState(window.history.state, '');
+  entry.pushed = true;
+}
+
+function dropProfileEntry() {
+  if (!entry.pushed) return;
+  entry.pushed = false;
+  entry.swallow = true;
+  window.history.back();
+}
+
+/**
  * Профиль студента открывается из любого места (карточка на «Студентах», имя в очереди дедлайна) — окно одно,
  * в AppShell. Своё состояние, а не адрес: смена адреса перерисовывает всё приложение, и окно «застывало».
  */
 export const useProfileStore = create<ProfileStore>()((set) => {
+  addEventListener(
+    'popstate',
+    (event) => {
+      if (entry.swallow) {
+        entry.swallow = false;
+        event.stopImmediatePropagation();
+      } else if (entry.pushed) {
+        entry.pushed = false;
+        event.stopImmediatePropagation();
+        set({ login: null });
+      }
+    },
+    { capture: true },
+  );
   async function loadCommits() {
     // Старый формат кеша ({ at, commits }) без data — скачать заново
     const cached = read<Cached<unknown>>(COMMITS_KEY);
@@ -64,9 +104,13 @@ export const useProfileStore = create<ProfileStore>()((set) => {
     commits: read<Cached<Record<string, number>>>(COMMITS_KEY)?.data ?? null,
     error: '',
     open: (login) => {
+      pushProfileEntry();
       set({ login, used: true, error: '' });
       void loadCommits();
     },
-    close: () => set({ login: null }),
+    close: () => {
+      set({ login: null });
+      dropProfileEntry();
+    },
   };
 });

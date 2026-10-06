@@ -12,6 +12,7 @@ import { useSyncStore } from '../../services/syncStore';
 import type { LectureNote } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { useOptionalSubjectName } from '../subjects/subjectsStore';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { LectureNoteContentView } from './LectureNoteContentView';
 import { NoteLessonInfo } from './NoteLessonInfo';
 import { SiteQuiz } from './SiteQuiz';
@@ -113,6 +114,7 @@ function NoteView({ note }: { note: LectureNote }) {
   useMarkHighlights(contentRef, note.id);
 
   const title = noteTitle(note);
+  useDocumentTitle(title, note.id);
   const sourceUrl = noteSourceUrl(note);
   // «Скачать PDF» сразу файлом: модуль со съёмкой страниц грузится только по нажатию
   const [pdfStatus, setPdfStatus] = useState<string | null>(null);

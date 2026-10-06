@@ -17,8 +17,9 @@ export function StudentsPage() {
   useEffect(() => {
     const login = params.get('u');
     if (!login) return;
-    openProfile(login);
+    // Сначала чистим адрес, потом открываем: запись профиля в истории должна лечь поверх уже чистого адреса
     setParams({}, { replace: true });
+    openProfile(login);
   }, [params, setParams, openProfile]);
 
   return (
