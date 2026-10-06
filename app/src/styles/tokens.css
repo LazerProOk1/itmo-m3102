@@ -170,8 +170,8 @@
   /* Второй акцент для градиента: по умолчанию — тот же цвет, повёрнутый по оттенку (settings: «Второй акцент») */
   --accent-base-2: oklch(from var(--accent-base) l c calc(h + 45));
   --color-accent-2: color-mix(in oklab, var(--accent-base-2) 92%, black);
-  --accent-gradient: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
-  --accent-gradient-hover: linear-gradient(135deg, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 80%, black));
+  --accent-gradient: linear-gradient(135deg in oklab, var(--color-accent), var(--color-accent-2));
+  --accent-gradient-hover: linear-gradient(135deg in oklab, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 80%, black));
   /* Динамическая тема меняет цвета плавно; «уменьшить движение» гасит переход общим правилом в global.css */
   transition:
     --accent-base 1.8s ease,
@@ -237,7 +237,7 @@
 
     --color-accent: color-mix(in oklab, var(--accent-base) 80%, white);
     --color-accent-2: color-mix(in oklab, var(--accent-base-2) 80%, white);
-    --accent-gradient-hover: linear-gradient(135deg, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 68%, white));
+    --accent-gradient-hover: linear-gradient(135deg in oklab, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 68%, white));
     --color-accent-hover: color-mix(in oklab, var(--accent-base) 68%, white);
     --color-accent-soft: color-mix(in srgb, var(--accent-base) 16%, transparent);
     --accent-soft-gradient: linear-gradient(135deg, var(--color-accent-soft), color-mix(in srgb, var(--accent-base-2) 16%, transparent));

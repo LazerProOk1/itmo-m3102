@@ -125,7 +125,9 @@
   /* Только за заголовком: не уходит под карточки ниже, иначе «плиты» света накладываются */
   inset: -80px -40px 0 -40px;
   z-index: -1;
-  background: radial-gradient(ellipse 50% 70% at 22% 40%, color-mix(in srgb, var(--glow-a) 18%, transparent), transparent 72%);
+  background:
+    radial-gradient(ellipse 50% 70% at 22% 40%, color-mix(in srgb, var(--glow-a) 18%, transparent), transparent 72%),
+    radial-gradient(ellipse 40% 60% at 70% 55%, color-mix(in srgb, var(--accent-base-2) 14%, transparent), transparent 72%);
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
   pointer-events: none;
 }
@@ -172,7 +174,7 @@
   background: radial-gradient(
     220px circle at var(--mx, 50%) var(--my, 50%),
     var(--color-accent),
-    color-mix(in srgb, var(--color-accent) 30%, transparent) 45%,
+    color-mix(in srgb, var(--color-accent-2) 70%, transparent) 40%,
     transparent 75%
   );
   -webkit-mask:
@@ -196,15 +198,18 @@
   /* Пятно света следует за курсором (координаты пишет appearance.ts), граница наливается акцентом */
   :root[data-glow='on'] [data-spot]:hover {
     border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
-    background-image: radial-gradient(
-      320px circle at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--color-accent) 11%, transparent),
-      transparent 65%
-    );
+    background-image:
+      radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-accent) 11%, transparent), transparent 65%),
+      radial-gradient(
+        260px circle at calc(var(--mx, 50%) + 90px) calc(var(--my, 50%) + 50px),
+        color-mix(in srgb, var(--color-accent-2) 9%, transparent),
+        transparent 65%
+      );
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
       0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent),
-      0 14px 40px -16px color-mix(in srgb, var(--color-accent) 55%, transparent);
+      -8px 14px 40px -16px color-mix(in srgb, var(--color-accent) 55%, transparent),
+      10px 14px 40px -18px color-mix(in srgb, var(--color-accent-2) 50%, transparent);
   }
 }
 

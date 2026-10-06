@@ -16,7 +16,12 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(240px circle at var(--glow-x, 50%) var(--glow-y, 50%), var(--color-accent), transparent 70%);
+  background: radial-gradient(
+    240px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent-2) 60%, transparent) 40%,
+    transparent 70%
+  );
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease);
   pointer-events: none;

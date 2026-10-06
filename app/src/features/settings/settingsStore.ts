@@ -73,7 +73,7 @@ const DEFAULT_SETTINGS: LocalSettings = {
   /** По умолчанию — режим просмотра, интерфейс максимально чистый */
   editMode: false,
   accent: 'indigo',
-  accent2: 'auto',
+  accent2: 'rose',
   dynamicTheme: 'off',
   aurora: true,
   glow: true,
