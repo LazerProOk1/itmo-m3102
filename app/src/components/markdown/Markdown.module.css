@@ -297,6 +297,21 @@
   color: #dc2626;
 }
 
+/* ---------- формулы ---------- */
+/* Блочная формула, которая не поместилась даже после уменьшения (fitMath.ts), прокручивается, а не обрезается */
+.markdown :global(.katex-display) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2em 0;
+}
+
+/* При печати формулы остаются в обычном размере: ширина листа другая, а подгонку делает только экран */
+@media print {
+  .markdown :global(.katex-display > .katex) {
+    font-size: 1.21em !important;
+  }
+}
+
 /* ---------- mermaid ---------- */
 .mermaid {
   margin: var(--space-4) 0;

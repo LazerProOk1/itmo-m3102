@@ -1,5 +1,5 @@
 import { Check, Copy } from 'lucide-react';
-import { lazy, memo, Suspense, useMemo, useState, type ComponentProps } from 'react';
+import { lazy, memo, Suspense, useLayoutEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import 'katex/dist/katex.min.css';
 import { cn } from '../../lib/cn';
+import { fitDisplayMath } from '../../lib/fitMath';
 import { normalizeMath } from '../../lib/mathCompat';
 import { convertContainerCallouts, remarkCallouts } from '../../lib/remarkCallouts';
 import { convertWikiLinks } from '../../lib/wikiLinks';
@@ -47,8 +48,27 @@ export const Markdown = memo(function Markdown({ content, sourceRef, baseUrl, cl
   // Файл-тест (mode: quiz) распознаётся и здесь: в браузере могла остаться копия с синхронизации до появления тестов
   const withWikiLinks = useMemo(() => convertWikiLinks(normalizeMath(convertContainerCallouts(quizPageToMarkdown(content)))), [content]);
 
+  // Длинные блочные формулы подгоняем под ширину колонки (повторно — при её изменении: поворот телефона, меню, окно)
+  const root = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const element = root.current;
+    if (!element || typeof ResizeObserver === 'undefined') return;
+    let frame = 0;
+    const refit = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => fitDisplayMath(element));
+    };
+    fitDisplayMath(element);
+    const observer = new ResizeObserver(refit);
+    observer.observe(element);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [withWikiLinks]);
+
   return (
-    <div className={cn(styles.markdown, className)}>
+    <div ref={root} className={cn(styles.markdown, className)}>
       <ReactMarkdown
         remarkPlugins={REMARK_PLUGINS}
         rehypePlugins={REHYPE_PLUGINS}
