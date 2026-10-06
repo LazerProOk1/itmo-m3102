@@ -59,7 +59,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   transition: width 450ms var(--ease-luxury-out);
 }
 
@@ -213,7 +213,7 @@
 
 .selected .mark {
   border-color: var(--color-accent);
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: var(--color-on-accent);
 }
 

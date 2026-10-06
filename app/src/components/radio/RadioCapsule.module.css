@@ -51,7 +51,7 @@
   height: 30px;
   border: 0;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: var(--color-on-accent);
   cursor: pointer;
   transition: transform var(--duration-fast) var(--ease);
@@ -256,7 +256,7 @@
   flex-shrink: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: var(--color-on-accent);
   cursor: pointer;
 }

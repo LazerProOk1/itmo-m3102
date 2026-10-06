@@ -284,13 +284,13 @@
 
 .offlineProgress::-webkit-progress-value {
   border-radius: 999px;
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   transition: width var(--duration-base) var(--ease);
 }
 
 .offlineProgress::-moz-progress-bar {
   border-radius: 999px;
-  background: var(--color-accent);
+  background: var(--accent-gradient);
 }
 
 .offlineUsage {

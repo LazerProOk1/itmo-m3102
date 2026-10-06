@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useSettingsStore } from './settingsStore';
+import { useSettingsStore, type DynamicTheme } from './settingsStore';
 
 /** Готовые акценты: насыщенные, но не «кислотные» — читаются и на светлом, и на тёмном фоне */
 export const ACCENTS = [
@@ -27,25 +27,112 @@ export function parseCustomAccent(accent: string): { hue: number; chroma: number
 export const accentColor = (accent: string) =>
   ACCENTS.find((item) => item.id === accent)?.color ?? (/^#[0-9a-f]{6}$/i.test(accent) || parseCustomAccent(accent) ? accent : ACCENTS[0].color);
 
+/** Пара акцентов динамической темы: два соседних по кругу оттенка (35–90°), одинаковой яркости — градиент всегда мягкий */
+export interface AccentPair {
+  a: string;
+  b: string;
+  at: number;
+}
+
+const PAIR_KEY = 'm3102:dynamic-accent';
+export const SHUFFLE_EVENT = 'm3102:shuffle-accent';
+
+export function randomPair(): AccentPair {
+  const hue = Math.random() * 360;
+  const shift = (35 + Math.random() * 55) * (Math.random() < 0.5 ? -1 : 1);
+  const chroma = () => 0.15 + Math.random() * 0.05;
+  return { a: customAccent(hue, chroma()), b: customAccent((hue + shift + 360) % 360, chroma()), at: Date.now() };
+}
+
+const MINUTE = 60_000;
+/** Через сколько менять пару; «случайно» — каждый раз от 3 до 20 минут */
+export const dynamicDelay = (mode: DynamicTheme) => (mode === 'random' ? (3 + Math.random() * 17) * MINUTE : Number(mode) * MINUTE);
+
+function loadPair(): AccentPair | null {
+  try {
+    const value = JSON.parse(localStorage.getItem(PAIR_KEY) ?? 'null') as AccentPair | null;
+    return value && parseCustomAccent(value.a) && parseCustomAccent(value.b) && typeof value.at === 'number' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Оформление на <html>: --accent-base (из него в tokens.css считаются все оттенки акцента),
+ * Текущая пара динамической темы (null — выключена). Пара переживает перезагрузку: пока не вышло время, остаётся прежней;
+ * «При запуске» — новая на каждое открытие. Сменить сразу — событие SHUFFLE_EVENT (кнопка в настройках).
+ */
+function useDynamicPair(mode: DynamicTheme): AccentPair | null {
+  const [pair, setPair] = useState<AccentPair | null>(null);
+
+  useEffect(() => {
+    if (mode === 'off') {
+      setPair(null);
+      return undefined;
+    }
+    let timer = 0;
+    const schedule = (delay: number) => {
+      clearTimeout(timer);
+      if (mode !== 'launch') timer = window.setTimeout(next, delay);
+    };
+    function next() {
+      const fresh = randomPair();
+      try {
+        localStorage.setItem(PAIR_KEY, JSON.stringify(fresh));
+      } catch {
+        // без хранилища пара просто не переживёт перезагрузку
+      }
+      setPair(fresh);
+      schedule(dynamicDelay(mode));
+    }
+    const saved = loadPair();
+    const left = saved && mode !== 'launch' ? dynamicDelay(mode) - (Date.now() - saved.at) : 0;
+    if (saved && left > 0) {
+      setPair(saved);
+      schedule(left);
+    } else next();
+    addEventListener(SHUFFLE_EVENT, next);
+    return () => {
+      clearTimeout(timer);
+      removeEventListener(SHUFFLE_EVENT, next);
+    };
+  }, [mode]);
+
+  return pair;
+}
+
+/**
+ * Оформление на <html>: --accent-base и --accent-base-2 (из них в tokens.css считаются все оттенки и градиент),
  * data-aurora / data-glow / data-radius — по ним включаются слои из styles/aurora.css.
  */
 export function useApplyAppearance() {
   // Только нужные поля (useShallow): хук живёт в AppShell — родителе страницы, и подписка на весь стор
   // перерисовывала бы страницу при любой настройке (например, при сворачивании меню — лаги на конспекте)
-  const { accent, aurora, glow, liveBg, radius, density } = useSettingsStore(
-    useShallow(({ accent, aurora, glow, liveBg, radius, density }) => ({ accent, aurora, glow, liveBg, radius, density })),
+  const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, density } = useSettingsStore(
+    useShallow(({ accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, density }) => ({
+      accent,
+      accent2,
+      dynamicTheme,
+      aurora,
+      glow,
+      liveBg,
+      radius,
+      density,
+    })),
   );
+  const pair = useDynamicPair(dynamicTheme);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--accent-base', accentColor(accent));
+    root.style.setProperty('--accent-base', pair?.a ?? accentColor(accent));
+    // «Авто» — значение по умолчанию из tokens.css (первый цвет, повёрнутый по оттенку)
+    const second = pair?.b ?? (accent2 === 'auto' ? null : accentColor(accent2));
+    if (second) root.style.setProperty('--accent-base-2', second);
+    else root.style.removeProperty('--accent-base-2');
     root.dataset.aurora = aurora ? 'on' : 'off';
     root.dataset.glow = glow ? 'on' : 'off';
     root.dataset.radius = radius;
     root.dataset.density = density;
-  }, [accent, aurora, glow, radius, density]);
+  }, [accent, accent2, pair, aurora, glow, radius, density]);
 
   // Подсветка под курсором: один обработчик на всю страницу пишет координаты в ту карточку
   // [data-spot], над которой курсор, — никаких слушателей на каждой карточке

@@ -38,7 +38,7 @@
   position: absolute;
   inset: 6px 10px;
   border-radius: var(--radius-lg);
-  background: var(--color-accent-soft);
+  background: var(--accent-soft-gradient);
 }
 
 .iconWrap,

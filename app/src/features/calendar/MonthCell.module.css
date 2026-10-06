@@ -46,7 +46,7 @@
 }
 
 .today {
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: var(--color-on-accent);
 }
 

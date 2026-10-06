@@ -1,3 +1,16 @@
+/* Зарегистрированные цвета акцента — иначе браузер не умеет плавно переходить между ними (динамическая тема) */
+@property --accent-base {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5b6cf9;
+}
+
+@property --accent-base-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8b5cf6;
+}
+
 /*
  * Дизайн-токены — единый источник цветов, отступов и типографики.
  *
@@ -154,15 +167,25 @@
   /* Акцент */
   /* Все оттенки — из одного цвета --accent-base, его выбирают в настройках (appearance.ts) */
   --accent-base: #5b6cf9;
+  /* Второй акцент для градиента: по умолчанию — тот же цвет, повёрнутый по оттенку (settings: «Второй акцент») */
+  --accent-base-2: oklch(from var(--accent-base) l c calc(h + 45));
+  --color-accent-2: color-mix(in oklab, var(--accent-base-2) 92%, black);
+  --accent-gradient: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  --accent-gradient-hover: linear-gradient(135deg, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 80%, black));
+  /* Динамическая тема меняет цвета плавно; «уменьшить движение» гасит переход общим правилом в global.css */
+  transition:
+    --accent-base 1.8s ease,
+    --accent-base-2 1.8s ease;
   --color-accent: color-mix(in oklab, var(--accent-base) 92%, black);
   --color-accent-hover: color-mix(in oklab, var(--accent-base) 80%, black);
   --color-accent-soft: color-mix(in srgb, var(--accent-base) 10%, white);
+  --accent-soft-gradient: linear-gradient(135deg, var(--color-accent-soft), color-mix(in srgb, var(--accent-base-2) 10%, white));
   --color-accent-text: color-mix(in oklab, var(--accent-base) 72%, black);
   --color-on-accent: #ffffff;
   /* Свет для эффектов: пятна фона, свечение кнопок и карточек */
   --glow-a: var(--accent-base);
-  /* Оттенки одного цвета, без чужих розовых и голубых: радужный градиент — первый признак «сгенерированного» сайта */
-  --glow-b: color-mix(in oklch, var(--accent-base) 70%, white);
+  /* Пятна сияния — между двумя соседними акцентами и светлее/темнее первого; радужных цветов нет: это первый признак «сгенерированного» сайта */
+  --glow-b: color-mix(in oklch, var(--accent-base-2) 80%, white);
   --glow-c: color-mix(in oklch, var(--accent-base) 75%, black);
 
   /* Статусы */
@@ -213,8 +236,11 @@
     --color-text-muted: #70707a;
 
     --color-accent: color-mix(in oklab, var(--accent-base) 80%, white);
+    --color-accent-2: color-mix(in oklab, var(--accent-base-2) 80%, white);
+    --accent-gradient-hover: linear-gradient(135deg, var(--color-accent-hover), color-mix(in oklab, var(--accent-base-2) 68%, white));
     --color-accent-hover: color-mix(in oklab, var(--accent-base) 68%, white);
     --color-accent-soft: color-mix(in srgb, var(--accent-base) 16%, transparent);
+    --accent-soft-gradient: linear-gradient(135deg, var(--color-accent-soft), color-mix(in srgb, var(--accent-base-2) 16%, transparent));
     --color-accent-text: color-mix(in oklab, var(--accent-base) 55%, white);
     --color-on-accent: #0d0d0f;
 

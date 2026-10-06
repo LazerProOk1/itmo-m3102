@@ -13,6 +13,10 @@ interface LocalSettings {
   editMode: boolean;
   /** Цвет акцента: id готового (appearance.ts) или свой — «#rrggbb» */
   accent: string;
+  /** Второй акцент для градиента: 'auto' — тот же цвет, повёрнутый по оттенку, или id готового цвета */
+  accent2: string;
+  /** Динамическая тема: сама меняет пару акцентов — при запуске, раз в 15 минут / час или через случайное время */
+  dynamicTheme: DynamicTheme;
   /** Фон-сияние: медленные пятна света в цвете акцента за страницей */
   aurora: boolean;
   /** Свечение карточек: подсветка под курсором и светящиеся кнопки */
@@ -33,6 +37,8 @@ interface LocalSettings {
   sidebarCollapsed: boolean;
 }
 
+export type DynamicTheme = 'off' | 'launch' | '15' | '60' | 'random';
+
 export type Density = 'comfortable' | 'compact';
 
 export type RadiusPreference = 'sharp' | 'normal' | 'round';
@@ -43,7 +49,21 @@ interface SettingsStore extends LocalSettings {
   toggleSidebar: () => void;
   setAppearance: (
     patch: Partial<
-      Pick<LocalSettings, 'accent' | 'aurora' | 'glow' | 'liveBg' | 'radius' | 'pdfDark' | 'homeOrder' | 'homeHidden' | 'startPage' | 'density'>
+      Pick<
+        LocalSettings,
+        | 'accent'
+        | 'accent2'
+        | 'dynamicTheme'
+        | 'aurora'
+        | 'glow'
+        | 'liveBg'
+        | 'radius'
+        | 'pdfDark'
+        | 'homeOrder'
+        | 'homeHidden'
+        | 'startPage'
+        | 'density'
+      >
     >,
   ) => void;
 }
@@ -53,6 +73,8 @@ const DEFAULT_SETTINGS: LocalSettings = {
   /** По умолчанию — режим просмотра, интерфейс максимально чистый */
   editMode: false,
   accent: 'indigo',
+  accent2: 'auto',
+  dynamicTheme: 'off',
   aurora: true,
   glow: true,
   liveBg: true,

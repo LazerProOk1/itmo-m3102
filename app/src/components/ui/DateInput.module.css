@@ -137,7 +137,7 @@
 }
 
 .selected {
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: var(--color-on-accent);
   font-weight: var(--weight-semibold);
 }

@@ -40,7 +40,7 @@
 
 .input:checked + .box {
   border-color: var(--color-accent);
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: var(--color-on-accent);
   animation: check-pop 320ms var(--ease-luxury-spring);
 }
