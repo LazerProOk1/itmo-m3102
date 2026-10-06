@@ -1547,6 +1547,24 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
         renderDeadlines(homeDeadlineItems);
       }catch(e){const box=document.getElementById('home-deadlines');if(box)box.innerHTML='<p class="empty-line">Не удалось загрузить сроки. <a href="#/deadlines">Открыть раздел дедлайнов</a></p>';}
     }
+    // Одна строка: если заголовок шире контейнера, уменьшаем шрифт ровно настолько, чтобы он поместился
+    function fitHeroTitle(h1){
+      if(!h1)return;
+      const box=h1.parentElement;
+      const fit=()=>{
+        if(!h1.isConnected){ro.disconnect();return;}
+        h1.style.fontSize='';
+        const avail=box.clientWidth, need=h1.scrollWidth;
+        if(avail>0&&need>avail){
+          const base=parseFloat(getComputedStyle(h1).fontSize);
+          h1.style.fontSize=Math.max(14,Math.floor(base*avail/need*100)/100)+'px';
+        }
+      };
+      const ro=new ResizeObserver(fit);
+      ro.observe(box);
+      fit();
+      if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+    }
     // Заголовок главной берётся из js/greetings.js; одиночная точка в конце сохраняет акцентный цвет
     function greetingHtml(){
       const text=pickGreeting(), m=/^(.*[^.])\.$/.exec(text);
@@ -1572,6 +1590,7 @@ function renderHome(){
     <section class="dash-panel plan-panel"><div class="panel-head"><h2>Мой учебный план</h2><label class="toggle-label"><input id="hide-completed" type="checkbox" ${hideCompleted?'checked':''}> Скрыть выполненные</label></div><form id="plan-form" class="plan-form"><input id="task-name" name="name" type="text" maxlength="120" placeholder="Добавить свою задачу…" aria-label="Новая задача" required><input id="task-date" name="date" type="date" aria-label="Срок задачи"><button type="submit">Добавить</button></form><div id="plan-list"></div><p class="plan-hint">Личные задачи и отметки хранятся в этом браузере.</p></section>
     <section class="dash-panel notes-panel"><div class="panel-head"><h2>Недавние конспекты</h2><a href="#/${encodePath('Конспекты')}">Все конспекты <span aria-hidden="true">${ic('arrowRight',16)}</span></a></div><div id="recent-notes"><p class="empty-line">${LOADER}</p></div></section>
   </div>`;
+  fitHeroTitle(c.querySelector('.home-hero h1'));
   c.querySelectorAll('[data-nav]').forEach(el=>el.onclick=e=>{e.preventDefault();goto(el.dataset.nav);});
   document.getElementById('plan-form').onsubmit=e=>{
     e.preventDefault();
