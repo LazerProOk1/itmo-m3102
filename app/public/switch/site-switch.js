@@ -1,6 +1,7 @@
 /*
- * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах (наш — ./switch/site-switch.js, копия классического сайта группы
- * в /classic/ — ../switch/site-switch.js, её патчит scripts/import-classic.ts), поэтому написан на чистом JS без сборки.
+ * Переключатель стиля оформления (общий сайт с двумя оформлениями). Подключён на обоих сайтах: у приложения —
+ * ./switch/site-switch.js (в /app/), у классического — свой экземпляр рядом с его index.html (его патчит
+ * scripts/assemble-classic.ts), поэтому написан на чистом JS без сборки.
  *
  *  - клик по любой ссылке с data-site-switch: круговая волна цвета сайта, на который переходим, затем переход;
  *  - на новой странице тот же слой уже закрывает экран и «схлопывается» в точку клика — получается одно движение
@@ -13,7 +14,8 @@
   'use strict';
 
   var KEY = 'm3102:switch';
-  var side = /\/classic(\/|$)/.test(location.pathname) ? 'classic' : 'modern';
+  // Сторону помечает сам сайт: <html data-site-style="modern|classic"> (классическому её ставит classicPatch.ts)
+  var side = document.documentElement.getAttribute('data-site-style') === 'classic' ? 'classic' : 'modern';
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canAnimate = !reduce && typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
   var EASE = 'cubic-bezier(0.65, 0, 0.2, 1)';
@@ -250,7 +252,8 @@
     style.textContent = CSS;
     document.head.appendChild(style);
     var link = document.createElement('a');
-    link.href = '../';
+    // На Pages классический сайт в корне, приложение — в ./app/; в dev (npm run dev) наоборот: приложение на /, классический в /classic/
+    link.href = /\/classic(\/|$)/.test(location.pathname) ? '../' : './app/';
     link.className = 'gh-link m3102-switch-btn';
     link.setAttribute('data-site-switch', '');
     link.title = 'Переключить стиль оформления';

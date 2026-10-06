@@ -13,3 +13,5 @@ lighthouse-report/
 .lighthouseci/
 # Копия классического сайта для /classic/: собирается из корня репозитория (npm run classic в app/)
 app/public/classic/
+# Готовый сайт для Pages (npm run site в app/): классический в корне, приложение в /app/
+app/site/

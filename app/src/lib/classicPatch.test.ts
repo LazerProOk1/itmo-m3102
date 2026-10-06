@@ -11,7 +11,8 @@ it('патч классического сайта группы: без service 
   expect(html).not.toContain('sw.js');
   expect(html).not.toContain('manifest');
   expect(html).toContain("window.addEventListener('load', () => Promise.resolve())");
-  expect(html.indexOf('../switch/site-switch.js')).toBeLessThan(html.indexOf('</head>'));
+  expect(html.indexOf('./switch/site-switch.js')).toBeLessThan(html.indexOf('</head>'));
+  expect(html).toContain('<html data-site-style="classic">');
 });
 
 it('патч классического сайта группы: разметка без </head> — понятная ошибка, а не тихо сломанная копия', () => {

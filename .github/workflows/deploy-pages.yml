@@ -33,11 +33,6 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
       - run: npm ci
-      # Классический сайт группы (из корня репозитория) → app/public/classic, с самыми свежими data/ и Дедлайны/;
-      # не получилось взять свежие — остаются закоммиченные (scripts/assemble-classic.ts)
-      - run: npm run classic -- --fresh
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run format:check
       - run: npm test
       - run: npm run build
@@ -45,6 +40,11 @@ jobs:
       - run: npm run ics
       # Бюджет размера сборки (scripts/check-size.mjs)
       - run: npm run size
+      # Готовый сайт: классический сайт группы (из корня репозитория, с самыми свежими data/ и Дедлайны/) — в корне адреса,
+      # приложение — в /app/. Не получилось взять свежие данные — остаются закоммиченные (scripts/assemble-classic.ts)
+      - run: npm run site -- --fresh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       # Автотесты в браузере по собранному сайту (e2e/); упали — трассы в артефакте e2e-traces
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
@@ -63,7 +63,7 @@ jobs:
           path: app/lighthouse-report
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: app/dist
+          path: app/site
 
   deploy:
     needs: build

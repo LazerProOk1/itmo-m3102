@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react';
 import { buttonClass } from '../ui/Button';
 import styles from './SiteSwitch.module.css';
 
-/** Классическое оформление лежит в репозитории (public/classic, обновляется npm run classic). Нет копии — кнопки нет, а не ссылка в пустоту. */
-const CLASSIC_URL = './classic/index.html';
+/** Классическое оформление собирается рядом (npm run site / npm run classic). Нет его — кнопки нет, а не ссылка в пустоту. */
+// На Pages приложение в /app/, классический сайт — в корне адреса (на уровень выше); в dev приложение на /, классический — в /classic/
+const CLASSIC_URL = import.meta.env.DEV ? './classic/index.html' : '../';
 let available: Promise<boolean> | undefined;
 const hasClassicCopy = () =>
   (available ??= fetch(CLASSIC_URL, { method: 'HEAD' }).then(

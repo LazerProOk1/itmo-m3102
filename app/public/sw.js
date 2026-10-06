@@ -11,7 +11,7 @@
  * ponytail: старые файлы сборки копятся в кеше; если разрастётся — сменить CACHE на новую версию.
  */
 // Сменили файлы с постоянными именами (иконки) — поднять версию: старый кеш удалится при активации
-const CACHE = 'm3102-v6';
+const CACHE = 'm3102-v7'; // чистим только «m3102-vN»: на том же домене лежит классический сайт со своими кешами (m3102-shell-…)
 // Vary: Origin у сервера: скрипт с crossorigin и тот же файл из addAll иначе считаются разными записями
 const MATCH = { ignoreVary: true };
 const OFFLINE = 'm3102-offline';
@@ -61,7 +61,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE && key !== OFFLINE).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => /^m3102-v\d+$/.test(key) && key !== CACHE).map((key) => caches.delete(key))))
       .then(() => self.clients.claim()),
   );
 });

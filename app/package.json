@@ -17,6 +17,7 @@
     "size": "node scripts/check-size.mjs",
     "ics": "tsx scripts/build-ics.ts",
     "classic": "tsx scripts/assemble-classic.ts",
+    "site": "tsx scripts/assemble-classic.ts --site",
     "lighthouse": "npx -y @lhci/cli@0.15.1 autorun",
     "format": "prettier --write src",
     "format:check": "prettier --check src"
