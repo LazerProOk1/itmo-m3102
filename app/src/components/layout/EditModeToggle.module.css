@@ -24,13 +24,13 @@
 }
 
 .active {
-  background: var(--color-accent-soft);
+  background: var(--accent-soft-gradient);
   color: var(--color-accent-text);
 }
 
 @media (hover: hover) {
   .active:hover {
-    background: var(--color-accent-soft);
+    background: var(--accent-soft-gradient);
     color: var(--color-accent-text);
   }
 }

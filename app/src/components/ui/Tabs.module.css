@@ -52,7 +52,7 @@
   left: 0;
   height: 1.5px;
   border-radius: 1px;
-  background: var(--color-text);
+  background: var(--accent-gradient);
 }
 
 .count {

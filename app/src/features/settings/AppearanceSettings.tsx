@@ -1,4 +1,4 @@
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Ban, Check } from 'lucide-react';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
 import { buttonClass } from '../../components/ui/Button';
@@ -27,14 +27,14 @@ const DYNAMIC_OPTIONS: { value: DynamicTheme; label: string }[] = [
   { value: 'launch', label: 'Запуск' },
   { value: '15', label: '15 мин' },
   { value: '60', label: 'Час' },
-  { value: 'random', label: 'Случайно' },
 ];
 
 /** Оформление: тема, акцент, эффекты. Хранится в браузере (settingsStore). */
 export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
-  const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
+  const { accent, accent2, dynamicTheme, flow, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
+  const lockedNote = dynamicTheme === 'off' ? undefined : 'Сейчас цвета ведёт «Динамическая тема» — выключите её ниже, чтобы выбрать свои.';
 
   return (
     <>
@@ -42,7 +42,7 @@ export function AppearanceSettings() {
         <SegmentedControl label="Тема" options={THEME_OPTIONS} value={theme} onChange={setTheme} />
       </SettingsRow>
 
-      <SettingsRow label="Акцент" description="Цвет кнопок, выделений и свечения. Можно выбрать свой.">
+      <SettingsRow label="Акцент" description="Цвет кнопок, выделений и свечения. Можно выбрать свой." lockedNote={lockedNote}>
         <div className={styles.swatches} role="radiogroup" aria-label="Цвет акцента">
           {ACCENTS.map((item) => (
             <button
@@ -63,7 +63,11 @@ export function AppearanceSettings() {
         </div>
       </SettingsRow>
 
-      <SettingsRow label="Второй акцент" description="Вместе с первым даёт градиент на кнопках и в сиянии. «Авто» — соседний по кругу оттенок.">
+      <SettingsRow
+        label="Второй акцент"
+        description="Вместе с первым даёт градиент на кнопках, выделениях и в сиянии. «Авто» — соседний по кругу оттенок, «Нет» — один сплошной цвет."
+        lockedNote={lockedNote}
+      >
         <div className={styles.swatches} role="radiogroup" aria-label="Второй акцент">
           <button
             type="button"
@@ -76,6 +80,22 @@ export function AppearanceSettings() {
             onClick={() => setAppearance({ accent2: 'auto' })}
           >
             {accent2 === 'auto' && <Check size={14} strokeWidth={3} aria-hidden />}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={accent2 === 'none'}
+            aria-label="Без второго акцента"
+            title="Без второго акцента"
+            className={styles.swatch}
+            style={{ '--swatch': 'var(--color-bg-hover)' } as React.CSSProperties}
+            onClick={() => setAppearance({ accent2: 'none' })}
+          >
+            {accent2 === 'none' ? (
+              <Check size={14} strokeWidth={3} aria-hidden />
+            ) : (
+              <Ban size={14} strokeWidth={2} aria-hidden className={styles.pipette} />
+            )}
           </button>
           {ACCENTS.map((item) => (
             <button
@@ -97,7 +117,7 @@ export function AppearanceSettings() {
 
       <SettingsRow
         label="Динамическая тема"
-        description="Сама подбирает новую пару акцентов и плавно переходит к ней: при каждом открытии, раз в 15 минут, раз в час или через случайное время. Свои акценты выше на это время не действуют."
+        description="Сама подбирает новую пару акцентов и плавно переходит к ней: при каждом открытии, раз в 15 минут или раз в час. Пока она включена, свои акценты выше не действуют."
       >
         <SegmentedControl
           label="Динамическая тема"
@@ -110,6 +130,18 @@ export function AppearanceSettings() {
             Сменить сейчас
           </Button>
         )}
+      </SettingsRow>
+
+      <SettingsRow
+        label="Переливание"
+        description="Градиент в кнопках и полосах прогресса медленно перетекает. Выключено по умолчанию: тратит немного батареи."
+      >
+        <SegmentedControl
+          label="Переливание"
+          options={ON_OFF}
+          value={flow ? 'on' : 'off'}
+          onChange={(value) => setAppearance({ flow: value === 'on' })}
+        />
       </SettingsRow>
 
       <SettingsRow label="Фон-сияние" description="Мягкие пятна света в цвете акцента за страницей.">

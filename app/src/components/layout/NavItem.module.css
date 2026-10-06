@@ -42,7 +42,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--color-accent-soft);
+  background: var(--accent-soft-gradient);
 }
 
 .label {

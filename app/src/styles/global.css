@@ -283,3 +283,25 @@ html {
 ::highlight(note-marks) {
   background-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
 }
+
+/* Переливание градиента (tokens.css, :root[data-flow]): подложка уезжает на целый период зеркального градиента */
+@keyframes accent-flow {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+/* То же для кнопок с бликом: первая подложка (блик) стоит, вторая (градиент) движется */
+@keyframes accent-flow-2 {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+
+  to {
+    background-position:
+      0 0,
+      200% 0;
+  }
+}

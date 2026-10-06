@@ -15,7 +15,9 @@ interface LocalSettings {
   accent: string;
   /** Второй акцент для градиента: 'auto' — тот же цвет, повёрнутый по оттенку, или id готового цвета */
   accent2: string;
-  /** Динамическая тема: сама меняет пару акцентов — при запуске, раз в 15 минут / час или через случайное время */
+  /** Переливание градиента: цвета в кнопках и полосах медленно «текут» (по умолчанию выключено) */
+  flow: boolean;
+  /** Динамическая тема: сама меняет пару акцентов — при запуске, раз в 15 минут или раз в час */
   dynamicTheme: DynamicTheme;
   /** Фон-сияние: медленные пятна света в цвете акцента за страницей */
   aurora: boolean;
@@ -37,7 +39,7 @@ interface LocalSettings {
   sidebarCollapsed: boolean;
 }
 
-export type DynamicTheme = 'off' | 'launch' | '15' | '60' | 'random';
+export type DynamicTheme = 'off' | 'launch' | '15' | '60';
 
 export type Density = 'comfortable' | 'compact';
 
@@ -54,6 +56,7 @@ interface SettingsStore extends LocalSettings {
         | 'accent'
         | 'accent2'
         | 'dynamicTheme'
+        | 'flow'
         | 'aurora'
         | 'glow'
         | 'liveBg'
@@ -75,6 +78,7 @@ const DEFAULT_SETTINGS: LocalSettings = {
   accent: 'indigo',
   accent2: 'rose',
   dynamicTheme: 'off',
+  flow: false,
   aurora: true,
   glow: true,
   liveBg: true,
@@ -99,7 +103,13 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: storageKey('settings'),
       storage: localStore,
-      version: 2,
+      version: 3,
+      // v3: вариант «Случайно» убрали (лагал) — заменяем на «15 мин»
+      migrate: (stored) => {
+        const state = stored as Omit<Partial<LocalSettings>, 'dynamicTheme'> & { dynamicTheme?: string };
+        if (state.dynamicTheme === 'random') state.dynamicTheme = '15';
+        return state as LocalSettings;
+      },
     },
   ),
 );

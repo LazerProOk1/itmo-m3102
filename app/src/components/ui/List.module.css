@@ -38,12 +38,12 @@
 }
 
 .highlighted {
-  background: var(--color-accent-soft);
+  background: var(--accent-soft-gradient);
 }
 
 @media (hover: hover) {
   .highlighted:hover {
-    background: var(--color-accent-soft);
+    background: var(--accent-soft-gradient);
   }
 }
 

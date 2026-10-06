@@ -266,7 +266,9 @@
   min-width: 0;
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(to right, var(--color-accent) var(--fill), var(--color-control-track) var(--fill));
+  background:
+    linear-gradient(to right in oklab, var(--color-accent), var(--color-accent-2)) no-repeat 0 0 / var(--fill) 100%,
+    var(--color-control-track);
   appearance: none;
   cursor: pointer;
 }

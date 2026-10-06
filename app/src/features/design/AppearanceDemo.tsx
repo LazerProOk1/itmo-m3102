@@ -8,7 +8,7 @@ import styles from './DesignSystemPage.module.css';
 
 /** «Сияние»: акценты, свечение карточек и кнопок, фон. Всё переключается в «Настройки → Оформление». */
 export function AppearanceDemo() {
-  const { accent, accent2, dynamicTheme, setAppearance } = useSettingsStore();
+  const { accent, accent2, dynamicTheme, flow, setAppearance } = useSettingsStore();
 
   return (
     <Section title="Оформление и свет">
@@ -29,8 +29,18 @@ export function AppearanceDemo() {
           ))}
         </div>
       </Demo>
-      <Demo label="Второй акцент · --accent-base-2: вместе с первым даёт градиент (--accent-gradient — кнопки primary, полосы прогресса, отметки; --accent-soft-gradient — выбранный пункт меню). «Авто» — первый цвет, повёрнутый по оттенку">
+      <Demo label="Второй акцент · --accent-base-2: вместе с первым даёт градиент (--accent-gradient — кнопки primary, полосы прогресса, отметки; --accent-soft-gradient — выбранный пункт меню). «Авто» — первый цвет, повёрнутый по оттенку; «Нет» — сплошной цвет">
         <div className={styles.accentRow}>
+          <button
+            type="button"
+            className={styles.accentChip}
+            data-active={accent2 === 'none'}
+            style={{ '--chip': 'var(--color-bg-hover)' } as CSSProperties}
+            onClick={() => setAppearance({ accent2: 'none' })}
+          >
+            <span />
+            Нет
+          </button>
           <button
             type="button"
             className={styles.accentChip}
@@ -61,7 +71,7 @@ export function AppearanceDemo() {
           <Button variant="primary">Кнопка с градиентом</Button>
         </div>
       </Demo>
-      <Demo label="Динамическая тема · settings/appearance.ts: новая пара акцентов (OKLCH, оттенки на 35–90° друг от друга) при запуске, раз в 15 минут, раз в час или через случайное время; переход плавный (@property)">
+      <Demo label="Динамическая тема · settings/appearance.ts: новая пара акцентов (OKLCH, оттенки на 35–90° друг от друга) при запуске, раз в 15 минут или раз в час; переход плавный (@property). Пока включена, выбор акцентов в настройках не действует (строки тускнеют — SettingsRow lockedNote)">
         <div className={styles.glowRow}>
           <Button
             variant="secondary"
@@ -71,6 +81,9 @@ export function AppearanceDemo() {
             }}
           >
             {dynamicTheme === 'off' ? 'Включить (при запуске)' : 'Сменить пару сейчас'}
+          </Button>
+          <Button variant="secondary" onClick={() => setAppearance({ flow: !flow })}>
+            {flow ? 'Остановить переливание' : 'Включить переливание'}
           </Button>
           {dynamicTheme !== 'off' && (
             <Button variant="ghost" onClick={() => setAppearance({ dynamicTheme: 'off' })}>

@@ -11,5 +11,7 @@
   height: 100%;
   border-radius: inherit;
   background: var(--accent-gradient);
+  background-size: var(--flow-size);
+  animation: var(--flow-anim);
   transition: width 600ms var(--ease-luxury-out);
 }

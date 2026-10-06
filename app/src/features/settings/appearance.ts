@@ -45,8 +45,8 @@ export function randomPair(): AccentPair {
 }
 
 const MINUTE = 60_000;
-/** Через сколько менять пару; «случайно» — каждый раз от 3 до 20 минут */
-export const dynamicDelay = (mode: DynamicTheme) => (mode === 'random' ? (3 + Math.random() * 17) * MINUTE : Number(mode) * MINUTE);
+/** Через сколько менять пару (минуты) */
+export const dynamicDelay = (mode: DynamicTheme) => Number(mode) * MINUTE;
 
 function loadPair(): AccentPair | null {
   try {
@@ -107,11 +107,12 @@ function useDynamicPair(mode: DynamicTheme): AccentPair | null {
 export function useApplyAppearance() {
   // Только нужные поля (useShallow): хук живёт в AppShell — родителе страницы, и подписка на весь стор
   // перерисовывала бы страницу при любой настройке (например, при сворачивании меню — лаги на конспекте)
-  const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, density } = useSettingsStore(
-    useShallow(({ accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, density }) => ({
+  const { accent, accent2, dynamicTheme, flow, aurora, glow, liveBg, radius, density } = useSettingsStore(
+    useShallow(({ accent, accent2, dynamicTheme, flow, aurora, glow, liveBg, radius, density }) => ({
       accent,
       accent2,
       dynamicTheme,
+      flow,
       aurora,
       glow,
       liveBg,
@@ -125,14 +126,16 @@ export function useApplyAppearance() {
     const root = document.documentElement;
     root.style.setProperty('--accent-base', pair?.a ?? accentColor(accent));
     // «Авто» — значение по умолчанию из tokens.css (первый цвет, повёрнутый по оттенку)
-    const second = pair?.b ?? (accent2 === 'auto' ? null : accentColor(accent2));
+    // «Нет» — второй акцент равен первому: градиент превращается в сплошной цвет
+    const second = pair?.b ?? (accent2 === 'none' ? 'var(--accent-base)' : accent2 === 'auto' ? null : accentColor(accent2));
     if (second) root.style.setProperty('--accent-base-2', second);
     else root.style.removeProperty('--accent-base-2');
     root.dataset.aurora = aurora ? 'on' : 'off';
     root.dataset.glow = glow ? 'on' : 'off';
+    root.dataset.flow = flow ? 'on' : 'off';
     root.dataset.radius = radius;
     root.dataset.density = density;
-  }, [accent, accent2, pair, aurora, glow, radius, density]);
+  }, [accent, accent2, pair, aurora, glow, flow, radius, density]);
 
   // Подсветка под курсором: один обработчик на всю страницу пишет координаты в ту карточку
   // [data-spot], над которой курсор, — никаких слушателей на каждой карточке

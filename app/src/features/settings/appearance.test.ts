@@ -14,10 +14,7 @@ it('случайная пара — два разных соседних отт�
   }
 });
 
-it('интервалы: фиксированные в минутах, «случайно» — от 3 до 20 минут', () => {
+it('интервалы динамической темы — в минутах', () => {
   expect(dynamicDelay('15')).toBe(15 * 60_000);
   expect(dynamicDelay('60')).toBe(60 * 60_000);
-  const random = dynamicDelay('random');
-  expect(random).toBeGreaterThanOrEqual(3 * 60_000);
-  expect(random).toBeLessThanOrEqual(20 * 60_000);
 });
