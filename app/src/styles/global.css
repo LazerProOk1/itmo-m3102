@@ -307,3 +307,8 @@ html {
 :root [data-lit]:active {
   scale: 0.985;
 }
+
+/* Широкие нажимаемые (варианты ответа в тесте, пункты меню): 4% от их ширины — слишком глубокий «провал», им — как карточкам */
+:root:root :is([role='radio'], [role='menuitem'], [role='option']):not([class*='_button_'], [data-spot], [data-row-action]):active {
+  scale: 0.985;
+}
