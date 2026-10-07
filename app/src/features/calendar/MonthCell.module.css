@@ -1,4 +1,6 @@
 .cell {
+  /* Для @container в CalendarEntryChip: от ширины клетки зависит, показывать ли название */
+  container-type: inline-size;
   /* Каскад появления по диагонали сетки; перезапускается при смене месяца (Swap в CalendarPage) */
   animation: cell-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc(var(--i, 0) * 9ms);
