@@ -17,7 +17,6 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
-  font-feature-settings: 'cv11'; /* однокомпонентная «a» в Inter — мягче и спокойнее */
   color: var(--color-text);
   background: var(--color-bg-subtle);
   -webkit-font-smoothing: antialiased;
@@ -184,14 +183,14 @@ html {
   @bottom-left {
     content: url('/pdf-watermark.svg') '   redstonelord.github.io/itmo-m3102';
     white-space: pre;
-    font-family: 'Inter Variable', Inter, sans-serif;
+    font-family: 'Onest Variable', Onest, sans-serif;
     font-size: 8pt;
     color: #8a8a93;
   }
 
   @bottom-right {
     content: counter(page) ' / ' counter(pages);
-    font-family: 'Inter Variable', Inter, sans-serif;
+    font-family: 'Onest Variable', Onest, sans-serif;
     font-size: 8pt;
     color: #8a8a93;
   }
@@ -291,28 +290,30 @@ html {
   }
 }
 
-/* Нажатие: почти всё нажимаемое чуть «проседает» под пальцем — на телефоне отклик виден сразу (без вибрации).
+/* Нажатие: почти всё нажимаемое чуть «проседает» под пальцем — на телефоне отклик виден сразу (без вибрации). Только на сенсорных экранах: на ПК (мышь) эффекта нет — там отклик даёт наведение.
    Через `scale`, а не `transform`: он складывается с transform от framer-motion и CSS-эффектов, а не перебивает их.
    Кнопки (Button, IconButton) уже сами пружинят через framer-motion, карточки `data-spot` — свой transform выше.
    Растянутые на строку ссылки (data-row-action) и всё внутри строк (data-lit) и карточек (data-spot) не трогаем: проседает вся
    строка или карточка. Иначе кнопка-«папка» с растянутым ::after на время нажатия становилась контейнером для него (scale создаёт
    containing block), область сжималась до текста, палец оказывался мимо — и клик терялся (баг «папки жмутся со второго раза») */
-:root
-  :is(button:not(:disabled), [role='button'], [role='tab'], [role='radio'], [role='menuitem'], summary, a[href]):not(
-    [class*='_button_'],
-    [data-spot],
-    [data-row-action],
-    [data-lit] *,
-    [data-spot] *
-  ):active {
-  scale: 0.96;
-}
+@media (pointer: coarse), (hover: none) {
+  :root
+    :is(button:not(:disabled), [role='button'], [role='tab'], [role='radio'], [role='menuitem'], summary, a[href]):not(
+      [class*='_button_'],
+      [data-spot],
+      [data-row-action],
+      [data-lit] *,
+      [data-spot] *
+    ):active {
+    scale: 0.96;
+  }
 
-:root [data-lit]:active {
-  scale: 0.985;
-}
+  :root [data-lit]:active {
+    scale: 0.985;
+  }
 
-/* Широкие нажимаемые (варианты ответа в тесте, пункты меню): 4% от их ширины — слишком глубокий «провал», им — как карточкам */
-:root:root :is([role='radio'], [role='menuitem'], [role='option']):not([class*='_button_'], [data-spot], [data-row-action]):active {
-  scale: 0.985;
+  /* Широкие нажимаемые (варианты ответа в тесте, пункты меню): 4% от их ширины — слишком глубокий «провал», им — как карточкам */
+  :root:root :is([role='radio'], [role='menuitem'], [role='option']):not([class*='_button_'], [data-spot], [data-row-action]):active {
+    scale: 0.985;
+  }
 }

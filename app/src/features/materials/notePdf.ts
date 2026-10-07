@@ -241,7 +241,7 @@ function drawFooter(context: CanvasRenderingContext2D, watermark: HTMLImageEleme
   const logoW = 24 * MM * SCALE;
   const logoH = (logoW * watermark.naturalHeight) / watermark.naturalWidth;
   context.drawImage(watermark, MARGIN_X * SCALE, baseline - logoH * 0.85, logoW, logoH);
-  context.font = `${8 * (96 / 72) * SCALE}px Inter, 'Inter Variable', sans-serif`;
+  context.font = `${8 * (96 / 72) * SCALE}px Onest, 'Onest Variable', sans-serif`;
   context.fillStyle = '#8a8a93';
   context.textBaseline = 'alphabetic';
   context.textAlign = 'left';

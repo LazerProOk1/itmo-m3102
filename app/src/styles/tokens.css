@@ -24,16 +24,16 @@
  */
 
 /*
- * Запасные шрифты с метриками Inter и Unbounded (size-adjust, ascent/descent-override — замерены в браузере
+ * Запасные шрифты с метриками Onest и Unbounded (size-adjust, ascent/descent-override — замерены в браузере
  * по Arial). Пока настоящие шрифты качаются, текст уже занимает почти столько же места — при их подмене
  * вёрстка не прыгает (Lighthouse: сдвиг CLS 0,25 → почти 0). Arial есть на Windows и macOS, на Android — Roboto.
  */
 @font-face {
-  font-family: 'Inter Fallback';
+  font-family: 'Onest Fallback';
   src: local('Arial'), local('Helvetica'), local('Roboto');
-  size-adjust: 105.61%;
-  ascent-override: 91.85%;
-  descent-override: 22.73%;
+  size-adjust: 103.38%;
+  ascent-override: 93.83%;
+  descent-override: 29.99%;
   line-gap-override: 0%;
 }
 
@@ -48,8 +48,8 @@
 
 :root {
   /* Типографика */
-  --font-sans: 'Inter Variable', 'Inter Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  /* Заголовки — Unbounded: выразительный, с полной кириллицей; текст остаётся на Inter.
+  --font-sans: 'Onest Variable', 'Onest Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Заголовки — Unbounded: выразительный, с полной кириллицей; текст — Onest: рисунок латиницы и кириллицы у него задуман вместе (у Inter кириллица «дорисована» к латинице).
      «Необычный заголовочный + простой текстовый» — главный совет против шаблонного вида (21st.dev) */
   --font-display: 'Unbounded Variable', 'Unbounded Fallback', var(--font-sans);
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;

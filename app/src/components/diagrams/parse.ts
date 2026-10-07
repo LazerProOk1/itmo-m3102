@@ -99,7 +99,7 @@ export function resolveColor(name: string | undefined, fallbackIndex = 0): strin
   return SERIES_COLORS[fallbackIndex % SERIES_COLORS.length]!;
 }
 
-/** Ширина текста примерно (Inter 12px): для размеров узлов без измерения в DOM */
+/** Ширина текста примерно (Onest 12px): для размеров узлов без измерения в DOM */
 export const textWidth = (text: string, size = 12) => [...text].length * size * 0.56;
 
 /** Перенос текста по словам: не шире maxChars символов в строке */
