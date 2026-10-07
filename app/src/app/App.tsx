@@ -31,6 +31,7 @@ const DeadlinesPage = page(() => import('../features/deadlines/DeadlinesPage'), 
 const DesignSystemPage = page(() => import('../features/design/DesignSystemPage'), 'DesignSystemPage', false);
 const DiagramEditorPage = page(() => import('../features/diagrams/DiagramEditorPage'), 'DiagramEditorPage', false);
 const LinksPage = page(() => import('../features/group/LinksPage'), 'LinksPage');
+const RelaxPage = page(() => import('../features/relax/RelaxPage'), 'RelaxPage', false);
 const MemesPage = page(() => import('../features/group/MemesPage'), 'MemesPage');
 const RepoFilePage = page(() => import('../features/group/RepoFilePage'), 'RepoFilePage');
 const StudentsPage = page(() => import('../features/group/StudentsPage'), 'StudentsPage');
@@ -116,6 +117,7 @@ export function App() {
             <Route path="design" element={<DesignSystemPage />} />
             <Route path="diagrams" element={<DiagramEditorPage />} />
             <Route path="game" element={<GamePage />} />
+            <Route path="relax" element={<RelaxPage />} />
 
             {/* Неизвестный адрес — возвращаем на главную */}
             <Route path="*" element={<Navigate to={SECTIONS.today.path} replace />} />
