@@ -1,6 +1,7 @@
 import { Download, RefreshCw, Trash, Upload } from 'lucide-react';
 import { useRef, useState, type ChangeEvent } from 'react';
-import { Button } from '../../components/ui/Button';
+import { Button, buttonClass } from '../../components/ui/Button';
+import { GithubMark } from '../../components/ui/GithubMark';
 import { Modal } from '../../components/ui/Modal';
 import { cn } from '../../lib/cn';
 import { STORAGE_PREFIX, storageKey } from '../../lib/storage';
@@ -13,6 +14,12 @@ import { OfflineSettings } from './OfflineSettings';
 import { SettingsRow } from './SettingsRow';
 import styles from './settings.module.css';
 import { saveBlob } from '../../lib/download';
+
+/** Сайт и данные группы лежат в одном репозитории: вторая ссылка ведёт прямо к коду приложения */
+const GITHUB_LINKS = [
+  { label: 'Репозиторий группы', href: 'https://github.com/RedstoneLord/itmo-m3102' },
+  { label: 'Код приложения', href: 'https://github.com/RedstoneLord/itmo-m3102/tree/master/app' },
+];
 
 const BACKUP_APP_ID = 'm3102';
 /** Тема и режим редактирования — настройки браузера, не данные: в бэкап и сброс не входят */
@@ -81,6 +88,15 @@ export function DataSettings() {
 
   return (
     <>
+      <SettingsRow label="GitHub" description="Репозиторий группы с конспектами и данными и код этого приложения.">
+        {GITHUB_LINKS.map((link) => (
+          <a key={link.href} className={buttonClass('secondary', 'sm')} href={link.href} target="_blank" rel="noreferrer">
+            <GithubMark size={14} />
+            {link.label}
+          </a>
+        ))}
+      </SettingsRow>
+
       <SettingsRow
         label="Синхронизировать с GitHub"
         description={`Конспекты, файлы, дедлайны, ДЗ и ссылки группы из ${REPOS.group.name}. Происходит и автоматически при открытии сайта (не чаще раза в 10 минут). Кнопка есть и в шапке.`}

@@ -146,11 +146,3 @@
     opacity: 0;
   }
 }
-
-/* «Стекло»: окно — матовое стекло поверх затемнения */
-:global(:root[data-glass='on']) .dialog {
-  background: var(--glass-sheen), var(--glass-tint), color-mix(in srgb, var(--color-bg) 50%, transparent);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border-color: var(--glass-edge);
-}

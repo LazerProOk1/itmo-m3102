@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { GithubMark } from '../../components/ui/GithubMark';
 import { HedgehogLane } from '../../components/hedgehog/HedgehogLane';
 import { RunawayHedgehog } from '../../components/hedgehog/RunawayHedgehog';
 import { pickGreeting, RUNAWAY_GREETING, splitAccentPeriod } from '../../data/greetings';
@@ -15,12 +14,6 @@ interface TodayHeaderProps {
   date: ISODate;
   week: StudyWeek;
 }
-
-// Сайт и данные группы лежат в одном репозитории: вторая плитка ведёт прямо к коду приложения
-const GITHUB_LINKS = [
-  { label: 'Репозиторий группы', href: 'https://github.com/RedstoneLord/itmo-m3102', name: 'RedstoneLord/itmo-m3102' },
-  { label: 'Код приложения', href: 'https://github.com/RedstoneLord/itmo-m3102/tree/master/app', name: 'RedstoneLord/itmo-m3102 · app/' },
-];
 
 /** Шапка главной, как на сайте группы: случайное приветствие, дата, чётность недели — и ёжик. */
 export function TodayHeader({ date, week }: TodayHeaderProps) {
@@ -48,17 +41,6 @@ export function TodayHeader({ date, week }: TodayHeaderProps) {
           </strong>
           <span className={styles.chip}>{isVacation(date) ? 'Каникулы' : WEEK_PARITY_LABELS[week.weekInCycle]}</span>
         </div>
-        <nav className={styles.links} aria-label="GitHub">
-          {GITHUB_LINKS.map((link) => (
-            <a key={link.href} className={styles.repo} href={link.href} target="_blank" rel="noreferrer" data-spot>
-              <GithubMark size={18} />
-              <span className={styles.repoText}>
-                <span className={styles.repoLabel}>{link.label}</span>
-                <span className={styles.repoName}>{link.name}</span>
-              </span>
-            </a>
-          ))}
-        </nav>
       </div>
       {/* Ёжик бегает по низу шапки, как на сайте группы; «вырвался на свободу» — бегает по всему экрану */}
       {!runaway && <HedgehogLane />}

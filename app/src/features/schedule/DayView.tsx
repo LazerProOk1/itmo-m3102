@@ -7,7 +7,7 @@ import { Swap, useDirection } from '../../components/ui/Swap';
 import { addDays, formatDuration, getDayOfMonth, getShortWeekdayName, minutesBetween } from '../../lib/dates';
 import { Fragment, useRef, type TouchEvent } from 'react';
 import type { ISODate } from '../../types/models';
-import { DayOccurrenceRow } from './DayOccurrenceRow';
+import { DayOccurrenceRow, timelineClass } from './DayOccurrenceRow';
 import type { OccurrenceAction } from './OccurrenceMenuItems';
 import { takesPlace, type ClassOccurrence, type DaySchedule } from './occurrences';
 import styles from './DayView.module.css';
@@ -75,7 +75,7 @@ export function DayView({ days, selectedDate, today, time, onSelectDate, onActio
           {!selected || selected.occurrences.length === 0 ? (
             <EmptyState compact icon={CalendarDays} title="В этот день пар нет" />
           ) : (
-            <List>
+            <List className={timelineClass}>
               {selected.occurrences.map((occurrence, index) => (
                 <Fragment key={occurrence.key}>
                   <BreakRow previous={selected.occurrences[index - 1]} next={occurrence} />

@@ -1,34 +1,79 @@
-/* Строка дня — карточка на чистой поверхности: тип пары — полоска слева, разделителей нет */
-.row.row {
-  margin-block: var(--space-1-5);
-  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
-  border-radius: 10px /* не от --radius-*: у «мягких» скруглений палочка слева подходила к самому углу */;
-  background: var(--color-bg-elevated);
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.14),
-    inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+/* Строка пары. Вне расписания (главная, окно пары) — плоская строка: цвет типа пары — тонкая скруглённая полоска слева,
+   а не граница (та изгибается на скруглениях) */
+.row {
+  position: relative;
+  padding-left: var(--space-3);
 }
 
-.row.row.row::before {
-  content: none;
+.row::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--type-color, transparent);
+}
+
+/* Страница расписания (День, Неделя на телефоне): список с линией времени (как в классическом оформлении) — вертикальная
+   линия слева на весь день, у каждой пары на ней точка цвета типа пары, а сама пара — карточка с полоской внутри.
+   Класс .timeline — на <ul> (DayView, WeekAgenda); точка — ::before строки (разделитель списка там отключён), торчит
+   за левый край строки */
+.timeline.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline.timeline::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 55%, transparent),
+    color-mix(in srgb, var(--color-accent-2) 40%, transparent)
+  );
+}
+
+.timeline.timeline .row.row {
+  margin-block: var(--space-1-5);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-card);
 }
 
 @media (hover: hover) {
-  .row.row:hover {
+  .timeline.timeline .row.row:hover {
     background: var(--color-bg-hover);
   }
 }
 
-/* Цвет типа пары — тонкая скруглённая полоска слева, а не граница (та изгибается на скруглениях) */
-.row::after {
-  content: '';
-  position: absolute;
+.timeline.timeline .row.row::after {
   top: 14px;
   bottom: 14px;
   left: 7px;
-  width: 3px;
-  border-radius: 999px;
-  background: var(--type-color, transparent);
+}
+
+/* Точка: перебивает разделитель списка и его скрытие при наведении (List.module.css), поэтому столько классов */
+.timeline.timeline .row.row.row.row::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: auto;
+  left: -14px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--type-color, var(--color-text-muted));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--type-color, var(--color-text-muted)) 22%, transparent);
+  opacity: 1;
 }
 
 .time {
@@ -93,4 +138,41 @@
     0 0 0 1px color-mix(in srgb, var(--color-accent) 50%, transparent),
     0 12px 30px -16px var(--color-accent);
   transition: background-size 1s linear;
+}
+
+/* В списке с линией времени у карточки свой фон (`background`), он перебил бы подсветку и полоску прогресса — повторяем их с большим весом */
+.timeline.timeline .row.row[style*='--progress'] {
+  background-color: var(--color-bg-elevated);
+  background-image: var(--accent-gradient), var(--accent-soft-gradient);
+  background-repeat: no-repeat;
+  background-position:
+    left bottom,
+    0 0;
+  background-size:
+    var(--progress) 3px,
+    100% 100%;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 50%, transparent),
+    0 12px 30px -16px var(--color-accent);
+}
+
+/* Идёт сейчас — точка на линии времени акцентного цвета и мягкая пульсация (если движение не отключено) */
+.timeline.timeline .row.row.row.row[style*='--progress']::before {
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 28%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .timeline.timeline .row.row.row.row[style*='--progress']::before {
+    animation: timeline-pulse 2.4s ease-out infinite;
+  }
+}
+
+@keyframes timeline-pulse {
+  0% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-accent) 0%, transparent);
+  }
 }

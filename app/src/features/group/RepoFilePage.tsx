@@ -52,12 +52,13 @@ export function listFolder(files: RepoFile[], folder: string): { folders: string
   };
 }
 
+/** Папки репозитория, у которых есть своя вкладка в «Материалах»: корень файлов группы показываем только через них */
+const ROOT_TABS: Record<string, string> = { Материалы: 'materials', Лабораторные: 'labs', 'Записи лекций': 'recordings' };
+
 /**
  * Файлы группы — браузер по репозиторию RedstoneLord/itmo-m3102, как «Материалы» на их сайте:
  * разделы → предметы → файлы. PDF и .md открываются прямо здесь, остальное — скачать.
  */
-const MATERIALS_FOLDER = 'Материалы';
-
 export function RepoFilePage() {
   const splat = useParams()['*'] ?? '';
   const path = splat.replace(/\/$/, '');
@@ -65,20 +66,23 @@ export function RepoFilePage() {
   const file = files.find((entry) => entry.path === path);
 
   if (file) return <FileView file={file} />;
-  // Корня «Файлы группы» нет: сюда ведёт только вкладка «Материалы» и её папки
-  if (path !== MATERIALS_FOLDER && !path.startsWith(`${MATERIALS_FOLDER}/`)) return <Navigate to="/materials?tab=materials" replace />;
+  // Корня «Файлы группы» нет: папки открываются из вкладок «Материалы», «Лабораторные» и «Записи лекций»
+  const root = path.split('/')[0] ?? '';
+  if (!ROOT_TABS[root]) return <Navigate to="/materials?tab=materials" replace />;
   return <FolderView files={files} folder={path} />;
 }
 
 function Breadcrumbs({ path }: { path: string }) {
   const parts = path ? path.split('/') : [];
+  const root = parts[0];
+  const rootTab = root ? ROOT_TABS[root] : undefined;
   return (
     <nav className={styles.crumbs} aria-label="Путь">
-      <Link to="/materials?tab=materials">Материалы</Link>
-      {parts.map((part, index) => (
+      <Link to={rootTab ? `/materials?tab=${rootTab}` : '/materials'}>{root ?? 'Материалы'}</Link>
+      {parts.slice(1).map((part, index) => (
         <span key={index}>
           {' / '}
-          <Link to={filePath(parts.slice(0, index + 1).join('/'))}>{part}</Link>
+          <Link to={filePath(parts.slice(0, index + 2).join('/'))}>{part}</Link>
         </span>
       ))}
     </nav>

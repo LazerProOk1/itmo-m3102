@@ -55,12 +55,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-@media (max-width: 767px) {
-  :global(:root[data-glass='on']) .bar {
-    background: var(--glass-sheen), var(--glass-tint), color-mix(in srgb, var(--color-bg) 34%, transparent);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    border-top-color: var(--glass-edge);
-  }
-}

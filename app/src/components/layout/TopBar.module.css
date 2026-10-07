@@ -77,13 +77,3 @@
   border-bottom-color: color-mix(in srgb, var(--color-border) 70%, transparent);
   background: color-mix(in srgb, var(--color-bg) 86%, transparent);
 }
-
-/* «Стекло» (настройка): блик сверху, размытие с насыщением, светлая кромка снизу и мягкая тень под шапкой */
-:global(:root[data-glass='on']) .bar {
-  background: var(--glass-sheen), var(--glass-tint), color-mix(in srgb, var(--color-bg) 30%, transparent);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  box-shadow:
-    inset 0 -1px 0 var(--glass-edge),
-    0 10px 24px -14px rgb(0 0 0 / 0.5);
-}

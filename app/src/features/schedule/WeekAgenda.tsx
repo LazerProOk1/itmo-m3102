@@ -7,7 +7,7 @@ import { pluralize } from '../../lib/pluralize';
 import type { ISODate } from '../../types/models';
 import { useEditMode } from '../settings/EditModeContext';
 import { BreakRow } from './DayView';
-import { DayOccurrenceRow } from './DayOccurrenceRow';
+import { DayOccurrenceRow, timelineClass } from './DayOccurrenceRow';
 import type { OccurrenceAction } from './OccurrenceMenuItems';
 import { takesPlace, type ClassOccurrence, type DaySchedule } from './occurrences';
 import styles from './WeekAgenda.module.css';
@@ -48,7 +48,7 @@ export function WeekAgenda({ days, today, time, onAddDate, onAction }: WeekAgend
               )}
             </header>
             {day.occurrences.length > 0 && (
-              <List>
+              <List className={timelineClass}>
                 {day.occurrences.map((occurrence, index) => (
                   <Fragment key={occurrence.key}>
                     <BreakRow previous={day.occurrences[index - 1]} next={occurrence} />

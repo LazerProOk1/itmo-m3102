@@ -33,7 +33,7 @@ const DYNAMIC_OPTIONS: { value: DynamicTheme; label: string }[] = [
 export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
-  const { accent, accent2, dynamicTheme, glass, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
+  const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
   const lockedNote = dynamicTheme === 'off' ? undefined : 'Сейчас цвета ведёт «Динамическая тема» — выключите её ниже, чтобы выбрать свои.';
 
   return (
@@ -130,18 +130,6 @@ export function AppearanceSettings() {
             Сменить сейчас
           </Button>
         )}
-      </SettingsRow>
-
-      <SettingsRow
-        label="Стекло"
-        description="Шапка и меню — полупрозрачные, с размытием того, что под ними. Выключено по умолчанию: на слабых телефонах тратит заметно больше сил."
-      >
-        <SegmentedControl
-          label="Стекло"
-          options={ON_OFF}
-          value={glass ? 'on' : 'off'}
-          onChange={(value) => setAppearance({ glass: value === 'on' })}
-        />
       </SettingsRow>
 
       <SettingsRow label="Фон-сияние" description="Мягкие пятна света в цвете акцента за страницей.">

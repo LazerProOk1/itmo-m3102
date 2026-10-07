@@ -210,6 +210,9 @@
   --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.06);
   --shadow-popover: 0 8px 24px -8px rgba(24, 24, 27, 0.14), 0 2px 6px -2px rgba(24, 24, 27, 0.06);
   --shadow-modal: 0 24px 56px -16px rgba(24, 24, 27, 0.22);
+  /* Карточка-элемент (пара в расписании, задание): слой тени и блик по верхней кромке; радиус фиксированный — не зависит от настройки скруглений, иначе цветная палочка слева подходит к самому углу */
+  --radius-card: 10px;
+  --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 /* Тёмная тема — только на экране: печать и «Сохранить как PDF» всегда светлые */
@@ -262,6 +265,7 @@
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-popover: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
     --shadow-modal: 0 24px 64px -16px rgba(0, 0, 0, 0.7);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -292,17 +296,4 @@
 /* Рядом с оранжевым акцентом практика (янтарь) сливается с лекцией — делаем её темнее и бурее (appearance.ts ставит data-practice) */
 :root[data-practice='deep'] {
   --color-practice: color-mix(in oklab, var(--color-warning) 62%, #3b1a00);
-}
-
-/* «Стекло» (настройка): размытие с насыщением, блик сверху и светлая кромка — общие для шапки, меню и окон */
-:root {
-  --glass-blur: blur(22px) saturate(1.9);
-  --glass-sheen: linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent 55%);
-  /* Подложка стекла — не серая заливка, а лёгкий тон обоих акцентов: сквозь неё живёт сияние */
-  --glass-tint: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--accent-base) 16%, transparent),
-    color-mix(in srgb, var(--accent-base-2) 11%, transparent)
-  );
-  --glass-edge: color-mix(in srgb, white 11%, transparent);
 }

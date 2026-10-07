@@ -3,13 +3,11 @@
   position: relative;
   padding: var(--space-2) var(--space-2-5) var(--space-2) 14px;
   border: 0;
-  border-radius: 10px /* не от --radius-*: у «мягких» скруглений палочка слева подходила к самому углу */;
+  border-radius: var(--radius-card);
   /* Чистая поверхность без цветной заливки (цвет на тёмном даёт грязь): тип пары — полоска слева и слово типа */
   background: var(--color-bg-elevated);
   cursor: pointer;
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.14),
-    inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+  box-shadow: var(--shadow-card);
   /* y/scale на hover/tap — Framer Motion spring (WeekOccurrenceCard.tsx), не CSS:
      иначе карточка в покое ловит свой stacking context и запирает в себе popover деталей */
   transition:

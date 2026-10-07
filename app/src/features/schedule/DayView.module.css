@@ -80,6 +80,7 @@
 
 /* ---------- перерывы между парами ---------- */
 .break {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -89,14 +90,18 @@
   color: var(--color-text-muted);
 }
 
-/* Точка на «линии времени» перед подписью перерыва */
+/* Маленькая точка на линии времени у подписи перерыва */
 .break::before {
   content: '';
+  position: absolute;
+  top: 50%;
+  left: -20px;
   width: 6px;
   height: 6px;
+  margin-top: -3px;
   border-radius: 50%;
   background: currentColor;
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .break::after {

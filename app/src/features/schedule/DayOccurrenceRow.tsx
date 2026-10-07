@@ -20,6 +20,9 @@ interface DayOccurrenceRowProps {
 }
 
 /** Строка занятия в дневном виде: время, предмет, тип, аудитория, преподаватель. Клик по названию открывает popover с деталями. */
+/** Класс для <ul> со строками дня: линия времени слева, на ней точки пар */
+export const timelineClass = styles.timeline;
+
 export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccurrenceRowProps) {
   const subjectName = useSubjectName(occurrence.details.subjectId);
   const isNow = isHappeningNow(occurrence, today, time);
@@ -43,6 +46,8 @@ export function DayOccurrenceRow({ occurrence, today, time, onAction }: DayOccur
       muted={isCancelled}
       style={
         {
+          // Точка линии времени торчит за левый край строки — обрезать её нельзя
+          overflow: 'visible',
           '--type-color': classTypeColorVar(details.type),
           // Идущая пара: сколько уже прошло — полоска внизу строки
           ...(isNow && {

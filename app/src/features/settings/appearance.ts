@@ -126,12 +126,11 @@ function useDynamicPair(mode: DynamicTheme): AccentPair | null {
 export function useApplyAppearance() {
   // Только нужные поля (useShallow): хук живёт в AppShell — родителе страницы, и подписка на весь стор
   // перерисовывала бы страницу при любой настройке (например, при сворачивании меню — лаги на конспекте)
-  const { accent, accent2, dynamicTheme, glass, aurora, glow, liveBg, radius, density } = useSettingsStore(
-    useShallow(({ accent, accent2, dynamicTheme, glass, aurora, glow, liveBg, radius, density }) => ({
+  const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, density } = useSettingsStore(
+    useShallow(({ accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, density }) => ({
       accent,
       accent2,
       dynamicTheme,
-      glass,
       aurora,
       glow,
       liveBg,
@@ -151,14 +150,13 @@ export function useApplyAppearance() {
     else root.style.removeProperty('--accent-base-2');
     root.dataset.aurora = aurora ? 'on' : 'off';
     root.dataset.glow = glow ? 'on' : 'off';
-    root.dataset.glass = glass ? 'on' : 'off';
     // Тёплый акцент (оранжевый, янтарь) совпал бы с цветом практики — тогда практика темнее
     const hue = accentHue(pair?.a ?? accentColor(accent));
     if (hue !== null && isWarmHue(hue)) root.dataset.practice = 'deep';
     else delete root.dataset.practice;
     root.dataset.radius = radius;
     root.dataset.density = density;
-  }, [accent, accent2, pair, aurora, glow, glass, radius, density]);
+  }, [accent, accent2, pair, aurora, glow, radius, density]);
 
   // Подсветка под курсором: один обработчик на всю страницу пишет координаты в ту карточку
   // [data-spot], над которой курсор, — никаких слушателей на каждой карточке

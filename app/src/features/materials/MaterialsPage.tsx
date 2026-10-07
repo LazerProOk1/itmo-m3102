@@ -7,15 +7,17 @@ import { GroupFolder } from '../group/RepoFilePage';
 import { LectureNotesTab } from './LectureNotesTab';
 import styles from './MaterialsPage.module.css';
 
-type MaterialsSection = 'notes' | 'materials' | 'links';
+type MaterialsSection = 'notes' | 'materials' | 'labs' | 'recordings' | 'links';
 
 const SECTION_TABS: TabItem<MaterialsSection>[] = [
   { value: 'notes', label: 'Конспекты' },
   { value: 'materials', label: 'Материалы' },
+  { value: 'labs', label: 'Лабораторные' },
+  { value: 'recordings', label: 'Записи лекций' },
   { value: 'links', label: 'Ссылки' },
 ];
 
-/** Материалы: конспекты группы, учебники из «Материалы/» и ссылки. */
+/** Материалы: конспекты группы, учебники, лабораторные, записи лекций и ссылки. */
 export function MaterialsPage() {
   // Раздел — в адресе (?tab=…): «Назад» в браузере возвращает на прошлую вкладку, а не в начало
   const [params, setParams] = useSearchParams();
@@ -32,6 +34,8 @@ export function MaterialsPage() {
           {section === 'notes' && <LectureNotesTab />}
           {section === 'links' && <LinksPage embedded />}
           {section === 'materials' && <GroupFolder folder="Материалы" />}
+          {section === 'labs' && <GroupFolder folder="Лабораторные" />}
+          {section === 'recordings' && <GroupFolder folder="Записи лекций" />}
         </Swap>
       </div>
     </>
