@@ -1473,15 +1473,34 @@ const sameName=(word,token)=>{
 
 // все студенты, подходящие под введённое имя: слово целиком, уменьшительная форма или инициал («Ж.»)
 function studentMatches(raw){
-  const tokens=normName(raw).split(' ').filter(Boolean);
-  if(!tokens.length||tokens.length>3)return [];
-  return STUDENTS.filter(s=>{
-    const words=normName(s.name).split(' '),used=new Set();
-    return tokens.every(t=>{
-      const i=words.findIndex((w,k)=>!used.has(k)&&(t.length===1?w[0]===t:sameName(w,t)));
-      if(i<0)return false;used.add(i);return true;
+  const all=normName(raw).split(' ').filter(Boolean);
+  if(!all.length)return [];
+  // 1) строгое совпадение: все слова введённого имени найдены у студента
+  if(all.length<=3){
+    const strict=STUDENTS.filter(s=>{
+      const words=normName(s.name).split(' '),used=new Set();
+      return all.every(t=>{
+        const i=words.findIndex((w,k)=>!used.has(k)&&(t.length===1?w[0]===t:sameName(w,t)));
+        if(i<0)return false;used.add(i);return true;
+      });
     });
-  });
+    if(strict.length)return strict;
+  }
+  // 2) мягкое совпадение: лишние слова («&Кирилл указатель», «Эээ куда меня удалили? Демидов макс») игнорируются;
+  //    побеждают студенты, у которых нашлось больше всего слов из ФИО (одиночные буквы не считаем)
+  const tokens=all.filter(t=>t.length>1).slice(0,20);
+  if(!tokens.length)return [];
+  let best=0,found=[];
+  for(const s of STUDENTS){
+    const words=normName(s.name).split(' '),used=new Set();
+    let score=0;
+    for(const t of tokens){
+      const i=words.findIndex((w,k)=>!used.has(k)&&sameName(w,t));
+      if(i>=0){used.add(i);score++;}
+    }
+    if(score>best){best=score;found=[s];}else if(score&&score===best)found.push(s);
+  }
+  return found;
 }
 
 /*
