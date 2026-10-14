@@ -26,6 +26,10 @@ describe('очередь: кто стоит', () => {
     // Имя и инициал, уменьшительное; а «Артём Д» подходит двоим — это не друг, а автор
     expect(queuePerson('Макс Е.', 'zur1kov')).toEqual({ name: 'Максим Еланский', note: 'записал(а) Андрей Зюриков' });
     expect(queuePerson('Артём Д', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: 'Артём Д' });
+    // Одно имя, которое в группе одно, — это друг; имя, которое у нескольких, — сам автор
+    expect(queuePerson('Арман', 'RedstoneLord')).toEqual({ name: 'Арман Капланян', note: 'записал(а) Федор Жупиков' });
+    expect(queuePerson('Макс', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: 'Макс' });
+    expect(queuePerson('Андрей', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: undefined });
     // Без имени — по автору; аккаунт не из группы получает значок, даже когда записал студента
     expect(queuePerson('', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: undefined });
     expect(queuePerson('', 'stranger')).toEqual({ name: '(без имени)', note: '@stranger', outside: true });

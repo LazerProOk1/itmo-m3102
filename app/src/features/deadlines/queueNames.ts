@@ -48,7 +48,8 @@ export function studentName(login: string | undefined): string | undefined {
 /**
  * Студент, которого назвали в заголовке: записывают и друзей — с аккаунта Андрея приходит «максим еланский».
  * Сначала по фамилии (слова короче 4 букв не считаем — «Артём Д» не фамилия), затем по имени и инициалу
- * («Макс Е.»). Только если студент один: «Артём Д» подходит двоим — тогда это не друг, а сам автор.
+ * («Макс Е.») или просто по имени, если оно в группе одно («Арман»). Только если студент один: «Артём Д» подходит
+ * двоим — тогда это не друг, а сам автор.
  */
 export function namedStudent(typed: string): string | undefined {
   const typedWords = words(typed);
@@ -57,7 +58,8 @@ export function namedStudent(typed: string): string | undefined {
     return typedWords.some((word) => word.length >= 4 && surname.startsWith(word));
   });
   if (bySurname.length === 1) return shortName(bySurname[0]!);
-  if (typedWords.length < 2 || typedWords.length > 3) return undefined;
+  // Одно слово — только имя целиком («Арман»): буква или «Тема» из двух-трёх знаков слишком расплывчаты
+  if (typedWords.length === 0 || typedWords.length > 3 || (typedWords.length === 1 && typedWords[0]!.length < 3)) return undefined;
   const byName = M3102_STUDENTS.filter((student) => {
     const parts = simplify(student.name).split(' ');
     const used = new Set<number>();
