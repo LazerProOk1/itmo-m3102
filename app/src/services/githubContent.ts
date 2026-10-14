@@ -8,6 +8,7 @@ import { parseHomework, useHomeworkStore } from '../features/homework/homeworkSt
 import { githubError, githubFetch } from './github';
 import { parseGroupSchedule, type GroupSchedule } from './groupSchedule';
 import { quizPageToMarkdown } from '../components/quiz/parseQuiz';
+import { parseGreetings, saveGreetings } from '../data/greetings';
 import { useScheduleStore } from '../features/schedule/scheduleStore';
 import { useSemesterSettingsStore } from '../features/settings/semesterSettingsStore';
 import { storageKey } from '../lib/storage';
@@ -402,7 +403,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
     fetchTree('group').then(async (tree) => {
       const paths = tree.map((file) => file.path);
       const files: RepoFile[] = tree.map(({ path, size, sha }) => ({ path, size, sha }));
-      const [notes, deadlines, homework, links, schedule] = await Promise.all([
+      const [notes, deadlines, homework, links, schedule, greetings] = await Promise.all([
         buildGroupNotes(tree, notesBefore, now),
         fetchText(rawUrl('group', 'Дедлайны/deadlines.json')).then((text) => parseDeadlines(JSON.parse(text))),
         fetchText(rawUrl('group', 'data/homework.json')).then((text) => parseHomework(JSON.parse(text))),
@@ -411,8 +412,12 @@ export async function syncGithubContent(): Promise<SyncSummary> {
         fetchText(rawUrl('group', 'data/schedule.json'))
           .then((text) => parseGroupSchedule(JSON.parse(text)))
           .catch(() => null),
+        // Заголовки главной группа правит в js/greetings.js: подтягиваем их, нет файла — остаются прежние
+        fetchText(rawUrl('group', 'js/greetings.js'))
+          .then(parseGreetings)
+          .catch(() => null),
       ]);
-      return { files, notes, deadlines, homework, links, schedule, materials: buildMaterials(paths, materialsBefore, now) };
+      return { files, notes, deadlines, homework, links, schedule, greetings, materials: buildMaterials(paths, materialsBefore, now) };
     }),
     buildCourseInfo(infoBefore, now),
   ]);
@@ -420,7 +425,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
   const summary: SyncSummary = { group: 0, subjectInfo: 0, materials: 0, deadlines: 0, homework: 0, links: 0, schedule: 0 };
 
   if (group.status === 'fulfilled') {
-    const { files, notes, deadlines, homework, links, schedule, materials } = group.value;
+    const { files, notes, deadlines, homework, links, schedule, greetings, materials } = group.value;
     const ids = new Set(notes.map((note) => note.id));
     useLectureNotesStore.setState((state) => ({
       lectureNotes: [
@@ -438,6 +443,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       summary.schedule = schedule.classes.length;
     }
     useHomeworkStore.getState().setRemote(homework);
+    if (greetings) saveGreetings(greetings);
     // Раньше дедлайны группы складывались в задачи (id "gh:deadline:…") — теперь у них своя страница
     useTasksStore.setState((state) => ({ tasks: state.tasks.filter((task) => !task.id.startsWith('gh:')) }));
     Object.assign(summary, { materials: materials.length, deadlines: deadlines.length, homework: homework.length, links: links.length });
