@@ -32,3 +32,11 @@
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
+
+.chevron {
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
