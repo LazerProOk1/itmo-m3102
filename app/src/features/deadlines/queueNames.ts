@@ -9,21 +9,29 @@ const words = (text: string) =>
 
 /** Уменьшительные имён группы: «Федя» в заголовке — то же, что «Федор», а не приписка */
 const DIMINUTIVES: Record<string, string[]> = {
-  алексей: ['леша', 'лёша'],
-  александр: ['саша', 'шура'],
-  андрей: ['андрюша'],
-  артем: ['тема', 'тёма'],
-  даниил: ['даня', 'данил'],
-  давид: ['дава'],
-  екатерина: ['катя'],
-  илья: ['илюша'],
-  кирилл: ['кирюша'],
-  максим: ['макс'],
-  марьяна: ['марьяша'],
-  сергей: ['сережа', 'серега'],
-  тимофей: ['тима', 'тимоша'],
-  федор: ['федя'],
+  алексей: ['леша', 'алеша', 'леха'],
+  александр: ['саша', 'шура', 'саня', 'алекс', 'санек'],
+  андрей: ['андрюша', 'андрюха', 'дрюша'],
+  арман: ['армаша'],
+  артем: ['тема', 'артемка'],
+  даниил: ['даня', 'данил', 'даниэль'],
+  давид: ['дава', 'давидка'],
+  екатерина: ['катя', 'катюша', 'катерина', 'катька'],
+  илья: ['илюша', 'илюха'],
+  кирилл: ['кира', 'кирюша', 'кирюха'],
+  марк: ['маркуша'],
+  максим: ['макс', 'максимка', 'максик'],
+  марьяна: ['марьяша', 'маряна', 'мариана'],
+  радик: ['радий', 'радмир'],
+  сергей: ['сережа', 'серега', 'серый'],
+  тимофей: ['тима', 'тимоша', 'тимоха'],
+  федор: ['федя', 'феденька', 'федька'],
 };
+
+/** Слово → номер группы уменьшительных: «Макс» и «Максим» — одно имя */
+const aliasGroup = new Map<string, number>();
+Object.entries(DIMINUTIVES).forEach(([name, aliases], index) => [name, ...aliases].forEach((word) => aliasGroup.set(simplify(word), index)));
+const sameName = (a: string, b: string) => a === b || (aliasGroup.has(a) && aliasGroup.get(a) === aliasGroup.get(b));
 
 /** «Фамилия Имя Отчество» → «Имя Фамилия» */
 const shortName = (student: Student) => {
@@ -38,16 +46,29 @@ export function studentName(login: string | undefined): string | undefined {
 }
 
 /**
- * Студент, которого назвали в заголовке по фамилии: записывают и друзей — с аккаунта Андрея приходит
- * «максим еланский». Только если фамилия однозначна; слова короче 4 букв не считаем — «Артём Д» не фамилия.
+ * Студент, которого назвали в заголовке: записывают и друзей — с аккаунта Андрея приходит «максим еланский».
+ * Сначала по фамилии (слова короче 4 букв не считаем — «Артём Д» не фамилия), затем по имени и инициалу
+ * («Макс Е.»). Только если студент один: «Артём Д» подходит двоим — тогда это не друг, а сам автор.
  */
 export function namedStudent(typed: string): string | undefined {
-  const typedWords = words(typed).filter((word) => word.length >= 4);
-  const found = M3102_STUDENTS.filter((student) => {
+  const typedWords = words(typed);
+  const bySurname = M3102_STUDENTS.filter((student) => {
     const surname = simplify(student.name.split(' ')[0] ?? '');
-    return typedWords.some((word) => surname.startsWith(word));
+    return typedWords.some((word) => word.length >= 4 && surname.startsWith(word));
   });
-  return found.length === 1 ? shortName(found[0]!) : undefined;
+  if (bySurname.length === 1) return shortName(bySurname[0]!);
+  if (typedWords.length < 2 || typedWords.length > 3) return undefined;
+  const byName = M3102_STUDENTS.filter((student) => {
+    const parts = simplify(student.name).split(' ');
+    const used = new Set<number>();
+    return typedWords.every((word) => {
+      const at = parts.findIndex((part, index) => !used.has(index) && (word.length === 1 ? part.startsWith(word) : sameName(part, word)));
+      if (at < 0) return false;
+      used.add(at);
+      return true;
+    });
+  });
+  return byName.length === 1 ? shortName(byName[0]!) : undefined;
 }
 
 /**
@@ -56,17 +77,28 @@ export function namedStudent(typed: string): string | undefined {
  */
 export function hasExtraText(typed: string, name: string): boolean {
   const parts = simplify(name).split(' ');
-  const known = parts.flatMap((part) => [part, ...(DIMINUTIVES[part] ?? []).map(simplify)]);
+  const known = parts.flatMap((part) => [part, ...(DIMINUTIVES[part] ?? [])]);
   return words(typed).some((word) => !known.some((part) => part.startsWith(word)));
 }
 
-/** Строка очереди: кто стоит (по фамилии в заголовке, иначе — автор записи) и приписка мелким шрифтом */
-export function queuePerson(typed: string, login: string | undefined): { name: string; note?: string } {
+export interface QueuePerson {
+  name: string;
+  note?: string;
+  /** Записал аккаунт, которого нет в списке группы: значок-предупреждение у строки */
+  outside?: true;
+}
+
+/**
+ * Строка очереди: кто стоит (по имени в заголовке, иначе — автор записи) и приписка мелким шрифтом.
+ * Предупреждение «не из группы» — про аккаунт, который записывает: студент группы может записать кого угодно.
+ */
+export function queuePerson(typed: string, login: string | undefined): QueuePerson {
   const author = studentName(login);
   const named = namedStudent(typed);
-  if (named && named !== author) return { name: named, note: author ? `записал(а) ${author}` : login && `записал(а) @${login}` };
+  const outside = !author && Boolean(login) ? { outside: true as const } : {};
+  if (named && named !== author) return { name: named, note: author ? `записал(а) ${author}` : login && `записал(а) @${login}`, ...outside };
   if (author) return { name: author, note: typed && hasExtraText(typed, author) ? typed : undefined };
-  return { name: typed || '(без имени)', note: login && `@${login}` };
+  return { name: typed || '(без имени)', note: login && `@${login}`, ...outside };
 }
 
 /** GitHub-логин студента, который стоит в очереди (не обязательно автор записи) — по нему открывается профиль */

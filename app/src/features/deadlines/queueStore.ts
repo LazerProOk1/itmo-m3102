@@ -16,6 +16,8 @@ export interface QueueEntry {
   note?: string;
   /** GitHub-логин того, кто стоит (если он из группы) — открывает его профиль */
   login?: string;
+  /** Запись сделал аккаунт не из списка группы — рядом значок-предупреждение */
+  outside?: boolean;
   url: string;
 }
 

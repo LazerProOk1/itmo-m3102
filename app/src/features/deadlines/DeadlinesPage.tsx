@@ -1,4 +1,4 @@
-import { ExternalLink, RefreshCw } from 'lucide-react';
+import { ChevronDown, CircleAlert, ExternalLink, RefreshCw } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Badge } from '../../components/ui/Badge';
@@ -25,11 +25,16 @@ import styles from './DeadlinesPage.module.css';
 /**
  * Метку queue-signup ставит workflow label-deadline-signups.yml в репозитории группы: через ?labels=
  * GitHub разрешает ставить метки только участникам репозитория, у остальных запись терялась.
+ * Без имени заголовок — просто «[id]»: человека назовёт его GitHub-аккаунт.
  */
 export function joinQueueUrl(deadlineId: string, name: string): string {
   const { owner, repo } = GROUP_REPO;
-  return `https://github.com/${owner}/${repo}/issues/new?title=${encodeURIComponent(`[${deadlineId}] ${name}`)}`;
+  const title = name ? `[${deadlineId}] ${name}` : `[${deadlineId}]`;
+  return `https://github.com/${owner}/${repo}/issues/new?title=${encodeURIComponent(title)}`;
 }
+
+/** Сколько человек видно в очереди без раскрытия: у длинных очередей кнопка записи иначе уезжала за экран */
+const QUEUE_PREVIEW = 3;
 
 const formatFull = (iso: string) =>
   new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -49,6 +54,7 @@ function DeadlinesList({ tabs }: { tabs: ReactNode }) {
   useConfettiWhenCleared(deadlines.filter((item) => !doneMap[item.id]).length);
   const { queues, at: queueAt, error: queueError, loading, refresh, refreshIfStale } = useQueueStore();
   const queueKnown = queueAt > 0;
+  const [doneOpen, setDoneOpen] = useState(false);
 
   useEffect(() => {
     // Открыли страницу или вернулись во вкладку — сами обновляем не чаще раза в 2 минуты (лимит GitHub API);
@@ -60,7 +66,21 @@ function DeadlinesList({ tabs }: { tabs: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', refreshIfStale);
   }, [refreshIfStale]);
 
-  const remaining = deadlines.filter((item) => !doneMap[item.id]).length;
+  const ordered = orderDeadlines(deadlines, doneMap);
+  const active = ordered.filter((item) => !doneMap[item.id]);
+  const finished = ordered.filter((item) => doneMap[item.id]);
+
+  const renderCard = (item: GroupDeadline, index: number) => (
+    <DeadlineCard
+      key={item.id}
+      item={item}
+      index={index}
+      done={Boolean(doneMap[item.id])}
+      queue={queues[item.id] ?? []}
+      queueKnown={queueKnown}
+      onJoined={() => setTimeout(() => void refresh(), 8000)}
+    />
+  );
 
   return (
     <>
@@ -91,22 +111,26 @@ function DeadlinesList({ tabs }: { tabs: ReactNode }) {
           <div className={styles.overview}>
             <span className={styles.overviewLabel}>В фокусе</span>
             <strong>
-              {remaining} <small>из {deadlines.length} сроков</small>
+              {active.length} <small>из {deadlines.length} сроков</small>
             </strong>
           </div>
-          <div className={`${styles.grid} stagger`}>
-            {orderDeadlines(deadlines, doneMap).map((item, index) => (
-              <DeadlineCard
-                key={item.id}
-                item={item}
-                index={index}
-                done={Boolean(doneMap[item.id])}
-                queue={queues[item.id] ?? []}
-                queueKnown={queueKnown}
-                onJoined={() => setTimeout(() => void refresh(), 8000)}
-              />
-            ))}
-          </div>
+          {active.length > 0 ? (
+            <div className={`${styles.grid} stagger`}>{active.map(renderCard)}</div>
+          ) : (
+            <p className={styles.allDone}>Всё выполнено — в работе ничего нет.</p>
+          )}
+
+          {/* Сделанное не мешает текущему: свёрнуто, раскрывается по кнопке */}
+          {finished.length > 0 && (
+            <section className={styles.finished}>
+              <button type="button" className={styles.sectionToggle} aria-expanded={doneOpen} onClick={() => setDoneOpen(!doneOpen)}>
+                <ChevronDown size={14} strokeWidth={2} className={cn(styles.chevron, doneOpen && styles.chevronOpen)} aria-hidden />
+                Выполнено <span>{finished.length}</span>
+              </button>
+              {doneOpen && <div className={`${styles.grid} stagger`}>{finished.map(renderCard)}</div>}
+            </section>
+          )}
+
           {queueError && (
             <p className={styles.staleNote}>
               {queueKnown ? `Очередь от ${formatClock(queueAt)}: обновить не вышло — ${queueError}.` : `Очередь не загрузилась: ${queueError}.`}
@@ -161,10 +185,11 @@ function DeadlineCard({ item, index, done, queue, queueKnown, onJoined }: Deadli
   const toggleDone = useGroupStore((state) => state.toggleDeadlineDone);
   const openProfile = useProfileStore((state) => state.open);
   const [name, setName] = useState('');
+  const [expanded, setExpanded] = useState(false);
   const badge = deadlineInfo(item.deadline);
+  const shown = expanded ? queue : queue.slice(0, QUEUE_PREVIEW);
 
   function join() {
-    if (!name.trim()) return;
     window.open(joinQueueUrl(item.id, name.trim()), '_blank', 'noopener');
     onJoined();
   }
@@ -182,36 +207,7 @@ function DeadlineCard({ item, index, done, queue, queueKnown, onJoined }: Deadli
       </p>
       <DeadlineLinks name={item.name} />
 
-      <div className={styles.queueHead}>
-        Очередь <span>{queueKnown ? `${queue.length} чел.` : 'не загрузилась'}</span>
-      </div>
-      <ol className={styles.queue}>
-        {queue.length === 0 ? (
-          <li className={styles.queueEmpty}>{queueKnown ? 'Очередь пока пуста' : 'Появится, когда GitHub ответит'}</li>
-        ) : (
-          queue.map((entry) => (
-            <li key={entry.url}>
-              {/* Студент группы — чип с фото: видно, что это человек и его можно открыть; чужой — запись на GitHub */}
-              {entry.login ? (
-                <button
-                  type="button"
-                  className={styles.queuePerson}
-                  onClick={() => openProfile(entry.login!)}
-                  aria-label={`${entry.name} — открыть профиль`}
-                >
-                  <img src={`https://github.com/${encodeURIComponent(entry.login)}.png?size=40`} alt="" loading="lazy" />
-                  {entry.name}
-                </button>
-              ) : (
-                <a href={entry.url} target="_blank" rel="noopener noreferrer">
-                  {entry.name}
-                </a>
-              )}
-              {entry.note && <span className={styles.queueNote}>{entry.note}</span>}
-            </li>
-          ))
-        )}
-      </ol>
+      {/* Действия — над очередью: у длинной очереди кнопка записи иначе уезжала за границу экрана */}
       <form
         className={styles.join}
         onSubmit={(event) => {
@@ -219,12 +215,63 @@ function DeadlineCard({ item, index, done, queue, queueKnown, onJoined }: Deadli
           join();
         }}
       >
-        <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ваше имя" aria-label={`Имя для очереди «${item.name}»`} />
-        <Button type="submit" variant="primary" disabled={!name.trim()}>
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Имя (необязательно)"
+          aria-label={`Имя для очереди «${item.name}»: можно оставить пустым`}
+        />
+        <Button type="submit" variant="primary">
           В очередь ↗
         </Button>
       </form>
       <Checkbox celebrate label="Выполнено для меня" checked={done} onChange={(event) => toggleDone(item.id, event.target.checked)} />
+
+      <div className={styles.queueHead}>
+        Очередь <span>{queueKnown ? `${queue.length} чел.` : 'не загрузилась'}</span>
+      </div>
+      <ol className={styles.queue}>
+        {queue.length === 0 ? (
+          <li className={styles.queueEmpty}>{queueKnown ? 'Очередь пока пуста' : 'Появится, когда GitHub ответит'}</li>
+        ) : (
+          shown.map((entry) => <QueueRow key={entry.url} entry={entry} onOpenProfile={openProfile} />)
+        )}
+      </ol>
+      {queue.length > QUEUE_PREVIEW && (
+        <button type="button" className={styles.queueToggle} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+          <ChevronDown size={14} strokeWidth={2} className={cn(styles.chevron, expanded && styles.chevronOpen)} aria-hidden />
+          {expanded ? 'Свернуть' : `Показать всех · ещё ${queue.length - QUEUE_PREVIEW}`}
+        </button>
+      )}
     </article>
+  );
+}
+
+function QueueRow({ entry, onOpenProfile }: { entry: QueueEntry; onOpenProfile: (login: string) => void }) {
+  return (
+    <li>
+      {/* Студент группы — чип с фото: видно, что это человек и его можно открыть; чужой — запись на GitHub */}
+      {entry.login ? (
+        <button
+          type="button"
+          className={styles.queuePerson}
+          onClick={() => onOpenProfile(entry.login!)}
+          aria-label={`${entry.name} — открыть профиль`}
+        >
+          <img src={`https://github.com/${encodeURIComponent(entry.login)}.png?size=40`} alt="" loading="lazy" />
+          {entry.name}
+        </button>
+      ) : (
+        <a href={entry.url} target="_blank" rel="noopener noreferrer">
+          {entry.name}
+        </a>
+      )}
+      {entry.outside && (
+        <span className={styles.outside} role="img" aria-label="GitHub-аккаунт не из списка группы" title="GitHub-аккаунт не из списка группы">
+          <CircleAlert size={14} strokeWidth={1.75} aria-hidden />
+        </span>
+      )}
+      {entry.note && <span className={styles.queueNote}>{entry.note}</span>}
+    </li>
   );
 }

@@ -22,7 +22,18 @@ describe('очередь: кто стоит', () => {
     expect(queuePerson('максим еланский', 'zur1kov')).toEqual({ name: 'Максим Еланский', note: 'записал(а) Андрей Зюриков' });
     expect(queuePerson('андрей (10.10.26)', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: 'андрей (10.10.26)' });
     expect(queuePerson('Артём Д', 'artemiks727')).toEqual({ name: 'Артём Давалов', note: undefined });
-    expect(queuePerson('Гость', 'stranger')).toEqual({ name: 'Гость', note: '@stranger' });
+    expect(queuePerson('Гость', 'stranger')).toEqual({ name: 'Гость', note: '@stranger', outside: true });
+    // Имя и инициал, уменьшительное; а «Артём Д» подходит двоим — это не друг, а автор
+    expect(queuePerson('Макс Е.', 'zur1kov')).toEqual({ name: 'Максим Еланский', note: 'записал(а) Андрей Зюриков' });
+    expect(queuePerson('Артём Д', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: 'Артём Д' });
+    // Без имени — по автору; аккаунт не из группы получает значок, даже когда записал студента
+    expect(queuePerson('', 'zur1kov')).toEqual({ name: 'Андрей Зюриков', note: undefined });
+    expect(queuePerson('', 'stranger')).toEqual({ name: '(без имени)', note: '@stranger', outside: true });
+    expect(queuePerson('максим еланский', 'stranger')).toEqual({
+      name: 'Максим Еланский',
+      note: 'записал(а) @stranger',
+      outside: true,
+    });
     // Профиль — того, кто стоит, а не того, кто записал
     expect(queueLogin('максим еланский', 'zur1kov')).toBe(M3102_STUDENTS.find((student) => student.name.startsWith('Еланский'))?.github);
     expect(queueLogin('андрей (10.10.26)', 'zur1kov')).toBe('zur1kov');
