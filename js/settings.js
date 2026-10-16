@@ -15,8 +15,14 @@ const PALETTES = [
   { id: 'green', name: 'Зелёная' },
   { id: 'blue', name: 'Синяя' },
   { id: 'cyan', name: 'Светлый циан' },
+  { id: 'gold', name: 'Золото' },
+  { id: 'neon', name: 'Неон' },
+  { id: 'aurora', name: 'Аврора' },
 ];
 const DEFAULT_PALETTE = 'purple';
+const BASE_PALETTES = ['purple', 'orange', 'green', 'blue', 'cyan'];
+// палитры из капсул слотов видны, когда выпали (или выбраны прямо сейчас)
+const paletteVisible = (id, current) => { if (BASE_PALETTES.includes(id) || id === current) return true; try { return Boolean(JSON.parse(localStorage.getItem('m3102-slots-v1')).album['pal:' + id]); } catch { return false; } };
 const SAMPLE = 'Съешь же ещё этих мягких французских булок, да выпей чаю. <b>0123456789</b>';
 
 const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
@@ -52,7 +58,7 @@ export function renderSettingsPage() {
   const content = document.querySelector('#content');
   const draw = () => {
     const font = getFont(), palette = getPalette();
-    content.querySelector('.palette-options').innerHTML = PALETTES.map(p => `<button type="button" class="palette-option" role="radio" aria-checked="${p.id === palette}" data-palette="${p.id}">
+    content.querySelector('.palette-options').innerHTML = PALETTES.filter(p => paletteVisible(p.id, palette)).map(p => `<button type="button" class="palette-option" role="radio" aria-checked="${p.id === palette}" data-palette="${p.id}">
       <span class="palette-swatch" style="background:linear-gradient(135deg,var(--pal-${p.id}-a),var(--pal-${p.id}-b))">${ic('check', 20)}</span>${p.name}</button>`).join('');
     drawAppearance(content);
     content.querySelector('.font-options').innerHTML = FONTS.map(f => `<button type="button" class="font-option" role="radio" aria-checked="${f.id === font}" data-font="${f.id}" style="font-family:var(${f.var})">

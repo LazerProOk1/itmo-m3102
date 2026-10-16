@@ -19,6 +19,7 @@
   "shortcuts": [
     { "name": "Расписание", "url": "./#/schedule", "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
     { "name": "Домашнее задание", "url": "./#/homework", "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
-    { "name": "Дедлайны", "url": "./#/deadlines", "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+    { "name": "Дедлайны", "url": "./#/deadlines", "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Колючий куш", "url": "./#/slots", "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
   ]
 }

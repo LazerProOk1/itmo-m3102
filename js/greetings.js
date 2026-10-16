@@ -46,11 +46,26 @@ export const GREETINGS = [
 ];
 
 const FALLBACK = 'Ваш учебный день.';
+
+// Шутки из капсул «Колючего куша»: пак открывается, когда выпал предмет greet:<id>
+export const GREETING_PACKS = {
+  cat: ['Кот сидит на конспекте.', 'Мур-мур-мур, Коши.'],
+  rust: ['Борроу-чекер недоволен.', 'Если компилируется — значит, работает.'],
+  matan: ['Для любого ε найдётся δ.', 'Сходится абсолютно. Как и ваш дедлайн.'],
+  orange: ['Вы Апельсин? Мы Апельсин.', 'Апельсиновое настроение.'],
+  casino: ['Ставки сделаны — ягоды потрачены.', 'Крупье-ёжик приветствует вас.'],
+};
+function unlockedGreetings() {
+  try {
+    const album = JSON.parse(localStorage.getItem('m3102-slots-v1')).album || {};
+    return Object.entries(GREETING_PACKS).filter(([id]) => album['greet:' + id]).flatMap(([, lines]) => lines);
+  } catch { return []; }
+}
 let previous = '';
 
 /** Случайная строка; подряд два раза одна и та же не выпадает (если строк больше одной). */
 export function pickGreeting() {
-  const list = GREETINGS.filter(line => typeof line === 'string' && line.trim());
+  const list = [...GREETINGS, ...unlockedGreetings()].filter(line => typeof line === 'string' && line.trim());
   if (!list.length) return FALLBACK;
   const pool = list.length > 1 ? list.filter(line => line !== previous) : list;
   previous = pool[Math.floor(Math.random() * pool.length)];

@@ -14,7 +14,7 @@ const JUMP_KEY = 'm3102-jump-heading';
 const takeJump = () => { try { const value = sessionStorage.getItem(JUMP_KEY) || ''; sessionStorage.removeItem(JUMP_KEY); return value; } catch { return ''; } };
 const STATIC_PAGES = [
   { title: 'Расписание', href: '#/schedule' }, { title: 'Домашнее задание', href: '#/homework' }, { title: 'Дедлайны', href: '#/deadlines' },
-  { title: 'Материалы', href: '#/materials' }, { title: 'Студенты', href: '#/students' }, { title: 'Диаграммы', href: '#/diagrams' }, { title: 'Мемы', href: '#/memes' },
+  { title: 'Материалы', href: '#/materials' }, { title: 'Студенты', href: '#/students' }, { title: 'Диаграммы', href: '#/diagrams' }, { title: 'Мемы', href: '#/memes' }, { title: 'Колючий куш (слоты)', href: '#/slots' },
 ];
 const ICON_CHEV = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_LIST = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';

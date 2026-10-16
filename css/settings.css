@@ -31,6 +31,9 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
   --pal-green-a:#1f9d63;--pal-green-b:#4cbd88;
   --pal-blue-a:#2f6fe0;--pal-blue-b:#5f95ee;
   --pal-cyan-a:#4a9fae;--pal-cyan-b:#82bfca;
+  --pal-gold-a:#c28a12;--pal-gold-b:#f0c95a;
+  --pal-neon-a:#d61fd6;--pal-neon-b:#19d3ff;
+  --pal-aurora-a:#2fb39a;--pal-aurora-b:#8a74f2;
 }
 /* Плавная смена темы: --accent и --accent2 регистрируются как цвета, поэтому браузер умеет их
    анимировать, а всё остальное (фон, стекло, ёжик, полосы) считается от них через var()/color-mix
@@ -44,6 +47,9 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 :root[data-palette="green"]{--accent:var(--pal-green-a);--accent2:var(--pal-green-b)}
 :root[data-palette="blue"]{--accent:var(--pal-blue-a);--accent2:var(--pal-blue-b)}
 :root[data-palette="cyan"]{--accent:var(--pal-cyan-a);--accent2:var(--pal-cyan-b)}
+:root[data-palette="gold"]{--accent:var(--pal-gold-a);--accent2:var(--pal-gold-b)}
+:root[data-palette="neon"]{--accent:var(--pal-neon-a);--accent2:var(--pal-neon-b)}
+:root[data-palette="aurora"]{--accent:var(--pal-aurora-a);--accent2:var(--pal-aurora-b)}
 
 /* фон и стекло: светлая тема */
 :root[data-palette]{
