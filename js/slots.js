@@ -103,36 +103,48 @@ export function renderSlotsPage() {
       <div class="sl-stat"><span>Титул</span><b id="sl-title" class="sl-titlechip"></b></div>
     </div>
     <div class="sl-machine th-forest" id="sl-machine">
-      <div class="sl-frame" id="sl-frame">
-        <div class="sl-reels" id="sl-reels"></div>
-        <svg class="sl-lines" id="sl-lines" viewBox="0 0 500 300" preserveAspectRatio="none" aria-hidden="true"></svg>
-        <canvas class="sl-fx" id="sl-fx" aria-hidden="true"></canvas>
-        <div class="sl-banner" id="sl-banner" aria-hidden="true"></div>
-        <div class="sl-over" id="sl-over" hidden></div>
+  <div class="sl-cab">
+    <div class="sl-controls sl-side">
+      <div class="sl-bet" role="group" aria-label="Ставка">
+        <button class="btn2" id="sl-bet-dn" type="button" aria-label="Уменьшить ставку">−</button>
+        <output id="sl-bet" aria-live="polite">5</output>
+        <button class="btn2" id="sl-bet-up" type="button" aria-label="Увеличить ставку">+</button>
+        <button class="btn2" id="sl-bet-max" type="button">Макс</button>
       </div>
-      <div class="sl-winbar"><span id="sl-winlabel">Выигрыш</span><b id="sl-win">0</b><small id="sl-frac" title="Доли ягод копятся и добавляются, когда набирается целая"></small><div class="sl-ladder" id="sl-ladder" hidden aria-label="Множитель фриспинов"></div></div>
-      <div class="sl-heat" id="sl-heat"><span class="sl-heatlabel">Жар</span><div class="sl-heatbar" id="sl-heatbar" role="img" aria-label="Шкала жара"></div><small id="sl-heattxt"></small></div>
-      <div id="sl-gamble" class="sl-gamble" hidden></div>
-      <div class="sl-controls">
-        <div class="sl-bet" role="group" aria-label="Ставка"><button class="btn2" id="sl-bet-dn" type="button" aria-label="Уменьшить ставку">−</button><output id="sl-bet" aria-live="polite">5</output><button class="btn2" id="sl-bet-up" type="button" aria-label="Увеличить ставку">+</button><button class="btn2" id="sl-bet-max" type="button">Макс</button></div>
-        <button class="btn2 btn-primary sl-spin" id="sl-spin" type="button">Крутить</button>
-        <button class="btn2" id="sl-free" type="button">Бесплатный спин</button>
-        <button class="btn2" id="sl-stop" type="button" hidden>Стоп авто</button>
-        <div class="sl-tools">
-          <button class="btn2" id="sl-turbo" type="button" aria-pressed="false">Турбо</button>
-          <select id="sl-auto-n" class="btn2" aria-label="Автоспин"><option value="0">Авто</option><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
-          <button class="btn2" id="sl-pay" type="button">Выплаты</button>
-          <button class="btn2" id="sl-sound" type="button" aria-pressed="false">Звук</button>
-          <button class="btn2" id="sl-break" type="button">Сделать перерыв</button>
-        </div>
-        <details class="sl-autoopts"><summary>Условия остановки автоспина</summary>
-          <label><input type="checkbox" id="sl-st-big" checked> крупный выигрыш (от 15×)</label>
-          <label><input type="checkbox" id="sl-st-feat" checked> бонус или фриспины</label>
-          <label>баланс ниже <input type="number" id="sl-st-below" min="0" step="10" value="0"> 🍓</label></details>
+      <button class="btn2" id="sl-free" type="button">Бесплатный спин</button>
+      <button class="btn2" id="sl-stop" type="button" hidden>Стоп авто</button>
+      <div class="sl-tools">
+        <button class="btn2" id="sl-turbo" type="button" aria-pressed="false">Турбо</button>
+        <select id="sl-auto-n" class="btn2" aria-label="Автоспин"><option value="0">Авто</option><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+        <button class="btn2" id="sl-pay" type="button">Выплаты</button>
+        <button class="btn2" id="sl-sound" type="button" aria-pressed="false">Звук</button>
+        <button class="btn2" id="sl-break" type="button">Сделать перерыв</button>
       </div>
-      <p class="sl-sess" id="sl-sess" aria-live="off"></p>
-      <p class="sl-breakmsg" id="sl-breakmsg" role="status" hidden></p>
+      <details class="sl-autoopts"><summary>Условия остановки автоспина</summary>
+        <label><input type="checkbox" id="sl-st-big" checked> крупный выигрыш (от 15×)</label>
+        <label><input type="checkbox" id="sl-st-feat" checked> бонус или фриспины</label>
+        <label>баланс ниже <input type="number" id="sl-st-below" min="0" step="10" value="0"> 🍓</label></details>
     </div>
+
+    <div class="sl-mid">
+      <div class="sl-frame" id="sl-frame"> …без изменений… </div>
+      <div class="sl-winbar"> …без изменений… </div>
+      <div class="sl-heat" id="sl-heat"> …без изменений… </div>
+      <div id="sl-gamble" class="sl-gamble" hidden></div>
+    </div>
+
+    <div class="sl-leverbox">
+      <button class="sl-lever" id="sl-spin" type="button" aria-label="Крутить: потяните рычаг">
+        <span class="sl-lever-slot"></span>
+        <span class="sl-lever-arm"></span>
+        <span class="sl-lever-knob"></span>
+        <span class="sl-lever-label">Крутить</span>
+      </button>
+    </div>
+  </div>
+  <p class="sl-sess" id="sl-sess" aria-live="off"></p>
+  <p class="sl-breakmsg" id="sl-breakmsg" role="status" hidden></p>
+</div>
     <div class="sl-nudge" id="sl-nudge"><span id="sl-nudgetxt"></span><a class="btn2" href="#/hedgehog">🦔 Покатать ёжика за ягодами</a></div>
     <div class="sl-panels">
       <section class="dash-panel" id="sl-daily" aria-label="Ежедневные спины"></section>
@@ -171,6 +183,7 @@ export function renderSlotsPage() {
   }
   const shake = () => { if (reduce()) return; frame.classList.add('sl-shake'); later(() => frame.classList.remove('sl-shake'), 520); };
   const pop = el => { if (!el) return; el.classList.remove('sl-pop'); void el.offsetWidth; el.classList.add('sl-pop'); };
+  const pullLever = () => { const l = $('#sl-spin'); if (!l || reduce()) return; l.classList.remove('is-pulled'); void l.offsetWidth; l.classList.add('is-pulled'); };
 
   /* ---------- интерфейс: табло, кнопки, панели ---------- */
   function hud() {
@@ -365,7 +378,7 @@ export function renderSlotsPage() {
     if (onBreak()) { hud(); return; }
     collectPending(); const free = kind === 'free';
     if (free ? freeLeft() < 1 : H.berries < bet) { audio.nope(); toast(free ? 'Бесплатных спинов нет.' : 'Не хватает ягод — ёжик уже зовёт.'); hud(); return; }
-    const betEff = free ? M.DAILY_BET : bet; gambleBet = betEff; busy = true; skip = false; clearWin(); closeGamble(); $('#sl-win').textContent = '0'; $('#sl-winlabel').textContent = 'Выигрыш'; hideOver();
+    const betEff = free ? M.DAILY_BET : bet; gambleBet = betEff; busy = true; skip = false; pullLever(); clearWin(); closeGamble(); $('#sl-win').textContent = '0'; $('#sl-winlabel').textContent = 'Выигрыш'; hideOver();
     if (free) { if (S.free > 0) S.free--; else H.bonusSpins--; } else { H.berries -= bet; S.stats.wagered += bet; sess.net -= bet; }
     S.stats.spins++; sess.spins++; S.bet = bet; shownBal = H.berries;
     const R = M.rollRound(rng, S, betEff, perksOf(H), { paid: !free }), res = R.res, tr = R.trace, x = R.won / betEff, set = M.settle(S.frac, R.won); S.frac = set.frac;
@@ -458,6 +471,7 @@ export function renderSlotsPage() {
     }
     if (t.closest('#sl-frame') && busy && !t.closest('#sl-over')) { skip = true; anims.forEach(a => { try { a.finish(); } catch { /* уже закончена */ } }); }
     if (!btn) return;
+if (id === 'sl-spin' && leverDragged) { leverDragged = false; return; }
     if (btn.dataset.closeDialog !== undefined && dlg.open) dlg.close();
     if (id === 'sl-spin') { audio.click(); guard(doSpin('paid')); } else if (id === 'sl-free') { audio.click(); guard(doSpin('free')); }
     else if (id === 'sl-bet-dn') { audio.click(); setBet(M.BETS[Math.max(0, M.BETS.indexOf(bet) - 1)]); } else if (id === 'sl-bet-up') { audio.click(); setBet(M.BETS[Math.min(M.BETS.length - 1, M.BETS.indexOf(bet) + 1)]); }
@@ -479,6 +493,10 @@ export function renderSlotsPage() {
     if (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(document.activeElement?.tagName) || document.activeElement?.isContentEditable) return;
     e.preventDefault(); if (e.repeat) return; if (!busy) guard(doSpin('paid'));
   };
+    let leverY = null, leverDragged = false;
+    content.addEventListener('pointerdown', e => { const l = e.target.closest('#sl-spin'); if (l && !l.disabled) { leverY = e.clientY; leverDragged = false; try { l.setPointerCapture(e.pointerId); } catch { /* не страшно */ } } });
+    content.addEventListener('pointermove', e => { if (leverY === null) return; const dy = Math.max(0, Math.min(70, e.clientY - leverY)); if (dy > 8) leverDragged = true; $('#sl-spin').style.setProperty('--pull', dy / 70); });
+    content.addEventListener('pointerup', e => { if (leverY === null) return; const dy = e.clientY - leverY; leverY = null; $('#sl-spin').style.removeProperty('--pull'); if (dy > 40) { audio.click(); guard(doSpin('paid')); } });
   window.addEventListener('keydown', onKey);
   breakTimer = setInterval(() => { if (dead) return; if (S.breakUntil && !onBreak()) { S.breakUntil = 0; save(); } if (S.breakUntil) hud(); }, 1000);
 

@@ -135,3 +135,37 @@
   .sl-banner.show{opacity:1;transform:translate(-50%,-50%)}.sl-toast{animation-duration:.01ms!important;opacity:1}
 }
 @media print{.slots-page{display:none}}
+
+/* ---------- пульт слева, рычаг справа ---------- */
+@property --pull{syntax:'<number>';inherits:true;initial-value:0}
+.sl-cab{display:grid;grid-template-columns:150px minmax(0,1fr) 76px;gap:14px;align-items:stretch}
+.sl-mid{min-width:0}
+.sl-controls.sl-side{flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:8px;margin-top:0}
+.sl-side .btn2,.sl-side select{width:100%;min-height:42px}
+.sl-side .sl-bet{display:grid;grid-template-columns:42px 1fr 42px;gap:6px;align-items:center}
+.sl-side .sl-bet .btn2{min-width:0;padding:0}
+.sl-side .sl-bet #sl-bet-max{grid-column:1/-1}
+.sl-side .sl-tools{display:flex;flex-direction:column;gap:8px}
+.sl-side .sl-autoopts label{display:flex;margin:6px 0;text-align:left}
+
+.sl-leverbox{display:flex;justify-content:center}
+.sl-lever{--pull:0;position:relative;width:64px;min-height:240px;height:100%;padding:0;border:0;background:transparent;color:#fff;cursor:grab;touch-action:none}
+.sl-lever:active{cursor:grabbing}
+.sl-lever:disabled{opacity:.5;cursor:not-allowed}
+.sl-lever:focus-visible{outline:3px solid #ffd84a;outline-offset:4px;border-radius:12px}
+.sl-lever-slot{position:absolute;left:50%;top:14%;bottom:16%;width:14px;margin-left:-7px;border-radius:7px;background:rgba(0,0,0,.45);box-shadow:inset 0 2px 6px rgba(0,0,0,.6)}
+.sl-lever-arm{position:absolute;left:50%;bottom:16%;width:8px;height:48%;margin-left:-4px;border-radius:4px;background:linear-gradient(90deg,#8892a6,#eef1f7,#8892a6);transform-origin:50% 100%;transform:scaleY(calc(1 - var(--pull) * .7))}
+.sl-lever-knob{position:absolute;left:50%;top:calc(36% - 20px + var(--pull) * 33.6%);width:40px;height:40px;margin-left:-20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff9aa8,#d2243a 60%,#7a0f1e);box-shadow:0 6px 12px rgba(0,0,0,.45),inset 0 -3px 6px rgba(0,0,0,.3)}
+.sl-lever-label{position:absolute;left:-6px;right:-6px;bottom:0;text-align:center;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.sl-lever.is-pulled{animation:sl-pull .7s ease}
+@keyframes sl-pull{0%{--pull:0}35%{--pull:1}100%{--pull:0}}
+
+@media(max-width:760px){
+  .sl-cab{grid-template-columns:minmax(0,1fr) 60px;grid-template-areas:"mid lever" "side side"}
+  .sl-mid{grid-area:mid}.sl-leverbox{grid-area:lever}
+  .sl-controls.sl-side{grid-area:side;display:grid;grid-template-columns:repeat(2,1fr)}
+  .sl-side .sl-bet,.sl-side .sl-autoopts,.sl-side #sl-free,.sl-side #sl-stop{grid-column:1/-1}
+  .sl-side .sl-tools{display:contents}
+  .sl-lever{width:52px;min-height:180px}
+}
+@media(prefers-reduced-motion:reduce){.sl-lever.is-pulled{animation:none}}
