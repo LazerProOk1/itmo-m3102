@@ -19,11 +19,11 @@ export const PAY = {
   orange: [4, 14, 55], cpp: [4, 14, 55], rust: [6, 20, 80], pi: [6, 20, 80],
   hog: [12, 45, 220], king: [30, 150, 800],
 };
-export const LINE_SCALE = 3; // калибровка линейных выплат (см. tools/slots-tune.mjs)
+export const LINE_SCALE = 0.8; // калибровка линейных выплат (см. tools/slots-tune.mjs)
 export const COLUMN_SCALE = 1; // выплата за 3 одинаковых символа в одном барабане = PAY[символ][0] × COLUMN_SCALE (по вертикали)
 export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
 export const FS_SPINS = { 3: 8, 4: 12, 5: 20 }, FS_RETRIGGER = 5, FS_CAP = 10;
-export const WARM_SCALE = 1.035; // компенсация: тёплые ленты выигрывают чаще, но RTP остаётся таким же
+export const WARM_SCALE = 1.098; // компенсация: тёплые ленты выигрывают чаще, но RTP остаётся таким же
 export const JP_COEF = 0.008; // шанс розыгрыша джекпота при 3 расширенных Wild = min(1, JP_COEF × ставка)
 
 /* ---------- ГСЧ ---------- */
@@ -81,24 +81,38 @@ export function evaluate(raw, mult0 = 1, scale = 1) {
   const grid = raw.map(r => r.slice()), expanded = [];
   for (let i = 1; i <= 3; i++) if (raw[i].includes('wild')) { expanded.push(i); grid[i] = raw[i].map(s => (isLine(s) ? 'wild' : s)); }
   const lines = []; let units = 0;
-  for (let li = 0; li < LINES.length; li++) {
-    const L = LINES[li]; let target = '', n = 0;
-    for (let i = 0; i < REELS; i++) {
-      const s = grid[i][L[i]];
-      if (!isLine(s)) break;
-      if (s === 'wild') { n++; continue; }
-      if (!target) target = s; else if (s !== target) break;
+  // Серия одинаковых символов (Wild заменяют) на соседних барабанах вдоль линии считается с ЛЮБОГО барабана,
+  // а не только с первого. Каждая серия платит один раз: её считают от самого левого барабана,
+  // откуда она продолжается (левее нет такого же символа или Wild).
+  const runFrom = (cells, s) => {
+    let target = '', n = 0;
+    for (let i = s; i < cells.length; i++) {
+      const sym = cells[i];
+      if (!isLine(sym)) break;
+      if (sym === 'wild') { n++; continue; }
+      if (!target) target = sym; else if (sym !== target) break;
       n++;
     }
-    if (!target) continue; // чистые Wild без символа не платят — их на лентах не бывает
-    if (n >= 3) { const pay = PAY[target][n - 3] * LINE_SCALE * scale; units += pay; lines.push({ line: li, sym: target, count: n, pay: pay / 20 }); }
+    return { target, n };
+  };
+  for (let li = 0; li < LINES.length; li++) {
+    const L = LINES[li], cells = L.map((row, i) => grid[i][row]);
+    for (let s = 0; s <= REELS - 3; s++) {
+      const { target, n } = runFrom(cells, s);
+      if (!target || n < 3) continue;
+      const left = s > 0 ? cells[s - 1] : null;
+      if (left && isLine(left) && (left === 'wild' || left === target)) continue; // это часть более длинной серии, начатой левее
+      const pay = PAY[target][n - 3] * LINE_SCALE * scale; units += pay;
+      lines.push({ line: li, start: s, sym: target, count: n, pay: pay / 20, cells: L.slice(s, s + n).map((row, k) => [s + k, row]) });
+    }
   }
   // Вертикаль: три одинаковых символа в одном барабане (Wild заменяют; барабан только из Wild не платит)
   for (let r = 0; r < REELS; r++) {
     const col = grid[r]; let target = '', ok = col.every(isLine);
     for (const s of col) { if (!ok) break; if (s === 'wild') continue; if (!target) target = s; else if (s !== target) ok = false; }
-    if (ok && target) { const pay = PAY[target][0] * COLUMN_SCALE * LINE_SCALE * scale; units += pay; lines.push({ line: -1, col: r, sym: target, count: 3, pay: pay / 20 }); }
+    if (ok && target) { const pay = PAY[target][0] * COLUMN_SCALE * LINE_SCALE * scale; units += pay; lines.push({ line: -1, col: r, sym: target, count: 3, pay: pay / 20, cells: [0, 1, 2].map(row => [r, row]) }); }
   }
+  lines.sort((x, y) => y.pay - x.pay);
   let scatter = 0; const bonusReels = [];
   for (let i = 0; i < REELS; i++) { for (const s of raw[i]) if (s === 'scatter') scatter++; if (raw[i].includes('bonus')) bonusReels.push(i); }
   const scatterPay = SCATTER_PAY[Math.min(scatter, 5)] || 0, mult = mult0 + expanded.length;

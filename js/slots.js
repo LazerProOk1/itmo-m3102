@@ -291,7 +291,7 @@ export function renderSlotsPage() {
     res.expanded.forEach(i => { setReel(i, res.grid[i]); reelEls[i].classList.add('is-expand'); });
     await wait(560); res.expanded.forEach(i => reelEls[i].classList.remove('is-expand'));
   }
-  const lineCells = l => (l.col !== undefined ? [0, 1, 2].map(row => [l.col, row]) : M.LINES[l.line].slice(0, l.count).map((row, i) => [i, row]));
+  const lineCells = l => l.cells || (l.col !== undefined ? [0, 1, 2].map(row => [l.col, row]) : M.LINES[l.line].slice(0, l.count).map((row, i) => [i, row]));
   async function showLines(res, quick) {
     const svg = $('#sl-lines'); clearWin(); const cols = ['#ffd84a', '#7cf0ff', '#ff7fae', '#9bff8a', '#c9a0ff'];
     if (res.scatter >= 3) res.raw.forEach((c, r) => c.forEach((s, row) => { if (s === 'scatter') cellsOf(r, [row])[0]?.classList.add('is-scatter'); }));
@@ -462,12 +462,12 @@ export function renderSlotsPage() {
   /* ---------- диалоги ---------- */
   function openPay() {
     const pm = (s, n) => M.payMult(s, n).toLocaleString('ru-RU', { maximumFractionDigits: 2 }), rows = ['king', 'hog', 'rust', 'pi', 'orange', 'cpp', 'mush', 'git', 'apple', 'berry'];
-    dlg.innerHTML = `<div class="dialog-head"><h2>Таблица выплат</h2><button type="button" data-close-dialog aria-label="Закрыть">×</button></div><p class="dialog-hint">Выплаты — в долях общей ставки за каждую выигрышную линию (слева направо, с 1-го барабана). 20 линий.</p>
+    dlg.innerHTML = `<div class="dialog-head"><h2>Таблица выплат</h2><button type="button" data-close-dialog aria-label="Закрыть">×</button></div><p class="dialog-hint">Выплаты — в долях общей ставки за каждую выигрышную линию. Три и более одинаковых символа подряд на соседних барабанах платят с любого барабана, не только с первого; Wild заменяют. 20 линий.</p>
       <div class="sl-pay"><div class="sl-payrow sl-payhead"><span></span><span></span><b>3</b><b>4</b><b>5</b></div>${rows.map(s => `<div class="sl-payrow">${sym(s, 44)}<span>${LABELS[s]}</span><b>×${pm(s, 3)}</b><b>×${pm(s, 4)}</b><b>×${pm(s, 5)}</b></div>`).join('')}</div>
       <h3>Особые символы</h3><ul class="sl-rules"><li>${sym('wild', 30)} <b>Wild</b> — на барабанах 2–4, заменяет всё, кроме Scatter и Bonus. Расширяется на весь барабан и добавляет +1 к множителю спина.</li>
       <li>${sym('scatter', 30)} <b>Scatter</b> — 3, 4 или 5 где угодно платят ×2, ×10, ×50 ставки и запускают 8, 12 или 20 фриспинов. Во фриспинах множитель растёт после каждого выигрыша, а 3 Scatter добавляют +5 вращений.</li>
       <li>${sym('bonus', 30)} <b>Bonus</b> — корзины на барабанах 1, 3 и 5 разом открывают «Ягодную поляну».</li>
-      <li><b>Вертикаль</b> — три одинаковых символа в одном барабане тоже платят как три в линии (Wild заменяют).</li>
+      <li><b>Вертикаль и диагонали</b> — три одинаковых символа в одном барабане платят как три в линии; диагонали, V-образные и зигзагообразные серии тоже считаются, с любого барабана.</li>
       <li>🔥 <b>Жар</b> — после серии неудач следующий спин «тёплый»: выигрыши чаще.</li>
       <li>💰 <b>Джекпот</b> — три расширенных Wild дают шанс сорвать копилку; чем выше ставка, тем он больше. Копилка хранится на этом устройстве.</li>
       <li>🃏 <b>Удвоить или ничего</b> — после небольшого выигрыша можно до 3 раз угадать цвет карты: честные пополам.</li><li>Максимальный выигрыш за раунд — 5000× ставки.</li></ul>`;
