@@ -19,12 +19,13 @@ export const PAY = {
   orange: [4, 14, 55], cpp: [4, 14, 55], rust: [6, 20, 80], pi: [6, 20, 80],
   hog: [12, 45, 220], king: [30, 150, 800],
 };
-export const LINE_SCALE = 1; // калибровка линейных выплат (см. tools/slots-tune.mjs)
+export const LINE_SCALE = 1.0344; // калибровка линейных выплат (см. tools/slots-tune.mjs)
 export const COLUMN_SCALE = 1; // выплата за 3 одинаковых символа в одном барабане = PAY[символ][0] × COLUMN_SCALE (по вертикали)
 export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
 export const FS_SPINS = { 3: 8, 4: 12, 5: 20 }, FS_RETRIGGER = 5, FS_CAP = 10;
-export const WARM_SCALE = 1.098; // компенсация: тёплые ленты выигрывают чаще, но RTP остаётся таким же
+export const WARM_SCALE = 1.2; // компенсация: тёплые ленты выигрывают чаще, но RTP остаётся таким же
 export const JP_COEF = 0.008; // шанс розыгрыша джекпота при 3 расширенных Wild = min(1, JP_COEF × ставка)
+export const LOSS_X = 0.5; // выигрыш ≤ LOSS_X × ставки считается проигрышем (жар, множитель фриспинов, уровень празднования)
 
 /* ---------- ГСЧ ---------- */
 export function mulberry32(a) {
@@ -132,7 +133,7 @@ export function fsStep(rng, fs) {
   fs.total += win; fs.played++; fs.left--;
   if (res.scatter >= 3) { fs.left += FS_RETRIGGER; fs.retriggers++; }
   const startMult = fs.mult;
-  if (res.win > 0) fs.mult = Math.min(fs.cap, fs.mult + 1);
+  if (res.win > LOSS_X) fs.mult = Math.min(fs.cap, fs.mult + 1);
   return { res, win, startMult, mult: fs.mult, done: fs.left <= 0 };
 }
 
@@ -179,7 +180,7 @@ export function baseSpin(rng, S, bet, { paid = true } = {}) {
   const { stops, raw } = spinGrid(rng, warm ? 'warm' : 'cold'), res = evaluate(raw, 1, warm ? WARM_SCALE : 1);
   res.stops = stops; res.warm = warm; res.jackpot = 0;
   if (res.jackpotRoll && jackpotHit(rng, bet)) { res.jackpot = S.pool; S.pool = SEED_POOL; }
-  if (paid) S.heat = warm ? 0 : (res.win > 0 ? 0 : S.heat + 1);
+  if (paid) S.heat = warm ? 0 : (res.win > LOSS_X ? 0 : S.heat + 1);
   return res;
 }
 // Полный раунд: база + фриспины + поляна + джекпот. Возвращает выигрыш в ягодах и трассу для анимации
@@ -299,7 +300,7 @@ export const checkShared = save => (!save.bsig ? 'legacy' : save.bsig === signSh
 
 /* ---------- мелочи для интерфейса ---------- */
 export const payMult = (sym, n) => (PAY[sym][n - 3] * LINE_SCALE) / 20; // для таблицы выплат: доля общей ставки за линию
-export const winTier = x => (x >= 100 ? 'epic' : x >= 40 ? 'mega' : x >= 15 ? 'big' : x >= 5 ? 'good' : x > 0 ? 'small' : 'none');
+export const winTier = x => (x >= 100 ? 'epic' : x >= 40 ? 'mega' : x >= 15 ? 'big' : x >= 5 ? 'good' : x > LOSS_X ? 'small' : 'none');
 // плашка на старте игры «Ёжик»: сколько бесплатных спинов ждёт
 export function slotsChipText(save, rawSlots, now = new Date()) {
   let S = null; try { S = rawSlots ? JSON.parse(rawSlots) : null; } catch { S = null; }
