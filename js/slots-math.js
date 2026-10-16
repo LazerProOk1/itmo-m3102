@@ -19,7 +19,7 @@ export const PAY = {
   orange: [4, 14, 55], cpp: [4, 14, 55], rust: [6, 20, 80], pi: [6, 20, 80],
   hog: [12, 45, 220], king: [30, 150, 800],
 };
-export const LINE_SCALE = 0.8; // калибровка линейных выплат (см. tools/slots-tune.mjs)
+export const LINE_SCALE = 1; // калибровка линейных выплат (см. tools/slots-tune.mjs)
 export const COLUMN_SCALE = 1; // выплата за 3 одинаковых символа в одном барабане = PAY[символ][0] × COLUMN_SCALE (по вертикали)
 export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
 export const FS_SPINS = { 3: 8, 4: 12, 5: 20 }, FS_RETRIGGER = 5, FS_CAP = 10;
