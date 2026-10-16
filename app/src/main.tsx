@@ -8,6 +8,10 @@ import './styles/global.css';
 import './styles/aurora.css';
 import { App } from './app/App';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { startClassicSync } from './features/settings/classicSync';
+
+// Тема, палитра и скругления общие с классической версией: подхватываем её выбор до первой отрисовки, дальше — в обе стороны
+startClassicSync();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
