@@ -4,7 +4,7 @@
   Допуск по перкам шляп (≤ +0.3% RTP суммарно) проверяется в tests/slots.mjs.
 */
 export const SEED_POOL = 500, POOL_RATE = 0.015, MAX_WIN = 5000, HEAT_MAX = 10, DAILY_BET = 5;
-export const BETS = [1, 2, 3, 4, 5, 10, 25, 50, 100, 250];
+export const BETS = [1, 2, 3, 4, 5, 10, 25, 50, 100, 250, 500, 1000, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000, 10000000, 100000000];
 export const ROWS = 3, REELS = 5;
 export const SYMBOLS = ['berry', 'apple', 'mush', 'git', 'orange', 'cpp', 'rust', 'pi', 'hog', 'king', 'wild', 'scatter', 'bonus'];
 export const LINES = [
