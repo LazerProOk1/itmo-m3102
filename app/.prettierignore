@@ -6,7 +6,4 @@ src/data/siteQuizzes
 src/components/diagrams/arrayCode.js
 src/data/courseInfo
 src/features/slots/slots.js
-src/features/slots/slotsMath.js
-src/features/slots/slotsArt.js
-src/features/slots/slotsAudio.js
 src/features/slots/slots.css

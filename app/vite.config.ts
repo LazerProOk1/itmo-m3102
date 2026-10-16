@@ -8,4 +8,6 @@ export default defineConfig({
   base: './',
   // Список файлов сборки: service worker (public/sw.js) по нему кладёт в кеш весь сайт для офлайна
   build: { manifest: 'asset-manifest.json' },
+  // Читаем файлы группы из корня репозитория (js/slots-math.js, js/greetings.js): dev-серверу нужно разрешить папку выше app/
+  server: { fs: { allow: ['..'] } },
 });
