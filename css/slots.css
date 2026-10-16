@@ -172,3 +172,46 @@
   .sl-lever{width:52px;min-height:180px}
 }
 @media(prefers-reduced-motion:reduce){.sl-lever.is-pulled{animation:none}}
+
+/* slots-upgrade:start */
+/* страница на всю ширину окна */
+.wrap:has(.slots-page){max-width:min(1900px,100%)}
+.slots-page{max-width:none;width:100%}
+.sl-machine{padding:22px}
+.sl-cab{grid-template-columns:230px minmax(0,1fr) 150px;gap:22px}
+/* барабаны: максимум по ширине, но не выше экрана */
+.sl-mid{width:100%;max-width:max(320px,calc((100vh - 170px) * 5 / 3));margin:0 auto}
+
+/* крупные кнопки пульта */
+.sl-controls.sl-side{gap:10px}
+.sl-side .btn2,.sl-side select{min-height:56px;font-size:1.02rem}
+.sl-side .sl-bet{grid-template-columns:58px 1fr 58px}
+.sl-side .sl-bet output{font-size:1.5rem}
+.sl-winbar b{font-size:2rem}
+.sl-gamble .btn2{min-height:52px;font-size:1rem}
+.sl-gbtns{width:100%}.sl-gbtns .btn2{flex:1 1 0}
+
+/* рычаг шире */
+.sl-lever{width:130px;min-height:320px}
+.sl-lever-slot{width:24px;margin-left:-12px;border-radius:12px}
+.sl-lever-arm{width:16px;margin-left:-8px;border-radius:8px}
+.sl-lever-knob{width:76px;height:76px;margin-left:-38px;top:calc(36% - 38px + var(--pull) * 33.6%)}
+.sl-lever-label{font-size:.82rem;left:-10px;right:-10px}
+
+/* чёрное на чёрном */
+.sl-machine .sl-side,.sl-machine .sl-winbar,.sl-machine .sl-heat,.sl-machine .sl-gamble{color:#fff}
+.sl-black{background:#1a1a24!important;color:#fff!important;border-color:rgba(255,255,255,.45)!important}
+.sl-red{background:#c4232f!important;color:#fff!important;border-color:rgba(255,255,255,.45)!important}
+.sl-quip{color:var(--text)!important;background:var(--card)!important}
+.sl-card-black{color:#1a1a24}.sl-card-red{color:#d2485b}
+
+@media(max-width:760px){
+  .sl-machine{padding:10px}
+  .sl-cab{grid-template-columns:minmax(0,1fr) 96px;gap:10px}
+  .sl-mid{max-width:none}
+  .sl-lever{width:96px;min-height:220px}
+  .sl-lever-knob{width:60px;height:60px;margin-left:-30px;top:calc(36% - 30px + var(--pull) * 33.6%)}
+  .sl-lever-slot{width:20px;margin-left:-10px}.sl-lever-arm{width:13px;margin-left:-6.5px}
+  .sl-side .btn2,.sl-side select{min-height:54px}
+}
+/* slots-upgrade:end */

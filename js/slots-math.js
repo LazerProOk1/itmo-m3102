@@ -4,7 +4,7 @@
   Допуск по перкам шляп (≤ +0.3% RTP суммарно) проверяется в tests/slots.mjs.
 */
 export const SEED_POOL = 500, POOL_RATE = 0.015, MAX_WIN = 5000, HEAT_MAX = 10, DAILY_BET = 5;
-export const BETS = [1, 2, 5, 10, 25, 50];
+export const BETS = [1, 2, 3, 4, 5, 10, 25, 50, 100, 250];
 export const ROWS = 3, REELS = 5;
 export const SYMBOLS = ['berry', 'apple', 'mush', 'git', 'orange', 'cpp', 'rust', 'pi', 'hog', 'king', 'wild', 'scatter', 'bonus'];
 export const LINES = [
@@ -19,7 +19,8 @@ export const PAY = {
   orange: [4, 14, 55], cpp: [4, 14, 55], rust: [6, 20, 80], pi: [6, 20, 80],
   hog: [12, 45, 220], king: [30, 150, 800],
 };
-export const LINE_SCALE = 2.27; // калибровка линейных выплат (см. tools/slots-tune.mjs)
+export const LINE_SCALE = 3; // калибровка линейных выплат (см. tools/slots-tune.mjs)
+export const COLUMN_SCALE = 1; // выплата за 3 одинаковых символа в одном барабане = PAY[символ][0] × COLUMN_SCALE (по вертикали)
 export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
 export const FS_SPINS = { 3: 8, 4: 12, 5: 20 }, FS_RETRIGGER = 5, FS_CAP = 10;
 export const WARM_SCALE = 1.035; // компенсация: тёплые ленты выигрывают чаще, но RTP остаётся таким же
@@ -91,6 +92,12 @@ export function evaluate(raw, mult0 = 1, scale = 1) {
     }
     if (!target) continue; // чистые Wild без символа не платят — их на лентах не бывает
     if (n >= 3) { const pay = PAY[target][n - 3] * LINE_SCALE * scale; units += pay; lines.push({ line: li, sym: target, count: n, pay: pay / 20 }); }
+  }
+  // Вертикаль: три одинаковых символа в одном барабане (Wild заменяют; барабан только из Wild не платит)
+  for (let r = 0; r < REELS; r++) {
+    const col = grid[r]; let target = '', ok = col.every(isLine);
+    for (const s of col) { if (!ok) break; if (s === 'wild') continue; if (!target) target = s; else if (s !== target) ok = false; }
+    if (ok && target) { const pay = PAY[target][0] * COLUMN_SCALE * LINE_SCALE * scale; units += pay; lines.push({ line: -1, col: r, sym: target, count: 3, pay: pay / 20 }); }
   }
   let scatter = 0; const bonusReels = [];
   for (let i = 0; i < REELS; i++) { for (const s of raw[i]) if (s === 'scatter') scatter++; if (raw[i].includes('bonus')) bonusReels.push(i); }

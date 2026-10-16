@@ -291,18 +291,19 @@ export function renderSlotsPage() {
     res.expanded.forEach(i => { setReel(i, res.grid[i]); reelEls[i].classList.add('is-expand'); });
     await wait(560); res.expanded.forEach(i => reelEls[i].classList.remove('is-expand'));
   }
+  const lineCells = l => (l.col !== undefined ? [0, 1, 2].map(row => [l.col, row]) : M.LINES[l.line].slice(0, l.count).map((row, i) => [i, row]));
   async function showLines(res, quick) {
     const svg = $('#sl-lines'); clearWin(); const cols = ['#ffd84a', '#7cf0ff', '#ff7fae', '#9bff8a', '#c9a0ff'];
     if (res.scatter >= 3) res.raw.forEach((c, r) => c.forEach((s, row) => { if (s === 'scatter') cellsOf(r, [row])[0]?.classList.add('is-scatter'); }));
     if (res.bonus) [0, 2, 4].forEach(r => res.raw[r].forEach((s, row) => { if (s === 'bonus') cellsOf(r, [row])[0]?.classList.add('is-bonusc'); }));
     for (const [k, l] of res.lines.slice(0, 10).entries()) {
-      const L = M.LINES[l.line], pts = L.slice(0, l.count).map((row, i) => `${i * 100 + 50},${row * 100 + 50}`).join(' ');
+      const cells = lineCells(l), pts = (l.col !== undefined ? [[l.col, 0.1], [l.col, 2.9]] : cells).map(([r, row]) => `${r * 100 + 50},${row * 100 + 50}`).join(' ');
       svg.querySelectorAll('polyline').forEach(p => p.classList.add('old'));
       svg.insertAdjacentHTML('beforeend', `<polyline points="${pts}" fill="none" stroke="${cols[k % 5]}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`);
-      L.slice(0, l.count).forEach((row, i) => { const c = cellsOf(i, [row])[0]; if (c) { c.classList.add('is-win'); if (l.sym === 'hog' || l.sym === 'king') c.classList.add('flip'); } });
+      cells.forEach(([r, row]) => { const c = cellsOf(r, [row])[0]; if (c) { c.classList.add('is-win'); if (l.sym === 'hog' || l.sym === 'king') c.classList.add('flip'); } });
       audio.tick(k); if (!quick) await wait(520); else await wait(180);
     }
-    if (res.lines.length > 10) res.lines.slice(10).forEach(l => M.LINES[l.line].slice(0, l.count).forEach((row, i) => cellsOf(i, [row])[0]?.classList.add('is-win')));
+    if (res.lines.length > 10) res.lines.slice(10).forEach(l => lineCells(l).forEach(([r, row]) => cellsOf(r, [row])[0]?.classList.add('is-win')));
     if (res.scatterPay || res.bonus) await wait(quick ? 150 : 420);
   }
   async function countUp(to, from = 0, ms = 1100) {
@@ -466,6 +467,7 @@ export function renderSlotsPage() {
       <h3>Особые символы</h3><ul class="sl-rules"><li>${sym('wild', 30)} <b>Wild</b> — на барабанах 2–4, заменяет всё, кроме Scatter и Bonus. Расширяется на весь барабан и добавляет +1 к множителю спина.</li>
       <li>${sym('scatter', 30)} <b>Scatter</b> — 3, 4 или 5 где угодно платят ×2, ×10, ×50 ставки и запускают 8, 12 или 20 фриспинов. Во фриспинах множитель растёт после каждого выигрыша, а 3 Scatter добавляют +5 вращений.</li>
       <li>${sym('bonus', 30)} <b>Bonus</b> — корзины на барабанах 1, 3 и 5 разом открывают «Ягодную поляну».</li>
+      <li><b>Вертикаль</b> — три одинаковых символа в одном барабане тоже платят как три в линии (Wild заменяют).</li>
       <li>🔥 <b>Жар</b> — после серии неудач следующий спин «тёплый»: выигрыши чаще.</li>
       <li>💰 <b>Джекпот</b> — три расширенных Wild дают шанс сорвать копилку; чем выше ставка, тем он больше. Копилка хранится на этом устройстве.</li>
       <li>🃏 <b>Удвоить или ничего</b> — после небольшого выигрыша можно до 3 раз угадать цвет карты: честные пополам.</li><li>Максимальный выигрыш за раунд — 5000× ставки.</li></ul>`;
