@@ -13,7 +13,7 @@ React 19, TypeScript (строгий режим), Vite, `react-router` (`HashRou
 | `src/main.tsx` | вход: шрифты, стили, `MotionConfig`, `ErrorBoundary`, регистрация сервис-воркера (только в сборке) |
 | `src/app/` | `App.tsx` (маршруты, `page()` — ленивые страницы и докачка в простое), `navigation.ts` (единый список разделов для обоих меню) |
 | `src/components/` | `layout/` (каркас), `ui/` (базовые элементы), `markdown/`, `diagrams/`, `quiz/`, `hedgehog/`, `radio/` |
-| `src/features/` | разделы: `today`, `schedule`, `calendar`, `materials`, `subjects`, `tasks`, `deadlines`, `homework`, `quizzes`, `notes`, `search`, `settings`, `group`, `diagrams`, `game`, `design`, `help`, `more` |
+| `src/features/` | разделы: `today`, `schedule`, `calendar`, `materials`, `subjects`, `tasks`, `deadlines`, `homework`, `quizzes`, `notes`, `search`, `settings`, `group`, `diagrams`, `game`, `slots`, `design`, `help`, `more` |
 | `src/services/` | `github.ts` (REST, токен), `githubContent.ts` (синхронизация), `syncStore.ts` (статус), `groupSchedule.ts`, `offline.ts`, `googleDrive.ts` |
 | `src/lib/` | утилиты и хуки (даты, хранилище, движение, ics, pdf…) |
 | `src/styles/` | `tokens.css` (токены, темы), `global.css` (база, печать), `aurora.css` (сияние и свечение) |

@@ -46,6 +46,7 @@ const ReviewPage = page(() => import('../features/quizzes/ReviewPage'), 'ReviewP
 const ExamPage = page(() => import('../features/quizzes/ExamPage'), 'ExamPage');
 // Игра тяжёлая (~60 КБ) — грузится, только когда её открыли
 const GamePage = lazy(() => import('../features/game/GamePage'));
+const SlotsPage = lazy(() => import('../features/slots/SlotsPage'));
 
 /**
  * Все страницы приложения. Данные живут в localStorage (backend нет), конспекты, материалы
@@ -116,6 +117,7 @@ export function App() {
             <Route path="design" element={<DesignSystemPage />} />
             <Route path="diagrams" element={<DiagramEditorPage />} />
             <Route path="game" element={<GamePage />} />
+            <Route path="slots" element={<SlotsPage />} />
 
             {/* Неизвестный адрес — возвращаем на главную */}
             <Route path="*" element={<Navigate to={SECTIONS.today.path} replace />} />

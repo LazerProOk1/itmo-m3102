@@ -1,7 +1,12 @@
-# Код игры RedstoneLord — как в оригинале, чтобы сравнивать с его index.html при обновлении
+# Код игр RedstoneLord (Ёжик-кувырок, Колючий куш) — как в оригинале, чтобы сравнивать с его index.html при обновлении
 src/features/game/hedgehogGame.js
 src/features/game/hedgehogGame.css
 src/data/siteQuizzes
 # Интерпретатор кода массива RedstoneLord — тоже как в оригинале
 src/components/diagrams/arrayCode.js
 src/data/courseInfo
+src/features/slots/slots.js
+src/features/slots/slotsMath.js
+src/features/slots/slotsArt.js
+src/features/slots/slotsAudio.js
+src/features/slots/slots.css

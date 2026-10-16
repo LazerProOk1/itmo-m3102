@@ -387,3 +387,17 @@
   background: var(--accent-soft-gradient);
   color: var(--color-accent-text);
 }
+
+/* Особенность шляпы (подпись под названием) и значок слотов в плашках — как у остальных подписей игры */
+.hh-hat .hh-perk {
+  font-size: 0.66rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.25;
+  min-height: 2.5em;
+}
+
+/* Ссылка «Слоты» среди кнопок меню игры — без подчёркивания, как кнопка */
+.hh-root a.btn2 {
+  text-decoration: none;
+}

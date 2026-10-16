@@ -4,6 +4,7 @@ import {
   ClipboardList,
   CalendarDays,
   Clock,
+  Dices,
   Ellipsis,
   FolderOpen,
   Gamepad2,
@@ -46,6 +47,7 @@ export const SECTIONS = {
   memes: { label: 'Мемы', path: '/memes', icon: Image },
   diagrams: { label: 'Диаграммы', path: '/diagrams', icon: Shapes },
   game: { label: 'Ёжик-кувырок', path: '/game', icon: Gamepad2 },
+  slots: { label: 'Колючий куш', path: '/slots', icon: Dices },
   settings: { label: 'Настройки', path: '/settings', icon: Settings },
   more: { label: 'Ещё', path: '/more', icon: Ellipsis },
   // Служебная страница со всеми компонентами. В меню её нет — открывается из меню пользователя.
@@ -65,7 +67,7 @@ export const SIDEBAR_PRIMARY: Section[] = [
 ];
 
 /** Боковое меню: «Другое», после разделителя. */
-export const SIDEBAR_SECONDARY: Section[] = [SECTIONS.students, SECTIONS.diagrams, SECTIONS.memes, SECTIONS.game];
+export const SIDEBAR_SECONDARY: Section[] = [SECTIONS.students, SECTIONS.diagrams, SECTIONS.memes, SECTIONS.game, SECTIONS.slots];
 
 /** Нижняя панель на телефоне (плюс кнопка «Ещё»). */
 export const MOBILE_TABS: Section[] = [SECTIONS.today, SECTIONS.schedule, SECTIONS.materials, SECTIONS.deadlines];
@@ -80,6 +82,7 @@ export const MORE_PAGE_SECTIONS: Section[] = [
   SECTIONS.diagrams,
   SECTIONS.memes,
   SECTIONS.game,
+  SECTIONS.slots,
   SECTIONS.settings,
 ];
 
