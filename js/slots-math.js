@@ -25,7 +25,7 @@ export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
 export const FS_SPINS = { 3: 8, 4: 12, 5: 20 }, FS_RETRIGGER = 5, FS_CAP = 10;
 export const WARM_SCALE = 1.2; // компенсация: тёплые ленты выигрывают чаще, но RTP остаётся таким же
 export const JP_COEF = 0.008; // шанс розыгрыша джекпота при 3 расширенных Wild = min(1, JP_COEF × ставка)
-export const LOSS_X = 0.5; // выигрыш ≤ LOSS_X × ставки считается проигрышем (жар, множитель фриспинов, уровень празднования)
+export const LOSS_X = 1; // выигрыш ≤ LOSS_X × ставки считается проигрышем (жар, множитель фриспинов, уровень празднования)
 
 /* ---------- ГСЧ ---------- */
 export function mulberry32(a) {
