@@ -8,6 +8,9 @@
 .sl-poke:hover{transform:rotate(-6deg) scale(1.05)}.sl-poke:active{transform:scale(.92)}
 .sl-quip{position:absolute;right:100%;top:6px;white-space:nowrap;background:var(--card);border:1px solid var(--border);border-radius:calc(10px * var(--rs,1));padding:5px 10px;font-size:.78rem;font-weight:700;opacity:0;pointer-events:none}
 .sl-quip.show{animation:sl-quip 1.4s ease both}
+.sl-quip {
+  color: #fff;
+}
 @keyframes sl-quip{0%{opacity:0;transform:translateX(8px)}15%,70%{opacity:1;transform:none}100%{opacity:0}}
 .sl-note{margin:0 0 12px;padding:11px 15px;border-radius:calc(9px * var(--rs,1));background:color-mix(in srgb,#dc8b36 12%,var(--card));border:1px solid color-mix(in srgb,#dc8b36 30%,var(--border));font-size:.84rem}
 .sl-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
