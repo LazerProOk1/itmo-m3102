@@ -8,10 +8,13 @@ import './styles/global.css';
 import './styles/aurora.css';
 import { App } from './app/App';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { startClassicMarksSync } from './features/settings/classicMarksSync';
 import { startClassicSync } from './features/settings/classicSync';
 
 // Тема, палитра и скругления общие с классической версией: подхватываем её выбор до первой отрисовки, дальше — в обе стороны
 startClassicSync();
+// Выполненные ДЗ и дедлайны из классической версии тоже подхватываются сами (только чтение её ключей)
+startClassicMarksSync();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

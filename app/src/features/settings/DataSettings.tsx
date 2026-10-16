@@ -9,7 +9,6 @@ import { REPOS } from '../../services/githubContent';
 import { useSyncStore } from '../../services/syncStore';
 import { getToken, saveToken } from '../../services/github';
 import { TokenFields, type TokenValue } from '../group/TokenFields';
-import { ClassicImport } from './ClassicImport';
 import { EDITING_ENABLED } from './EditModeContext';
 import { OfflineSettings } from './OfflineSettings';
 import { SettingsRow } from './SettingsRow';
@@ -143,8 +142,6 @@ export function DataSettings() {
       )}
 
       <OfflineSettings />
-
-      <ClassicImport />
 
       {EDITING_ENABLED && (
         <>

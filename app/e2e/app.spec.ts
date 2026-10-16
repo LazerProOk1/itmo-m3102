@@ -69,8 +69,8 @@ test('календарь — месяц расписания: старый ад�
   await expect(page.getByRole('radio', { name: 'День' })).toBeChecked();
 });
 
-test('перенос отметок из классической версии: сначала превью, потом перенос; её ключи не меняются', async ({ page }) => {
-  await page.goto('./#/settings?tab=data');
+test('отметки из классической версии подхватываются сами, её ключи не меняются', async ({ page }) => {
+  await page.goto('./#/today');
   const classic = {
     hw: JSON.stringify({ 'hw-1': '2026-10-08T23:00:52.587Z', 'hw-2': null }),
     plan: JSON.stringify({ tasks: [], done: { 'deadline:dm-hw': true, 'deadline:op-lab1': false } }),
@@ -81,19 +81,17 @@ test('перенос отметок из классической версии: 
   }, classic);
   await page.reload();
 
-  await page.getByRole('button', { name: 'Перенести отметки из классической версии' }).click();
-  await expect(page.getByText('Найдено в классической версии')).toBeVisible();
-  await page.getByRole('button', { name: 'Перенести', exact: true }).click();
-  await expect(page.getByText('Перенесено отметок: 2.')).toBeVisible();
+  // Без кнопок и превью: выполненное в классической уже отмечено здесь
+  await expect
+    .poll(() =>
+      page.evaluate(() => ({
+        homework: JSON.parse(localStorage.getItem('m3102:homework') ?? '{}').state?.done,
+        deadlines: JSON.parse(localStorage.getItem('m3102:group') ?? '{}').state?.deadlinesDone,
+      })),
+    )
+    .toEqual({ homework: { 'hw-1': '2026-10-08T23:00:52.587Z' }, deadlines: { 'dm-hw': true } });
 
-  const stored = await page.evaluate(() => ({
-    hw: localStorage.getItem('m3102-hw-done-v1'),
-    plan: localStorage.getItem('m3102-study-plan-v1'),
-    homework: JSON.parse(localStorage.getItem('m3102:homework') ?? '{}').state?.done,
-    deadlines: JSON.parse(localStorage.getItem('m3102:group') ?? '{}').state?.deadlinesDone,
-  }));
-  expect(stored.homework).toEqual({ 'hw-1': '2026-10-08T23:00:52.587Z' });
-  expect(stored.deadlines).toEqual({ 'dm-hw': true });
+  const stored = await page.evaluate(() => ({ hw: localStorage.getItem('m3102-hw-done-v1'), plan: localStorage.getItem('m3102-study-plan-v1') }));
   expect(stored.hw).toBe(classic.hw);
   expect(stored.plan).toBe(classic.plan);
 });
