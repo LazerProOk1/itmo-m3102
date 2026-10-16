@@ -1,4 +1,6 @@
 import { ArrowRight, Ban, Check } from 'lucide-react';
+import { useState } from 'react';
+import classicPalettes from 'virtual:classic-palettes';
 import { Link } from 'react-router';
 import { SECTIONS } from '../../app/navigation';
 import { buttonClass } from '../../components/ui/Button';
@@ -6,7 +8,8 @@ import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { AccentPicker } from './AccentPicker';
 import { Button } from '../../components/ui/Button';
 import { slotsAlbum } from '../../lib/slotsAlbum';
-import { ACCENTS, SHUFFLE_EVENT, SLOT_PALETTES } from './appearance';
+import { ACCENTS, SHUFFLE_EVENT } from './appearance';
+import { classicPreset, classicToSettings, readClassicAppearance, type AppearanceChange } from './classicAppearance';
 import { useSettingsStore, type DynamicTheme, type RadiusPreference } from './settingsStore';
 import styles from './settings.module.css';
 import { SettingsRow } from './SettingsRow';
@@ -34,13 +37,37 @@ const DYNAMIC_OPTIONS: { value: DynamicTheme; label: string }[] = [
 export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
+  const [classicNote, setClassicNote] = useState('');
   const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
   const album = slotsAlbum();
-  const slotPalettes = SLOT_PALETTES.filter((item) => album[`pal:${item.id}`]);
+  // Палитры классической версии: пять — всегда, остальные открывают капсулы «Колючего куша»
+  const groupPalettes = classicPalettes.palettes.filter((item) => item.base || album[`pal:${item.id}`]);
+  const classicChoice = readClassicAppearance();
+  const applyChange = (change: AppearanceChange) => {
+    if (change.theme) setTheme(change.theme);
+    setAppearance(change.patch);
+    setClassicNote(change.summary.length ? `Готово: ${change.summary.join(', ')}.` : 'Там ничего не выбрано — нечего переносить.');
+  };
   const lockedNote = dynamicTheme === 'off' ? undefined : 'Сейчас цвета ведёт «Динамическая тема» — выключите её ниже, чтобы выбрать свои.';
 
   return (
     <>
+      <SettingsRow
+        label="Классическая версия"
+        description={classicNote || 'Оформление можно взять оттуда или сделать таким же: её палитра, без сияния и свечения.'}
+      >
+        <div className={styles.swatches}>
+          {classicChoice && (
+            <Button variant="secondary" onClick={() => applyChange(classicToSettings(classicChoice, classicPalettes.palettes))}>
+              Взять мои настройки
+            </Button>
+          )}
+          <Button variant="secondary" onClick={() => applyChange(classicPreset(classicPalettes.palettes, classicPalettes.defaultId))}>
+            Оформить как там
+          </Button>
+        </div>
+      </SettingsRow>
+
       <SettingsRow label="Тема" description="«Системная» повторяет оформление вашего устройства.">
         <SegmentedControl label="Тема" options={THEME_OPTIONS} value={theme} onChange={setTheme} />
       </SettingsRow>
@@ -118,14 +145,14 @@ export function AppearanceSettings() {
         </div>
       </SettingsRow>
 
-      {slotPalettes.length > 0 && (
+      {groupPalettes.length > 0 && (
         <SettingsRow
-          label="Палитры из «Колючего куша»"
-          description="Выпали из капсул: сразу пара цветов — акцент и второй акцент."
+          label="Палитры сайта группы"
+          description="Те же пары цветов, что в классической версии: акцент и второй акцент сразу. Золото, неон и аврору открывают капсулы «Колючего куша»."
           lockedNote={lockedNote}
         >
-          <div className={styles.swatches} role="radiogroup" aria-label="Палитры из капсул">
-            {slotPalettes.map((item) => {
+          <div className={styles.swatches} role="radiogroup" aria-label="Палитры сайта группы">
+            {groupPalettes.map((item) => {
               const on = accent === item.a && accent2 === item.b;
               return (
                 <button

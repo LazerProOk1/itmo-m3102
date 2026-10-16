@@ -365,11 +365,16 @@ const AUTO_SYNC_INTERVAL = 10 * 60 * 1000;
 
 /** При открытии приложения — не чаще раза в 10 минут, чтобы перезагрузки не съедали лимит GitHub API */
 export async function autoSyncGithubContent(): Promise<void> {
+  let firstVisit = true;
   try {
-    if (Date.now() - Number(localStorage.getItem(LAST_SYNC_KEY) ?? 0) < AUTO_SYNC_INTERVAL) return;
+    const last = localStorage.getItem(LAST_SYNC_KEY);
+    firstVisit = last === null;
+    if (Date.now() - Number(last ?? 0) < AUTO_SYNC_INTERVAL) return;
   } catch {
     // Хранилище запрещено — метки нет, синхронизируем при каждом открытии
   }
+  // Пока настоящей синхронизации не было — стартуем со снимка при сборке (дедлайны, ДЗ, расписание), а не с пустого экрана
+  if (firstVisit) await import('./snapshotSeed').then((module) => module.seedFromSnapshot()).catch(() => undefined);
   await syncGithubContent();
 }
 
@@ -377,7 +382,7 @@ export async function autoSyncGithubContent(): Promise<void> {
  * Расписание группы заменяет встроенное (m3102-class-*) и прошлую синхронизацию (gh:*).
  * Пары и исключения, добавленные вручную в режиме редактирования, остаются.
  */
-function applyGroupSchedule(schedule: GroupSchedule) {
+export function applyGroupSchedule(schedule: GroupSchedule) {
   const isSynced = (id: string) => id.startsWith('gh:') || id.startsWith('m3102-class-');
   useScheduleStore.setState((state) => {
     const classes = [...schedule.classes, ...state.classes.filter((item) => !isSynced(item.id))];

@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { groupFiles } from './scripts/groupFiles.ts';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), groupFiles()],
   // Относительные пути к файлам сборки: сайт будет работать из любой подпапки,
   // например https://<username>.github.io/itmo-m3102/
   base: './',
   // Список файлов сборки: service worker (public/sw.js) по нему кладёт в кеш весь сайт для офлайна
   build: { manifest: 'asset-manifest.json' },
-  // Читаем файлы группы из корня репозитория (js/slots-math.js, js/greetings.js): dev-серверу нужно разрешить папку выше app/
+  // Читаем файлы группы из корня репозитория (js/slots-math.js, js/greetings.js, палитры, снимок данных): dev-серверу нужно разрешить папку выше app/
   server: { fs: { allow: ['..'] } },
 });
