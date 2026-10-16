@@ -5,7 +5,8 @@ import { buttonClass } from '../../components/ui/Button';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { AccentPicker } from './AccentPicker';
 import { Button } from '../../components/ui/Button';
-import { ACCENTS, SHUFFLE_EVENT } from './appearance';
+import { slotsAlbum } from '../../lib/slotsAlbum';
+import { ACCENTS, SHUFFLE_EVENT, SLOT_PALETTES } from './appearance';
 import { useSettingsStore, type DynamicTheme, type RadiusPreference } from './settingsStore';
 import styles from './settings.module.css';
 import { SettingsRow } from './SettingsRow';
@@ -34,6 +35,8 @@ export function AppearanceSettings() {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
   const { accent, accent2, dynamicTheme, aurora, glow, liveBg, radius, setAppearance } = useSettingsStore();
+  const album = slotsAlbum();
+  const slotPalettes = SLOT_PALETTES.filter((item) => album[`pal:${item.id}`]);
   const lockedNote = dynamicTheme === 'off' ? undefined : 'Сейчас цвета ведёт «Динамическая тема» — выключите её ниже, чтобы выбрать свои.';
 
   return (
@@ -114,6 +117,35 @@ export function AppearanceSettings() {
           ))}
         </div>
       </SettingsRow>
+
+      {slotPalettes.length > 0 && (
+        <SettingsRow
+          label="Палитры из «Колючего куша»"
+          description="Выпали из капсул: сразу пара цветов — акцент и второй акцент."
+          lockedNote={lockedNote}
+        >
+          <div className={styles.swatches} role="radiogroup" aria-label="Палитры из капсул">
+            {slotPalettes.map((item) => {
+              const on = accent === item.a && accent2 === item.b;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  aria-label={item.name}
+                  title={item.name}
+                  className={styles.swatch}
+                  style={{ '--swatch': `linear-gradient(135deg, ${item.a}, ${item.b})` } as React.CSSProperties}
+                  onClick={() => setAppearance({ accent: item.a, accent2: item.b })}
+                >
+                  {on && <Check size={14} strokeWidth={3} aria-hidden />}
+                </button>
+              );
+            })}
+          </div>
+        </SettingsRow>
+      )}
 
       <SettingsRow
         label="Динамическая тема"

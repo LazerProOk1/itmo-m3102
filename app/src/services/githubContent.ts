@@ -8,7 +8,7 @@ import { parseHomework, useHomeworkStore } from '../features/homework/homeworkSt
 import { githubError, githubFetch } from './github';
 import { parseGroupSchedule, type GroupSchedule } from './groupSchedule';
 import { quizPageToMarkdown } from '../components/quiz/parseQuiz';
-import { parseGreetings, saveGreetings } from '../data/greetings';
+import { parseGreetingPacks, parseGreetings, saveGreetings } from '../data/greetings';
 import { useScheduleStore } from '../features/schedule/scheduleStore';
 import { useSemesterSettingsStore } from '../features/settings/semesterSettingsStore';
 import { storageKey } from '../lib/storage';
@@ -414,7 +414,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
           .catch(() => null),
         // Заголовки главной группа правит в js/greetings.js: подтягиваем их, нет файла — остаются прежние
         fetchText(rawUrl('group', 'js/greetings.js'))
-          .then(parseGreetings)
+          .then((text) => ({ lines: parseGreetings(text), packs: parseGreetingPacks(text) }))
           .catch(() => null),
       ]);
       return { files, notes, deadlines, homework, links, schedule, greetings, materials: buildMaterials(paths, materialsBefore, now) };
@@ -443,7 +443,7 @@ export async function syncGithubContent(): Promise<SyncSummary> {
       summary.schedule = schedule.classes.length;
     }
     useHomeworkStore.getState().setRemote(homework);
-    if (greetings) saveGreetings(greetings);
+    if (greetings?.lines) saveGreetings(greetings.lines, greetings.packs);
     // Раньше дедлайны группы складывались в задачи (id "gh:deadline:…") — теперь у них своя страница
     useTasksStore.setState((state) => ({ tasks: state.tasks.filter((task) => !task.id.startsWith('gh:')) }));
     Object.assign(summary, { materials: materials.length, deadlines: deadlines.length, homework: homework.length, links: links.length });

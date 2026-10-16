@@ -14,6 +14,13 @@ export const ACCENTS = [
   { id: 'rose', name: 'Роза', color: '#ec4899' },
 ] as const;
 
+/** Палитры из капсул «Колючего куша» (в альбоме — pal:<id>): пара акцентов, видны, когда выпали */
+export const SLOT_PALETTES = [
+  { id: 'gold', name: 'Золото', a: '#c28a12', b: '#f0c95a' },
+  { id: 'neon', name: 'Неон', a: '#d61fd6', b: '#19d3ff' },
+  { id: 'aurora', name: 'Аврора', a: '#2fb39a', b: '#8a74f2' },
+] as const;
+
 /** Свой цвет из пипетки — OKLCH с постоянной яркостью: любой оттенок одинаково читается, не «кислотный» */
 export const CUSTOM_LIGHTNESS = 0.66;
 export const customAccent = (hue: number, chroma: number) => `oklch(${CUSTOM_LIGHTNESS} ${chroma.toFixed(3)} ${Math.round(hue)})`;
